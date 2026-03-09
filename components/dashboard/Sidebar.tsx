@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { type Profile, Role } from '@prisma/client'
+import type { Profile } from '@prisma/client'
 import {
   LayoutDashboard,
   FileText,
@@ -22,7 +22,7 @@ interface NavItem {
   label: string
   href: string
   icon: React.ElementType
-  roles: Role[]
+  roles: string[]
 }
 
 const navItems: NavItem[] = [
@@ -30,49 +30,49 @@ const navItems: NavItem[] = [
     label: 'Overview',
     href: '/dashboard',
     icon: LayoutDashboard,
-    roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH],
+    roles: ['WHOLESALER', 'BUYER', 'BOTH'],
   },
   {
     label: 'My Deals',
     href: '/dashboard/deals',
     icon: FileText,
-    roles: [Role.WHOLESALER, Role.BOTH],
+    roles: ['WHOLESALER', 'BOTH'],
   },
   {
     label: 'Submit Deal',
     href: '/dashboard/deals/new',
     icon: Plus,
-    roles: [Role.WHOLESALER, Role.BOTH],
+    roles: ['WHOLESALER', 'BOTH'],
   },
   {
     label: 'Buyer CRM',
     href: '/dashboard/buyers',
     icon: Users,
-    roles: [Role.WHOLESALER, Role.BOTH],
+    roles: ['WHOLESALER', 'BOTH'],
   },
   {
     label: 'Buy Box',
     href: '/dashboard/buyerbox',
     icon: Crosshair,
-    roles: [Role.BUYER, Role.BOTH],
+    roles: ['BUYER', 'BOTH'],
   },
   {
     label: 'Deal Feed',
     href: '/dashboard/feed',
     icon: Rss,
-    roles: [Role.BUYER, Role.BOTH],
+    roles: ['BUYER', 'BOTH'],
   },
   {
     label: 'Activity',
     href: '/dashboard/activity',
     icon: Activity,
-    roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH],
+    roles: ['WHOLESALER', 'BUYER', 'BOTH'],
   },
   {
     label: 'Settings',
     href: '/dashboard/settings',
     icon: Settings,
-    roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH],
+    roles: ['WHOLESALER', 'BUYER', 'BOTH'],
   },
 ]
 
@@ -94,8 +94,8 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       : profile.email
 
   const roleLabel =
-    profile.role === Role.WHOLESALER ? 'Wholesaler' :
-    profile.role === Role.BUYER ? 'Buyer' :
+    profile.role === 'WHOLESALER' ? 'Wholesaler' :
+    profile.role === 'BUYER' ? 'Buyer' :
     'Wholesaler + Buyer'
 
   async function handleSignOut() {
