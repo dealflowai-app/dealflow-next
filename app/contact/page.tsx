@@ -7,7 +7,7 @@ import Footer from '@/components/Footer'
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
-   
+    
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSubmitted(true)
