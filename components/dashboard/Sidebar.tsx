@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import type { Profile } from '@prisma/client'
+
 import {
   LayoutDashboard,
   FileText,
@@ -23,6 +23,18 @@ interface NavItem {
   href: string
   icon: React.ElementType
   roles: string[]
+}
+
+export interface Profile {
+  id: string
+  userId: string
+  email: string
+  firstName: string | null
+  lastName: string | null
+  phone: string | null
+  role: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 const navItems: NavItem[] = [
