@@ -111,6 +111,7 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div
+        className="footer-bottom"
         style={{
           borderTop: '1px solid var(--gray-100)',
           padding: '18px 40px',
@@ -151,6 +152,7 @@ export default function Footer() {
             grid-template-columns: 1fr 1fr !important;
             padding: 40px 20px 32px !important;
           }
+          .footer-bottom { padding: 18px 20px !important; }
         }
         @media (max-width: 520px) {
           .footer-grid {

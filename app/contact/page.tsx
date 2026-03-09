@@ -18,6 +18,7 @@ export default function ContactPage() {
       <Nav isAbout />
       <main style={{ paddingTop: 62 }}>
         <div
+          className="contact-content"
           style={{
             maxWidth: 680,
             margin: '0 auto',
@@ -197,6 +198,9 @@ export default function ContactPage() {
       <Footer />
 
       <style>{`
+        @media (max-width: 860px) {
+          .contact-content { padding-left: 20px !important; padding-right: 20px !important; }
+        }
         @media (max-width: 520px) {
           .contact-name-row { grid-template-columns: 1fr !important; }
         }

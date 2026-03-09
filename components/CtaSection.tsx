@@ -63,6 +63,7 @@ export default function CtaSection() {
           <>
             <form
               onSubmit={handleSubmit}
+              className="cta-form-row"
               style={{
                 display: 'flex',
                 gap: 10,
@@ -83,7 +84,8 @@ export default function CtaSection() {
                   fontFamily: 'inherit',
                   fontSize: '0.92rem',
                   outline: 'none',
-                  minWidth: 250,
+                  minWidth: 220,
+                  flex: 1,
                   boxShadow: 'var(--shadow-sm)',
                   transition: 'all 0.15s',
                 }}
@@ -195,6 +197,12 @@ export default function CtaSection() {
       <style>{`
         @media (max-width: 860px) {
           #cta { padding: 64px 20px !important; }
+        }
+        @media (max-width: 560px) {
+          .cta-form-row { flex-direction: column; align-items: stretch; }
+          .cta-form-row input,
+          .cta-form-row select,
+          .cta-form-row button { width: 100% !important; min-width: 0 !important; flex: none !important; }
         }
       `}</style>
     </div>

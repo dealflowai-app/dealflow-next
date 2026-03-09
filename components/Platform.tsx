@@ -12,7 +12,7 @@ const engines = [
   {
     num: '02',
     name: 'Buyer Intelligence',
-    desc: 'A living CRM that discovers, verifies, and scores buyers continuously. Every call and message updates buyer profiles automatically — no manual upkeep.',
+    desc: 'A living CRM that discovers, verifies, and scores buyers continuously. Every call and message updates buyer profiles automatically. Zero manual upkeep.',
     delay: 0.07,
   },
   {
@@ -24,7 +24,7 @@ const engines = [
   {
     num: '04',
     name: 'Smart Deal Matching',
-    desc: 'The core of the platform. Scores every buyer-deal pair on buy box, price fit, strategy, and close probability — then acts on the best matches automatically.',
+    desc: 'The core of the platform. Scores every buyer-deal pair on buy box, price fit, strategy, and close probability, then acts on the best matches automatically.',
     delay: 0.21,
   },
   {
@@ -36,7 +36,7 @@ const engines = [
   {
     num: '06',
     name: 'Transaction Center',
-    desc: 'Handles contracts, e-signatures, the private deal marketplace, and reputation scoring. From first match to signed contract — entirely inside one place.',
+    desc: 'Handles contracts, e-signatures, the private deal marketplace, and reputation scoring. From first match to signed contract, entirely inside one place.',
     delay: 0.35,
   },
 ]
@@ -89,7 +89,7 @@ export default function Platform() {
           Six engines. <span style={{ color: 'var(--blue-600)' }}>One system.</span>
         </h2>
         <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', lineHeight: 1.7, marginTop: 14, maxWidth: 520 }}>
-          Each engine feeds the next. No module works alone — that&apos;s what makes it a platform, not another tool.
+          Each engine feeds the next. No module works alone. That&apos;s what makes it a platform, not another tool.
         </p>
 
         <div

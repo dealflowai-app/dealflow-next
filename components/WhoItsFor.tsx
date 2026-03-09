@@ -34,6 +34,7 @@ export default function WhoItsFor() {
 
         {/* Tabs */}
         <div
+          className="who-tabs"
           style={{
             display: 'flex',
             gap: 4,
@@ -108,6 +109,8 @@ export default function WhoItsFor() {
         @media (max-width: 860px) {
           #who { padding: 64px 20px !important; }
           .who-panel-show { grid-template-columns: 1fr !important; }
+          .who-tabs { width: 100% !important; }
+          .who-tabs button { flex: 1; padding: 8px 12px !important; font-size: 0.8rem !important; }
         }
       `}</style>
     </div>
@@ -161,14 +164,14 @@ function WhoLeftW() {
       </div>
       <p style={{ color: 'var(--gray-500)', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 24 }}>
         Your business lives and dies on finding the right buyer before your contract deadline.
-        Dealflow AI automates the part that kills most wholesalers — the disposition.
+        Dealflow AI automates the part that kills most wholesalers: the disposition.
       </p>
       <CheckList
         items={[
           'AI calls hundreds of buyers simultaneously while you sleep',
           'Only contacts proven cash buyers with verified purchase history',
           'Buyer preferences captured and organized automatically',
-          'Your deal goes to exactly the right people — not a mass blast',
+          'Your deal goes to exactly the right people, not a mass blast',
           'Contracts generated and signed inside the platform',
           'Works for all 5 wholesale models across every US market',
         ]}
@@ -235,7 +238,7 @@ function WhoLeftB() {
         See only deals<br />worth your time.
       </div>
       <p style={{ color: 'var(--gray-500)', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 24 }}>
-        Stop drowning in irrelevant deal flow. Dealflow AI filters everything — only surfacing what
+        Stop drowning in irrelevant deal flow. Dealflow AI filters everything and only surfaces what
         matches your criteria, with AI analysis on every property.
       </p>
       <CheckList
@@ -303,7 +306,7 @@ function WhoVisualB() {
         }}
       >
         <span style={{ color: 'var(--blue-600)', fontWeight: 700 }}>247 deals</span>{' '}
-        filtered out — they didn&apos;t match your buy box.
+        filtered out. They didn&apos;t match your buy box.
       </div>
     </div>
   )

@@ -9,15 +9,15 @@ const steps = [
   },
   {
     name: 'Find verified cash buyers',
-    desc: 'We scan county property records and surface everyone who bought real estate with cash in the last 6–12 months. Proven buyers with real transaction history — not a generic purchased list.',
+    desc: 'We scan county property records and surface everyone who bought real estate with cash in the last 6–12 months. Proven buyers with real transaction history, not a generic purchased list.',
   },
   {
     name: 'AI calls and qualifies them',
-    desc: 'AI voice agents call dozens of buyers simultaneously. Natural conversations that capture buy box, price range, property type, and close speed — all saved automatically, nothing missed.',
+    desc: 'AI voice agents call dozens of buyers simultaneously. Natural conversations that capture buy box, price range, property type, and close speed. All saved automatically, nothing missed.',
   },
   {
     name: 'Smart deal matching',
-    desc: 'Upload a property. The platform finds the exact buyers who match on preference, price, strategy, and close probability. Your deal goes to the right people — not a mass blast to everyone.',
+    desc: 'Upload a property. The platform finds the exact buyers who match on preference, price, strategy, and close probability. Your deal goes to the right people, not a mass blast to everyone.',
   },
   {
     name: 'Contract and close',
@@ -86,7 +86,7 @@ export default function HowItWorks() {
         From market to <span style={{ color: 'var(--blue-600)' }}>closed deal</span> in 5 steps
       </h2>
       <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', lineHeight: 1.7, marginTop: 14, maxWidth: 520 }}>
-        Everything a full disposition team does — running automatically the moment you turn it on.
+        Everything a full disposition team does, running automatically the moment you turn it on.
       </p>
 
       <div
@@ -282,8 +282,8 @@ function VisScreen0() {
             textAlign: 'center',
           }}
         >
-          <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1.05rem', color: 'var(--gray-900)' }}>Dallas, TX</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 2 }}>Market selected</div>
+          <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1.05rem', color: 'var(--gray-900)' }}>Nationwide</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 2 }}>All markets active</div>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 10 }}>
@@ -308,12 +308,12 @@ function VisScreen1() {
   return (
     <div className="vis-screen-active">
       <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 12 }}>
-        Verified cash buyers — Dallas, TX
+        Verified cash buyers · Nationwide
       </div>
       {[
-        { initials: 'JM', bg: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', name: 'James M.', tag: 'SFR · $80K–$150K · Flip · North Dallas', score: 94 },
-        { initials: 'SR', bg: 'linear-gradient(135deg, #0ea5e9, #2563eb)', name: 'Sandra R.', tag: 'Multi-fam · $200K–$400K · Hold · Irving', score: 87 },
-        { initials: 'DK', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)', name: 'David K.', tag: 'SFR · $60K–$120K · Flip · Mesquite', score: 79 },
+        { initials: 'JM', bg: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', name: 'James M.', tag: 'SFR · $80K–$150K · Flip · Atlanta, GA', score: 94 },
+        { initials: 'SR', bg: 'linear-gradient(135deg, #0ea5e9, #2563eb)', name: 'Sandra R.', tag: 'Multi-fam · $200K–$400K · Hold · Tampa, FL', score: 87 },
+        { initials: 'DK', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)', name: 'David K.', tag: 'SFR · $60K–$120K · Flip · Charlotte, NC', score: 79 },
       ].map((buyer, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 9, padding: '11px 13px', marginBottom: 7 }}>
           <div style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.75rem', color: 'white', flexShrink: 0, background: buyer.bg }}>
@@ -339,8 +339,8 @@ function VisScreen2() {
   return (
     <div className="vis-screen-active">
       <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: 13, fontSize: '0.8rem', color: 'var(--gray-500)', lineHeight: 1.75, marginBottom: 11 }}>
-        <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>AI Agent:</span> &ldquo;Hi, this is Alex from Premier Acquisitions. I see you recently closed a cash deal in Mesquite — are you looking for more properties in Dallas?&rdquo;<br /><br />
-        <span style={{ color: 'var(--gray-900)' }}>David K.:</span> &ldquo;Yeah, single family, under $120k, preferably Mesquite or North Dallas...&rdquo;<br /><br />
+        <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>AI Agent:</span> &ldquo;Hi, this is Alex from Premier Acquisitions. I see you recently closed a cash deal in Charlotte. Are you looking for more properties in the Carolinas?&rdquo;<br /><br />
+        <span style={{ color: 'var(--gray-900)' }}>David K.:</span> &ldquo;Yeah, single family, under $120k, Charlotte metro or surrounding areas...&rdquo;<br /><br />
         <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>AI Agent:</span> &ldquo;Got it. Are you looking to flip or hold for rental income?&rdquo;
       </div>
       <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 9, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -363,7 +363,7 @@ function VisScreen3() {
   return (
     <div className="vis-screen-active">
       <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 9, padding: '12px 14px', marginBottom: 14 }}>
-        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--gray-900)' }}>4821 Maple Ave, Dallas TX</div>
+        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--gray-900)' }}>816 Magnolia Way, Charlotte NC</div>
         <div style={{ fontSize: '0.73rem', color: 'var(--gray-500)', marginTop: 2 }}>3/2 SFR · 1,340 sqft · Distressed · Ask $98,500 · ARV $162K</div>
       </div>
       <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 10 }}>
@@ -400,11 +400,11 @@ function VisScreen4() {
       </div>
       <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: 14 }}>
         {[
-          { k: 'Property', v: '4821 Maple Ave, Dallas TX', vColor: undefined },
-          { k: 'Assignment fee', v: '$12,500', vColor: 'var(--blue-600)' },
+          { k: 'Property', v: '816 Magnolia Way, Charlotte NC', vColor: undefined },
+          { k: 'Assignment fee', v: '$16,200', vColor: 'var(--blue-600)' },
           { k: 'Assignee', v: 'James M.', vColor: undefined },
           { k: 'Closing date', v: '14 days from execution', vColor: undefined },
-          { k: 'Template', v: 'Texas TX-04 · Attorney reviewed', vColor: undefined },
+          { k: 'Template', v: 'NC-04 · Attorney reviewed', vColor: undefined },
         ].map((row, i, arr) => (
           <div
             key={i}

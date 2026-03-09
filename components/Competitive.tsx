@@ -7,22 +7,22 @@ const competitors = [
   {
     name: 'InvestorLift',
     does: 'Marketplace where wholesalers post deals',
-    cannot: 'Passive listing only — no AI calls, no buyer verification',
+    cannot: 'Passive listing only. No AI calls, no buyer verification.',
   },
   {
     name: 'REIRail',
     does: 'Dialer and CRM for investors',
-    cannot: 'Manual calling only — no AI agents, no buyer discovery',
+    cannot: 'Manual calling only. No AI agents, no buyer discovery.',
   },
   {
     name: 'BatchLeads',
     does: 'Skip tracing and seller lead data',
-    cannot: 'Focused on finding sellers, not buyers — no marketplace',
+    cannot: 'Focused on finding sellers, not buyers. No marketplace.',
   },
   {
     name: 'DealMachine',
     does: 'Driving for dollars and lead tracking',
-    cannot: 'Acquisition side only — no help with disposition at all',
+    cannot: 'Acquisition side only. No help with disposition at all.',
   },
 ]
 
@@ -57,7 +57,7 @@ export default function Competitive() {
             Every other tool stops halfway
           </h2>
           <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.7 }}>
-            Existing platforms give you data and leave all the actual work to you. Dealflow AI is the first platform that finds buyers, calls them, qualifies them, matches them to your deals, and closes the contract — end to end.
+            Existing platforms give you data and leave all the actual work to you. Dealflow AI is the first platform that finds buyers, calls them, qualifies them, matches them to your deals, and closes the contract from end to end.
           </p>
         </div>
 
@@ -65,7 +65,7 @@ export default function Competitive() {
         <div className="comp-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 32, alignItems: 'start' }}>
 
           {/* Competitor table */}
-          <div style={{ border: '1px solid var(--gray-200)', borderRadius: 14, overflow: 'hidden', background: 'var(--white)' }}>
+          <div className="comp-table-scroll" style={{ border: '1px solid var(--gray-200)', borderRadius: 14, overflow: 'hidden', background: 'var(--white)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: 'var(--gray-50)', borderBottom: '1px solid var(--gray-200)' }}>
@@ -108,7 +108,7 @@ export default function Competitive() {
                 marginBottom: 20,
               }}
             >
-              Replaces all of them — plus does the work none of them will
+              Replaces all of them and does the work none of them will
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
@@ -138,7 +138,9 @@ export default function Competitive() {
           .comp-layout { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 860px) {
-          .comp-layout table { font-size: 0.8rem; }
+          .section { padding: 64px 20px !important; }
+          .comp-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .comp-table-scroll table { min-width: 520px; font-size: 0.8rem; }
         }
       `}</style>
     </div>

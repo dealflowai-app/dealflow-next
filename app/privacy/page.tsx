@@ -31,16 +31,16 @@ Communications: If you contact us by email or other means, we retain those commu
     title: '3. How We Use Your Information',
     body: `We use the information we collect to:
 
-— Operate, maintain, and improve the Dealflow AI platform
-— Match real estate deals with qualified cash buyers based on stated investment criteria
-— Conduct AI-powered outreach calls on behalf of wholesalers to identify and qualify buyers
-— Generate and facilitate assignment contracts and related transaction documents
-— Send you transactional communications, product updates, and early access notifications
-— Verify the identity and purchase history of cash buyers in our network
-— Improve the accuracy of our AI matching and qualification systems using call transcripts and outcomes
-— Comply with legal obligations, including TCPA compliance and state-specific real estate regulations
-— Detect and prevent fraud, abuse, and other harmful activity
-— Respond to your requests and provide customer support`,
+•Operate, maintain, and improve the Dealflow AI platform
+•Match real estate deals with qualified cash buyers based on stated investment criteria
+•Conduct AI-powered outreach calls on behalf of wholesalers to identify and qualify buyers
+•Generate and facilitate assignment contracts and related transaction documents
+•Send you transactional communications, product updates, and early access notifications
+•Verify the identity and purchase history of cash buyers in our network
+•Improve the accuracy of our AI matching and qualification systems using call transcripts and outcomes
+•Comply with legal obligations, including TCPA compliance and state-specific real estate regulations
+•Detect and prevent fraud, abuse, and other harmful activity
+•Respond to your requests and provide customer support`,
   },
   {
     title: '4. AI Voice Calls and TCPA Compliance',
@@ -80,11 +80,11 @@ Despite these measures, no system is completely secure. We cannot guarantee that
     title: '7. Data Retention',
     body: `We retain your personal information for as long as your account is active or as needed to provide services. Specifically:
 
-— Waitlist data is retained until you request deletion or we launch and migrate you to an active account
-— Account data is retained for the duration of your account plus 3 years after closure
-— Call recordings and transcripts are retained for up to 2 years for quality assurance and legal compliance
-— Transaction and contract records may be retained for up to 7 years to comply with financial recordkeeping requirements
-— You may request deletion of your data at any time (see Section 8), subject to our legal retention obligations`,
+•Waitlist data is retained until you request deletion or we launch and migrate you to an active account
+•Account data is retained for the duration of your account plus 3 years after closure
+•Call recordings and transcripts are retained for up to 2 years for quality assurance and legal compliance
+•Transaction and contract records may be retained for up to 7 years to comply with financial recordkeeping requirements
+•You may request deletion of your data at any time (see Section 8), subject to our legal retention obligations`,
   },
   {
     title: '8. Your Rights and Choices',

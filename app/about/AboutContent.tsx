@@ -78,7 +78,7 @@ export default function AboutContent() {
           }}
         >
           Dealflow AI didn&apos;t start with a pitch deck. It started with a missed assignment fee and
-          the frustration of knowing the deal was there — the system just wasn&apos;t.
+          the frustration of knowing the deal was there. The system just wasn&apos;t.
         </p>
       </div>
 
@@ -119,11 +119,11 @@ export default function AboutContent() {
           }}
         >
           I had the contract. I had the property. I just didn&apos;t have a buyer in time. The deal
-          fell through and I lost $14,000 in assignment fees — not because the deal was bad, but
+          fell through and I lost $14,000 in assignment fees. Not because the deal was bad, but
           because finding the right buyer was a full-time job I didn&apos;t have time for.
         </p>
         <p style={{ fontSize: '0.82rem', color: 'var(--gray-400)', fontWeight: 500 }}>
-          — Founder, Dealflow AI
+          Founder, Dealflow AI
         </p>
       </div>
 
@@ -151,7 +151,7 @@ export default function AboutContent() {
           </div>
           <div>
             <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--gray-900)', marginBottom: 16, lineHeight: 1.25 }}>
-              Disposition is broken — and everyone just accepts it
+              Disposition is broken. And everyone just accepts it.
             </h2>
             <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.82, marginBottom: 14 }}>
               The wholesale real estate industry moves at a pace that manual processes can&apos;t keep up
@@ -175,7 +175,7 @@ export default function AboutContent() {
                 lineHeight: 1.7,
               }}
             >
-              The average wholesaler spends over 60% of their time on disposition — the part after
+              The average wholesaler spends over 60% of their time on disposition: the part after
               finding a deal. That&apos;s the problem we&apos;re solving.
             </div>
           </div>
@@ -206,8 +206,7 @@ export default function AboutContent() {
               profiled by what they actually want to buy?
             </p>
             <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.82, marginBottom: 14 }}>
-              We spent months talking to wholesalers across the country. The same story came up every time
-              — too many deals lost not because of bad sourcing, but because of a broken system on the back end.
+              We spent months talking to wholesalers across the country. The same story came up every time: too many deals lost not because of bad sourcing, but because of a broken system on the back end.
             </p>
             <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.82, marginBottom: 0 }}>
               <strong style={{ color: 'var(--gray-700)', fontWeight: 600 }}>So we built the system.</strong>{' '}
@@ -245,7 +244,7 @@ export default function AboutContent() {
                 {
                   num: '02',
                   title: 'Cash buyers deserve better deal flow',
-                  body: "Not mass blasts. Not irrelevant properties. Precision matches that respect their time and match their actual buy box — every single time.",
+                  body: "Not mass blasts. Not irrelevant properties. Precision matches that respect their time and match their actual buy box, every single time.",
                 },
                 {
                   num: '03',
@@ -351,12 +350,12 @@ export default function AboutContent() {
                 </div>
                 <p style={{ fontSize: '0.88rem', color: 'var(--gray-500)', lineHeight: 1.72, marginBottom: 14 }}>
                   Active real estate wholesaler who got tired of the manual grind and started building.
-                  Not a software company that discovered real estate — a real estate operator who learned
+                  Not a software company that discovered real estate. A real estate operator who learned
                   to build software. That distinction matters in every product decision we make.
                 </p>
                 <p style={{ fontSize: '0.88rem', color: 'var(--gray-500)', lineHeight: 1.72, marginBottom: 14 }}>
                   I personally respond to every message. If you&apos;re a wholesaler or a cash buyer and
-                  want to talk before the product launches — reach out. These conversations shape
+                  want to talk before the product launches, reach out. These conversations shape
                   everything we build.
                 </p>
                 <a
@@ -464,7 +463,7 @@ export default function AboutContent() {
             marginBottom: 12,
           }}
         >
-          If any of this resonates — you&apos;re who this is for.
+          If any of this resonates, you&apos;re who this is for.
         </h2>
         <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', marginBottom: 28 }}>
           Join the waitlist. No credit card, no commitment. Just early access and founding member
@@ -492,7 +491,7 @@ export default function AboutContent() {
           Join the waitlist →
         </Link>
         <p style={{ fontSize: '0.76rem', color: 'var(--gray-400)', marginTop: 12 }}>
-          Or email us directly at hello@dealflow.ai — we actually respond.
+          Or email us directly at hello@dealflow.ai. We actually respond.
         </p>
       </div>
 

@@ -20,28 +20,28 @@ interface Pin {
 
 const pins: Pin[] = [
   {
-    top: '44%', left: '20%', type: 'active', label: '$94K',
+    top: '44%', left: '20%', type: 'active', label: '$119K',
     stemColor: 'var(--blue-600)',
     tipStyle: { left: 0, transform: 'translateX(0)' },
     tooltip: {
-      addr: '1847 Oak St, Dallas',
+      addr: '5512 Peachtree Rd, Atlanta GA',
       rows: [
-        { key: 'Ask Price', val: '$94,000' },
-        { key: 'ARV Est.', val: '$158,000' },
+        { key: 'Ask Price', val: '$119,000' },
+        { key: 'ARV Est.', val: '$198,000' },
         { key: 'Type', val: 'SFR · 3/2' },
         { key: 'Status', val: 'Active', valColor: 'var(--blue-600)' },
       ],
     },
   },
   {
-    top: '26%', left: '56%', type: 'hot', label: '🔥 $112K',
+    top: '26%', left: '56%', type: 'hot', label: '🔥 $168K',
     stemColor: 'var(--red)',
     tipStyle: { bottom: 'auto', top: 'calc(100% + 10px)', transform: 'translateX(-40%)' },
     tooltip: {
-      addr: '334 Elm Ave, Dallas',
+      addr: '923 Cedar Lane, Tampa FL',
       rows: [
-        { key: 'Ask Price', val: '$112,000' },
-        { key: 'ARV Est.', val: '$195,000' },
+        { key: 'Ask Price', val: '$168,000' },
+        { key: 'ARV Est.', val: '$265,000' },
         { key: 'Type', val: 'SFR · 4/2' },
         { key: 'Status', val: 'Hot deal', valColor: 'var(--red)' },
       ],
@@ -52,53 +52,53 @@ const pins: Pin[] = [
     stemColor: 'var(--green)',
     tipStyle: { left: 0, transform: 'translateX(0)' },
     tooltip: {
-      addr: '521 Maple Dr, Irving',
+      addr: '816 Magnolia Way, Charlotte NC',
       rows: [
-        { key: 'Sale Price', val: '$87,500' },
-        { key: 'Assign Fee', val: '$11,000', valColor: 'var(--green)' },
-        { key: 'Days closed', val: '9 days' },
+        { key: 'Sale Price', val: '$131,000' },
+        { key: 'Assign Fee', val: '$16,200', valColor: 'var(--green)' },
+        { key: 'Days closed', val: '11 days' },
         { key: 'Status', val: '✓ Closed', valColor: 'var(--green)' },
       ],
     },
   },
   {
-    top: '44%', left: '76%', type: 'active', label: '$78K',
+    top: '44%', left: '76%', type: 'active', label: '$72K',
     stemColor: 'var(--blue-600)',
     tipStyle: { left: 'auto', right: 0, transform: 'translateX(0)' },
     tooltip: {
-      addr: '2203 Park Blvd, Mesquite',
+      addr: '7410 Lakeview Blvd, Indianapolis IN',
       rows: [
-        { key: 'Ask Price', val: '$78,000' },
-        { key: 'ARV Est.', val: '$132,000' },
+        { key: 'Ask Price', val: '$72,000' },
+        { key: 'ARV Est.', val: '$121,000' },
         { key: 'Type', val: 'SFR · 3/1' },
         { key: 'Status', val: 'Active', valColor: 'var(--blue-600)' },
       ],
     },
   },
   {
-    top: '72%', left: '47%', type: 'fresh', label: 'New · $67K',
+    top: '72%', left: '47%', type: 'fresh', label: 'New · $64K',
     stemColor: 'var(--amber)',
     tipStyle: { transform: 'translateX(-40%)' },
     tooltip: {
-      addr: '908 Cedar Ln, Garland',
+      addr: '2091 Elm Street, Kansas City MO',
       rows: [
-        { key: 'Ask Price', val: '$67,000' },
-        { key: 'ARV Est.', val: '$118,000' },
-        { key: 'Type', val: 'SFR · 2/1' },
+        { key: 'Ask Price', val: '$64,000' },
+        { key: 'ARV Est.', val: '$109,000' },
+        { key: 'Type', val: 'SFR · 3/1' },
         { key: 'Status', val: 'Just listed', valColor: 'var(--amber)' },
       ],
     },
   },
   {
-    top: '18%', left: '84%', type: 'active', label: '$143K',
+    top: '18%', left: '84%', type: 'active', label: '$198K',
     stemColor: 'var(--blue-600)',
     tipStyle: { bottom: 'auto', top: 'calc(100% + 10px)', left: 'auto', right: 0, transform: 'translateX(0)' },
     tooltip: {
-      addr: '17 Summit Dr, Plano',
+      addr: '1388 Sunset Blvd, Las Vegas NV',
       rows: [
-        { key: 'Ask Price', val: '$143,000' },
-        { key: 'ARV Est.', val: '$240,000' },
-        { key: 'Type', val: 'Multi-fam · 4U' },
+        { key: 'Ask Price', val: '$198,000' },
+        { key: 'ARV Est.', val: '$319,000' },
+        { key: 'Type', val: 'SFR · 4/3' },
         { key: 'Status', val: 'Active', valColor: 'var(--blue-600)' },
       ],
     },
@@ -106,12 +106,12 @@ const pins: Pin[] = [
 ]
 
 const floatDeals = [
-  { price: '$94,000', addr: '1847 Oak St, Dallas TX', tag: 'Active', tagBg: 'var(--blue-50)', tagColor: 'var(--blue-600)' },
-  { price: '$112,000', addr: '334 Elm Ave, Dallas TX', tag: 'Hot Deal', tagBg: '#fef2f2', tagColor: 'var(--red)' },
-  { price: '$87,500', addr: '521 Maple Dr, Irving TX', tag: 'Sold', tagBg: '#ecfdf5', tagColor: 'var(--green)' },
-  { price: '$78,000', addr: '2203 Park Blvd, Mesquite TX', tag: 'Active', tagBg: 'var(--blue-50)', tagColor: 'var(--blue-600)' },
-  { price: '$67,000', addr: '908 Cedar Ln, Garland TX', tag: 'New Listing', tagBg: '#fffbeb', tagColor: '#92400e' },
-  { price: '$143,000', addr: '17 Summit Dr, Plano TX', tag: 'Active', tagBg: 'var(--blue-50)', tagColor: 'var(--blue-600)' },
+  { price: '$119,000', addr: '5512 Peachtree Rd, Atlanta GA', tag: 'Active', tagBg: 'var(--blue-50)', tagColor: 'var(--blue-600)' },
+  { price: '$168,000', addr: '923 Cedar Lane, Tampa FL', tag: 'Hot Deal', tagBg: '#fef2f2', tagColor: 'var(--red)' },
+  { price: '$131,000', addr: '816 Magnolia Way, Charlotte NC', tag: 'Sold', tagBg: '#ecfdf5', tagColor: 'var(--green)' },
+  { price: '$72,000', addr: '7410 Lakeview Blvd, Indianapolis IN', tag: 'Active', tagBg: 'var(--blue-50)', tagColor: 'var(--blue-600)' },
+  { price: '$64,000', addr: '2091 Elm Street, Kansas City MO', tag: 'New Listing', tagBg: '#fffbeb', tagColor: '#92400e' },
+  { price: '$198,000', addr: '1388 Sunset Blvd, Las Vegas NV', tag: 'Active', tagBg: 'var(--blue-50)', tagColor: 'var(--blue-600)' },
 ]
 
 function getPinLabelBg(type: PinType): React.CSSProperties {
@@ -323,7 +323,7 @@ export default function MapCard() {
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          Live Deal Map — Dallas, TX
+          Live Deal Map · Nationwide
           <span
             style={{
               display: 'flex',
@@ -461,10 +461,10 @@ export default function MapCard() {
           </div>
           <div>
             <div style={{ fontSize: '0.76rem', fontWeight: 600, color: 'white' }}>
-              AI calling active — Dallas market
+              AI calling active · Nationwide
             </div>
             <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.65)' }}>
-              Qualifying buyers for 4821 Maple Ave
+              Qualifying buyers for active listings
             </div>
           </div>
           <div

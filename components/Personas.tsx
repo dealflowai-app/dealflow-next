@@ -12,12 +12,12 @@ const wholesalerSteps = [
   {
     n: '02',
     title: 'Find real cash buyers',
-    body: 'We scan county property records and surface people who have actually purchased real estate with cash in the last 6–12 months. Real buyers with real purchase history — not generic list contacts.',
+    body: 'We scan county property records and surface people who have actually purchased real estate with cash in the last 6–12 months. Real buyers with real purchase history, not generic list contacts.',
   },
   {
     n: '03',
     title: 'Deploy AI buyer calls',
-    body: 'AI voice agents call dozens of buyers simultaneously. They introduce your company, confirm active buying status, ask about price range, property type, and strategy — all without you lifting a finger.',
+    body: 'AI voice agents call dozens of buyers simultaneously. They introduce your company, confirm active buying status, ask about price range, property type, and strategy, all without you lifting a finger.',
   },
   {
     n: '04',
@@ -27,7 +27,7 @@ const wholesalerSteps = [
   {
     n: '05',
     title: 'Smart deal distribution',
-    body: 'Upload a deal under contract. The system analyzes it and sends outreach only to buyers whose criteria match. Precision targeting — not mass blasting.',
+    body: 'Upload a deal under contract. The system analyzes it and sends outreach only to buyers whose criteria match. Precision targeting, not mass blasting.',
   },
   {
     n: '06',
@@ -45,7 +45,7 @@ const buyerSteps = [
   {
     n: '01',
     title: 'Build your buyer profile',
-    body: 'Tell us what you invest in — which cities, what price range, single-family or multifamily, flip or hold. Your profile filters everything you see so you only get relevant deals.',
+    body: 'Tell us what you invest in: which cities, what price range, single-family or multifamily, flip or hold. Your profile filters everything you see so you only get relevant deals.',
   },
   {
     n: '02',
@@ -69,7 +69,7 @@ export default function Personas() {
   const steps = active === 'wholesaler' ? wholesalerSteps : buyerSteps
 
   return (
-    <div style={{ padding: '96px 40px', background: 'var(--white)' }}>
+    <div className="personas-outer" style={{ padding: '96px 40px', background: 'var(--white)' }}>
       <div style={{ maxWidth: 1160, margin: '0 auto' }}>
 
         {/* Header + tab switcher */}
@@ -124,7 +124,7 @@ export default function Personas() {
         {/* Context blurb */}
         <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.7, maxWidth: 600, marginBottom: 48 }}>
           {active === 'wholesaler'
-            ? 'Most wholesalers spend 70% of their week on buyer outreach — calling stale lists, sending mass blasts, and watching deadlines pass. Dealflow AI handles all of it automatically the moment you activate a campaign.'
+            ? 'Most wholesalers spend 70% of their week on buyer outreach: calling stale lists, sending mass blasts, and watching deadlines pass. Dealflow AI handles all of it automatically the moment you activate a campaign.'
             : 'Cash buyers get flooded with irrelevant deals from wholesalers who never asked what they actually want. Dealflow AI filters the entire market to show you only deals that match your exact criteria.'
           }
         </p>
@@ -218,6 +218,7 @@ export default function Personas() {
 
       <style>{`
         @media (max-width: 860px) {
+          .personas-outer { padding: 64px 20px !important; }
           .steps-grid { grid-template-columns: 1fr 1fr !important; }
           .steps-grid > div { border-radius: 8px !important; }
         }

@@ -20,7 +20,7 @@ const wholesalerTiers = [
       '500 AI calls/month',
       'Up to 5 active deals',
       'Buyer database up to 500',
-      'Contract templates — top 5 states',
+      'Contract templates for top 5 states',
       '1 team user',
       'Basic deal map',
       'Standard deal quality protection',
@@ -41,7 +41,7 @@ const wholesalerTiers = [
       '2,000 AI calls/month',
       'Up to 20 active deals',
       'Buyer database up to 5,000',
-      'Contract templates — all 50 states',
+      'Contract templates for all 50 states',
       '3 team users',
       'Full deal map + heat layers',
       'Standard deal quality protection',
@@ -144,7 +144,7 @@ export default function PricingPage() {
       <main style={{ paddingTop: 62, background: 'var(--white)' }}>
 
         {/* Hero */}
-        <div style={{ maxWidth: 760, margin: '0 auto', padding: '72px 40px 16px', textAlign: 'center' }}>
+        <div className="pricing-hero" style={{ maxWidth: 760, margin: '0 auto', padding: '72px 40px 16px', textAlign: 'center' }}>
           <p style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 16 }}>
             Pricing
           </p>
@@ -152,7 +152,7 @@ export default function PricingPage() {
             Simple pricing, serious results
           </h1>
           <p style={{ fontSize: '1rem', color: 'var(--gray-500)', lineHeight: 1.7, maxWidth: 520, margin: '0 auto 16px' }}>
-            Replace PropStream, your dialer, your CRM, and your contract platform — all in one. Founding members lock in their rate forever.
+            Replace PropStream, your dialer, your CRM, and your contract platform. All in one. Founding members lock in their rate forever.
           </p>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 20, padding: '6px 16px', fontSize: '0.8rem', color: '#166534', fontWeight: 500 }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
@@ -161,7 +161,7 @@ export default function PricingPage() {
         </div>
 
         {/* Wholesaler tiers */}
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '56px 40px 0' }}>
+        <div className="pricing-section" style={{ maxWidth: 1160, margin: '0 auto', padding: '56px 40px 0' }}>
           <p style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 24 }}>
             For wholesalers
           </p>
@@ -222,7 +222,7 @@ export default function PricingPage() {
         </div>
 
         {/* Buyer tiers */}
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '56px 40px 0' }}>
+        <div className="pricing-section" style={{ maxWidth: 1160, margin: '0 auto', padding: '56px 40px 0' }}>
           <p style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 24 }}>
             For cash buyers & investors
           </p>
@@ -282,7 +282,7 @@ export default function PricingPage() {
         </div>
 
         {/* Feature comparison table */}
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '72px 40px' }}>
+        <div className="pricing-section pricing-compare" style={{ maxWidth: 1160, margin: '0 auto', padding: '72px 40px' }}>
           <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.4rem', fontWeight: 700, color: 'var(--gray-900)', marginBottom: 32, letterSpacing: '-0.02em' }}>
             Full feature comparison
           </h2>
@@ -311,13 +311,13 @@ export default function PricingPage() {
         </div>
 
         {/* Benchmark callout */}
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '0 40px 80px' }}>
+        <div className="pricing-section pricing-benchmark" style={{ maxWidth: 1160, margin: '0 auto', padding: '0 40px 80px' }}>
           <div style={{ background: 'var(--blue-50)', border: '1px solid var(--blue-100)', borderRadius: 14, padding: '28px 32px', display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <div style={{ fontSize: '1.5rem' }}>💡</div>
             <div>
               <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--gray-900)', marginBottom: 6 }}>How we compare</p>
               <p style={{ fontSize: '0.88rem', color: 'var(--gray-600)', lineHeight: 1.7, maxWidth: 680 }}>
-                PropStream alone charges $99–$399/mo for data only. Add a dialer ($100–$200/mo), a CRM, and a contract platform — you&apos;re spending $400–$700/mo with no automation and no matching. Dealflow AI replaces all of it for less, and actually does the work for you.
+                PropStream alone charges $99–$399/mo for data only. Add a dialer ($100–$200/mo), a CRM, and a contract platform and you&apos;re spending $400–$700/mo with no automation and no matching. Dealflow AI replaces all of it for less, and actually does the work for you.
               </p>
             </div>
           </div>
@@ -328,8 +328,14 @@ export default function PricingPage() {
 
       <style>{`
         @media (max-width: 860px) {
+          .pricing-hero { padding: 56px 20px 16px !important; }
+          .pricing-section { padding-left: 20px !important; padding-right: 20px !important; }
+          .pricing-compare { padding-top: 48px !important; padding-bottom: 48px !important; }
+          .pricing-benchmark { padding-bottom: 60px !important; }
           .pricing-grid { grid-template-columns: 1fr !important; }
           .pricing-buyer-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
+          .pricing-compare table { font-size: 0.82rem; }
+          .pricing-compare td, .pricing-compare th { padding: 10px 14px !important; }
         }
       `}</style>
     </>
