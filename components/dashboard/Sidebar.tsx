@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-
+import { type Profile, Role } from '@prisma/client'
 import {
   LayoutDashboard,
   FileText,
@@ -22,19 +22,7 @@ interface NavItem {
   label: string
   href: string
   icon: React.ElementType
-  roles: string[]
-}
-
-export interface Profile {
-  id: string
-  userId: string
-  email: string
-  firstName: string | null
-  lastName: string | null
-  phone: string | null
-  role: string
-  createdAt: Date
-  updatedAt: Date
+  roles: Role[]
 }
 
 const navItems: NavItem[] = [
@@ -42,49 +30,49 @@ const navItems: NavItem[] = [
     label: 'Overview',
     href: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['WHOLESALER', 'BUYER', 'BOTH'],
+    roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH],
   },
   {
     label: 'My Deals',
     href: '/dashboard/deals',
     icon: FileText,
-    roles: ['WHOLESALER', 'BOTH'],
+    roles: [Role.WHOLESALER, Role.BOTH],
   },
   {
     label: 'Submit Deal',
     href: '/dashboard/deals/new',
     icon: Plus,
-    roles: ['WHOLESALER', 'BOTH'],
+    roles: [Role.WHOLESALER, Role.BOTH],
   },
   {
     label: 'Buyer CRM',
     href: '/dashboard/buyers',
     icon: Users,
-    roles: ['WHOLESALER', 'BOTH'],
+    roles: [Role.WHOLESALER, Role.BOTH],
   },
   {
     label: 'Buy Box',
     href: '/dashboard/buyerbox',
     icon: Crosshair,
-    roles: ['BUYER', 'BOTH'],
+    roles: [Role.BUYER, Role.BOTH],
   },
   {
     label: 'Deal Feed',
     href: '/dashboard/feed',
     icon: Rss,
-    roles: ['BUYER', 'BOTH'],
+    roles: [Role.BUYER, Role.BOTH],
   },
   {
     label: 'Activity',
     href: '/dashboard/activity',
     icon: Activity,
-    roles: ['WHOLESALER', 'BUYER', 'BOTH'],
+    roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH],
   },
   {
     label: 'Settings',
     href: '/dashboard/settings',
     icon: Settings,
-    roles: ['WHOLESALER', 'BUYER', 'BOTH'],
+    roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH],
   },
 ]
 
@@ -106,8 +94,8 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       : profile.email
 
   const roleLabel =
-    profile.role === 'WHOLESALER' ? 'Wholesaler' :
-    profile.role === 'BUYER' ? 'Buyer' :
+    profile.role === Role.WHOLESALER ? 'Wholesaler' :
+    profile.role === Role.BUYER ? 'Buyer' :
     'Wholesaler + Buyer'
 
   async function handleSignOut() {

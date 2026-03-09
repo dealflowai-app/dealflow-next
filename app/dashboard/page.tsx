@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { Role } from '@prisma/client'
 
-  
 const wholesalerActions = [
   {
     href: '/dashboard/deals/new',
@@ -84,8 +84,8 @@ export default async function DashboardPage() {
   const profile = await prisma.profile.findUnique({ where: { userId: user.id } })
   if (!profile) redirect('/onboarding')
 
-  const isWholesaler = profile.role === 'WHOLESALER' || profile.role === 'BOTH'
-  const isBuyer = profile.role === 'BUYER' || profile.role === 'BOTH'
+  const isWholesaler = profile.role === Role.WHOLESALER || profile.role === Role.BOTH
+  const isBuyer = profile.role === Role.BUYER || profile.role === Role.BOTH
   const firstName = profile.firstName ?? profile.email.split('@')[0]
   const actions = isWholesaler ? wholesalerActions : buyerActions
 
