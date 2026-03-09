@@ -109,6 +109,7 @@ export default function Nav({ isAbout = false }: NavProps) {
             <Link href="/#platform" style={navLinkStyle(false)}>Platform</Link>
             <Link href="/#who" style={navLinkStyle(false)}>Who it&apos;s for</Link>
             <div style={{ width: 1, height: 18, background: 'var(--gray-200)', margin: '0 6px', alignSelf: 'center' }} />
+            <Link href="/pricing" style={navLinkStyle(false)}>Pricing</Link>
             <Link href="/about" style={navLinkStyle(true)}>About</Link>
           </>
         ) : (
@@ -117,6 +118,7 @@ export default function Nav({ isAbout = false }: NavProps) {
             <Link href="#platform" style={navLinkStyle(activeSection === 'platform')}>Platform</Link>
             <Link href="#who" style={navLinkStyle(activeSection === 'who')}>Who it&apos;s for</Link>
             <div style={{ width: 1, height: 18, background: 'var(--gray-200)', margin: '0 6px', alignSelf: 'center' }} />
+            <Link href="/pricing" style={navLinkStyle(false)}>Pricing</Link>
             <Link href="/about" style={navLinkStyle(false)}>About</Link>
           </>
         )}
