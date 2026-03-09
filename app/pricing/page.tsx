@@ -140,7 +140,7 @@ function X() {
 export default function PricingPage() {
   return (
     <>
-      <Nav isAbout />
+      <Nav currentPage="pricing" />
       <main style={{ paddingTop: 62, background: 'var(--white)' }}>
 
         {/* Hero */}

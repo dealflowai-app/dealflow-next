@@ -4,10 +4,29 @@ import { useState } from 'react'
 
 export default function CtaSection() {
   const [submitted, setSubmitted] = useState(false)
+  const [email, setEmail] = useState('')
+  const [role, setRole] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setSubmitted(true)
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, role: role || null, source: 'cta' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong')
+      setSubmitted(true)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -75,6 +94,8 @@ export default function CtaSection() {
                 type="email"
                 placeholder="your@email.com"
                 required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 style={{
                   background: 'var(--white)',
                   border: '1px solid var(--gray-200)',
@@ -99,7 +120,8 @@ export default function CtaSection() {
                 }}
               />
               <select
-                defaultValue=""
+                value={role}
+                onChange={e => setRole(e.target.value)}
                 style={{
                   background: 'var(--white)',
                   border: '1px solid var(--gray-200)',
@@ -116,12 +138,14 @@ export default function CtaSection() {
                 <option value="" disabled>I am a...</option>
                 <option value="wholesaler">Real estate wholesaler</option>
                 <option value="buyer">Cash buyer / investor</option>
-                <option value="both">Both</option>
+                <option value="agent">Agent</option>
+                <option value="other">Other</option>
               </select>
               <button
                 type="submit"
+                disabled={loading}
                 style={{
-                  background: 'var(--blue-600)',
+                  background: loading ? 'var(--blue-400, #93c5fd)' : 'var(--blue-600)',
                   color: 'white',
                   padding: '12px 26px',
                   borderRadius: 10,
@@ -145,9 +169,12 @@ export default function CtaSection() {
                   e.currentTarget.style.boxShadow = '0 2px 4px rgba(37, 99, 235, 0.1)'
                 }}
               >
-                Join the waitlist
+                {loading ? 'Joining...' : 'Join the waitlist'}
               </button>
             </form>
+            {error && (
+              <p style={{ fontSize: '0.82rem', color: '#b91c1c', marginTop: 10 }}>{error}</p>
+            )}
             <p style={{ fontSize: '0.76rem', color: 'var(--gray-400)', marginTop: 14 }}>
               No credit card. No commitment. Founding members get pricing locked in forever.
             </p>

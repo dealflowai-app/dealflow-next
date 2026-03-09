@@ -67,7 +67,7 @@ export default function Footer() {
           <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', lineHeight: 1.65, maxWidth: 220, marginTop: 12 }}>
             Real estate deals, closed on autopilot. AI-powered sourcing, analysis, and outreach for serious investors.
           </p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 28 }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 28 }} suppressHydrationWarning>
             © {new Date().getFullYear()} Dealflow AI
           </p>
         </div>

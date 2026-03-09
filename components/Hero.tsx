@@ -24,12 +24,42 @@ const recentDeals = [
   },
 ]
 
+const roles = [
+  { value: 'wholesaler', label: 'Real estate wholesaler', icon: '🏚️' },
+  { value: 'buyer', label: 'Cash buyer / investor', icon: '💰' },
+  { value: 'agent', label: 'Agent / broker', icon: '🤝' },
+  { value: 'other', label: 'Other', icon: '👋' },
+]
+
 export default function Hero() {
-  const [heroSubmitted, setHeroSubmitted] = useState(false)
+  const [step, setStep] = useState<'email' | 'role' | 'done'>('email')
+  const [heroEmail, setHeroEmail] = useState('')
+  const [heroLoading, setHeroLoading] = useState(false)
+  const [heroError, setHeroError] = useState('')
 
   function handleHeroSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setHeroSubmitted(true)
+    setStep('role')
+  }
+
+  async function handleRolePick(role: string) {
+    setHeroLoading(true)
+    setHeroError('')
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: heroEmail, role, source: 'hero' }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong')
+      setStep('done')
+    } catch (err: unknown) {
+      setHeroError(err instanceof Error ? err.message : 'Something went wrong. Try again.')
+      setStep('email')
+    } finally {
+      setHeroLoading(false)
+    }
   }
 
   return (
@@ -99,7 +129,7 @@ export default function Hero() {
             and matches them to your deals automatically, so you close faster with less work.
           </p>
 
-          {!heroSubmitted ? (
+          {step === 'email' && (
             <>
               <form id="hero-form" onSubmit={handleHeroSubmit}>
                 <div
@@ -119,6 +149,8 @@ export default function Hero() {
                     type="email"
                     placeholder="Enter your email"
                     required
+                    value={heroEmail}
+                    onChange={e => setHeroEmail(e.target.value)}
                     style={{
                       flex: 1,
                       border: 'none',
@@ -163,11 +195,63 @@ export default function Hero() {
                   </button>
                 </div>
               </form>
+              {heroError && (
+                <p style={{ fontSize: '0.76rem', color: 'var(--red)', marginBottom: 6 }}>{heroError}</p>
+              )}
               <p style={{ fontSize: '0.76rem', color: 'var(--gray-400)' }}>
                 No credit card. Founding members lock in pricing forever.
               </p>
             </>
-          ) : (
+          )}
+
+          {step === 'role' && (
+            <div className="hero-role-step" style={{ maxWidth: 460 }}>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 10 }}>
+                One quick question
+              </p>
+              <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--gray-800)', marginBottom: 14 }}>
+                What best describes you?
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {roles.map(r => (
+                  <button
+                    key={r.value}
+                    onClick={() => handleRolePick(r.value)}
+                    disabled={heroLoading}
+                    className="hero-role-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      background: 'var(--white)',
+                      border: '1px solid var(--gray-200)',
+                      borderRadius: 11,
+                      padding: '12px 16px',
+                      fontFamily: 'inherit',
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: 'var(--gray-800)',
+                      cursor: heroLoading ? 'not-allowed' : 'pointer',
+                      textAlign: 'left',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                      transition: 'all 0.15s',
+                      opacity: heroLoading ? 0.6 : 1,
+                    }}
+                  >
+                    <span style={{ fontSize: '1.1rem', lineHeight: 1 }} suppressHydrationWarning>{r.icon}</span>
+                    {r.label}
+                    {heroLoading ? <span className="hero-spinner" style={{ marginLeft: 'auto' }} /> : (
+                      <svg style={{ marginLeft: 'auto', opacity: 0.3 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 'done' && (
             <div
               className="success-anim"
               style={{
@@ -292,6 +376,15 @@ export default function Hero() {
           .hero-outer {
             background: linear-gradient(160deg, #edf4ff 0%, #f5f8ff 30%, #ffffff 60%);
           }
+          @keyframes spin { to { transform: rotate(360deg); } }
+          .hero-spinner {
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+          }
           @keyframes dealIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -300,6 +393,18 @@ export default function Hero() {
           .deal-card-0 { animation-delay: 0.5s; }
           .deal-card-1 { animation-delay: 0.75s; }
           .deal-card-2 { animation-delay: 1.0s; }
+          .hero-role-btn:hover:not(:disabled) {
+            border-color: var(--blue-300, #93c5fd) !important;
+            background: #f0f6ff !important;
+            transform: translateX(2px);
+          }
+          .hero-role-step {
+            animation: roleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+          }
+          @keyframes roleIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
           @media (max-width: 860px) {
             .hero-grid {
               grid-template-columns: 1fr !important;

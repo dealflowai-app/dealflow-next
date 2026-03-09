@@ -6,14 +6,16 @@ import Link from 'next/link'
 
 interface NavProps {
   isAbout?: boolean
+  currentPage?: 'about' | 'pricing'
 }
 
-export default function Nav({ isAbout = false }: NavProps) {
+export default function Nav({ isAbout = false, currentPage }: NavProps) {
+  const activePage = currentPage ?? (isAbout ? 'about' : undefined)
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    if (isAbout) return
+    if (activePage) return
 
     const sections = ['how', 'platform', 'who']
 
@@ -42,7 +44,7 @@ export default function Nav({ isAbout = false }: NavProps) {
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const mobileLinks = isAbout
+  const mobileLinks = activePage
     ? [
         { label: 'How it works', href: '/#how' },
         { label: 'Platform', href: '/#platform' },
@@ -129,14 +131,14 @@ export default function Nav({ isAbout = false }: NavProps) {
           className="nav-center-links"
           style={{ display: 'flex', gap: 2 }}
         >
-          {isAbout ? (
+          {activePage ? (
             <>
               <Link href="/#how" style={navLinkStyle(false)}>How it works</Link>
               <Link href="/#platform" style={navLinkStyle(false)}>Platform</Link>
               <Link href="/#who" style={navLinkStyle(false)}>Who it&apos;s for</Link>
               <div style={{ width: 1, height: 18, background: 'var(--gray-200)', margin: '0 6px', alignSelf: 'center' }} />
-              <Link href="/pricing" style={navLinkStyle(false)}>Pricing</Link>
-              <Link href="/about" style={navLinkStyle(true)}>About</Link>
+              <Link href="/pricing" style={navLinkStyle(activePage === 'pricing')}>Pricing</Link>
+              <Link href="/about" style={navLinkStyle(activePage === 'about')}>About</Link>
             </>
           ) : (
             <>
@@ -172,7 +174,7 @@ export default function Nav({ isAbout = false }: NavProps) {
           >
             Sign in
           </Link>
-          {isAbout ? (
+          {activePage ? (
             <Link
               href="/#cta"
               style={{
@@ -313,7 +315,7 @@ export default function Nav({ isAbout = false }: NavProps) {
           >
             Sign in
           </Link>
-          {isAbout ? (
+          {activePage ? (
             <Link
               href="/#cta"
               onClick={() => setMenuOpen(false)}
