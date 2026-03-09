@@ -111,17 +111,23 @@ export default function HowItWorks() {
                 padding: '18px 16px',
                 borderRadius: 10,
                 cursor: 'pointer',
-                transition: 'all 0.2s',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                 border: `1px solid ${current === i ? 'var(--gray-200)' : 'transparent'}`,
                 background: current === i ? 'var(--white)' : 'transparent',
                 boxShadow: current === i ? 'var(--shadow-sm)' : 'none',
                 position: 'relative',
               }}
               onMouseEnter={e => {
-                if (current !== i) e.currentTarget.style.background = 'var(--gray-50)'
+                if (current !== i) {
+                  e.currentTarget.style.background = 'var(--gray-50)'
+                  e.currentTarget.style.transform = 'translateX(4px)'
+                }
               }}
               onMouseLeave={e => {
-                if (current !== i) e.currentTarget.style.background = 'transparent'
+                if (current !== i) {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.transform = 'translateX(0)'
+                }
               }}
             >
               {/* Progress line */}

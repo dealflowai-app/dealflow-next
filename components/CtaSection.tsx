@@ -128,11 +128,20 @@ export default function CtaSection() {
                   fontWeight: 700,
                   fontSize: '0.92rem',
                   cursor: 'pointer',
-                  transition: 'all 0.15s',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                   letterSpacing: '-0.01em',
+                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.1)',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--blue-700)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'var(--blue-600)' }}
+                onMouseEnter={e => { 
+                  e.currentTarget.style.background = 'var(--blue-700)'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.25)'
+                }}
+                onMouseLeave={e => { 
+                  e.currentTarget.style.background = 'var(--blue-600)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(37, 99, 235, 0.1)'
+                }}
               >
                 Join the waitlist
               </button>
