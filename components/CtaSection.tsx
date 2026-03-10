@@ -63,8 +63,8 @@ export default function CtaSection() {
           style={{
             fontFamily: 'inherit',
             fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-            fontWeight: 800,
-            letterSpacing: '-0.04em',
+            fontWeight: 600,
+            letterSpacing: '-0.022em',
             color: 'var(--gray-900)',
             lineHeight: 1.1,
             marginBottom: 18,

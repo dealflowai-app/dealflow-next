@@ -274,9 +274,9 @@ export default function BuyerMatchDemo() {
             style={{
               fontFamily: 'inherit',
               fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
-              fontWeight: 800,
+              fontWeight: 600,
               lineHeight: 1.1,
-              letterSpacing: '-0.04em',
+              letterSpacing: '-0.022em',
               color: 'var(--gray-900)',
               marginBottom: 18,
             }}

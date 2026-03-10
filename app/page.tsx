@@ -1,8 +1,8 @@
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
+import LiveDealMap from '@/components/LiveDealMap'
 import AiCallDemo from '@/components/AiCallDemo'
 import BuyerMatchDemo from '@/components/BuyerMatchDemo'
-import HowItWorks from '@/components/HowItWorks'
 import Platform from '@/components/Platform'
 import WhoItsFor from '@/components/WhoItsFor'
 import CtaSection from '@/components/CtaSection'
@@ -14,9 +14,9 @@ export default function Home() {
     <>
       <Nav />
       <Hero />
+      <LiveDealMap />
       <AiCallDemo />
       <BuyerMatchDemo />
-      <HowItWorks />
       <Platform />
       <WhoItsFor />
       <CtaSection />

@@ -20,9 +20,9 @@ export default function WhoItsFor() {
           style={{
             fontFamily: 'inherit',
             fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
-            fontWeight: 800,
+            fontWeight: 600,
             lineHeight: 1.1,
-            letterSpacing: '-0.04em',
+            letterSpacing: '-0.022em',
             color: 'var(--gray-900)',
           }}
         >
@@ -153,8 +153,8 @@ function WhoLeftW() {
         style={{
           fontFamily: 'inherit',
           fontSize: '1.85rem',
-          fontWeight: 800,
-          letterSpacing: '-0.03em',
+          fontWeight: 600,
+          letterSpacing: '-0.022em',
           color: 'var(--gray-900)',
           marginBottom: 14,
           lineHeight: 1.2,
@@ -228,8 +228,8 @@ function WhoLeftB() {
         style={{
           fontFamily: 'inherit',
           fontSize: '1.85rem',
-          fontWeight: 800,
-          letterSpacing: '-0.03em',
+          fontWeight: 600,
+          letterSpacing: '-0.022em',
           color: 'var(--gray-900)',
           marginBottom: 14,
           lineHeight: 1.2,

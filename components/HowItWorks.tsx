@@ -4,24 +4,34 @@ import { useState, useEffect, useRef } from 'react'
 
 const steps = [
   {
+    num: '01',
     name: 'Choose your market',
-    desc: 'Enter any city, county, or zip in the US. The system instantly knows which public records to pull and which buyers are actively purchasing there. Run multiple markets on higher tiers.',
+    badge: '~30 seconds',
+    desc: 'Enter any city, county, or zip in the US. The system knows which public records to pull and which buyers are actively purchasing there.',
   },
   {
-    name: 'Find verified cash buyers',
-    desc: 'We scan county property records and surface everyone who bought real estate with cash in the last 6–12 months. Proven buyers with real transaction history, not a generic purchased list.',
+    num: '02',
+    name: 'Discover verified cash buyers',
+    badge: 'Automated',
+    desc: 'We scan county property records for everyone who bought real estate with cash in the last 6–12 months. Proven buyers, real transaction history.',
   },
   {
-    name: 'AI calls and qualifies them',
-    desc: 'AI voice agents call dozens of buyers simultaneously. Natural conversations that capture buy box, price range, property type, and close speed. All saved automatically, nothing missed.',
+    num: '03',
+    name: 'AI qualifies every buyer',
+    badge: 'While you sleep',
+    desc: 'AI voice agents call dozens of buyers simultaneously — capturing buy box, price range, strategy, and close timeline. All saved automatically.',
   },
   {
-    name: 'Smart deal matching',
-    desc: 'Upload a property. The platform finds the exact buyers who match on preference, price, strategy, and close probability. Your deal goes to the right people, not a mass blast to everyone.',
+    num: '04',
+    name: 'Match your deal to the right buyer',
+    badge: 'Instant',
+    desc: 'Upload a property. The platform scores every buyer across 5 criteria and routes your deal only to matched buyers. No mass blasting.',
   },
   {
-    name: 'Contract and close',
-    desc: 'Buyers make offers inside the platform. You negotiate, accept, and the system generates your assignment contract with state-specific legal language. E-signatures collected. Deal done.',
+    num: '05',
+    name: 'Contract and close inside the platform',
+    badge: '< 14 days',
+    desc: 'Buyers make offers inside the platform. You negotiate, accept, and the system generates a state-specific assignment contract. E-signatures collected.',
   },
 ]
 
@@ -64,119 +74,155 @@ export default function HowItWorks() {
   return (
     <div
       id="how"
-      style={{
-        maxWidth: 1160,
-        margin: '0 auto',
-        padding: '96px 40px',
-      }}
+      style={{ maxWidth: 1160, margin: '0 auto', padding: '96px 40px' }}
     >
+      {/* Header */}
       <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 14 }}>
-        How it works
+        How it works for you
       </div>
       <h2
         style={{
           fontFamily: 'inherit',
           fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
-          fontWeight: 800,
+          fontWeight: 500,
           lineHeight: 1.1,
-          letterSpacing: '-0.04em',
+          letterSpacing: '-0.022em',
           color: 'var(--gray-900)',
         }}
       >
-        From market to <span style={{ color: 'var(--blue-600)' }}>closed deal</span> in 5 steps
+        Disposition on <span style={{ color: 'var(--blue-600)' }}>autopilot.</span>
       </h2>
-      <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', lineHeight: 1.7, marginTop: 14, maxWidth: 520 }}>
-        Everything a full disposition team does, running automatically the moment you turn it on.
+      <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', lineHeight: 1.7, marginTop: 16, maxWidth: 480 }}>
+        The signal, not the noise.
       </p>
 
       <div
         className="how-layout-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1.1fr',
-          gap: 60,
-          marginTop: 56,
-          alignItems: 'start',
-        }}
+        style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: 56, marginTop: 56, alignItems: 'start' }}
       >
-        {/* Steps col */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Steps */}
+        <div style={{ position: 'relative' }}>
+          {/* Vertical connector line */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 18,
+              top: 15,
+              bottom: 15,
+              width: 1,
+              background: 'var(--gray-200)',
+              zIndex: 0,
+            }}
+          />
+          {/* Progress fill on connector */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 18,
+              top: 15,
+              width: 1,
+              background: 'var(--blue-600)',
+              zIndex: 1,
+              height: `${(current / (steps.length - 1)) * 100}%`,
+              transition: 'height 0.4s ease',
+            }}
+          />
+
           {steps.map((step, i) => (
             <div
               key={i}
               onClick={() => goStep(i)}
               style={{
                 display: 'flex',
-                gap: 16,
-                padding: '18px 16px',
-                borderRadius: 10,
+                gap: 18,
+                padding: '16px 16px 16px 0',
                 cursor: 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                border: `1px solid ${current === i ? 'var(--gray-200)' : 'transparent'}`,
-                background: current === i ? 'var(--white)' : 'transparent',
-                boxShadow: current === i ? 'var(--shadow-sm)' : 'none',
                 position: 'relative',
-              }}
-              onMouseEnter={e => {
-                if (current !== i) {
-                  e.currentTarget.style.background = 'var(--gray-50)'
-                  e.currentTarget.style.transform = 'translateX(4px)'
-                }
-              }}
-              onMouseLeave={e => {
-                if (current !== i) {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.transform = 'translateX(0)'
-                }
+                zIndex: 2,
               }}
             >
-              {/* Progress line */}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: 3,
-                  background: 'var(--gray-100)',
-                  borderRadius: '0 3px 3px 0',
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  className="step-prog-fill"
-                  style={{ height: current === i ? `${progress}%` : '0%' }}
-                />
-              </div>
-
               {/* Circle */}
               <div
                 style={{
-                  width: 30,
-                  height: 30,
+                  width: 36,
+                  height: 36,
                   borderRadius: '50%',
-                  background: current === i ? 'var(--blue-600)' : 'var(--gray-100)',
-                  color: current === i ? 'white' : 'var(--gray-500)',
+                  background: current === i ? 'var(--blue-600)' : i < current ? 'var(--blue-100)' : 'var(--white)',
+                  border: `1.5px solid ${current === i ? 'var(--blue-600)' : i < current ? 'var(--blue-200)' : 'var(--gray-200)'}`,
+                  color: current === i ? 'white' : i < current ? 'var(--blue-600)' : 'var(--gray-400)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontWeight: 700,
-                  fontSize: '0.78rem',
+                  fontSize: '0.75rem',
                   flexShrink: 0,
-                  transition: 'all 0.2s',
+                  transition: 'all 0.25s',
+                  position: 'relative',
+                  zIndex: 3,
                 }}
               >
-                {i + 1}
+                {i < current ? '✓' : i + 1}
               </div>
 
               {/* Content */}
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--gray-900)', marginBottom: 4 }}>
-                  {step.name}
+              <div style={{ flex: 1, paddingTop: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: current === i ? 8 : 0 }}>
+                  <div
+                    style={{
+                      fontWeight: 500,
+                      fontSize: '0.9rem',
+                      color: current === i ? 'var(--gray-900)' : 'var(--gray-500)',
+                      transition: 'color 0.2s',
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {step.name}
+                  </div>
+                  {current === i && (
+                    <span
+                      style={{
+                        fontSize: '0.62rem',
+                        fontWeight: 600,
+                        color: 'var(--blue-600)',
+                        background: 'var(--blue-50)',
+                        border: '1px solid var(--blue-100)',
+                        borderRadius: 20,
+                        padding: '2px 8px',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {step.badge}
+                    </span>
+                  )}
                 </div>
                 {current === i && (
-                  <div style={{ fontSize: '0.84rem', color: 'var(--gray-500)', lineHeight: 1.6 }}>
+                  <div
+                    className="vis-screen-active"
+                    style={{ fontSize: '0.84rem', color: 'var(--gray-500)', lineHeight: 1.65 }}
+                  >
                     {step.desc}
+                  </div>
+                )}
+                {/* Step progress bar */}
+                {current === i && (
+                  <div
+                    style={{
+                      marginTop: 12,
+                      height: 2,
+                      background: 'var(--gray-100)',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${progress}%`,
+                        background: 'var(--blue-600)',
+                        transition: 'width 0.05s linear',
+                        borderRadius: 2,
+                      }}
+                    />
                   </div>
                 )}
               </div>
@@ -184,7 +230,7 @@ export default function HowItWorks() {
           ))}
         </div>
 
-        {/* Vis panel */}
+        {/* Visual panel */}
         <div
           className="vis-panel-desktop"
           style={{
@@ -192,30 +238,49 @@ export default function HowItWorks() {
             top: 82,
             background: 'var(--white)',
             border: '1px solid var(--gray-200)',
-            borderRadius: 16,
+            borderRadius: 18,
             overflow: 'hidden',
             boxShadow: 'var(--shadow)',
           }}
         >
-          {/* Panel header */}
+          {/* Panel chrome */}
           <div
             style={{
-              padding: '13px 18px',
+              padding: '12px 18px',
               borderBottom: '1px solid var(--gray-100)',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
+              background: 'var(--gray-50)',
             }}
           >
-            <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#ff5f57' }} />
-            <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#febc2e' }} />
-            <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#28c840' }} />
-            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--gray-700)', marginLeft: 4 }}>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#ff5f57' }} />
+              <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#febc2e' }} />
+              <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#28c840' }} />
+            </div>
+            <div style={{ flex: 1, textAlign: 'center', fontSize: '0.75rem', fontWeight: 500, color: 'var(--gray-500)', letterSpacing: '-0.01em' }}>
               {panelTitles[current]}
+            </div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {steps.map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: i === current ? 16 : 6,
+                    height: 6,
+                    borderRadius: 3,
+                    background: i === current ? 'var(--blue-600)' : i < current ? 'var(--blue-200)' : 'var(--gray-200)',
+                    transition: 'all 0.25s',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => goStep(i)}
+                />
+              ))}
             </div>
           </div>
 
-          <div style={{ padding: 22, minHeight: 320 }}>
+          <div style={{ padding: 24, minHeight: 320 }}>
             {current === 0 && <VisScreen0 />}
             {current === 1 && <VisScreen1 />}
             {current === 2 && <VisScreen2 />}
@@ -236,17 +301,16 @@ export default function HowItWorks() {
   )
 }
 
+/* ── Step 1: Market ────────────────────────────────────────── */
 function VisScreen0() {
   return (
     <div className="vis-screen-active">
-      {/* Mini map */}
-      <div style={{ background: '#edf2f9', borderRadius: 10, height: 170, position: 'relative', overflow: 'hidden', marginBottom: 14 }}>
+      <div style={{ background: '#edf2f9', borderRadius: 12, height: 160, position: 'relative', overflow: 'hidden', marginBottom: 16 }}>
         <div
           style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.65) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.65) 1px, transparent 1px)',
-            backgroundSize: '36px 36px',
+            position: 'absolute', inset: 0,
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
           }}
         />
         {[
@@ -260,43 +324,26 @@ function VisScreen0() {
             key={i}
             className="mini-pin-dot"
             style={{
-              position: 'absolute',
-              width: 12,
-              height: 12,
-              borderRadius: '50%',
-              border: '2px solid white',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-              background: p.bg,
-              top: p.top,
-              left: p.left,
-              animationDelay: p.delay,
+              position: 'absolute', width: 11, height: 11, borderRadius: '50%',
+              border: '2px solid white', boxShadow: '0 2px 6px rgba(0,0,0,0.14)',
+              background: p.bg, top: p.top, left: p.left, animationDelay: p.delay,
             }}
           />
         ))}
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-          }}
-        >
-          <div style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1.05rem', color: 'var(--gray-900)' }}>Nationwide</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 2 }}>All markets active</div>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center' }}>
+          <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>Nationwide</div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--gray-500)', marginTop: 2 }}>All US markets active</div>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 10 }}>
         {[
-          { num: '247', numColor: 'var(--blue-600)', label: 'Active buyers' },
-          { num: '31', numColor: 'var(--gray-900)', label: 'Live deals' },
-          { num: '$14K', numColor: 'var(--green)', label: 'Avg assign fee' },
-        ].map((chip, i) => (
-          <div key={i} style={{ flex: 1, background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1.3rem', color: chip.numColor, letterSpacing: '-0.03em', lineHeight: 1 }}>
-              {chip.num}
-            </div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 3 }}>{chip.label}</div>
+          { num: '247', color: 'var(--blue-600)', label: 'Active buyers' },
+          { num: '31',  color: 'var(--gray-900)', label: 'Live deals' },
+          { num: '$14K', color: 'var(--green)',   label: 'Avg assign fee' },
+        ].map((chip) => (
+          <div key={chip.label} style={{ flex: 1, background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: '12px 10px', textAlign: 'center' }}>
+            <div style={{ fontWeight: 700, fontSize: '1.25rem', color: chip.color, letterSpacing: '-0.025em', lineHeight: 1 }}>{chip.num}</div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--gray-400)', marginTop: 4 }}>{chip.label}</div>
           </div>
         ))}
       </div>
@@ -304,135 +351,146 @@ function VisScreen0() {
   )
 }
 
+/* ── Step 2: Buyer discovery ───────────────────────────────── */
 function VisScreen1() {
   return (
     <div className="vis-screen-active">
-      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 12 }}>
-        Verified cash buyers · Nationwide
+      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 14 }}>
+        Verified cash buyers · Discovered from public records
       </div>
       {[
-        { initials: 'JM', bg: 'linear-gradient(135deg, #1d4ed8, #3b82f6)', name: 'James M.', tag: 'SFR · $80K–$150K · Flip · Atlanta, GA', score: 94 },
-        { initials: 'SR', bg: 'linear-gradient(135deg, #0ea5e9, #2563eb)', name: 'Sandra R.', tag: 'Multi-fam · $200K–$400K · Hold · Tampa, FL', score: 87 },
-        { initials: 'DK', bg: 'linear-gradient(135deg, #6366f1, #3b82f6)', name: 'David K.', tag: 'SFR · $60K–$120K · Flip · Charlotte, NC', score: 79 },
-      ].map((buyer, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 9, padding: '11px 13px', marginBottom: 7 }}>
-          <div style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.75rem', color: 'white', flexShrink: 0, background: buyer.bg }}>
-            {buyer.initials}
+        { initials: 'JM', bg: 'linear-gradient(135deg,#1d4ed8,#3b82f6)', name: 'James M.',  tag: 'SFR · $80K–$150K · Flip · Atlanta, GA',       score: 94 },
+        { initials: 'SR', bg: 'linear-gradient(135deg,#0ea5e9,#2563eb)', name: 'Sandra R.', tag: 'Multi-fam · $200K–$400K · Hold · Tampa, FL',    score: 87 },
+        { initials: 'DK', bg: 'linear-gradient(135deg,#6366f1,#3b82f6)', name: 'David K.',  tag: 'SFR · $60K–$120K · Flip · Charlotte, NC',       score: 79 },
+      ].map((b, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11, border: '1px solid var(--gray-100)', borderRadius: 10, padding: '11px 13px', marginBottom: 8, background: 'var(--white)' }}>
+          <div style={{ width: 34, height: 34, borderRadius: '50%', background: b.bg, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.7rem', flexShrink: 0 }}>
+            {b.initials}
           </div>
-          <div>
-            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--gray-900)' }}>{buyer.name}</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--gray-500)', marginTop: 1 }}>{buyer.tag}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontWeight: 600, fontSize: '0.84rem', color: 'var(--gray-900)' }}>{b.name}</span>
+              <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--green)', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4, padding: '1px 5px' }}>Verified</span>
+            </div>
+            <div style={{ fontSize: '0.71rem', color: 'var(--gray-400)', marginTop: 2 }}>{b.tag}</div>
           </div>
-          <div style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1.05rem', color: 'var(--blue-600)', marginLeft: 'auto' }}>
-            {buyer.score}
-          </div>
+          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--blue-600)', letterSpacing: '-0.02em' }}>{b.score}</div>
         </div>
       ))}
-      <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 8, textAlign: 'center' }}>
-        + 244 more verified buyers in database
+      <div style={{ fontSize: '0.73rem', color: 'var(--gray-400)', textAlign: 'center', marginTop: 4 }}>
+        + 244 more buyers in your database
       </div>
     </div>
   )
 }
 
+/* ── Step 3: AI calls ──────────────────────────────────────── */
 function VisScreen2() {
   return (
     <div className="vis-screen-active">
-      <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: 13, fontSize: '0.8rem', color: 'var(--gray-500)', lineHeight: 1.75, marginBottom: 11 }}>
-        <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>AI Agent:</span> &ldquo;Hi, this is Alex from Premier Acquisitions. I see you recently closed a cash deal in Charlotte. Are you looking for more properties in the Carolinas?&rdquo;<br /><br />
-        <span style={{ color: 'var(--gray-900)' }}>David K.:</span> &ldquo;Yeah, single family, under $120k, Charlotte metro or surrounding areas...&rdquo;<br /><br />
-        <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>AI Agent:</span> &ldquo;Got it. Are you looking to flip or hold for rental income?&rdquo;
+      <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 12, padding: '14px 16px', fontSize: '0.82rem', color: 'var(--gray-500)', lineHeight: 1.75, marginBottom: 14 }}>
+        <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>AI Agent:</span>
+        {' '}&ldquo;Hi, this is Alex from Premier Acquisitions. I see you recently closed a cash deal in Charlotte — are you looking for more properties in the Carolinas?&rdquo;
+        <br /><br />
+        <span style={{ color: 'var(--gray-900)', fontWeight: 500 }}>David K.:</span>
+        {' '}&ldquo;Yeah, single family, under $120k, Charlotte metro...&rdquo;
+        <br /><br />
+        <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>AI Agent:</span>
+        {' '}&ldquo;Got it. Are you looking to flip or hold?&rdquo;
       </div>
-      <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 9, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ fontSize: '0.74rem', color: 'var(--gray-400)', minWidth: 46 }}>Live</div>
-        {[0, 0.12, 0.24, 0.36, 0.48, 0.6].map((delay, i) => (
-          <div key={i} className="cbar-w" style={{ animationDelay: `${delay}s` }} />
+      <div style={{ background: 'var(--white)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: '11px 14px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+        <div style={{ fontSize: '0.7rem', fontWeight: 500, color: 'var(--gray-400)' }}>Live</div>
+        <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end' }}>
+          {[0, 0.12, 0.24, 0.36, 0.48, 0.6].map((delay, i) => (
+            <div key={i} className="cbar-w" style={{ animationDelay: `${delay}s` }} />
+          ))}
+        </div>
+        <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--blue-600)', marginLeft: 'auto' }}>48 calls active</div>
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        {[
+          { label: '31 qualified', color: 'var(--green)', bg: '#f0fdf4', border: '#bbf7d0' },
+          { label: '9 not buying', color: 'var(--red)', bg: '#fef2f2', border: '#fecaca' },
+          { label: '8 in progress', color: 'var(--gray-400)', bg: 'var(--gray-50)', border: 'var(--gray-200)' },
+        ].map((s) => (
+          <div key={s.label} style={{ flex: 1, background: s.bg, border: `1px solid ${s.border}`, borderRadius: 8, padding: '7px 10px', textAlign: 'center', fontSize: '0.72rem', fontWeight: 600, color: s.color }}>
+            {s.label}
+          </div>
         ))}
-        <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--blue-600)', marginLeft: 'auto' }}>48 calls active</div>
-      </div>
-      <div style={{ display: 'flex', gap: 14, marginTop: 10, fontSize: '0.76rem' }}>
-        <span style={{ color: 'var(--green)' }}>✓ 31 qualified</span>
-        <span style={{ color: 'var(--red)' }}>✗ 9 not buying</span>
-        <span style={{ color: 'var(--gray-400)' }}>⟳ 8 in progress</span>
       </div>
     </div>
   )
 }
 
+/* ── Step 4: Deal matching ─────────────────────────────────── */
 function VisScreen3() {
   return (
     <div className="vis-screen-active">
-      <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 9, padding: '12px 14px', marginBottom: 14 }}>
-        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--gray-900)' }}>816 Magnolia Way, Charlotte NC</div>
-        <div style={{ fontSize: '0.73rem', color: 'var(--gray-500)', marginTop: 2 }}>3/2 SFR · 1,340 sqft · Distressed · Ask $98,500 · ARV $162K</div>
+      <div style={{ border: '1px solid var(--gray-100)', borderRadius: 10, padding: '12px 14px', marginBottom: 16, background: 'var(--gray-50)' }}>
+        <div style={{ fontWeight: 600, fontSize: '0.84rem', color: 'var(--gray-900)' }}>816 Magnolia Way, Charlotte NC</div>
+        <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)', marginTop: 3 }}>3/2 SFR · 1,340 sqft · Distressed · Ask $98,500 · ARV $162K</div>
       </div>
-      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 10 }}>
+      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 12 }}>
         Top buyer matches
       </div>
       {[
-        { name: 'James M.', pct: 96 },
-        { name: 'David K.', pct: 84 },
-        { name: 'Marcus T.', pct: 71 },
+        { name: 'James M.',  pct: 96, color: 'var(--blue-600)' },
+        { name: 'David K.',  pct: 84, color: 'var(--blue-500)' },
+        { name: 'Marcus T.', pct: 71, color: 'var(--blue-400)' },
       ].map((m, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 9 }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--gray-700)', minWidth: 74 }}>{m.name}</div>
-          <div style={{ flex: 1, height: 7, background: 'var(--gray-100)', borderRadius: 4, overflow: 'hidden' }}>
-            <div style={{ height: '100%', background: 'var(--blue-600)', borderRadius: 4, width: `${m.pct}%`, transition: 'width 1s ease' }} />
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <div style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--gray-700)', width: 70 }}>{m.name}</div>
+          <div style={{ flex: 1, height: 6, background: 'var(--gray-100)', borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ height: '100%', background: m.color, borderRadius: 3, width: `${m.pct}%` }} />
           </div>
-          <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--blue-600)', minWidth: 32, textAlign: 'right' }}>{m.pct}%</div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: m.color, width: 34, textAlign: 'right' }}>{m.pct}%</div>
         </div>
       ))}
-      <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 10 }}>
-        Outreach sent to top 3 matched buyers automatically
+      <div style={{ fontSize: '0.73rem', color: 'var(--gray-400)', borderTop: '1px solid var(--gray-100)', paddingTop: 12 }}>
+        Outreach sent to top 3 automatically · 244 others filtered out
       </div>
     </div>
   )
 }
 
+/* ── Step 5: Contract & close ──────────────────────────────── */
 function VisScreen4() {
   const [signText, setSignText] = useState('Sign as seller')
   const [sendText, setSendText] = useState('Send to buyer')
 
   return (
     <div className="vis-screen-active">
-      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 12 }}>
+      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 14 }}>
         Auto-generated assignment contract
       </div>
-      <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: 14 }}>
+      <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 12, padding: '4px 14px', marginBottom: 14 }}>
         {[
-          { k: 'Property', v: '816 Magnolia Way, Charlotte NC', vColor: undefined },
-          { k: 'Assignment fee', v: '$16,200', vColor: 'var(--blue-600)' },
-          { k: 'Assignee', v: 'James M.', vColor: undefined },
-          { k: 'Closing date', v: '14 days from execution', vColor: undefined },
-          { k: 'Template', v: 'NC-04 · Attorney reviewed', vColor: undefined },
+          { k: 'Property',       v: '816 Magnolia Way, Charlotte NC',  c: undefined },
+          { k: 'Assignment fee', v: '$16,200',                          c: 'var(--blue-600)' },
+          { k: 'Assignee',       v: 'James M.',                         c: undefined },
+          { k: 'Closing date',   v: '14 days from execution',           c: undefined },
+          { k: 'Template',       v: 'NC-04 · Attorney reviewed',        c: undefined },
         ].map((row, i, arr) => (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '6px 0',
-              borderBottom: i < arr.length - 1 ? '1px solid var(--gray-100)' : 'none',
-            }}
-          >
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--gray-100)' : 'none' }}>
             <span style={{ fontSize: '0.77rem', color: 'var(--gray-500)' }}>{row.k}</span>
-            <span style={{ fontSize: '0.79rem', fontWeight: 600, color: row.vColor || 'var(--gray-900)' }}>{row.v}</span>
+            <span style={{ fontSize: '0.79rem', fontWeight: 600, color: row.c || 'var(--gray-900)' }}>{row.v}</span>
           </div>
         ))}
       </div>
-      <div style={{ display: 'flex', gap: 8, marginTop: 13 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
         <button
           onClick={() => setSignText('✓ Signed')}
-          style={{ flex: 1, padding: 10, borderRadius: 8, fontFamily: 'inherit', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', transition: 'all 0.15s', border: 'none', background: 'var(--blue-600)', color: 'white' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--blue-700)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'var(--blue-600)' }}
+          style={{ flex: 1, padding: '10px 0', borderRadius: 9, fontFamily: 'inherit', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', border: 'none', background: 'var(--gray-900)', color: 'white', transition: 'background 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--gray-700)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--gray-900)' }}
         >
           {signText}
         </button>
         <button
           onClick={() => setSendText('✓ Sent')}
-          style={{ flex: 1, padding: 10, borderRadius: 8, fontFamily: 'inherit', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', transition: 'all 0.15s', border: 'none', background: 'var(--gray-100)', color: 'var(--gray-700)' }}
+          style={{ flex: 1, padding: '10px 0', borderRadius: 9, fontFamily: 'inherit', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', border: '1px solid var(--gray-200)', background: 'var(--white)', color: 'var(--gray-700)', transition: 'background 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--gray-50)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--white)' }}
         >
           {sendText}
         </button>

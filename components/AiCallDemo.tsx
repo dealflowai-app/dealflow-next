@@ -79,15 +79,14 @@ export default function AiCallDemo() {
             style={{
               fontFamily: 'inherit',
               fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
-              fontWeight: 800,
+              fontWeight: 500,
               lineHeight: 1.1,
-              letterSpacing: '-0.04em',
+              letterSpacing: '-0.022em',
               color: 'var(--gray-900)',
               marginBottom: 18,
             }}
           >
-            Your AI calls buyers<br />
-            while you <span style={{ color: 'var(--blue-600)' }}>sleep</span>
+            Your AI calls buyers while you <span style={{ color: 'var(--blue-600)' }}>sleep.</span>
           </h2>
           <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', lineHeight: 1.7, marginBottom: 32, maxWidth: 420 }}>
             The moment you activate a campaign, AI voice agents call dozens of buyers simultaneously, capturing their buy box, price range, and close timeline. You wake up to a qualified list, nothing missed.
