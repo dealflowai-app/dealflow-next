@@ -125,7 +125,7 @@ export default function Hero() {
               fontWeight: 400,
             }}
           >
-            Dealflow AI finds verified cash buyers, calls them with AI voice agents, qualifies them,
+            DealFlow AI finds verified cash buyers, calls them with AI voice agents, qualifies them,
             and matches them to your deals automatically, so you close faster with less work.
           </p>
 

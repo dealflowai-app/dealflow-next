@@ -3,19 +3,19 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service · Dealflow AI',
+  title: 'Terms of Service · DealFlow AI',
 }
 
 const sections = [
   {
     title: '1. Acceptance of Terms',
-    body: `By accessing or using Dealflow AI ("Platform," "Service"), you ("User," "you") agree to be bound by these Terms of Service ("Terms") and our Privacy Policy, which is incorporated herein by reference. If you do not agree to these Terms, do not use the Platform.
+    body: `By accessing or using DealFlow AI ("Platform," "Service"), you ("User," "you") agree to be bound by these Terms of Service ("Terms") and our Privacy Policy, which is incorporated herein by reference. If you do not agree to these Terms, do not use the Platform.
 
 These Terms apply to all users including real estate wholesalers, cash buyers, investors, and any other individuals or entities accessing the Platform. If you are using the Platform on behalf of a company or organization, you represent that you have the authority to bind that entity to these Terms.`,
   },
   {
     title: '2. Description of Service',
-    body: `Dealflow AI provides an AI-powered real estate wholesale marketplace that includes:
+    body: `DealFlow AI provides an AI-powered real estate wholesale marketplace that includes:
 
 •Automated cash buyer discovery using public property records and licensed data sources
 •AI voice agent calling and qualification of real estate buyers on behalf of wholesalers
@@ -28,9 +28,9 @@ The Platform is currently in beta. Features, pricing, and availability may chang
   },
   {
     title: '3. Eligibility',
-    body: `You must be at least 18 years of age to use Dealflow AI. By using the Platform, you represent and warrant that you are at least 18 years old, have the legal capacity to enter into a binding agreement, and are not prohibited from using the Platform under any applicable law.
+    body: `You must be at least 18 years of age to use DealFlow AI. By using the Platform, you represent and warrant that you are at least 18 years old, have the legal capacity to enter into a binding agreement, and are not prohibited from using the Platform under any applicable law.
 
-Dealflow AI is intended for use by real estate professionals operating in compliance with applicable state and federal laws. We reserve the right to deny access to any user at our sole discretion.`,
+DealFlow AI is intended for use by real estate professionals operating in compliance with applicable state and federal laws. We reserve the right to deny access to any user at our sole discretion.`,
   },
   {
     title: '4. Account Registration and Security',
@@ -42,33 +42,33 @@ We reserve the right to suspend or terminate accounts that violate these Terms, 
   },
   {
     title: '5. Wholesaler Terms',
-    body: `If you use Dealflow AI as a real estate wholesaler, the following additional terms apply:
+    body: `If you use DealFlow AI as a real estate wholesaler, the following additional terms apply:
 
 Deal submissions: You represent and warrant that any property deal you submit to the Platform is a legitimate transaction in which you hold or have a contractual right to assign an interest. Submitting fraudulent, expired, or misrepresented deals is a material violation of these Terms.
 
-AI calling authorization: By enabling AI outreach for a deal, you authorize Dealflow AI to initiate automated calls and text messages to buyers in your account on your behalf. You represent that you have obtained or will obtain all required consents and that your use of our calling features complies with the Telephone Consumer Protection Act (TCPA), state telemarketing laws, and any applicable Do Not Call regulations. You assume full responsibility for TCPA compliance for calls initiated through your account.
+AI calling authorization: By enabling AI outreach for a deal, you authorize DealFlow AI to initiate automated calls and text messages to buyers in your account on your behalf. You represent that you have obtained or will obtain all required consents and that your use of our calling features complies with the Telephone Consumer Protection Act (TCPA), state telemarketing laws, and any applicable Do Not Call regulations. You assume full responsibility for TCPA compliance for calls initiated through your account.
 
-Buyer data: Buyer profiles and contact information surfaced through our platform are licensed for use within Dealflow AI only. You may not export, copy, or use buyer data outside the Platform for any purpose.
+Buyer data: Buyer profiles and contact information surfaced through our platform are licensed for use within DealFlow AI only. You may not export, copy, or use buyer data outside the Platform for any purpose.
 
 Deal quality: You agree not to submit deals that are overpriced, double-contracted, daisy-chained without disclosure, or otherwise misrepresented. We reserve the right to flag or remove deals that fail quality standards.
 
-Assignment fees: Dealflow AI does not set or guarantee assignment fees. All fees are negotiated directly between wholesalers and buyers. We are not a party to any real estate transaction.`,
+Assignment fees: DealFlow AI does not set or guarantee assignment fees. All fees are negotiated directly between wholesalers and buyers. We are not a party to any real estate transaction.`,
   },
   {
     title: '6. Buyer and Investor Terms',
-    body: `If you use Dealflow AI as a cash buyer or real estate investor, the following additional terms apply:
+    body: `If you use DealFlow AI as a cash buyer or real estate investor, the following additional terms apply:
 
-Consent to contact: By registering as a buyer or providing your contact information through the Platform, you expressly consent to receive AI-initiated and pre-recorded calls and text messages from Dealflow AI and wholesalers using our platform regarding real estate investment opportunities. This consent is not a condition of any purchase or service.
+Consent to contact: By registering as a buyer or providing your contact information through the Platform, you expressly consent to receive AI-initiated and pre-recorded calls and text messages from DealFlow AI and wholesalers using our platform regarding real estate investment opportunities. This consent is not a condition of any purchase or service.
 
 Opt-out: You may opt out of communications at any time as described in our Privacy Policy. Opt-out requests are honored within 24 hours.
 
-Due diligence: All deal information on the Platform, including AI-generated analysis, ARV estimates, profit projections, and match scores, is provided for informational purposes only. You are solely responsible for performing your own due diligence before making any investment decision. Dealflow AI does not provide investment advice.
+Due diligence: All deal information on the Platform, including AI-generated analysis, ARV estimates, profit projections, and match scores, is provided for informational purposes only. You are solely responsible for performing your own due diligence before making any investment decision. DealFlow AI does not provide investment advice.
 
 Free access: Buyer access to the Platform's deal feed and marketplace is currently free. We reserve the right to introduce buyer-side pricing with reasonable advance notice.`,
   },
   {
     title: '7. AI-Generated Content and Limitations',
-    body: `Dealflow AI uses artificial intelligence to generate deal analysis, buyer match scores, ARV estimates, contract drafts, and call transcripts. You acknowledge and agree that:
+    body: `DealFlow AI uses artificial intelligence to generate deal analysis, buyer match scores, ARV estimates, contract drafts, and call transcripts. You acknowledge and agree that:
 
 •AI-generated content may contain errors, omissions, or inaccuracies
 •AI match scores and deal analysis are algorithmic estimates, not professional appraisals or legal advice
@@ -76,27 +76,27 @@ Free access: Buyer access to the Platform's deal feed and marketplace is current
 •Call transcripts generated by AI may not be 100% accurate
 •You should not rely solely on AI-generated content for investment, legal, or financial decisions
 
-Dealflow AI is not a licensed real estate broker, attorney, financial advisor, or appraiser. Nothing on the Platform constitutes professional advice of any kind.`,
+DealFlow AI is not a licensed real estate broker, attorney, financial advisor, or appraiser. Nothing on the Platform constitutes professional advice of any kind.`,
   },
   {
     title: '8. Payments and Billing',
     body: `Subscription fees: Wholesaler subscriptions are billed monthly or annually as selected at signup. All fees are in US dollars and are non-refundable except as required by law or as stated in our refund policy.
 
-Transaction fees: Dealflow AI charges a transaction fee for deals closed through the Platform's Transaction Center. This fee is charged to the wholesaler upon contract execution and is payable via the payment method on file.
+Transaction fees: DealFlow AI charges a transaction fee for deals closed through the Platform's Transaction Center. This fee is charged to the wholesaler upon contract execution and is payable via the payment method on file.
 
 Founding member pricing: Users who join during the beta period and are designated as founding members will have their subscription pricing locked at the rate in effect at the time of their first paid subscription, for as long as their subscription remains active and in good standing.
 
-Payment processing: Payments are processed by Stripe. By providing payment information, you authorize Dealflow AI to charge your payment method for all applicable fees. You agree to Stripe's terms of service.
+Payment processing: Payments are processed by Stripe. By providing payment information, you authorize DealFlow AI to charge your payment method for all applicable fees. You agree to Stripe's terms of service.
 
 Failed payments: If a payment fails, we will retry the charge up to three times over 7 days. If payment remains unsuccessful, your account may be suspended until the balance is resolved.`,
   },
   {
     title: '9. Prohibited Conduct',
-    body: `You agree not to use Dealflow AI to:
+    body: `You agree not to use DealFlow AI to:
 
 •Violate any federal, state, or local law or regulation, including the TCPA, Fair Housing Act, or real estate licensing laws
 •Submit fraudulent, fabricated, or misrepresented property deals
-•Contact buyers outside of the Platform using data obtained through Dealflow AI
+•Contact buyers outside of the Platform using data obtained through DealFlow AI
 •Harass, threaten, or intimidate any buyer, seller, or other user
 •Scrape, crawl, or programmatically access the Platform without authorization
 •Reverse engineer, decompile, or attempt to extract source code from the Platform
@@ -107,15 +107,15 @@ Failed payments: If a payment fails, we will retry the charge up to three times 
   },
   {
     title: '10. Intellectual Property',
-    body: `Dealflow AI and all associated content, features, software, trademarks, logos, and technology are the exclusive property of Dealflow AI and are protected by US and international intellectual property laws.
+    body: `DealFlow AI and all associated content, features, software, trademarks, logos, and technology are the exclusive property of DealFlow AI and are protected by US and international intellectual property laws.
 
 We grant you a limited, non-exclusive, non-transferable, revocable license to access and use the Platform for its intended purpose in accordance with these Terms. This license does not include the right to sublicense, resell, reproduce, or create derivative works from any part of the Platform.
 
-You retain ownership of the content you upload to the Platform, including deal information and documents. By uploading content, you grant Dealflow AI a non-exclusive, royalty-free license to use, process, and display that content solely as necessary to provide the Service.`,
+You retain ownership of the content you upload to the Platform, including deal information and documents. By uploading content, you grant DealFlow AI a non-exclusive, royalty-free license to use, process, and display that content solely as necessary to provide the Service.`,
   },
   {
     title: '11. Third-Party Services',
-    body: `Dealflow AI integrates with third-party services including Supabase, Vapi.ai, Twilio, Stripe, ATTOM Data Solutions, Melissa Data, Anvil, and others. Your use of these services through our Platform may be subject to those providers' own terms and privacy policies.
+    body: `DealFlow AI integrates with third-party services including Supabase, Vapi.ai, Twilio, Stripe, ATTOM Data Solutions, Melissa Data, Anvil, and others. Your use of these services through our Platform may be subject to those providers' own terms and privacy policies.
 
 We are not responsible for the availability, accuracy, or conduct of any third-party service. We do not endorse any third-party service and make no warranties about them.`,
   },
@@ -135,7 +135,7 @@ Some jurisdictions do not allow the exclusion or limitation of incidental or con
   },
   {
     title: '14. Indemnification',
-    body: `You agree to defend, indemnify, and hold harmless Dealflow AI and its officers, directors, employees, and agents from any claims, damages, losses, liabilities, costs, and expenses (including reasonable attorney fees) arising from:
+    body: `You agree to defend, indemnify, and hold harmless DealFlow AI and its officers, directors, employees, and agents from any claims, damages, losses, liabilities, costs, and expenses (including reasonable attorney fees) arising from:
 
 •Your use of the Platform
 •Your violation of these Terms
@@ -146,7 +146,7 @@ Some jurisdictions do not allow the exclusion or limitation of incidental or con
   },
   {
     title: '15. Termination',
-    body: `We reserve the right to suspend or terminate your access to Dealflow AI at any time, with or without notice, for any reason including violation of these Terms, harmful conduct, or extended inactivity.
+    body: `We reserve the right to suspend or terminate your access to DealFlow AI at any time, with or without notice, for any reason including violation of these Terms, harmful conduct, or extended inactivity.
 
 You may cancel your account at any time by contacting hello@dealflow.ai or through your account settings. Upon termination, your right to use the Platform ceases immediately. Provisions that by their nature should survive termination will survive, including Sections 10, 12, 13, and 14.`,
   },
@@ -154,7 +154,7 @@ You may cancel your account at any time by contacting hello@dealflow.ai or throu
     title: '16. Governing Law and Disputes',
     body: `These Terms are governed by the laws of the State of Delaware without regard to conflict of law principles. Any dispute arising from or relating to these Terms or your use of the Platform shall first be addressed through good-faith negotiation. If the dispute cannot be resolved informally, it shall be submitted to binding arbitration under the rules of the American Arbitration Association, conducted in English.
 
-You waive any right to participate in a class action lawsuit or class-wide arbitration against Dealflow AI.`,
+You waive any right to participate in a class action lawsuit or class-wide arbitration against DealFlow AI.`,
   },
   {
     title: '17. Changes to These Terms',
@@ -164,7 +164,7 @@ If you do not agree to the updated Terms, you must stop using the Platform and c
   },
   {
     title: '18. Miscellaneous',
-    body: `Entire agreement: These Terms and our Privacy Policy constitute the entire agreement between you and Dealflow AI regarding the Platform and supersede any prior agreements.
+    body: `Entire agreement: These Terms and our Privacy Policy constitute the entire agreement between you and DealFlow AI regarding the Platform and supersede any prior agreements.
 
 Severability: If any provision of these Terms is found to be unenforceable, the remaining provisions will continue in full force and effect.
 
@@ -176,7 +176,7 @@ Assignment: You may not assign your rights under these Terms without our prior w
     title: '19. Contact',
     body: `For questions about these Terms of Service, please contact us at:
 
-Dealflow AI
+DealFlow AI
 hello@dealflow.ai
 
 We will respond to legal inquiries within 5 business days.`,
@@ -236,7 +236,7 @@ export default function TermsPage() {
           }}
         >
           <p style={{ fontSize: '1rem', color: 'var(--gray-600)', lineHeight: 1.8, borderLeft: '3px solid var(--blue-200)', paddingLeft: 18 }}>
-            These Terms govern your use of Dealflow AI, an AI-powered real estate wholesale platform. Because our platform involves automated calling, third-party data, and legally binding contract generation, please read these Terms carefully before using the Service.
+            These Terms govern your use of DealFlow AI, an AI-powered real estate wholesale platform. Because our platform involves automated calling, third-party data, and legally binding contract generation, please read these Terms carefully before using the Service.
           </p>
 
           {sections.map((s) => (

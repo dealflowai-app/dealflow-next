@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Dealflow AI',
+  title: 'DealFlow AI',
   description: 'Real estate deals, closed on autopilot',
   icons: {
     icon: '/icon.png',

@@ -124,8 +124,8 @@ export default function Personas() {
         {/* Context blurb */}
         <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.7, maxWidth: 600, marginBottom: 48 }}>
           {active === 'wholesaler'
-            ? 'Most wholesalers spend 70% of their week on buyer outreach: calling stale lists, sending mass blasts, and watching deadlines pass. Dealflow AI handles all of it automatically the moment you activate a campaign.'
-            : 'Cash buyers get flooded with irrelevant deals from wholesalers who never asked what they actually want. Dealflow AI filters the entire market to show you only deals that match your exact criteria.'
+            ? 'Most wholesalers spend 70% of their week on buyer outreach: calling stale lists, sending mass blasts, and watching deadlines pass. DealFlow AI handles all of it automatically the moment you activate a campaign.'
+            : 'Cash buyers get flooded with irrelevant deals from wholesalers who never asked what they actually want. DealFlow AI filters the entire market to show you only deals that match your exact criteria.'
           }
         </p>
 

@@ -4,7 +4,7 @@ import Footer from '@/components/Footer'
 import AboutContent from './AboutContent'
 
 export const metadata: Metadata = {
-  title: 'About - Dealflow AI',
+  title: 'About - DealFlow AI',
   description: 'We lost a deal. Then we built the fix.',
 }
 

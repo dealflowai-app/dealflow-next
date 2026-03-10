@@ -3,13 +3,13 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy · Dealflow AI',
+  title: 'Privacy Policy · DealFlow AI',
 }
 
 const sections = [
   {
     title: '1. Who We Are',
-    body: `Dealflow AI ("Dealflow AI," "we," "us," or "our") operates an AI-powered real estate wholesale marketplace that automates buyer discovery, outreach, deal matching, and contract generation. Our platform is accessible at dealflow.ai. For privacy-related inquiries, contact us at hello@dealflow.ai.`,
+    body: `DealFlow AI ("DealFlow AI," "we," "us," or "our") operates an AI-powered real estate wholesale marketplace that automates buyer discovery, outreach, deal matching, and contract generation. Our platform is accessible at dealflow.ai. For privacy-related inquiries, contact us at hello@dealflow.ai.`,
   },
   {
     title: '2. Information We Collect',
@@ -31,7 +31,7 @@ Communications: If you contact us by email or other means, we retain those commu
     title: '3. How We Use Your Information',
     body: `We use the information we collect to:
 
-•Operate, maintain, and improve the Dealflow AI platform
+•Operate, maintain, and improve the DealFlow AI platform
 •Match real estate deals with qualified cash buyers based on stated investment criteria
 •Conduct AI-powered outreach calls on behalf of wholesalers to identify and qualify buyers
 •Generate and facilitate assignment contracts and related transaction documents
@@ -44,9 +44,9 @@ Communications: If you contact us by email or other means, we retain those commu
   },
   {
     title: '4. AI Voice Calls and TCPA Compliance',
-    body: `Dealflow AI uses artificial intelligence voice agents to contact real estate investors and cash buyers on behalf of wholesalers using our platform. This section is important.
+    body: `DealFlow AI uses artificial intelligence voice agents to contact real estate investors and cash buyers on behalf of wholesalers using our platform. This section is important.
 
-Consent: By registering as a cash buyer or providing your phone number to Dealflow AI or a wholesaler using our platform, you expressly consent to receive automated and pre-recorded calls and text messages from Dealflow AI and its users at the number you provide. This consent is not a condition of any purchase.
+Consent: By registering as a cash buyer or providing your phone number to DealFlow AI or a wholesaler using our platform, you expressly consent to receive automated and pre-recorded calls and text messages from DealFlow AI and its users at the number you provide. This consent is not a condition of any purchase.
 
 Opt-out: You may opt out of AI-initiated calls or texts at any time by replying STOP to any text message, stating "remove me" or "do not call" during any call, or emailing hello@dealflow.ai. Opt-out requests are processed within 24 hours and applied across the platform.
 
@@ -54,7 +54,7 @@ Call times: Automated calls are restricted to the hours of 8:00 AM to 9:00 PM in
 
 Call recording: Calls made through our platform may be recorded. Where required by law, we announce the recording at the start of the call. By continuing a call after such announcement, you consent to recording.
 
-Do Not Call Registry: We honor the National Do Not Call Registry. Wholesalers using our platform agree not to use Dealflow AI to contact numbers on the DNC Registry without appropriate consent on file.`,
+Do Not Call Registry: We honor the National Do Not Call Registry. Wholesalers using our platform agree not to use DealFlow AI to contact numbers on the DNC Registry without appropriate consent on file.`,
   },
   {
     title: '5. Information Sharing and Disclosure',
@@ -64,9 +64,9 @@ With other platform users: Wholesalers can see buyer profiles including investme
 
 With service providers: We share information with trusted vendors who help us operate the platform, including cloud infrastructure (Supabase), AI calling (Vapi.ai), communication services (Twilio), payment processing (Stripe), contract generation (Anvil), and data providers (ATTOM, Melissa Data). These providers are contractually bound to handle your data only as necessary to provide their services.
 
-For legal reasons: We may disclose information if required by law, subpoena, court order, or government authority, or if we believe disclosure is necessary to protect the rights, property, or safety of Dealflow AI, our users, or others.
+For legal reasons: We may disclose information if required by law, subpoena, court order, or government authority, or if we believe disclosure is necessary to protect the rights, property, or safety of DealFlow AI, our users, or others.
 
-Business transfers: If Dealflow AI is acquired, merged, or sells substantially all of its assets, your information may be transferred as part of that transaction. We will notify you via email or a prominent notice on our platform before your information becomes subject to a different privacy policy.
+Business transfers: If DealFlow AI is acquired, merged, or sells substantially all of its assets, your information may be transferred as part of that transaction. We will notify you via email or a prominent notice on our platform before your information becomes subject to a different privacy policy.
 
 With your consent: We may share information for any other purpose with your explicit consent.`,
   },
@@ -113,23 +113,23 @@ You can control non-essential cookies through your browser settings. Note that d
   },
   {
     title: '10. Third-Party Data and Real Estate Records',
-    body: `Dealflow AI sources property ownership and transaction data from licensed public records providers. This data is used solely to identify verified cash buyers and facilitate deal matching. We do not use this data for any purpose unrelated to the platform's core function.
+    body: `DealFlow AI sources property ownership and transaction data from licensed public records providers. This data is used solely to identify verified cash buyers and facilitate deal matching. We do not use this data for any purpose unrelated to the platform's core function.
 
 If you are a real estate investor whose information appears in our buyer database based on public records, you may contact us at hello@dealflow.ai to review, update, or remove your information from our system.`,
   },
   {
     title: '11. Children\'s Privacy',
-    body: `Dealflow AI is not directed to individuals under the age of 18. We do not knowingly collect personal information from minors. If we learn that we have collected information from a minor, we will delete it promptly. If you believe a minor has provided us with personal information, please contact us at hello@dealflow.ai.`,
+    body: `DealFlow AI is not directed to individuals under the age of 18. We do not knowingly collect personal information from minors. If we learn that we have collected information from a minor, we will delete it promptly. If you believe a minor has provided us with personal information, please contact us at hello@dealflow.ai.`,
   },
   {
     title: '12. Changes to This Policy',
-    body: `We may update this Privacy Policy from time to time. When we make material changes, we will notify you by email and by posting a notice on our platform at least 14 days before the changes take effect. Your continued use of Dealflow AI after the effective date of the updated policy constitutes your acceptance of the changes. We encourage you to review this policy periodically.`,
+    body: `We may update this Privacy Policy from time to time. When we make material changes, we will notify you by email and by posting a notice on our platform at least 14 days before the changes take effect. Your continued use of DealFlow AI after the effective date of the updated policy constitutes your acceptance of the changes. We encourage you to review this policy periodically.`,
   },
   {
     title: '13. Contact',
     body: `For questions, concerns, or requests related to this Privacy Policy or your personal information, contact us at:
 
-Dealflow AI
+DealFlow AI
 hello@dealflow.ai
 
 We take privacy inquiries seriously and will respond within 5 business days.`,
@@ -189,7 +189,7 @@ export default function PrivacyPage() {
           }}
         >
           <p style={{ fontSize: '1rem', color: 'var(--gray-600)', lineHeight: 1.8, borderLeft: '3px solid var(--blue-200)', paddingLeft: 18 }}>
-            Dealflow AI operates an AI-powered real estate platform that includes automated calling, data sourcing, and transaction facilitation. Because of this, we handle more sensitive data than a typical SaaS product. This policy explains exactly what we collect, why, and how it is protected.
+            DealFlow AI operates an AI-powered real estate platform that includes automated calling, data sourcing, and transaction facilitation. Because of this, we handle more sensitive data than a typical SaaS product. This policy explains exactly what we collect, why, and how it is protected.
           </p>
 
           {sections.map((s) => (

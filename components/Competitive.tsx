@@ -41,7 +41,7 @@ export default function Competitive() {
         {/* Header */}
         <div style={{ maxWidth: 640, marginBottom: 56 }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 14 }}>
-            Why Dealflow AI
+            Why DealFlow AI
           </p>
           <h2
             style={{
@@ -57,7 +57,7 @@ export default function Competitive() {
             Every other tool stops halfway
           </h2>
           <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.7 }}>
-            Existing platforms give you data and leave all the actual work to you. Dealflow AI is the first platform that finds buyers, calls them, qualifies them, matches them to your deals, and closes the contract from end to end.
+            Existing platforms give you data and leave all the actual work to you. DealFlow AI is the first platform that finds buyers, calls them, qualifies them, matches them to your deals, and closes the contract from end to end.
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export default function Competitive() {
             </table>
           </div>
 
-          {/* Dealflow AI callout */}
+          {/* DealFlow AI callout */}
           <div
             style={{
               background: 'var(--blue-600)',
@@ -96,7 +96,7 @@ export default function Competitive() {
             }}
           >
             <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.7, marginBottom: 14 }}>
-              Dealflow AI
+              DealFlow AI
             </p>
             <p
               style={{
@@ -127,7 +127,7 @@ export default function Competitive() {
               ))}
             </div>
             <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.15)', fontSize: '0.82rem', opacity: 0.75, fontStyle: 'italic', lineHeight: 1.6 }}>
-              &ldquo;Dealflow AI doesn&apos;t compete with any single tool. It replaces the combination of all of them.&rdquo;
+              &ldquo;DealFlow AI doesn&apos;t compete with any single tool. It replaces the combination of all of them.&rdquo;
             </div>
           </div>
         </div>

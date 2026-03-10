@@ -4,7 +4,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Pricing · Dealflow AI',
+  title: 'Pricing · DealFlow AI',
   description: 'Simple, transparent pricing for real estate wholesalers.',
 }
 
@@ -317,7 +317,7 @@ export default function PricingPage() {
             <div>
               <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--gray-900)', marginBottom: 6 }}>How we compare</p>
               <p style={{ fontSize: '0.88rem', color: 'var(--gray-600)', lineHeight: 1.7, maxWidth: 680 }}>
-                PropStream alone charges $99–$399/mo for data only. Add a dialer ($100–$200/mo), a CRM, and a contract platform and you&apos;re spending $400–$700/mo with no automation and no matching. Dealflow AI replaces all of it for less, and actually does the work for you.
+                PropStream alone charges $99–$399/mo for data only. Add a dialer ($100–$200/mo), a CRM, and a contract platform and you&apos;re spending $400–$700/mo with no automation and no matching. DealFlow AI replaces all of it for less, and actually does the work for you.
               </p>
             </div>
           </div>

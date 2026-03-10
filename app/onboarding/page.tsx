@@ -96,9 +96,9 @@ export default function OnboardingPage() {
       {/* Top bar */}
       <div className="flex items-center px-8 py-5">
         <Link href="/" className="flex items-center gap-2.5 no-underline">
-          <Image src="/Logo.png" alt="Dealflow AI" width={30} height={30} style={{ objectFit: 'contain' }} />
+          <Image src="/Logo.png" alt="DealFlow AI" width={30} height={30} style={{ objectFit: 'contain' }} />
           <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }} className="font-extrabold text-[0.95rem] text-gray-900 tracking-tight">
-            Dealflow AI
+            DealFlow AI
           </span>
         </Link>
       </div>

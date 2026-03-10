@@ -99,12 +99,12 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
         >
           <Image
             src="/Logo.png"
-            alt="Dealflow AI logo"
+            alt="DealFlow AI logo"
             width={36}
             height={36}
             style={{ objectFit: 'contain', flexShrink: 0 }}
           />
-          Dealflow AI
+          DealFlow AI
           <span
             style={{
               display: 'inline-flex',

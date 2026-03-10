@@ -61,14 +61,14 @@ export default function Footer() {
               marginBottom: 14,
             }}
           >
-            <Image src="/Logo.png" alt="Dealflow AI logo" width={30} height={30} style={{ objectFit: 'contain' }} />
-            Dealflow AI
+            <Image src="/Logo.png" alt="DealFlow AI logo" width={30} height={30} style={{ objectFit: 'contain' }} />
+            DealFlow AI
           </Link>
           <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', lineHeight: 1.65, maxWidth: 220, marginTop: 12 }}>
             Real estate deals, closed on autopilot. AI-powered sourcing, analysis, and outreach for serious investors.
           </p>
           <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 28 }} suppressHydrationWarning>
-            © {new Date().getFullYear()} Dealflow AI
+            © {new Date().getFullYear()} DealFlow AI
           </p>
         </div>
 

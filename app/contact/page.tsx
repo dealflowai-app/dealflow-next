@@ -52,7 +52,7 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p style={{ fontSize: '1rem', color: 'var(--gray-500)', lineHeight: 1.7, marginBottom: 48 }}>
-            Have a question, feedback, or want to learn more about Dealflow AI? We&apos;d love to hear from you.
+            Have a question, feedback, or want to learn more about DealFlow AI? We&apos;d love to hear from you.
           </p>
 
           {submitted ? (

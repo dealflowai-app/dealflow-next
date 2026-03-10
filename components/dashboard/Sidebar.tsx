@@ -111,12 +111,12 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       {/* Logo */}
       <div className="h-[60px] flex items-center px-5 border-b border-gray-100">
         <Link href="/dashboard" className="flex items-center gap-2.5 no-underline">
-          <Image src="/Logo.png" alt="Dealflow AI" width={26} height={26} style={{ objectFit: 'contain' }} />
+          <Image src="/Logo.png" alt="DealFlow AI" width={26} height={26} style={{ objectFit: 'contain' }} />
           <span
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             className="font-extrabold text-[0.92rem] text-gray-900 tracking-tight"
           >
-            Dealflow AI
+            DealFlow AI
           </span>
         </Link>
       </div>

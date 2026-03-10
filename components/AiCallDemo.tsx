@@ -68,10 +68,10 @@ export default function AiCallDemo() {
     >
       <div
         className="ai-call-grid"
-        style={{ maxWidth: 1160, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 72, alignItems: 'center' }}
+        style={{ maxWidth: 1160, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 72, alignItems: 'flex-start' }}
       >
         {/* Left: text */}
-        <div>
+        <div style={{ position: 'sticky', top: 120, alignSelf: 'start' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 14 }}>
             AI voice outreach
           </p>

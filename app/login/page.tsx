@@ -38,9 +38,9 @@ export default function LoginPage() {
       {/* Top bar */}
       <div style={{ padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <Image src="/Logo.png" alt="Dealflow AI" width={32} height={32} style={{ objectFit: 'contain' }} />
+          <Image src="/Logo.png" alt="DealFlow AI" width={32} height={32} style={{ objectFit: 'contain' }} />
           <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>
-            Dealflow AI
+            DealFlow AI
           </span>
         </Link>
         <span style={{ fontSize: '0.82rem', color: 'var(--gray-500)' }}>

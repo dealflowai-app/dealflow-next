@@ -164,7 +164,7 @@ function WhoLeftW() {
       </div>
       <p style={{ color: 'var(--gray-500)', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 24 }}>
         Your business lives and dies on finding the right buyer before your contract deadline.
-        Dealflow AI automates the part that kills most wholesalers: the disposition.
+        DealFlow AI automates the part that kills most wholesalers: the disposition.
       </p>
       <CheckList
         items={[
@@ -191,7 +191,7 @@ function WhoVisualW() {
       }}
     >
       <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 16 }}>
-        Before Dealflow AI
+        Before DealFlow AI
       </div>
       {[
         'Manual list calling, mostly voicemail',
@@ -205,7 +205,7 @@ function WhoVisualW() {
       ))}
       <div style={{ height: 1, background: 'var(--gray-200)', margin: '16px 0' }} />
       <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 16 }}>
-        After Dealflow AI
+        After DealFlow AI
       </div>
       {[
         'AI calls 50 buyers while you grab coffee',
@@ -238,7 +238,7 @@ function WhoLeftB() {
         See only deals<br />worth your time.
       </div>
       <p style={{ color: 'var(--gray-500)', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 24 }}>
-        Stop drowning in irrelevant deal flow. Dealflow AI filters everything and only surfaces what
+        Stop drowning in irrelevant deal flow. DealFlow AI filters everything and only surfaces what
         matches your criteria, with AI analysis on every property.
       </p>
       <CheckList

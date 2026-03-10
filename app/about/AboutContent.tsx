@@ -77,7 +77,7 @@ export default function AboutContent() {
             margin: '0 auto',
           }}
         >
-          Dealflow AI didn&apos;t start with a pitch deck. It started with a missed assignment fee and
+          DealFlow AI didn&apos;t start with a pitch deck. It started with a missed assignment fee and
           the frustration of knowing the deal was there. The system just wasn&apos;t.
         </p>
       </div>
@@ -123,7 +123,7 @@ export default function AboutContent() {
           because finding the right buyer was a full-time job I didn&apos;t have time for.
         </p>
         <p style={{ fontSize: '0.82rem', color: 'var(--gray-400)', fontWeight: 500 }}>
-          Founder, Dealflow AI
+          Founder, DealFlow AI
         </p>
       </div>
 
@@ -343,7 +343,7 @@ export default function AboutContent() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em', marginBottom: 2 }}>
-                  Founder, Dealflow AI
+                  Founder, DealFlow AI
                 </div>
                 <div style={{ fontSize: '0.78rem', color: 'var(--blue-600)', fontWeight: 600, marginBottom: 12 }}>
                   Builder · Wholesaler · Operator

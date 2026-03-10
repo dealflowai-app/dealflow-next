@@ -1,5 +1,5 @@
 -- ============================================================
--- Dealflow AI — Supabase Schema
+-- DealFlow AI — Supabase Schema
 -- Run this in your Supabase project: SQL Editor > New Query
 -- ============================================================
 
