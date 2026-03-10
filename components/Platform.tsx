@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react'
 
 const engines = [
-  { num: '01', name: 'Market Intelligence',   tagline: 'Know the market before it moves' },
-  { num: '02', name: 'Buyer Intelligence',     tagline: 'A living database of verified cash buyers' },
-  { num: '03', name: 'Property Discovery',     tagline: 'Surface off-market deals automatically' },
-  { num: '04', name: 'Smart Deal Matching',    tagline: 'Right deal, right buyer, in seconds' },
-  { num: '05', name: 'Outreach Automation',    tagline: 'AI calls hundreds of buyers while you sleep' },
-  { num: '06', name: 'Transaction Center',     tagline: 'From first match to signed contract' },
+  { num: '01', name: 'Market Intelligence',   tagline: 'See live deal spreads and ARV trends before you spend a dime on leads.' },
+  { num: '02', name: 'Buyer Intelligence',     tagline: 'Every buyer pulled from real deed records — verified cash, wired in the last 12 months.' },
+  { num: '03', name: 'Property Discovery',     tagline: 'Get to motivated sellers 3–11 days before any list service sees them.' },
+  { num: '04', name: 'Smart Deal Matching',    tagline: 'Finds your top 3 most likely buyers the moment you upload a deal.' },
+  { num: '05', name: 'Outreach Automation',    tagline: 'AI runs 48 qualified calls while you sleep. Wake up with a hot list.' },
+  { num: '06', name: 'Transaction Center',     tagline: 'Offer accepted to e-signed contract — no Word docs, no email chains.' },
 ]
 
 /* ── 01 Market Intelligence ──────────────────────────────── */
