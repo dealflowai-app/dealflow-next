@@ -71,7 +71,7 @@ export default function AiCallDemo() {
         style={{ maxWidth: 1160, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 72, alignItems: 'flex-start' }}
       >
         {/* Left: text */}
-        <div style={{ position: 'sticky', top: 120, alignSelf: 'start' }}>
+        <div className="ai-call-left">
           <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 14 }}>
             AI voice outreach
           </p>
@@ -244,9 +244,12 @@ export default function AiCallDemo() {
       </div>
 
       <style>{`
+        .ai-call-left { position: sticky; top: 120px; align-self: start; }
+
         @media (max-width: 860px) {
           .ai-call-section { padding: 64px 20px !important; }
           .ai-call-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .ai-call-left { position: static !important; top: auto !important; }
         }
       `}</style>
     </div>
