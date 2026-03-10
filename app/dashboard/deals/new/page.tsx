@@ -52,8 +52,8 @@ const states = [
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: 'var(--gray-700)', marginBottom: 6, letterSpacing: '0.01em' }}>
-        {label}{required && <span style={{ color: 'var(--blue-600)', marginLeft: 2 }}>*</span>}
+      <label style={{ display: 'block', fontSize: '0.78rem', color: '#6b7280', marginBottom: 6 }}>
+        {label}{required && <span style={{ color: '#9ca3af', marginLeft: 3 }}>*</span>}
       </label>
       {children}
     </div>
@@ -62,12 +62,12 @@ function Field({ label, required, children }: { label: string; required?: boolea
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  border: '1px solid var(--gray-200)',
-  borderRadius: 9,
-  padding: '10px 13px',
-  fontSize: '0.9rem',
-  color: 'var(--gray-900)',
-  background: 'var(--white)',
+  border: '1px solid #e5e7eb',
+  borderRadius: 7,
+  padding: '9px 12px',
+  fontSize: '0.875rem',
+  color: '#111827',
+  background: '#ffffff',
   fontFamily: 'inherit',
   outline: 'none',
   boxSizing: 'border-box',
@@ -130,29 +130,29 @@ export default function NewDealPage() {
   return (
     <div style={{ padding: '36px 40px', maxWidth: 800 }}>
       {/* Back */}
-      <Link href="/dashboard/deals" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.82rem', color: 'var(--gray-500)', textDecoration: 'none', marginBottom: 24 }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <Link href="/dashboard/deals" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.82rem', color: '#9ca3af', textDecoration: 'none', marginBottom: 24 }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
         Back to Deals
       </Link>
 
       <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.75rem', fontWeight: 800, color: 'var(--gray-900)', letterSpacing: '-0.03em', marginBottom: 6 }}>
+        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.45rem', fontWeight: 500, color: '#111827', letterSpacing: '-0.025em', marginBottom: 6 }}>
           Submit a Deal
         </h1>
-        <p style={{ fontSize: '0.9rem', color: 'var(--gray-500)' }}>
-          Once submitted, AI will begin finding and calling matched cash buyers immediately.
+        <p style={{ fontSize: '0.85rem', color: '#9ca3af' }}>
+          Once submitted, AI will begin finding and calling matched cash buyers.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Property location */}
-        <div style={{ background: 'var(--white)', border: '1px solid var(--gray-100)', borderRadius: 14, padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
-          <h2 style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 18 }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8, padding: '22px 24px' }}>
+          <div style={{ fontSize: '0.68rem', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: 18 }}>
             Property Location
-          </h2>
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <Field label="Street Address" required>
               <input
@@ -205,10 +205,10 @@ export default function NewDealPage() {
         </div>
 
         {/* Property details */}
-        <div style={{ background: 'var(--white)', border: '1px solid var(--gray-100)', borderRadius: 14, padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
-          <h2 style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 18 }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8, padding: '22px 24px' }}>
+          <div style={{ fontSize: '0.68rem', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: 18 }}>
             Property Details
-          </h2>
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <Field label="Property Type" required>
               <select
@@ -262,47 +262,47 @@ export default function NewDealPage() {
         </div>
 
         {/* Financials */}
-        <div style={{ background: 'var(--white)', border: '1px solid var(--gray-100)', borderRadius: 14, padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
-          <h2 style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 18 }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8, padding: '22px 24px' }}>
+          <div style={{ fontSize: '0.68rem', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: 18 }}>
             Financials
-          </h2>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }} className="deal-financials-grid">
             <Field label="Asking Price" required>
               <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', fontSize: '0.9rem' }}>$</span>
+                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '0.875rem' }}>$</span>
                 <input
                   type="text"
                   required
                   value={form.asking_price}
                   onChange={e => set('asking_price', formatMoney(e.target.value))}
                   placeholder="95,000"
-                  style={{ ...inputStyle, paddingLeft: 26 }}
+                  style={{ ...inputStyle, paddingLeft: 24 }}
                   className="deal-input"
                 />
               </div>
             </Field>
             <Field label="ARV (After Repair Value)">
               <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', fontSize: '0.9rem' }}>$</span>
+                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '0.875rem' }}>$</span>
                 <input
                   type="text"
                   value={form.arv}
                   onChange={e => set('arv', formatMoney(e.target.value))}
                   placeholder="180,000"
-                  style={{ ...inputStyle, paddingLeft: 26 }}
+                  style={{ ...inputStyle, paddingLeft: 24 }}
                   className="deal-input"
                 />
               </div>
             </Field>
             <Field label="Estimated Repairs">
               <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)', fontSize: '0.9rem' }}>$</span>
+                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '0.875rem' }}>$</span>
                 <input
                   type="text"
                   value={form.repair_estimate}
                   onChange={e => set('repair_estimate', formatMoney(e.target.value))}
                   placeholder="40,000"
-                  style={{ ...inputStyle, paddingLeft: 26 }}
+                  style={{ ...inputStyle, paddingLeft: 24 }}
                   className="deal-input"
                 />
               </div>
@@ -311,10 +311,10 @@ export default function NewDealPage() {
         </div>
 
         {/* Notes */}
-        <div style={{ background: 'var(--white)', border: '1px solid var(--gray-100)', borderRadius: 14, padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
-          <h2 style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 18 }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8, padding: '22px 24px' }}>
+          <div style={{ fontSize: '0.68rem', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: 18 }}>
             Additional Notes
-          </h2>
+          </div>
           <Field label="Description / Notes">
             <textarea
               value={form.description}
@@ -329,24 +329,23 @@ export default function NewDealPage() {
 
         {/* Error */}
         {error && (
-          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '12px 16px', fontSize: '0.85rem', color: '#b91c1c' }}>
+          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 7, padding: '11px 16px', fontSize: '0.84rem', color: '#b91c1c' }}>
             {error}
           </div>
         )}
 
         {/* Submit */}
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <Link
             href="/dashboard/deals"
             style={{
-              padding: '11px 20px',
-              borderRadius: 10,
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              color: 'var(--gray-700)',
+              padding: '10px 18px',
+              borderRadius: 7,
+              fontSize: '0.84rem',
+              color: '#6b7280',
               textDecoration: 'none',
-              border: '1px solid var(--gray-200)',
-              background: 'var(--white)',
+              border: '1px solid #e5e7eb',
+              background: '#ffffff',
               display: 'inline-flex',
               alignItems: 'center',
             }}
@@ -357,14 +356,14 @@ export default function NewDealPage() {
             type="submit"
             disabled={loading}
             style={{
-              background: loading ? 'var(--blue-400)' : 'var(--blue-600)',
+              background: loading ? '#374151' : '#111827',
               color: 'white',
               border: 'none',
-              borderRadius: 10,
-              padding: '11px 24px',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
-              fontWeight: 700,
-              fontSize: '0.9rem',
+              borderRadius: 7,
+              padding: '10px 22px',
+              fontFamily: 'inherit',
+              fontWeight: 500,
+              fontSize: '0.875rem',
               cursor: loading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -375,7 +374,7 @@ export default function NewDealPage() {
             {loading ? (
               <>
                 <span className="deal-spinner" />
-                Submitting…
+                Submitting
               </>
             ) : 'Submit Deal'}
           </button>
@@ -384,13 +383,13 @@ export default function NewDealPage() {
 
       <style>{`
         .deal-input:focus {
-          border-color: var(--blue-400) !important;
-          box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+          border-color: #9ca3af !important;
+          box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         .deal-spinner {
-          width: 14px; height: 14px;
-          border: 2px solid rgba(255,255,255,0.4);
+          width: 13px; height: 13px;
+          border: 1.5px solid rgba(255,255,255,0.4);
           border-top-color: white;
           border-radius: 50%;
           animation: spin 0.7s linear infinite;

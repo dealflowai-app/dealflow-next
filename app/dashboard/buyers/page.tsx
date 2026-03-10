@@ -141,14 +141,14 @@ export default function DiscoveryPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--gray-900)', letterSpacing: '-0.03em', margin: 0 }}>Buyer Discovery</h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--gray-500)', marginTop: 5 }}>Find verified cash buyers from county records, enrich contact info, and launch AI campaigns.</p>
+          <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.45rem', fontWeight: 500, color: 'var(--gray-900)', letterSpacing: '-0.025em', margin: 0 }}>Buyer Discovery</h1>
+          <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginTop: 5 }}>Find verified cash buyers, enrich contacts, and launch AI calling campaigns.</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setTab(tab === 'discover' ? 'history' : 'discover')} style={S.btn2}>
             {tab === 'discover' ? `Campaign History (${campaigns.length})` : '← Back to Discovery'}
           </button>
-          {selected.size > 0 && <button onClick={() => setShowBuilder(true)} style={S.btn1}>🚀 Launch Campaign ({selected.size})</button>}
+          {selected.size > 0 && <button onClick={() => setShowBuilder(true)} style={S.btn1}>Launch Campaign ({selected.size})</button>}
         </div>
       </div>
 
@@ -162,25 +162,27 @@ export default function DiscoveryPage() {
         )}
 
         {/* Market search */}
-        <div style={{ background: 'white', border: '1px solid var(--gray-100)', borderRadius: 16, padding: 20, marginBottom: 16, boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, padding: 18, marginBottom: 16 }}>
           <div style={{ display: 'flex', gap: 10, marginBottom: markets.length ? 14 : 0 }}>
             <div style={{ position: 'relative', flex: 1 }}>
-              <span style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', fontSize: 15, pointerEvents: 'none' }}>🔍</span>
+              <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
               <input value={query} onChange={e => { setQuery(e.target.value); setShowSugg(true) }} onFocus={() => setShowSugg(true)} onBlur={() => setTimeout(() => setShowSugg(false), 150)}
-                placeholder="Search city, county, or zip code..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1.5px solid var(--gray-200)', borderRadius: 10, fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box' }} />
+                placeholder="Search city, county, or zip code..." style={{ width: '100%', padding: '9px 14px 9px 36px', border: '1px solid #e5e7eb', borderRadius: 7, fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box' }} />
               {showSugg && suggestions.length > 0 && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: 'white', border: '1px solid var(--gray-200)', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: 'white', border: '1px solid #e5e7eb', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.08)', zIndex: 50, overflow: 'hidden' }}>
                   {suggestions.map(s => (
-                    <button key={s.label} onMouseDown={() => pickMarket(s)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '11px 16px', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid var(--gray-50)', cursor: 'pointer', fontSize: '0.875rem', color: 'var(--gray-900)' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--gray-50)')} onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
-                      <span>📍</span><span style={{ fontWeight: 500 }}>{s.label}</span>
+                    <button key={s.label} onMouseDown={() => pickMarket(s)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '10px 14px', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid #f9fafb', cursor: 'pointer', fontSize: '0.875rem', color: 'var(--gray-900)' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#f9fafb')} onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+                      <span>{s.label}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
             <button onClick={() => activeMarket && pickMarket(MARKETS.find(m => m.label === activeMarket.label)!)} disabled={!activeMarket || loading} style={{ ...S.btn2, opacity: activeMarket ? 1 : 0.4 }}>
-              {loading ? '...' : '↻ Refresh'}
+              {loading ? 'Loading' : 'Refresh'}
             </button>
           </div>
 
@@ -190,11 +192,10 @@ export default function DiscoveryPage() {
                 const isActive = activeMarket?.id === m.id
                 return (
                   <button key={m.id} onClick={() => setActiveMarket(m)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px 5px 12px', borderRadius: 20, fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', border: isActive ? '1.5px solid var(--blue-400)' : '1px solid var(--gray-200)', background: isActive ? 'var(--blue-50)' : 'var(--gray-50)', color: isActive ? 'var(--blue-700)' : 'var(--gray-600)', transition: 'all 0.15s' }}>
-                    <span>📍</span>
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 20, fontSize: '0.8rem', fontWeight: 400, cursor: 'pointer', border: isActive ? '1.5px solid #93c5fd' : '1px solid #e5e7eb', background: isActive ? '#eff6ff' : 'white', color: isActive ? '#1d4ed8' : '#6b7280', transition: 'all 0.15s' }}>
                     {m.label}
-                    {m.buyerCount > 0 && <span style={{ background: isActive ? '#bfdbfe' : 'var(--gray-200)', color: isActive ? '#1e40af' : 'var(--gray-600)', borderRadius: 10, padding: '1px 7px', fontSize: '0.72rem', fontWeight: 700 }}>{m.buyerCount}</span>}
-                    <span onClick={e => { e.stopPropagation(); setMarkets(p => p.filter(x => x.id !== m.id)); if (activeMarket?.id === m.id) { setActiveMarket(null); setBuyers([]) } }} style={{ marginLeft: 2, color: 'var(--gray-400)', fontWeight: 700, fontSize: '1rem', lineHeight: 1 }}>×</span>
+                    {m.buyerCount > 0 && <span style={{ background: isActive ? '#bfdbfe' : '#f3f4f6', color: isActive ? '#1e40af' : '#6b7280', borderRadius: 10, padding: '1px 6px', fontSize: '0.7rem', fontWeight: 400 }}>{m.buyerCount}</span>}
+                    <span onClick={e => { e.stopPropagation(); setMarkets(p => p.filter(x => x.id !== m.id)); if (activeMarket?.id === m.id) { setActiveMarket(null); setBuyers([]) } }} style={{ marginLeft: 2, color: '#d1d5db', fontWeight: 400, fontSize: '0.9rem', lineHeight: 1, cursor: 'pointer' }}>×</span>
                   </button>
                 )
               })}
@@ -215,7 +216,7 @@ export default function DiscoveryPage() {
 
         {/* Buyer panel */}
         {(loading || buyers.length > 0) && (
-          <div style={{ background: 'white', border: '1px solid var(--gray-100)', borderRadius: 16, boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
+          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
             {/* Toolbar */}
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -225,8 +226,8 @@ export default function DiscoveryPage() {
                     Scanning county records...
                   </span>
                 ) : (<>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--gray-900)' }}>{filtered.length} buyers</span>
-                  {enrichedCount > 0 && <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600, background: '#d1fae5', padding: '2px 9px', borderRadius: 20 }}>✓ {enrichedCount} enriched</span>}
+                  <span style={{ fontSize: '0.875rem', color: 'var(--gray-700)' }}>{filtered.length} buyers</span>
+                  {enrichedCount > 0 && <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 500, background: '#d1fae5', padding: '2px 8px', borderRadius: 4 }}>{enrichedCount} enriched</span>}
                   {unenrichedCount > 0 && <span style={{ fontSize: '0.78rem', color: 'var(--gray-400)' }}>{unenrichedCount} need contact info</span>}
                 </>)}
               </div>
@@ -257,19 +258,19 @@ export default function DiscoveryPage() {
 
             {/* Bulk bar */}
             {selected.size > 0 && (
-              <div style={{ padding: '10px 20px', background: '#eff6ff', borderBottom: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1d4ed8' }}>{selected.size} selected</span>
-                <div style={{ width: 1, height: 16, background: '#bfdbfe' }} />
+              <div style={{ padding: '9px 20px', background: '#f8fafc', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: '0.84rem', color: '#374151' }}>{selected.size} selected</span>
+                <div style={{ width: 1, height: 14, background: '#e5e7eb' }} />
                 <button onClick={() => enrich(Array.from(selected).filter(id => !buyers.find(b => b.id === id)?.contactEnriched))} disabled={enriching} style={{ ...S.btn2, fontSize: '0.8rem', padding: '4px 12px' }}>Enrich Selected</button>
-                <button onClick={() => setShowBuilder(true)} style={{ ...S.btn1, fontSize: '0.8rem', padding: '5px 14px' }}>Launch Campaign →</button>
-                <button onClick={() => setSelected(new Set())} style={{ fontSize: '0.8rem', color: 'var(--gray-400)', background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto' }}>Clear</button>
+                <button onClick={() => setShowBuilder(true)} style={{ ...S.btn1, fontSize: '0.8rem', padding: '5px 14px' }}>Launch Campaign</button>
+                <button onClick={() => setSelected(new Set())} style={{ fontSize: '0.8rem', color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto' }}>Clear</button>
               </div>
             )}
 
             {loading ? (
               <div style={{ padding: '56px 24px', textAlign: 'center' }}>
-                <div style={{ fontSize: 36, marginBottom: 12 }}>📡</div>
-                <p style={{ fontSize: '0.9rem', color: 'var(--gray-500)', margin: 0 }}>Scanning county records for cash buyers...</p>
+                <div style={{ display: 'inline-block', width: 20, height: 20, border: '2px solid #e5e7eb', borderTopColor: '#6b7280', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: 16 }} />
+                <p style={{ fontSize: '0.875rem', color: 'var(--gray-500)', margin: 0 }}>Scanning county records for cash buyers...</p>
                 <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)', marginTop: 6 }}>Filtering for cash transactions in the last 12 months</p>
               </div>
             ) : viewMode === 'table' ? (
@@ -282,12 +283,16 @@ export default function DiscoveryPage() {
 
         {/* Empty state */}
         {!loading && buyers.length === 0 && (
-          <div style={{ background: 'white', border: '1px solid var(--gray-100)', borderRadius: 16, padding: '60px 24px', textAlign: 'center', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ fontSize: 40, marginBottom: 14 }}>📍</div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--gray-900)', marginBottom: 6 }}>Search a market to get started</h3>
-            <p style={{ fontSize: '0.875rem', color: 'var(--gray-500)', maxWidth: 380, margin: '0 auto 22px' }}>Enter a city above to pull active cash buyers directly from county property records.</p>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-              {MARKETS.slice(0, 6).map(s => <button key={s.label} onClick={() => pickMarket(s)} style={{ ...S.btn2, fontSize: '0.82rem' }}>📍 {s.label}</button>)}
+          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, padding: '60px 24px', textAlign: 'center' }}>
+            <div style={{ width: 40, height: 40, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#9ca3af' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--gray-900)', marginBottom: 6 }}>Search a market to get started</h3>
+            <p style={{ fontSize: '0.85rem', color: '#9ca3af', maxWidth: 380, margin: '0 auto 20px' }}>Enter a city above to pull active cash buyers directly from county property records.</p>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {MARKETS.slice(0, 6).map(s => <button key={s.label} onClick={() => pickMarket(s)} style={{ ...S.btn2, fontSize: '0.8rem' }}>{s.label}</button>)}
             </div>
           </div>
         )}
@@ -310,10 +315,10 @@ function BuyerTable({ buyers, selected, enriching, onToggle, onToggleAll, allSel
     <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
         <thead>
-          <tr style={{ borderBottom: '1px solid var(--gray-100)', background: 'var(--gray-50)' }}>
+          <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
             <th style={{ padding: '10px 16px', width: 40 }}><input type="checkbox" checked={allSelected} onChange={onToggleAll} style={{ cursor: 'pointer' }} /></th>
             {['Buyer', 'Type', 'Purchases', 'Last Purchase', 'Price Range', 'Contact', 'Score', ''].map(h => (
-              <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-400)', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h}</th>
+              <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 400, color: '#9ca3af', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -326,12 +331,12 @@ function BuyerTable({ buyers, selected, enriching, onToggle, onToggleAll, allSel
                 onMouseLeave={e => { e.currentTarget.style.background = sel ? '#eff6ff' : 'white' }}>
                 <td style={{ padding: '13px 16px' }}><input type="checkbox" checked={sel} onChange={() => onToggle(b.id)} onClick={e => e.stopPropagation()} /></td>
                 <td style={{ padding: '13px 16px' }}>
-                  <div style={{ fontWeight: 600, color: 'var(--gray-900)' }}>{displayName(b)}</div>
+                  <div style={{ fontWeight: 500, color: 'var(--gray-900)' }}>{displayName(b)}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 2 }}>{b.city}, {b.state} {b.zip}</div>
                 </td>
                 <td style={{ padding: '13px 16px' }}><TypeBadge type={b.entityType} /></td>
                 <td style={{ padding: '13px 16px' }}>
-                  <span style={{ fontWeight: 700, color: 'var(--gray-900)' }}>{b.cashPurchaseCount}</span>
+                  <span style={{ fontWeight: 500, color: 'var(--gray-900)' }}>{b.cashPurchaseCount}</span>
                   <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginLeft: 4 }}>{b.cashPurchaseCount === 1 ? 'deal' : 'deals'}</span>
                 </td>
                 <td style={{ padding: '13px 16px', fontSize: '0.82rem', color: 'var(--gray-600)' }}>{relDate(b.lastPurchaseDate)}</td>
@@ -340,7 +345,7 @@ function BuyerTable({ buyers, selected, enriching, onToggle, onToggleAll, allSel
                 <td style={{ padding: '13px 16px' }}><Score score={b.buyerScore} /></td>
                 <td style={{ padding: '13px 10px' }}>
                   <div style={{ display: 'flex', gap: 5 }} onClick={e => e.stopPropagation()}>
-                    <Tip label="Add to CRM" icon="＋" /><Tip label="Send deal" icon="📋" />
+                    <Tip label="Add to CRM" icon="+" /><Tip label="Send deal" icon="→" />
                   </div>
                 </td>
               </tr>
@@ -374,7 +379,7 @@ function BuyerCards({ buyers, selected, onToggle }: { buyers: CashBuyer[]; selec
               {b.estimatedMaxPrice && <span style={S.tag}>Up to ${(b.estimatedMaxPrice / 1000).toFixed(0)}K</span>}
             </div>
             <div style={{ fontSize: '0.78rem' }}>
-              {b.contactEnriched ? <span style={{ color: '#059669', fontWeight: 600 }}>📞 {fmtPhone(b.phone)}</span> : <span style={{ color: 'var(--gray-400)' }}>No contact info yet</span>}
+              {b.contactEnriched ? <span style={{ color: '#059669', fontWeight: 500 }}>{fmtPhone(b.phone)}</span> : <span style={{ color: 'var(--gray-400)' }}>No contact info</span>}
             </div>
             <div style={{ marginTop: 5, fontSize: '0.72rem', color: 'var(--gray-400)' }}>Last purchase: {relDate(b.lastPurchaseDate)}</div>
           </div>
@@ -389,16 +394,16 @@ function BuyerCards({ buyers, selected, onToggle }: { buyers: CashBuyer[]; selec
 function LiveMonitor({ campaign, stats, liveCalls, onPause, onStop }: { campaign: Campaign; stats: any; liveCalls: LiveCall[]; onPause: () => void; onStop: () => void }) {
   const prog = stats.total > 0 ? Math.min((stats.completed / stats.total) * 100, 100) : 0
   return (
-    <div style={{ background: 'white', border: '1.5px solid #bfdbfe', borderRadius: 16, padding: 22, marginBottom: 18, boxShadow: '0 4px 20px rgba(37,99,235,.07)' }}>
+    <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, padding: 22, marginBottom: 18 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse-dot 1.5s infinite' }} />
-          <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--gray-900)' }}>{campaign.name}</span>
-          <span style={{ fontSize: '0.72rem', background: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: 20, fontWeight: 700 }}>LIVE</span>
+          <span style={{ fontWeight: 500, fontSize: '0.9rem', color: 'var(--gray-900)' }}>{campaign.name}</span>
+          <span style={{ fontSize: '0.68rem', background: '#d1fae5', color: '#065f46', padding: '2px 7px', borderRadius: 4, fontWeight: 500 }}>Live</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={onPause} style={S.btn2}>⏸ Pause</button>
-          <button onClick={onStop} style={{ ...S.btn2, color: '#dc2626', borderColor: '#fca5a5' }}>⏹ Stop</button>
+          <button onClick={onPause} style={S.btn2}>Pause</button>
+          <button onClick={onStop} style={{ ...S.btn2, color: '#dc2626', borderColor: '#fca5a5' }}>Stop</button>
         </div>
       </div>
       <div style={{ marginBottom: 16 }}>
@@ -410,10 +415,10 @@ function LiveMonitor({ campaign, stats, liveCalls, onPause, onStop }: { campaign
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
-        {[['Active Calls', stats.active, '#2563eb', '#eff6ff'], ['Qualified', stats.qualified, '#059669', '#d1fae5'], ['Not Buying', stats.notBuying, '#d97706', '#fef3c7'], ['No Answer', stats.noAnswer, '#9ca3af', '#f3f4f6']].map(([l, v, c, bg]) => (
-          <div key={l as string} style={{ background: bg as string, borderRadius: 10, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: c as string }}>{v as number}</div>
-            <div style={{ fontSize: '0.72rem', color: c as string, marginTop: 2, fontWeight: 500 }}>{l as string}</div>
+        {[['Active Calls', stats.active, '#1d4ed8', '#eff6ff'], ['Qualified', stats.qualified, '#065f46', '#d1fae5'], ['Not Buying', stats.notBuying, '#92400e', '#fef3c7'], ['No Answer', stats.noAnswer, '#6b7280', '#f3f4f6']].map(([l, v, c, bg]) => (
+          <div key={l as string} style={{ background: bg as string, borderRadius: 7, padding: '12px 14px', textAlign: 'center' }}>
+            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.35rem', fontWeight: 400, color: c as string }}>{v as number}</div>
+            <div style={{ fontSize: '0.7rem', color: c as string, marginTop: 2 }}>{l as string}</div>
           </div>
         ))}
       </div>
@@ -456,7 +461,7 @@ function Builder({ buyers, selected, market, cName, setCName, script, setScript,
     <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 500, background: 'white', zIndex: 101, display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 48px rgba(0,0,0,0.12)' }}>
       <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h3 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--gray-900)', margin: 0 }}>Launch Campaign</h3>
+          <h3 style={{ fontWeight: 500, fontSize: '0.95rem', color: 'var(--gray-900)', margin: 0 }}>Launch Campaign</h3>
           <p style={{ fontSize: '0.78rem', color: 'var(--gray-400)', margin: '2px 0 0' }}>{market?.label || 'No market selected'}</p>
         </div>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, color: 'var(--gray-300)', lineHeight: 1 }}>×</button>
@@ -468,18 +473,18 @@ function Builder({ buyers, selected, market, cName, setCName, script, setScript,
 
         <div style={{ background: (selected as Set<string>).size > 0 ? '#eff6ff' : 'var(--gray-50)', border: `1px solid ${(selected as Set<string>).size > 0 ? '#bfdbfe' : 'var(--gray-200)'}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: needs > 0 ? 6 : 0 }}>
-            <span style={{ fontWeight: 700, color: '#1d4ed8' }}>{(selected as Set<string>).size} buyers selected</span>
+            <span style={{ fontWeight: 500, color: '#1d4ed8' }}>{(selected as Set<string>).size} buyers selected</span>
             <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 600 }}>{enrichedSel} with contact info</span>
           </div>
-          {needs > 0 && <div style={{ fontSize: '0.78rem', color: '#d97706', display: 'flex', alignItems: 'center', gap: 5 }}>⚠ {needs} buyers have no phone — they'll be skipped unless enriched first</div>}
+          {needs > 0 && <div style={{ fontSize: '0.78rem', color: '#d97706' }}>{needs} buyers have no phone — they&apos;ll be skipped unless enriched first</div>}
         </div>
 
         <label style={S.lbl}>Calling Mode</label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
           {(['AI', 'MANUAL'] as const).map(m => (
-            <button key={m} onClick={() => setCallMode(m)} style={{ padding: 12, borderRadius: 10, cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', border: callMode === m ? '2px solid #2563eb' : '1.5px solid var(--gray-200)', background: callMode === m ? '#eff6ff' : 'white', color: callMode === m ? '#1d4ed8' : 'var(--gray-600)', transition: 'all 0.15s' }}>
-              {m === 'AI' ? '🤖 AI Mode' : '📞 Manual Mode'}
-              <div style={{ fontSize: '0.72rem', fontWeight: 400, marginTop: 3, color: callMode === m ? '#3b82f6' : 'var(--gray-400)' }}>{m === 'AI' ? 'Calls run automatically' : 'You dial each number'}</div>
+            <button key={m} onClick={() => setCallMode(m)} style={{ padding: 12, borderRadius: 7, cursor: 'pointer', fontWeight: 500, fontSize: '0.875rem', border: callMode === m ? '1.5px solid #374151' : '1px solid #e5e7eb', background: callMode === m ? '#111827' : 'white', color: callMode === m ? 'white' : '#6b7280', transition: 'all 0.15s', textAlign: 'left' as const }}>
+              {m === 'AI' ? 'AI Mode' : 'Manual Mode'}
+              <div style={{ fontSize: '0.72rem', fontWeight: 400, marginTop: 3, color: callMode === m ? '#9ca3af' : '#9ca3af' }}>{m === 'AI' ? 'Calls run automatically' : 'You dial each number'}</div>
             </button>
           ))}
         </div>
@@ -487,15 +492,15 @@ function Builder({ buyers, selected, market, cName, setCName, script, setScript,
         <label style={S.lbl}>Script Template</label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 20 }}>
           {SCRIPTS.map(t => (
-            <button key={t.id} onClick={() => setScript(t.id)} style={{ padding: '12px 14px', borderRadius: 10, cursor: 'pointer', textAlign: 'left', border: script === t.id ? '2px solid #2563eb' : '1.5px solid var(--gray-200)', background: script === t.id ? '#eff6ff' : 'white', transition: 'all 0.15s' }}>
+            <button key={t.id} onClick={() => setScript(t.id)} style={{ padding: '12px 14px', borderRadius: 7, cursor: 'pointer', textAlign: 'left' as const, border: script === t.id ? '1.5px solid #374151' : '1px solid #e5e7eb', background: script === t.id ? '#f9fafb' : 'white', transition: 'all 0.15s' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                <span style={{ fontWeight: 600, fontSize: '0.85rem', color: script === t.id ? '#1d4ed8' : 'var(--gray-900)' }}>{t.name}</span>
+                <span style={{ fontWeight: 500, fontSize: '0.84rem', color: 'var(--gray-900)' }}>{t.name}</span>
                 <div style={{ display: 'flex', gap: 5 }}>
-                  <span style={{ ...S.tag, background: script === t.id ? '#dbeafe' : 'var(--gray-100)', color: script === t.id ? '#1e40af' : 'var(--gray-600)' }}>{t.qualify} qualify</span>
-                  <span style={{ ...S.tag, background: script === t.id ? '#dbeafe' : 'var(--gray-100)', color: script === t.id ? '#1e40af' : 'var(--gray-600)' }}>{t.duration}</span>
+                  <span style={{ ...S.tag }}>{t.qualify} qualify</span>
+                  <span style={{ ...S.tag }}>{t.duration}</span>
                 </div>
               </div>
-              <div style={{ fontSize: '0.78rem', color: script === t.id ? '#3b82f6' : 'var(--gray-500)' }}>{t.desc}</div>
+              <div style={{ fontSize: '0.78rem', color: '#9ca3af' }}>{t.desc}</div>
             </button>
           ))}
         </div>
@@ -529,8 +534,8 @@ function Builder({ buyers, selected, market, cName, setCName, script, setScript,
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', color: 'var(--gray-600)', paddingBottom: 10, borderBottom: '1px solid var(--gray-200)' }}>
             <span>Contact enrichment</span><span style={{ fontWeight: 600 }}>$0.04/lookup</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 10, fontWeight: 800, fontSize: '0.95rem' }}>
-            <span>Total estimated</span><span style={{ color: '#2563eb' }}>~${cost}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 10, fontWeight: 500, fontSize: '0.9rem' }}>
+            <span>Total estimated</span><span>~${cost}</span>
           </div>
         </div>
 
@@ -543,7 +548,7 @@ function Builder({ buyers, selected, market, cName, setCName, script, setScript,
       <div style={{ padding: '16px 24px', borderTop: '1px solid var(--gray-100)', display: 'flex', gap: 10 }}>
         <button onClick={onClose} style={{ ...S.btn2, flex: 1, justifyContent: 'center' }}>Cancel</button>
         <button onClick={onLaunch} disabled={!canLaunch} style={{ ...S.btn1, flex: 2, justifyContent: 'center', opacity: canLaunch ? 1 : 0.45, cursor: canLaunch ? 'pointer' : 'not-allowed', fontSize: '0.9rem' }}>
-          {launching ? 'Launching...' : '🚀 Launch Campaign'}
+          {launching ? 'Launching...' : 'Launch Campaign'}
         </button>
       </div>
     </div>
@@ -554,14 +559,18 @@ function Builder({ buyers, selected, market, cName, setCName, script, setScript,
 
 function CampaignHistory({ campaigns, onSelect }: { campaigns: Campaign[]; onSelect: (c: Campaign) => void }) {
   if (!campaigns.length) return (
-    <div style={{ background: 'white', border: '1px solid var(--gray-100)', borderRadius: 16, padding: '60px 24px', textAlign: 'center' }}>
-      <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
-      <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--gray-900)', margin: '0 0 6px' }}>No campaigns yet</h3>
-      <p style={{ fontSize: '0.875rem', color: 'var(--gray-500)', margin: 0 }}>Launch your first campaign to see history here.</p>
+    <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, padding: '60px 24px', textAlign: 'center' }}>
+      <div style={{ width: 40, height: 40, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', color: '#9ca3af' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
+        </svg>
+      </div>
+      <h3 style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--gray-900)', margin: '0 0 6px' }}>No campaigns yet</h3>
+      <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Launch your first campaign to see history here.</p>
     </div>
   )
   return (
-    <div style={{ background: 'white', border: '1px solid var(--gray-100)', borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+    <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--gray-100)', background: 'var(--gray-50)' }}>
@@ -575,11 +584,11 @@ function CampaignHistory({ campaigns, onSelect }: { campaigns: Campaign[]; onSel
             <tr key={c.id} onClick={() => onSelect(c)} style={{ borderBottom: '1px solid var(--gray-100)', cursor: 'pointer' }}
               onMouseEnter={e => (e.currentTarget.style.background = 'var(--gray-50)')}
               onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
-              <td style={{ padding: '13px 16px', fontWeight: 600, color: 'var(--gray-900)' }}>{c.name}</td>
-              <td style={{ padding: '13px 16px', color: 'var(--gray-500)', fontSize: '0.82rem' }}>📍 {c.market}</td>
+              <td style={{ padding: '13px 16px', fontWeight: 500, color: 'var(--gray-900)' }}>{c.name}</td>
+              <td style={{ padding: '13px 16px', color: 'var(--gray-500)', fontSize: '0.82rem' }}>{c.market}</td>
               <td style={{ padding: '13px 16px' }}><StatusBadge status={c.status} /></td>
               <td style={{ padding: '13px 16px', color: 'var(--gray-700)' }}>{c.totalBuyers}</td>
-              <td style={{ padding: '13px 16px', color: '#059669', fontWeight: 700 }}>{c.qualified}</td>
+              <td style={{ padding: '13px 16px', color: '#059669', fontWeight: 500 }}>{c.qualified}</td>
               <td style={{ padding: '13px 16px', color: 'var(--gray-500)', fontSize: '0.82rem' }}>{fmtDur(c.totalTalkTime)}</td>
               <td style={{ padding: '13px 16px', color: 'var(--gray-400)', fontSize: '0.8rem' }}>{new Date(c.createdAt).toLocaleDateString()}</td>
               <td style={{ padding: '13px 16px' }}><button style={{ ...S.btn2, fontSize: '0.78rem', padding: '4px 10px' }}>Re-run</button></td>
@@ -626,7 +635,7 @@ function PriceCol({ min, max }: { min?: number; max?: number }) {
 function ContactCol({ buyer, onEnrich, enriching }: { buyer: CashBuyer; onEnrich: () => void; enriching: boolean }) {
   if (buyer.contactEnriched && buyer.phone) return (
     <div>
-      <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>📞 {fmtPhone(buyer.phone)}</div>
+      <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 500 }}>{fmtPhone(buyer.phone)}</div>
       {buyer.email && <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)', marginTop: 2 }}>{buyer.email}</div>}
     </div>
   )
@@ -694,10 +703,10 @@ function simulateLive(prev: LiveCall[]): LiveCall[] {
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
 const S = {
-  btn1: { display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:10,border:'none',background:'#2563eb',color:'white',fontSize:'0.85rem',fontWeight:600,cursor:'pointer' } as React.CSSProperties,
-  btn2: { display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,border:'1px solid var(--gray-200)',background:'white',color:'var(--gray-700)',fontSize:'0.85rem',fontWeight:600,cursor:'pointer' } as React.CSSProperties,
-  sel: { padding:'6px 10px',border:'1px solid var(--gray-200)',borderRadius:8,fontSize:'0.8rem',outline:'none',background:'white',cursor:'pointer' } as React.CSSProperties,
-  lbl: { display:'block',fontSize:'0.8rem',fontWeight:600,color:'var(--gray-700)',marginBottom:6 } as React.CSSProperties,
-  inp: { width:'100%',padding:'9px 12px',border:'1.5px solid var(--gray-200)',borderRadius:8,fontSize:'0.875rem',outline:'none',boxSizing:'border-box' } as React.CSSProperties,
-  tag: { fontSize:'0.72rem',padding:'2px 7px',borderRadius:20,background:'var(--gray-100)',color:'var(--gray-600)',fontWeight:500 } as React.CSSProperties,
+  btn1: { display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:6,border:'none',background:'#111827',color:'white',fontSize:'0.84rem',fontWeight:500,cursor:'pointer' } as React.CSSProperties,
+  btn2: { display:'flex',alignItems:'center',gap:6,padding:'7px 13px',borderRadius:6,border:'1px solid #e5e7eb',background:'white',color:'#374151',fontSize:'0.84rem',fontWeight:400,cursor:'pointer' } as React.CSSProperties,
+  sel: { padding:'6px 10px',border:'1px solid #e5e7eb',borderRadius:6,fontSize:'0.8rem',outline:'none',background:'white',cursor:'pointer' } as React.CSSProperties,
+  lbl: { display:'block',fontSize:'0.78rem',fontWeight:400,color:'#6b7280',marginBottom:6 } as React.CSSProperties,
+  inp: { width:'100%',padding:'9px 12px',border:'1px solid #e5e7eb',borderRadius:6,fontSize:'0.875rem',outline:'none',boxSizing:'border-box' } as React.CSSProperties,
+  tag: { fontSize:'0.7rem',padding:'2px 6px',borderRadius:4,background:'#f3f4f6',color:'#6b7280',fontWeight:400 } as React.CSSProperties,
 }

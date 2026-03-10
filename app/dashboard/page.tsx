@@ -5,75 +5,14 @@ import { prisma } from '@/lib/prisma'
 import { Role } from '@prisma/client'
 
 const wholesalerActions = [
-  {
-    href: '/dashboard/deals/new',
-    title: 'Submit a Deal',
-    desc: 'Add a property to start AI buyer matching',
-    cta: 'Submit deal →',
-    accent: '#2563eb',
-    bg: '#eff6ff',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-    ),
-  },
-  {
-    href: '/dashboard/buyers',
-    title: 'Buyer CRM',
-    desc: 'View matched cash buyers and call logs',
-    cta: 'View buyers →',
-    accent: '#059669',
-    bg: '#f0fdf4',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-  },
-  {
-    href: '/dashboard/activity',
-    title: 'Activity',
-    desc: 'Track AI calls, matches, and milestones',
-    cta: 'See activity →',
-    accent: '#d97706',
-    bg: '#fffbeb',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-    ),
-  },
+  { href: '/dashboard/deals/new', title: 'Submit a deal', desc: 'List a property and start AI buyer matching' },
+  { href: '/dashboard/buyers', title: 'Buyer discovery', desc: 'Find and call verified cash buyers' },
+  { href: '/dashboard/activity', title: 'Activity log', desc: 'AI calls, matches, and milestones' },
 ]
 
 const buyerActions = [
-  {
-    href: '/dashboard/buyerbox',
-    title: 'Set Buy Box',
-    desc: 'Define your criteria to receive matched deals',
-    cta: 'Set criteria →',
-    accent: '#2563eb',
-    bg: '#eff6ff',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
-      </svg>
-    ),
-  },
-  {
-    href: '/dashboard/feed',
-    title: 'Deal Feed',
-    desc: 'Browse deals matched to your buy box',
-    cta: 'Browse deals →',
-    accent: '#059669',
-    bg: '#f0fdf4',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
-      </svg>
-    ),
-  },
+  { href: '/dashboard/buyerbox', title: 'Set buy box', desc: 'Define criteria to receive matched deals' },
+  { href: '/dashboard/feed', title: 'Deal feed', desc: 'Browse deals matched to your criteria' },
 ]
 
 export default async function DashboardPage() {
@@ -85,68 +24,66 @@ export default async function DashboardPage() {
   if (!profile) redirect('/onboarding')
 
   const isWholesaler = profile.role === Role.WHOLESALER || profile.role === Role.BOTH
-  const isBuyer = profile.role === Role.BUYER || profile.role === Role.BOTH
   const firstName = profile.firstName ?? profile.email.split('@')[0]
   const actions = isWholesaler ? wholesalerActions : buyerActions
 
   return (
     <div className="p-9 max-w-[1080px]">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-9">
         <h1
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-          className="text-[1.7rem] font-extrabold text-gray-900 tracking-[-0.03em] mb-1.5"
+          className="text-[1.45rem] font-medium text-gray-900 tracking-[-0.025em] mb-1"
         >
           Welcome back, {firstName}
         </h1>
-        <p className="text-[0.88rem] text-gray-500">
-          Here&apos;s what&apos;s happening with your {isWholesaler ? 'deals' : 'pipeline'} today.
+        <p className="text-[0.85rem] text-gray-400">
+          {isWholesaler ? 'Your deals and pipeline at a glance.' : 'Your matched deals and pipeline.'}
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8 dash-stats">
+      <div className="grid grid-cols-4 gap-3 mb-9 dash-stats">
         {[
-          { label: isWholesaler ? 'Active Deals' : 'Matched Deals', value: '0', sub: isWholesaler ? 'No deals submitted yet' : 'No matches yet' },
-          { label: isWholesaler ? 'Buyer Matches' : 'Calls Received', value: '0', sub: 'AI outreach pending' },
-          { label: 'AI Calls Made', value: '0', sub: 'Automated outreach' },
-          { label: isWholesaler ? 'Closed Deals' : 'Deals Closed', value: '0', sub: 'Assignments completed' },
+          { label: isWholesaler ? 'Active Deals' : 'Matched Deals', value: '0' },
+          { label: isWholesaler ? 'Buyer Matches' : 'Calls Received', value: '0' },
+          { label: 'AI Calls', value: '0' },
+          { label: 'Closed', value: '0' },
         ].map(s => (
-          <div key={s.label} className="bg-white border border-gray-100 rounded-2xl px-5 py-5 shadow-sm">
-            <div className="text-[0.68rem] font-semibold tracking-[0.06em] uppercase text-gray-400 mb-2">{s.label}</div>
+          <div key={s.label} className="bg-white border border-gray-200 rounded-lg px-5 py-4">
+            <div className="text-[0.7rem] text-gray-400 mb-3 tracking-wide uppercase">{s.label}</div>
             <div
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              className="text-[2rem] font-extrabold text-gray-900 tracking-[-0.04em] leading-none mb-1.5"
+              className="text-[2rem] font-normal text-gray-900 tracking-[-0.04em] leading-none"
             >
               {s.value}
             </div>
-            <div className="text-[0.72rem] text-gray-400">{s.sub}</div>
           </div>
         ))}
       </div>
 
       {/* Quick actions */}
-      <div className="mb-8">
-        <h2 className="text-[0.68rem] font-bold tracking-[0.08em] uppercase text-gray-400 mb-3.5">Quick Actions</h2>
-        <div className="grid grid-cols-3 gap-4 dash-actions">
-          {actions.map(a => (
-            <Link key={a.href} href={a.href} className="no-underline group">
-              <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm transition-all duration-150 group-hover:shadow-md group-hover:border-gray-200 group-hover:-translate-y-px h-full">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: a.bg, color: a.accent }}
-                >
-                  {a.icon}
-                </div>
-                <div
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--gray-900)' }}
-                  className="font-bold text-[0.95rem] mb-1.5 tracking-[-0.02em]"
-                >
-                  {a.title}
-                </div>
-                <div className="text-[0.8rem] text-gray-500 mb-4 leading-relaxed">{a.desc}</div>
-                <div className="text-[0.8rem] font-semibold" style={{ color: a.accent }}>{a.cta}</div>
+      <div className="mb-9">
+        <div className="text-[0.68rem] text-gray-400 mb-3 tracking-wide uppercase">Get started</div>
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          {actions.map((a, i) => (
+            <Link
+              key={a.href}
+              href={a.href}
+              className={`flex items-center justify-between px-5 py-4 no-underline group transition-colors hover:bg-gray-50 ${
+                i < actions.length - 1 ? 'border-b border-gray-100' : ''
+              }`}
+            >
+              <div>
+                <div className="text-[0.88rem] text-gray-800 mb-0.5">{a.title}</div>
+                <div className="text-[0.78rem] text-gray-400">{a.desc}</div>
               </div>
+              <svg
+                className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-500 transition-colors flex-shrink-0"
+                fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+              >
+                <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </Link>
           ))}
         </div>
@@ -154,36 +91,27 @@ export default async function DashboardPage() {
 
       {/* Recent */}
       <div>
-        <div className="flex items-center justify-between mb-3.5">
-          <h2 className="text-[0.68rem] font-bold tracking-[0.08em] uppercase text-gray-400">
-            {isWholesaler ? 'Recent Deals' : 'Recent Matches'}
-          </h2>
-          <Link href={isWholesaler ? '/dashboard/deals' : '/dashboard/feed'} className="text-[0.78rem] text-blue-600 font-semibold no-underline">
-            View all →
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-[0.68rem] text-gray-400 tracking-wide uppercase">
+            {isWholesaler ? 'Recent deals' : 'Recent matches'}
+          </div>
+          <Link
+            href={isWholesaler ? '/dashboard/deals' : '/dashboard/feed'}
+            className="text-[0.78rem] text-gray-400 no-underline hover:text-gray-700 transition-colors"
+          >
+            View all
           </Link>
         </div>
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm">
-          <div className="py-16 px-6 text-center">
-            <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center mx-auto mb-4 text-gray-400">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-            </div>
-            <div
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              className="font-bold text-[0.9rem] text-gray-800 mb-1.5"
-            >
-              {isWholesaler ? 'No deals yet' : 'No matches yet'}
-            </div>
-            <div className="text-[0.82rem] text-gray-400 mb-5 max-w-[300px] mx-auto">
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <div className="py-14 px-6 text-center">
+            <div className="text-[0.84rem] text-gray-400 mb-5 max-w-[340px] mx-auto">
               {isWholesaler
-                ? 'Submit your first property to start getting buyer matches.'
-                : 'Set up your buy box and deals will start appearing here.'}
+                ? 'No deals submitted yet. Submit a property to get started.'
+                : 'No matches yet. Set up your buy box to receive deals.'}
             </div>
             <Link
               href={isWholesaler ? '/dashboard/deals/new' : '/dashboard/buyerbox'}
-              className="inline-flex items-center gap-1.5 bg-blue-600 text-white rounded-[9px] px-4 py-2.5 text-[0.84rem] font-bold no-underline"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              className="inline-flex items-center gap-1.5 border border-gray-300 text-gray-700 rounded-md px-4 py-2 text-[0.84rem] no-underline hover:bg-gray-50 transition-colors"
             >
               {isWholesaler ? 'Submit a deal' : 'Set up buy box'}
             </Link>
@@ -194,7 +122,6 @@ export default async function DashboardPage() {
       <style>{`
         @media (max-width: 900px) {
           .dash-stats { grid-template-columns: repeat(2, 1fr) !important; }
-          .dash-actions { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>

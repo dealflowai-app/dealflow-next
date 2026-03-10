@@ -4,48 +4,46 @@ export default function ActivityPage() {
       <div style={{ marginBottom: 32 }}>
         <h1 style={{
           fontFamily: "'Bricolage Grotesque', sans-serif",
-          fontSize: '1.75rem',
-          fontWeight: 800,
-          color: 'var(--gray-900)',
-          letterSpacing: '-0.03em',
+          fontSize: '1.45rem',
+          fontWeight: 500,
+          color: '#111827',
+          letterSpacing: '-0.025em',
           marginBottom: 6,
         }}>
           Activity
         </h1>
-        <p style={{ fontSize: '0.9rem', color: 'var(--gray-500)' }}>
+        <p style={{ fontSize: '0.85rem', color: '#9ca3af' }}>
           AI call logs, buyer matches, and deal milestones.
         </p>
       </div>
 
-      {/* Empty state */}
       <div style={{
-        background: 'var(--white)',
-        border: '1px solid var(--gray-100)',
-        borderRadius: 16,
+        background: '#ffffff',
+        border: '1px solid #e5e7eb',
+        borderRadius: 8,
         padding: '72px 24px',
         textAlign: 'center',
-        boxShadow: 'var(--shadow-sm)',
       }}>
         <div style={{
-          width: 52,
-          height: 52,
-          borderRadius: 13,
-          background: 'var(--gray-50)',
-          border: '1px solid var(--gray-200)',
+          width: 44,
+          height: 44,
+          borderRadius: 8,
+          background: '#f9fafb',
+          border: '1px solid #e5e7eb',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           margin: '0 auto 16px',
-          color: 'var(--gray-400)',
+          color: '#9ca3af',
         }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
           </svg>
         </div>
-        <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--gray-800)', marginBottom: 7, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        <div style={{ fontSize: '0.9rem', color: '#374151', marginBottom: 8 }}>
           No activity yet
         </div>
-        <div style={{ fontSize: '0.85rem', color: 'var(--gray-400)', maxWidth: 360, margin: '0 auto' }}>
+        <div style={{ fontSize: '0.82rem', color: '#9ca3af', maxWidth: 360, margin: '0 auto' }}>
           Activity will appear here once the AI starts making calls and matching buyers to your deals.
         </div>
       </div>
