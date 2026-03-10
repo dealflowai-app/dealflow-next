@@ -78,7 +78,7 @@ export default function Platform() {
         </div>
         <h2
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: 'inherit',
             fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
             fontWeight: 800,
             lineHeight: 1.1,
@@ -128,7 +128,7 @@ export default function Platform() {
               <div style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-400)', marginBottom: 14 }}>
                 {eng.num}
               </div>
-              <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: '0.97rem', color: 'var(--gray-900)', marginBottom: 8 }}>
+              <div style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: '0.97rem', color: 'var(--gray-900)', marginBottom: 8 }}>
                 {eng.name}
               </div>
               <div style={{ fontSize: '0.83rem', color: 'var(--gray-500)', lineHeight: 1.65 }}>

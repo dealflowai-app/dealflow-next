@@ -53,7 +53,7 @@ export default function Footer() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: 'inherit',
               fontWeight: 700,
               fontSize: '1rem',
               color: 'var(--gray-900)',

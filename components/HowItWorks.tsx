@@ -75,7 +75,7 @@ export default function HowItWorks() {
       </div>
       <h2
         style={{
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: 'inherit',
           fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
           fontWeight: 800,
           lineHeight: 1.1,
@@ -282,7 +282,7 @@ function VisScreen0() {
             textAlign: 'center',
           }}
         >
-          <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1.05rem', color: 'var(--gray-900)' }}>Nationwide</div>
+          <div style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1.05rem', color: 'var(--gray-900)' }}>Nationwide</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 2 }}>All markets active</div>
         </div>
       </div>
@@ -293,7 +293,7 @@ function VisScreen0() {
           { num: '$14K', numColor: 'var(--green)', label: 'Avg assign fee' },
         ].map((chip, i) => (
           <div key={i} style={{ flex: 1, background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1.3rem', color: chip.numColor, letterSpacing: '-0.03em', lineHeight: 1 }}>
+            <div style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1.3rem', color: chip.numColor, letterSpacing: '-0.03em', lineHeight: 1 }}>
               {chip.num}
             </div>
             <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 3 }}>{chip.label}</div>
@@ -323,7 +323,7 @@ function VisScreen1() {
             <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--gray-900)' }}>{buyer.name}</div>
             <div style={{ fontSize: '0.72rem', color: 'var(--gray-500)', marginTop: 1 }}>{buyer.tag}</div>
           </div>
-          <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1.05rem', color: 'var(--blue-600)', marginLeft: 'auto' }}>
+          <div style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1.05rem', color: 'var(--blue-600)', marginLeft: 'auto' }}>
             {buyer.score}
           </div>
         </div>

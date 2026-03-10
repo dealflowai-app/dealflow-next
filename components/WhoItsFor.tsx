@@ -18,7 +18,7 @@ export default function WhoItsFor() {
         </div>
         <h2
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: 'inherit',
             fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
             fontWeight: 800,
             lineHeight: 1.1,
@@ -151,7 +151,7 @@ function WhoLeftW() {
     <div>
       <div
         style={{
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: 'inherit',
           fontSize: '1.85rem',
           fontWeight: 800,
           letterSpacing: '-0.03em',
@@ -226,7 +226,7 @@ function WhoLeftB() {
     <div>
       <div
         style={{
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: 'inherit',
           fontSize: '1.85rem',
           fontWeight: 800,
           letterSpacing: '-0.03em',

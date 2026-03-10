@@ -77,7 +77,7 @@ export default function AiCallDemo() {
           </p>
           <h2
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: 'inherit',
               fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
               fontWeight: 800,
               lineHeight: 1.1,
@@ -131,7 +131,7 @@ export default function AiCallDemo() {
                 <span className="live-pill-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
                 <span style={{ fontSize: '0.64rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Live</span>
               </div>
-              <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '0.8rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.04em' }}>
+              <div style={{ fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.04em' }}>
                 {fmt(secs)}
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function AiCallDemo() {
               { val: '9', label: 'not buying', color: 'var(--gray-400)' },
             ].map((s) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1rem', color: s.color, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                <span style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1rem', color: s.color, letterSpacing: '-0.02em', lineHeight: 1 }}>
                   {s.val}
                 </span>
                 <span style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>{s.label}</span>

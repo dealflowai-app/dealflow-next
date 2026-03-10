@@ -105,7 +105,7 @@ export default function BuyerMatchDemo() {
             </div>
             <div
               style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: 'inherit',
                 fontWeight: 700,
                 fontSize: '1rem',
                 color: 'var(--gray-900)',
@@ -137,7 +137,7 @@ export default function BuyerMatchDemo() {
                   <div style={{ fontSize: '0.66rem', color: 'var(--gray-400)', marginBottom: 2 }}>{chip.label}</div>
                   <div
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: 'inherit',
                       fontWeight: 700,
                       fontSize: '0.85rem',
                       color: chip.color,
@@ -203,7 +203,7 @@ export default function BuyerMatchDemo() {
                   </div>
                   <div
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: 'inherit',
                       fontWeight: 800,
                       fontSize: '1.1rem',
                       color: 'var(--blue-600)',
@@ -272,7 +272,7 @@ export default function BuyerMatchDemo() {
           </p>
           <h2
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: 'inherit',
               fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
               fontWeight: 800,
               lineHeight: 1.1,

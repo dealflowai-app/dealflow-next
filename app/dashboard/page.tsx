@@ -94,7 +94,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <h1
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          style={{ fontFamily: 'inherit' }}
           className="text-[1.7rem] font-extrabold text-gray-900 tracking-[-0.03em] mb-1.5"
         >
           Welcome back, {firstName}
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
           <div key={s.label} className="bg-white border border-gray-100 rounded-2xl px-5 py-5 shadow-sm">
             <div className="text-[0.68rem] font-semibold tracking-[0.06em] uppercase text-gray-400 mb-2">{s.label}</div>
             <div
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ fontFamily: 'inherit' }}
               className="text-[2rem] font-extrabold text-gray-900 tracking-[-0.04em] leading-none mb-1.5"
             >
               {s.value}
@@ -139,7 +139,7 @@ export default async function DashboardPage() {
                   {a.icon}
                 </div>
                 <div
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--gray-900)' }}
+                  style={{ fontFamily: 'inherit', color: 'var(--gray-900)' }}
                   className="font-bold text-[0.95rem] mb-1.5 tracking-[-0.02em]"
                 >
                   {a.title}
@@ -170,7 +170,7 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <div
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ fontFamily: 'inherit' }}
               className="font-bold text-[0.9rem] text-gray-800 mb-1.5"
             >
               {isWholesaler ? 'No deals yet' : 'No matches yet'}
@@ -183,7 +183,7 @@ export default async function DashboardPage() {
             <Link
               href={isWholesaler ? '/dashboard/deals/new' : '/dashboard/buyerbox'}
               className="inline-flex items-center gap-1.5 bg-blue-600 text-white rounded-[9px] px-4 py-2.5 text-[0.84rem] font-bold no-underline"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ fontFamily: 'inherit' }}
             >
               {isWholesaler ? 'Submit a deal' : 'Set up buy box'}
             </Link>

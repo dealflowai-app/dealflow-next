@@ -61,7 +61,7 @@ export default function CtaSection() {
 
         <h2
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: 'inherit',
             fontSize: 'clamp(2rem, 3.5vw, 3rem)',
             fontWeight: 800,
             letterSpacing: '-0.04em',
@@ -150,7 +150,7 @@ export default function CtaSection() {
                   padding: '12px 26px',
                   borderRadius: 10,
                   border: 'none',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: 'inherit',
                   fontWeight: 700,
                   fontSize: '0.92rem',
                   cursor: 'pointer',
@@ -206,7 +206,7 @@ export default function CtaSection() {
             </div>
             <div
               style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: 'inherit',
                 fontWeight: 700,
                 fontSize: '1.15rem',
                 color: 'var(--gray-900)',

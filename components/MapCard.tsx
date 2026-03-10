@@ -257,7 +257,7 @@ function FloatCard() {
         opacity,
       }}
     >
-      <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>
+      <div style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>
         {deal.price}
       </div>
       <div style={{ color: 'var(--gray-500)', marginTop: 1 }}>{deal.addr}</div>

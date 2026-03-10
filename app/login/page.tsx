@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div style={{ padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
           <Image src="/Logo.png" alt="DealFlow AI" width={32} height={32} style={{ objectFit: 'contain' }} />
-          <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>
+          <span style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>
             DealFlow AI
           </span>
         </Link>
@@ -73,7 +73,7 @@ export default function LoginPage() {
             </svg>
           </div>
 
-          <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.7rem', fontWeight: 800, color: 'var(--gray-900)', letterSpacing: '-0.03em', marginBottom: 6, lineHeight: 1.1 }}>
+          <h1 style={{ fontFamily: 'inherit', fontSize: '1.7rem', fontWeight: 800, color: 'var(--gray-900)', letterSpacing: '-0.03em', marginBottom: 6, lineHeight: 1.1 }}>
             Welcome back
           </h1>
           <p style={{ fontSize: '0.88rem', color: 'var(--gray-500)', marginBottom: 32, lineHeight: 1.5 }}>
@@ -181,7 +181,7 @@ export default function LoginPage() {
                 border: 'none',
                 borderRadius: 12,
                 padding: '13px 24px',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: 'inherit',
                 fontWeight: 700,
                 fontSize: '0.95rem',
                 cursor: loading ? 'not-allowed' : 'pointer',
