@@ -75,10 +75,10 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 40px',
-          background: 'rgba(255,255,255,0.95)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid var(--gray-200)',
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
         }}
       >
         {/* Logo */}
@@ -89,9 +89,8 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
             display: 'flex',
             alignItems: 'center',
             gap: 9,
-            fontFamily: "'Bricolage Grotesque', sans-serif",
-            fontWeight: 700,
-            fontSize: '1.05rem',
+            fontWeight: 600,
+            fontSize: '0.97rem',
             color: 'var(--gray-900)',
             textDecoration: 'none',
             letterSpacing: '-0.02em',
@@ -100,30 +99,11 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           <Image
             src="/Logo.png"
             alt="DealFlow AI logo"
-            width={36}
-            height={36}
+            width={28}
+            height={28}
             style={{ objectFit: 'contain', flexShrink: 0 }}
           />
           DealFlow AI
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              fontSize: '0.68rem',
-              fontWeight: 600,
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-              color: 'var(--blue-600)',
-              background: 'var(--blue-50)',
-              border: '1px solid var(--blue-100)',
-              borderRadius: 20,
-              padding: '2px 8px',
-              lineHeight: 1,
-            }}
-          >
-            Beta
-          </span>
         </Link>
 
         {/* Center links — desktop only */}
