@@ -1,6 +1,6 @@
 export default function ActivityPage() {
   return (
-    <div style={{ padding: '36px 40px', maxWidth: 1100 }}>
+    <div style={{ padding: '36px 40px', maxWidth: 1080 }}>
       <div style={{ marginBottom: 32 }}>
         <h1 style={{
           fontFamily: "'Bricolage Grotesque', sans-serif",

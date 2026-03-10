@@ -169,6 +169,160 @@ create policy "Buyers can view their own matches"
 
 
 -- ============================================================
+-- 6. SAVED MARKETS
+-- Markets a wholesaler has searched / saved
+-- ============================================================
+create table if not exists saved_markets (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid references profiles(id) on delete cascade,
+  name         text not null,
+  type         text check (type in ('city', 'county', 'zip')),
+  state        text,
+  buyer_count  integer default 0,
+  last_synced  timestamptz,
+  created_at   timestamptz default now()
+);
+
+alter table saved_markets enable row level security;
+create policy "Users manage own markets"
+  on saved_markets for all
+  using (auth.uid() = user_id);
+
+
+-- ============================================================
+-- 7. CASH BUYERS
+-- Buyers discovered from public records (ATTOM) per market
+-- ============================================================
+create table if not exists cash_buyers (
+  id                    uuid primary key default gen_random_uuid(),
+  user_id               uuid references profiles(id) on delete cascade,
+  market_id             uuid references saved_markets(id) on delete set null,
+  name                  text not null,
+  entity_type           text check (entity_type in ('individual', 'llc', 'corporation', 'trust')),
+  phone                 text,
+  email                 text,
+  mailing_address       text,
+  cash_purchases_12mo   integer default 0,
+  last_purchase_date    date,
+  price_range_min       integer,
+  price_range_max       integer,
+  property_types        text[],
+  contact_status        text default 'needs_enrichment'
+                          check (contact_status in ('enriched', 'needs_enrichment', 'do_not_call', 'opted_out')),
+  activity_score        integer check (activity_score between 0 and 100),
+  in_crm                boolean default false,
+  ai_preferences        jsonb,   -- structured data captured from call transcript
+  attom_id              text,    -- ATTOM Data source ID for dedup
+  created_at            timestamptz default now(),
+  updated_at            timestamptz default now()
+);
+
+alter table cash_buyers enable row level security;
+create policy "Users manage own buyers"
+  on cash_buyers for all
+  using (auth.uid() = user_id);
+
+
+-- ============================================================
+-- 8. CAMPAIGNS
+-- Outreach campaign configuration and stats
+-- ============================================================
+create table if not exists campaigns (
+  id                  uuid primary key default gen_random_uuid(),
+  user_id             uuid references profiles(id) on delete cascade,
+  name                text not null,
+  market_name         text,
+  market_id           uuid references saved_markets(id) on delete set null,
+  status              text default 'draft'
+                        check (status in ('draft', 'running', 'paused', 'completed', 'cancelled')),
+  mode                text check (mode in ('ai', 'manual')) default 'ai',
+  buyer_source        text check (buyer_source in ('discovery', 'crm', 'both')) default 'discovery',
+  buyer_count         integer default 0,
+  script_template     text,
+  script_custom       text,
+  company_name        text,
+  agent_name          text,
+  tone                text check (tone in ('professional', 'conversational')) default 'professional',
+  max_concurrent      integer default 5,
+  call_hours_start    time default '09:00',
+  call_hours_end      time default '19:00',
+  voicemail_action    text check (voicemail_action in ('leave_message', 'hang_up')) default 'leave_message',
+  retry_count         integer default 2,
+  retry_hours         integer default 4,
+  schedule_type       text check (schedule_type in ('now', 'later', 'recurring')) default 'now',
+  scheduled_at        timestamptz,
+  buyers_total        integer default 0,
+  buyers_called       integer default 0,
+  calls_qualified     integer default 0,
+  calls_not_buying    integer default 0,
+  calls_no_answer     integer default 0,
+  total_talk_seconds  integer default 0,
+  compliance_agreed   boolean default false,
+  started_at          timestamptz,
+  completed_at        timestamptz,
+  created_at          timestamptz default now(),
+  updated_at          timestamptz default now()
+);
+
+alter table campaigns enable row level security;
+create policy "Users manage own campaigns"
+  on campaigns for all
+  using (auth.uid() = user_id);
+
+
+-- ============================================================
+-- 9. CAMPAIGN CALLS
+-- Individual call records per campaign
+-- ============================================================
+create table if not exists campaign_calls (
+  id                 uuid primary key default gen_random_uuid(),
+  campaign_id        uuid references campaigns(id) on delete cascade,
+  buyer_id           uuid references cash_buyers(id) on delete cascade,
+  bland_call_id      text,              -- Bland AI call ID for webhook correlation
+  status             text check (status in ('queued', 'calling', 'in_progress', 'completed', 'failed', 'no_answer', 'voicemail')),
+  outcome            text check (outcome in ('qualified', 'not_buying', 'no_answer', 'voicemail', 'callback', 'do_not_call')),
+  duration_seconds   integer,
+  transcript         text,
+  ai_summary         text,
+  ai_extracted       jsonb,             -- structured buyer preferences from transcript parsing
+  compliance_check   jsonb,             -- DNC check result, time check, opt-out status at call time
+  started_at         timestamptz,
+  ended_at           timestamptz,
+  created_at         timestamptz default now()
+);
+
+alter table campaign_calls enable row level security;
+create policy "Users view own campaign calls"
+  on campaign_calls for select
+  using (
+    auth.uid() = (select user_id from campaigns where id = campaign_id)
+  );
+
+
+-- ============================================================
+-- 10. OPT OUTS / DO NOT CALL LIST
+-- Permanent — never purge
+-- ============================================================
+create table if not exists opt_outs (
+  id         uuid primary key default gen_random_uuid(),
+  phone      text not null unique,
+  email      text,
+  name       text,
+  reason     text,
+  added_by   uuid references profiles(id),
+  created_at timestamptz default now()
+);
+
+alter table opt_outs enable row level security;
+create policy "Authenticated users can insert opt outs"
+  on opt_outs for insert
+  with check (auth.role() = 'authenticated');
+create policy "Authenticated users view opt outs"
+  on opt_outs for select
+  using (auth.role() = 'authenticated');
+
+
+-- ============================================================
 -- Done. Copy this file and run it in:
 -- Supabase Dashboard > SQL Editor > New Query > Paste > Run
 -- ============================================================

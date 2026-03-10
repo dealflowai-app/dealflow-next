@@ -6,11 +6,81 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
 enum Role {
   WHOLESALER
   BUYER
   BOTH
 }
+
+enum CampaignStatus {
+  DRAFT
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum CampaignMode {
+  AI
+  MANUAL
+}
+
+enum CallOutcome {
+  QUALIFIED
+  NOT_BUYING
+  NO_ANSWER
+  VOICEMAIL
+  WRONG_NUMBER
+  DO_NOT_CALL
+  CALLBACK_REQUESTED
+}
+
+enum BuyerStatus {
+  ACTIVE
+  DORMANT
+  HIGH_CONFIDENCE
+  RECENTLY_VERIFIED
+  DO_NOT_CALL
+}
+
+enum DealStatus {
+  DRAFT
+  ACTIVE
+  UNDER_OFFER
+  CLOSED
+  CANCELLED
+  EXPIRED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COUNTERED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum PropertyType {
+  SFR
+  MULTI_FAMILY
+  LAND
+  COMMERCIAL
+  MOBILE_HOME
+  CONDO
+}
+
+enum InvestorStrategy {
+  FLIP
+  HOLD
+  BOTH
+  LAND
+  COMMERCIAL
+}
+
+// ─── CORE MODELS ─────────────────────────────────────────────────────────────
 
 model Profile {
   id        String   @id @default(cuid())
@@ -20,8 +90,311 @@ model Profile {
   lastName  String?
   phone     String?
   role      Role
+  company   String?
+  avatarUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relations
+  savedMarkets    SavedMarket[]
+  campaigns       Campaign[]
+  deals           Deal[]
+  buyerProfile    BuyerProfile?
+
   @@map("profiles")
+}
+
+// ─── MARKET & BUYER DISCOVERY ────────────────────────────────────────────────
+
+model SavedMarket {
+  id            String   @id @default(cuid())
+  profileId     String
+  label         String   // "Atlanta, GA"
+  city          String?
+  county        String?
+  state         String
+  zipCode       String?
+  buyerCount    Int      @default(0)
+  lastRefreshed DateTime?
+  createdAt     DateTime @default(now())
+
+  profile  Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  buyers   CashBuyer[]
+
+  @@map("saved_markets")
+}
+
+model CashBuyer {
+  id               String      @id @default(cuid())
+  savedMarketId    String?
+  // Identity
+  firstName        String?
+  lastName         String?
+  entityName       String?     // LLC name if applicable
+  entityType       String?     // "individual" | "llc" | "corporation" | "trust"
+  // Contact (enriched via Melissa Data)
+  phone            String?
+  email            String?
+  address          String?
+  city             String?
+  state            String?
+  zip              String?
+  // Purchase history from ATTOM
+  cashPurchaseCount  Int       @default(0)
+  lastPurchaseDate   DateTime?
+  estimatedMinPrice  Int?
+  estimatedMaxPrice  Int?
+  primaryPropertyType PropertyType?
+  // Platform status
+  status           BuyerStatus  @default(ACTIVE)
+  contactEnriched  Boolean      @default(false)
+  enrichedAt       DateTime?
+  isOptedOut       Boolean      @default(false)
+  optedOutAt       DateTime?
+  // CRM data (built from calls)
+  notes            String?
+  buyerScore       Int          @default(0)  // 0-100 dynamic score
+  lastContactedAt  DateTime?
+  lastVerifiedAt   DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // Buy box preferences (captured from AI calls)
+  preferredMarkets    String[]
+  preferredTypes      PropertyType[]
+  strategy            InvestorStrategy?
+  minPrice            Int?
+  maxPrice            Int?
+  closeSpeedDays      Int?          // how fast they can close
+  proofOfFundsVerified Boolean     @default(false)
+
+  savedMarket   SavedMarket?   @relation(fields: [savedMarketId], references: [id])
+  campaignCalls CampaignCall[]
+  dealMatches   DealMatch[]
+  offers        Offer[]
+
+  @@index([savedMarketId])
+  @@index([status])
+  @@index([buyerScore])
+  @@map("cash_buyers")
+}
+
+// ─── CAMPAIGNS ───────────────────────────────────────────────────────────────
+
+model Campaign {
+  id              String         @id @default(cuid())
+  profileId       String
+  name            String
+  market          String         // "Atlanta, GA"
+  status          CampaignStatus @default(DRAFT)
+  mode            CampaignMode   @default(AI)
+
+  // Script config
+  scriptTemplate  String         @default("standard_qualification")
+  companyName     String?
+  agentName       String?
+  customScript    String?
+
+  // Calling settings
+  maxConcurrentCalls Int         @default(5)
+  callingHoursStart  String      @default("09:00")
+  callingHoursEnd    String      @default("19:00")
+  timezone           String      @default("America/New_York")
+  leaveVoicemail     Boolean     @default(true)
+  maxRetries         Int         @default(2)
+  retryDelayHours    Int         @default(24)
+
+  // Schedule
+  scheduledAt     DateTime?
+  isRecurring     Boolean        @default(false)
+
+  // Stats (denormalized for performance)
+  totalBuyers     Int            @default(0)
+  callsCompleted  Int            @default(0)
+  qualified       Int            @default(0)
+  notBuying       Int            @default(0)
+  noAnswer        Int            @default(0)
+  totalTalkTime   Int            @default(0) // seconds
+
+  // Cost tracking
+  estimatedCost   Float?
+  actualCost      Float?
+
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  profile Profile        @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  calls   CampaignCall[]
+
+  @@index([profileId])
+  @@index([status])
+  @@map("campaigns")
+}
+
+model CampaignCall {
+  id            String       @id @default(cuid())
+  campaignId    String
+  buyerId       String
+  // Bland AI data
+  blandCallId   String?      @unique
+  phoneNumber   String
+  outcome       CallOutcome?
+  durationSecs  Int?
+  recordingUrl  String?
+  transcript    String?      // raw transcript text
+  // AI-extracted structured data
+  extractedData Json?        // { stillBuying, preferredTypes, minPrice, maxPrice, strategy, closeSpeed, notes }
+  aiSummary     String?
+  // Status
+  attemptNumber Int          @default(1)
+  startedAt     DateTime?
+  endedAt       DateTime?
+  createdAt     DateTime     @default(now())
+
+  campaign Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  buyer    CashBuyer  @relation(fields: [buyerId], references: [id])
+
+  @@index([campaignId])
+  @@index([buyerId])
+  @@index([outcome])
+  @@map("campaign_calls")
+}
+
+model OptOut {
+  id          String   @id @default(cuid())
+  phone       String   @unique
+  email       String?
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  @@map("opt_outs")
+}
+
+// ─── DEALS ───────────────────────────────────────────────────────────────────
+
+model Deal {
+  id            String       @id @default(cuid())
+  profileId     String       // wholesaler who created it
+
+  // Property info
+  address       String
+  city          String
+  state         String
+  zip           String
+  propertyType  PropertyType @default(SFR)
+  beds          Int?
+  baths         Float?
+  sqft          Int?
+  yearBuilt     Int?
+  condition     String?      // "distressed" | "fair" | "good" | "excellent"
+
+  // Deal financials
+  askingPrice   Int
+  assignFee     Int?
+  closeByDate   DateTime?
+  arv           Int?         // AI-estimated ARV
+  repairCost    Int?         // AI-estimated
+  confidenceScore Int?       // 0-100
+
+  // AI analysis
+  flipProfit    Int?
+  rentalCashFlow Int?        // monthly
+  analysisData  Json?        // full AI analysis object
+
+  status        DealStatus   @default(DRAFT)
+  notes         String?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  closedAt      DateTime?
+
+  profile    Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  matches    DealMatch[]
+  offers     Offer[]
+
+  @@index([profileId])
+  @@index([status])
+  @@map("deals")
+}
+
+model DealMatch {
+  id          String    @id @default(cuid())
+  dealId      String
+  buyerId     String
+  matchScore  Int       // 0-100
+  // Score breakdown
+  buyBoxScore    Int    @default(0)
+  priceScore     Int    @default(0)
+  strategyScore  Int    @default(0)
+  timingScore    Int    @default(0)
+  closeProbScore Int    @default(0)
+  // Outreach
+  outreachSent   Boolean  @default(false)
+  outreachSentAt DateTime?
+  viewed         Boolean  @default(false)
+  viewedAt       DateTime?
+  createdAt      DateTime @default(now())
+
+  deal  Deal      @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  buyer CashBuyer @relation(fields: [buyerId], references: [id])
+
+  @@unique([dealId, buyerId])
+  @@index([dealId])
+  @@index([buyerId])
+  @@map("deal_matches")
+}
+
+// ─── BUYER PROFILE (for buyers who sign up directly) ────────────────────────
+
+model BuyerProfile {
+  id          String   @id @default(cuid())
+  profileId   String   @unique
+
+  // Buy box
+  markets           String[]
+  propertyTypes     PropertyType[]
+  strategy          InvestorStrategy?
+  minBudget         Int?
+  maxBudget         Int?
+  closeSpeedDays    Int?
+  preferDistressed  Boolean  @default(false)
+
+  // Verification
+  proofOfFundsUrl   String?
+  verified          Boolean  @default(false)
+  verifiedAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("buyer_profiles")
+}
+
+// ─── OFFERS & TRANSACTIONS ───────────────────────────────────────────────────
+
+model Offer {
+  id          String      @id @default(cuid())
+  dealId      String
+  buyerId     String
+  amount      Int
+  closeDate   DateTime?
+  terms       String?
+  status      OfferStatus @default(PENDING)
+  message     String?
+  // Contract
+  contractUrl String?
+  signedAt    DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  deal  Deal      @relation(fields: [dealId], references: [id])
+  buyer CashBuyer @relation(fields: [buyerId], references: [id])
+
+  @@index([dealId])
+  @@index([buyerId])
+  @@map("offers")
 }

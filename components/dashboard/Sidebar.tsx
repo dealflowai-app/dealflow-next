@@ -8,7 +8,7 @@ import {
   LayoutDashboard,
   FileText,
   Plus,
-  Users,
+  Radar,
   Crosshair,
   Rss,
   Settings,
@@ -45,9 +45,9 @@ const navItems: NavItem[] = [
     roles: [Role.WHOLESALER, Role.BOTH],
   },
   {
-    label: 'Buyer CRM',
+    label: 'Discovery',
     href: '/dashboard/buyers',
-    icon: Users,
+    icon: Radar,
     roles: [Role.WHOLESALER, Role.BOTH],
   },
   {
