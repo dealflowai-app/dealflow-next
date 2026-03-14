@@ -120,7 +120,7 @@ export default function NewDealPage() {
       const { error: dbError } = await supabase.from('deals').insert(payload)
       if (dbError) throw new Error(dbError.message)
 
-      router.push('/dashboard/deals')
+      router.push('/deals')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
       setLoading(false)
@@ -130,7 +130,7 @@ export default function NewDealPage() {
   return (
     <div style={{ padding: '36px 40px', maxWidth: 800 }}>
       {/* Back */}
-      <Link href="/dashboard/deals" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.82rem', color: '#9ca3af', textDecoration: 'none', marginBottom: 24 }}>
+      <Link href="/deals" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.82rem', color: '#9ca3af', textDecoration: 'none', marginBottom: 24 }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
@@ -337,7 +337,7 @@ export default function NewDealPage() {
         {/* Submit */}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <Link
-            href="/dashboard/deals"
+            href="/deals"
             style={{
               padding: '10px 18px',
               borderRadius: 7,

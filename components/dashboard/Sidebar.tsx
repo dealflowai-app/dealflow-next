@@ -30,14 +30,14 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Community', href: '/dashboard/community', icon: Users },
-  { label: 'Marketplace', href: '/dashboard/marketplace', icon: Store },
-  { label: 'Discovery', href: '/dashboard/buyers', icon: Radar },
-  { label: 'Buyer CRM', href: '/dashboard/crm', icon: Contact },
-  { label: 'AI Outreach', href: '/dashboard/outreach', icon: PhoneOutgoing },
-  { label: 'Property Analyzer', href: '/dashboard/analyzer', icon: BarChart3 },
-  { label: 'Contracts', href: '/dashboard/contracts', icon: FileSignature },
-  { label: 'DealFlow GPT', href: '/dashboard/gpt', icon: Bot },
+  { label: 'Community', href: '/community', icon: Users },
+  { label: 'Marketplace', href: '/marketplace', icon: Store },
+  { label: 'Discovery', href: '/buyers', icon: Radar },
+  { label: 'Buyer CRM', href: '/crm', icon: Contact },
+  { label: 'AI Outreach', href: '/outreach', icon: PhoneOutgoing },
+  { label: 'Property Analyzer', href: '/analyzer', icon: BarChart3 },
+  { label: 'Contracts', href: '/contracts', icon: FileSignature },
+  { label: 'DealFlow GPT', href: '/gpt', icon: Bot },
 ]
 
 export default function Sidebar({ profile }: { profile: Profile }) {
@@ -180,20 +180,20 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       <div className="px-2.5 pb-3 pt-2 border-t border-gray-100">
         {/* Settings link */}
         <Link
-          href="/dashboard/settings"
+          href="/settings"
           title={collapsed ? 'Settings' : undefined}
           className={`
             flex items-center gap-2.5 py-[8px] rounded-md text-[0.82rem]
             transition-colors duration-100 no-underline mb-2
             ${collapsed ? 'justify-center px-0' : 'px-2.5'}
-            ${pathname.startsWith('/dashboard/settings')
+            ${pathname.startsWith('/settings')
               ? 'bg-blue-50 text-blue-700'
               : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'}
           `}
         >
           <Settings
             className={`flex-shrink-0 ${
-              pathname.startsWith('/dashboard/settings') ? 'text-blue-600' : 'text-gray-400'
+              pathname.startsWith('/settings') ? 'text-blue-600' : 'text-gray-400'
             }`}
             style={{ width: 16, height: 16 }}
           />

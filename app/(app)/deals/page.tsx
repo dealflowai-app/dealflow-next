@@ -14,7 +14,7 @@ export default function DealsPage() {
           <p className="text-[0.85rem] text-gray-400">Manage and track submitted properties.</p>
         </div>
         <Link
-          href="/dashboard/deals/new"
+          href="/deals/new"
           className="inline-flex items-center gap-1.5 bg-gray-900 text-white rounded-md px-3.5 py-2 text-[0.84rem] no-underline hover:bg-gray-800 transition-colors flex-shrink-0"
         >
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -38,7 +38,7 @@ export default function DealsPage() {
             No deals yet. Submit a property and the AI will start finding matched cash buyers.
           </div>
           <Link
-            href="/dashboard/deals/new"
+            href="/deals/new"
             className="inline-flex items-center gap-1.5 border border-gray-300 text-gray-700 rounded-md px-4 py-2 text-[0.84rem] no-underline hover:bg-gray-50 transition-colors"
           >
             Submit your first deal
