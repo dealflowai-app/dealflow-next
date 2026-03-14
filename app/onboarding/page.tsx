@@ -50,7 +50,7 @@ export default function OnboardingPage() {
   const inputCls = "w-full border border-gray-200 rounded-[9px] px-3.5 py-2.5 text-[0.9rem] text-gray-900 bg-white outline-none transition-all focus:border-blue-400 focus:ring-2 focus:ring-blue-500/10 font-[inherit] box-border"
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#edf4ff] via-[#f5f8ff] to-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#eff6ff] via-[#f5f7ff] to-white flex flex-col">
       {/* Top bar */}
       <div className="flex items-center px-8 py-5">
         <Link href="/" className="flex items-center gap-2.5 no-underline">
@@ -121,7 +121,7 @@ export default function OnboardingPage() {
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-none font-bold text-[0.9rem] text-white cursor-pointer transition-colors mt-1"
               style={{
-                background: loading ? '#93c5fd' : '#2563eb',
+                background: loading ? '#60A5FA' : '#2563EB',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: loading ? 'not-allowed' : 'pointer',
               }}

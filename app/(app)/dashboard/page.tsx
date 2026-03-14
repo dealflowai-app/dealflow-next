@@ -16,10 +16,10 @@ import {
 
 /* ── KPI data ── */
 const kpis = [
-  { label: 'Active Deals', value: '12', change: '+18%', up: true },
-  { label: 'Buyers in CRM', value: '847', change: '+6.2%', up: true },
-  { label: 'AI Calls This Month', value: '1,243', change: '+24%', up: true },
-  { label: 'Deals Closed', value: '3', change: '-1', up: false },
+  { label: 'Active Deals', value: '12', change: '+18%', up: true, accent: 'border-l-blue-500' },
+  { label: 'Buyers in CRM', value: '847', change: '+6.2%', up: true, accent: 'border-l-emerald-500' },
+  { label: 'AI Calls This Month', value: '1,243', change: '+24%', up: true, accent: 'border-l-violet-500' },
+  { label: 'Deals Closed', value: '3', change: '-1', up: false, accent: 'border-l-amber-500' },
 ]
 
 /* ── Revenue chart data (last 6 months) ── */
@@ -158,7 +158,7 @@ export default function DashboardPage() {
         {kpis.map(k => (
           <div
             key={k.label}
-            className="bg-white border border-gray-200 rounded-xl px-5 py-4 hover:shadow-sm transition-shadow"
+            className={`bg-white border border-gray-200 rounded-xl px-5 py-4 hover:shadow-sm transition-shadow border-l-[3px] ${k.accent}`}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide">{k.label}</div>

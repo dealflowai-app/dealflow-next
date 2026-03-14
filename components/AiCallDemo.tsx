@@ -157,7 +157,7 @@ export default function AiCallDemo() {
                       style={{
                         width: 2.5,
                         borderRadius: 2,
-                        background: speakingIsAgent ? '#60a5fa' : '#c084fc',
+                        background: speakingIsAgent ? '#60A5FA' : '#c084fc',
                         animation: `wav 0.75s ${delay}s infinite`,
                         height: 5,
                       }}

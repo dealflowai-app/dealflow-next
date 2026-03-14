@@ -51,7 +51,7 @@ export default function CtaSection() {
             fontWeight: 700,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            color: 'var(--blue-600)',
+            color: '#2563EB',
             marginBottom: 14,
             display: 'block',
           }}
@@ -71,7 +71,7 @@ export default function CtaSection() {
           }}
         >
           Be the first to<br />close deals on{' '}
-          <span style={{ color: 'var(--blue-600)' }}>autopilot</span>
+          <span style={{ color: '#2563EB' }}>autopilot</span>
         </h2>
 
         <p style={{ color: 'var(--gray-500)', fontSize: '1rem', marginBottom: 36 }}>
@@ -111,8 +111,8 @@ export default function CtaSection() {
                   transition: 'all 0.15s',
                 }}
                 onFocus={e => {
-                  e.currentTarget.style.borderColor = 'var(--blue-400)'
-                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.12)'
+                  e.currentTarget.style.borderColor = '#60A5FA'
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.12)'
                 }}
                 onBlur={e => {
                   e.currentTarget.style.borderColor = 'var(--gray-200)'
@@ -144,7 +144,7 @@ export default function CtaSection() {
                 type="submit"
                 disabled={loading}
                 style={{
-                  background: loading ? 'var(--blue-400, #93c5fd)' : 'var(--blue-600)',
+                  background: loading ? '#60A5FA' : '#2563EB',
                   color: 'white',
                   padding: '12px 26px',
                   borderRadius: 10,
@@ -157,13 +157,13 @@ export default function CtaSection() {
                   letterSpacing: '-0.01em',
                   boxShadow: '0 2px 4px rgba(37, 99, 235, 0.1)',
                 }}
-                onMouseEnter={e => { 
-                  e.currentTarget.style.background = 'var(--blue-700)'
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = '#1D4ED8'
                   e.currentTarget.style.transform = 'translateY(-1px)'
                   e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.25)'
                 }}
-                onMouseLeave={e => { 
-                  e.currentTarget.style.background = 'var(--blue-600)'
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = '#2563EB'
                   e.currentTarget.style.transform = 'translateY(0)'
                   e.currentTarget.style.boxShadow = '0 2px 4px rgba(37, 99, 235, 0.1)'
                 }}

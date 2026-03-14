@@ -110,7 +110,7 @@ function VisualFindBuyers() {
       {/* Map header */}
       <div style={{ background: '#0f172a', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
           </svg>
           <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'white' }}>Atlanta Metro</span>
@@ -131,8 +131,8 @@ function VisualFindBuyers() {
             { x: 2, label: 'Cobb', count: 6 },
           ].map((pin) => (
             <div key={pin.x} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(59,130,246,0.2)', border: '2px solid rgba(59,130,246,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#60a5fa' }}>{pin.count}</span>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(37,99,235,0.2)', border: '2px solid rgba(37,99,235,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#60A5FA' }}>{pin.count}</span>
               </div>
               <span style={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.4)' }}>{pin.label}</span>
             </div>
@@ -240,7 +240,7 @@ function VisualAiCaller() {
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {WAVEFORM_DELAYS.map((delay, i) => (
-                <div key={i} style={{ width: 2.5, borderRadius: 2, background: speakingIsAgent ? '#60a5fa' : '#c084fc', animation: `wav 0.75s ${delay}s infinite`, height: 5 }} />
+                <div key={i} style={{ width: 2.5, borderRadius: 2, background: speakingIsAgent ? '#60A5FA' : '#c084fc', animation: `wav 0.75s ${delay}s infinite`, height: 5 }} />
               ))}
             </div>
             <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
@@ -318,9 +318,9 @@ function VisualAiCaller() {
 /* ── Visual 3: Organize & Score ──────────────────────────── */
 function VisualOrganize() {
   const buyers = [
-    { initials: 'MT', bg: 'linear-gradient(135deg,#1d4ed8,#3b82f6)', name: 'Marcus T.', market: 'Atlanta, GA · SFR Flip', score: 94, tag: 'High-Confidence', tagColor: '#16a34a', tagBg: '#f0fdf4', tagBorder: '#bbf7d0' },
-    { initials: 'LW', bg: 'linear-gradient(135deg,#0ea5e9,#2563eb)', name: 'Lisa W.', market: 'Charlotte, NC · Multi-fam', score: 87, tag: 'Active', tagColor: 'var(--blue-600)', tagBg: 'var(--blue-50)', tagBorder: 'var(--blue-100)' },
-    { initials: 'RP', bg: 'linear-gradient(135deg,#6366f1,#3b82f6)', name: 'Rachel P.', market: 'Tampa, FL · SFR Hold', score: 72, tag: 'Dormant', tagColor: 'var(--gray-500)', tagBg: 'var(--gray-50)', tagBorder: 'var(--gray-200)' },
+    { initials: 'MT', bg: 'linear-gradient(135deg,#1D4ED8,#2563EB)', name: 'Marcus T.', market: 'Atlanta, GA · SFR Flip', score: 94, tag: 'High-Confidence', tagColor: '#16a34a', tagBg: '#f0fdf4', tagBorder: '#bbf7d0' },
+    { initials: 'LW', bg: 'linear-gradient(135deg,#0ea5e9,#2563EB)', name: 'Lisa W.', market: 'Charlotte, NC · Multi-fam', score: 87, tag: 'Active', tagColor: 'var(--blue-600)', tagBg: 'var(--blue-50)', tagBorder: 'var(--blue-100)' },
+    { initials: 'RP', bg: 'linear-gradient(135deg,#6366f1,#2563EB)', name: 'Rachel P.', market: 'Tampa, FL · SFR Hold', score: 72, tag: 'Dormant', tagColor: 'var(--gray-500)', tagBg: 'var(--gray-50)', tagBorder: 'var(--gray-200)' },
   ]
   return (
     <div style={{ padding: 24 }}>

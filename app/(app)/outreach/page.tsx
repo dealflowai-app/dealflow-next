@@ -11,7 +11,6 @@ import {
   Play,
   Pause,
   CheckCircle2,
-  Clock,
   ArrowLeft,
   X,
   ArrowUpDown,
@@ -41,43 +40,17 @@ type View = 'list' | 'detail' | 'transcript'
 /* ═══════════════════════════════════════════════
    CAMPAIGN TYPE HELPERS
    ═══════════════════════════════════════════════ */
-function campaignTypeIcon(t: string) {
-  switch (t) {
-    case 'AI Voice': return <Phone className="w-3.5 h-3.5" />
-    case 'SMS': return <MessageSquare className="w-3.5 h-3.5" />
-    case 'Email': return <Mail className="w-3.5 h-3.5" />
-    case 'Multi-Channel': return <Layers className="w-3.5 h-3.5" />
-    default: return <Phone className="w-3.5 h-3.5" />
-  }
-}
-
-function campaignTypeBadge(t: string) {
-  switch (t) {
-    case 'AI Voice': return 'text-blue-700 bg-blue-50'
-    case 'SMS': return 'text-violet-700 bg-violet-50'
-    case 'Email': return 'text-cyan-700 bg-cyan-50'
-    case 'Multi-Channel': return 'text-amber-700 bg-amber-50'
-    default: return 'text-gray-600 bg-gray-100'
-  }
+function campaignTypeBadge(_t: string) {
+  return 'text-[#6B7280] bg-[#F3F4F6]'
 }
 
 function statusBadge(s: string) {
   switch (s) {
     case 'Running': return 'text-emerald-700 bg-emerald-50'
     case 'Paused': return 'text-amber-700 bg-amber-50'
-    case 'Completed': return 'text-gray-500 bg-gray-100'
-    case 'Scheduled': return 'text-blue-700 bg-blue-50'
-    default: return 'text-gray-500 bg-gray-100'
-  }
-}
-
-function statusIcon(s: string) {
-  switch (s) {
-    case 'Running': return <Play className="w-2.5 h-2.5" />
-    case 'Paused': return <Pause className="w-2.5 h-2.5" />
-    case 'Completed': return <CheckCircle2 className="w-2.5 h-2.5" />
-    case 'Scheduled': return <Clock className="w-2.5 h-2.5" />
-    default: return null
+    case 'Completed': return 'text-[#6B7280] bg-gray-100'
+    case 'Scheduled': return 'text-[#4F46E5] bg-[#EEF2FF]'
+    default: return 'text-[#6B7280] bg-gray-100'
   }
 }
 
@@ -268,7 +241,7 @@ function callStatusStyle(s: string) {
 function outcomeStyle(o: string) {
   switch (o) {
     case 'Qualified': return 'text-emerald-700 bg-emerald-50'
-    case 'Interested': return 'text-blue-700 bg-blue-50'
+    case 'Interested': return 'text-[#4F46E5] bg-[#EEF2FF]'
     case 'Not Interested': return 'text-gray-500 bg-gray-100'
     case 'Callback': return 'text-amber-700 bg-amber-50'
     case 'Wrong Number': return 'text-rose-700 bg-rose-50'
@@ -287,18 +260,15 @@ function CampaignList({ onViewDetail }: { onViewDetail: () => void }) {
       {campaigns.map(c => {
         const pct = c.total > 0 ? Math.round((c.made / c.total) * 100) : 0
         return (
-          <div key={c.id} className="bg-white border border-gray-200 rounded-xl px-5 py-4">
+          <div key={c.id} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 hover:bg-[#F9FAFB] transition-colors">
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <h3 className="text-[0.9rem] font-medium text-gray-800">{c.name}</h3>
-                <span className={`flex items-center gap-1 text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${statusBadge(c.status)}`}>
-                  {c.status === 'Running' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
-                  {c.status !== 'Running' && statusIcon(c.status)}
+                <h3 className="text-[0.9rem] font-medium text-[#374151]">{c.name}</h3>
+                <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${statusBadge(c.status)}`}>
                   {c.status}
                 </span>
-                <span className={`flex items-center gap-1 text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${campaignTypeBadge(c.type)}`}>
-                  {campaignTypeIcon(c.type)}
+                <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${campaignTypeBadge(c.type)}`}>
                   {c.type}
                 </span>
               </div>
@@ -314,8 +284,8 @@ function CampaignList({ onViewDetail }: { onViewDetail: () => void }) {
                   </button>
                 )}
                 <button
-                  onClick={c.id === 1 ? onViewDetail : undefined}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-blue-600 hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors"
+                  onClick={onViewDetail}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-[#EEF2FF] bg-transparent border-0 cursor-pointer transition-colors"
                 >
                   View Details
                 </button>
@@ -340,7 +310,7 @@ function CampaignList({ onViewDetail }: { onViewDetail: () => void }) {
               <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
-                    c.status === 'Running' ? 'bg-emerald-500' : c.status === 'Paused' ? 'bg-amber-400' : 'bg-blue-500'
+                    c.status === 'Running' ? 'bg-emerald-500' : c.status === 'Paused' ? 'bg-amber-400' : 'bg-[#4F46E5]'
                   }`}
                   style={{ width: `${pct}%` }}
                 />
@@ -351,7 +321,7 @@ function CampaignList({ onViewDetail }: { onViewDetail: () => void }) {
             <div className="flex items-center gap-4 text-[0.74rem] flex-wrap">
               <span className="text-gray-500">Connect: <strong className="text-gray-700">{c.connect}%</strong></span>
               <span className="text-gray-500">Qualified: <strong className="text-emerald-600">{c.qualified}</strong></span>
-              <span className="text-gray-500">Interested: <strong className="text-blue-600">{c.interested}</strong></span>
+              <span className="text-gray-500">Interested: <strong className="text-[#4F46E5]">{c.interested}</strong></span>
               <span className="text-gray-500">Not Interested: <strong className="text-gray-600">{c.notInterested}</strong></span>
               <span className="text-gray-500">No Answer: <strong className="text-gray-600">{c.noAnswer}</strong></span>
               {c.callback > 0 && <span className="text-gray-500">Callback: <strong className="text-amber-600">{c.callback}</strong></span>}
@@ -373,7 +343,7 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
     { label: 'Total Calls', value: c.made, color: 'bg-gray-100 text-gray-700' },
     { label: 'Connected', value: 47, color: 'bg-emerald-50 text-emerald-700' },
     { label: 'Qualified', value: c.qualified, color: 'bg-emerald-50 text-emerald-700' },
-    { label: 'Interested', value: c.interested, color: 'bg-blue-50 text-blue-700' },
+    { label: 'Interested', value: c.interested, color: 'bg-[#EEF2FF] text-[#4F46E5]' },
     { label: 'Not Interested', value: c.notInterested, color: 'bg-gray-100 text-gray-600' },
     { label: 'No Answer', value: c.noAnswer, color: 'bg-gray-100 text-gray-500' },
     { label: 'Callback', value: c.callback, color: 'bg-amber-50 text-amber-700' },
@@ -384,7 +354,7 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
   const total = 89
   const segments = [
     { label: 'Qualified', pct: 26, color: 'bg-emerald-500' },
-    { label: 'Interested', pct: 16, color: 'bg-blue-500' },
+    { label: 'Interested', pct: 16, color: 'bg-[#4F46E5]' },
     { label: 'Not Interested', pct: 9, color: 'bg-gray-400' },
     { label: 'Callback', pct: 7, color: 'bg-amber-400' },
     { label: 'No Answer', pct: 37, color: 'bg-gray-200' },
@@ -392,25 +362,21 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
   ]
 
   return (
-    <div>
+    <div className="animate-fadeInUp">
       {/* Back button + header */}
       <button onClick={onBack} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 mb-4 bg-transparent border-0 cursor-pointer transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Campaigns
       </button>
 
       <div className="flex items-center gap-3 mb-5">
-        <h2
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-          className="text-[1.2rem] font-medium text-gray-900 tracking-[-0.02em]"
-        >
+        <h2 className="text-2xl font-semibold text-[#111827]">
           {c.name}
         </h2>
-        <span className={`flex items-center gap-1 text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${statusBadge(c.status)}`}>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${statusBadge(c.status)}`}>
           {c.status}
         </span>
-        <span className={`flex items-center gap-1 text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${campaignTypeBadge(c.type)}`}>
-          {campaignTypeIcon(c.type)} {c.type}
+        <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${campaignTypeBadge(c.type)}`}>
+          {c.type}
         </span>
         <span className="text-[0.76rem] text-gray-400 ml-auto">{c.startDate} → {c.estComplete}</span>
       </div>
@@ -418,12 +384,9 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
       {/* Metric cards */}
       <div className="grid grid-cols-4 gap-3 mb-5 outreach-metrics">
         {metrics.map(m => (
-          <div key={m.label} className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-center">
-            <div className="text-[0.66rem] text-gray-400 uppercase tracking-wide mb-1.5">{m.label}</div>
-            <div
-              className="text-[1.5rem] font-medium text-gray-900 leading-none"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-            >
+          <div key={m.label} className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-3 text-center">
+            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-1.5">{m.label}</div>
+            <div className="text-[1.5rem] font-medium text-[#111827] leading-none">
               {m.value}
             </div>
           </div>
@@ -431,8 +394,8 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
       </div>
 
       {/* Outcome breakdown bar */}
-      <div className="bg-white border border-gray-200 rounded-xl px-5 py-4 mb-5">
-        <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-3 font-medium">Call Outcome Breakdown</div>
+      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 mb-5">
+        <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Call Outcome Breakdown</div>
         <div className="flex w-full h-4 rounded-full overflow-hidden mb-3">
           {segments.map(s => (
             <div key={s.label} className={`${s.color} h-full`} style={{ width: `${s.pct}%` }} title={`${s.label}: ${s.pct}%`} />
@@ -449,26 +412,26 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
       </div>
 
       {/* Contact list table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-100">
-          <span className="text-[0.7rem] text-gray-400 uppercase tracking-wide font-medium">Campaign Contacts</span>
+      <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden">
+        <div className="px-5 py-3 border-b border-[#F3F4F6]">
+          <span className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">Campaign Contacts</span>
         </div>
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left px-5 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium">Buyer Name</th>
-              <th className="text-left px-3 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium">Phone</th>
-              <th className="text-left px-3 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium">Call Status</th>
-              <th className="text-left px-3 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium">Outcome</th>
-              <th className="text-left px-3 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium">Buy Box</th>
-              <th className="text-right px-3 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium">Duration</th>
-              <th className="text-right px-5 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium"></th>
+            <tr className="border-b border-[#F3F4F6]">
+              <th className="text-left px-5 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Buyer Name</th>
+              <th className="text-left px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Phone</th>
+              <th className="text-left px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Call Status</th>
+              <th className="text-left px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Outcome</th>
+              <th className="text-left px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Buy Box</th>
+              <th className="text-right px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Duration</th>
+              <th className="text-right px-5 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium"></th>
             </tr>
           </thead>
           <tbody>
             {detailContacts.map((r, i) => (
-              <tr key={r.id} className={`${i < detailContacts.length - 1 ? 'border-b border-gray-50' : ''} hover:bg-gray-50/70 transition-colors`}>
-                <td className="px-5 py-2.5 text-[0.82rem] text-gray-800 font-medium">{r.name}</td>
+              <tr key={r.id} className={`${i < detailContacts.length - 1 ? 'border-b border-[#F3F4F6]' : ''} hover:bg-[#F9FAFB] transition-colors`}>
+                <td className="px-5 py-2.5 text-[0.82rem] text-[#374151] font-medium">{r.name}</td>
                 <td className="px-3 py-2.5 text-[0.78rem] text-gray-500">{r.phone}</td>
                 <td className="px-3 py-2.5">
                   <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${callStatusStyle(r.callStatus)}`}>{r.callStatus}</span>
@@ -481,8 +444,8 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
                 <td className="px-5 py-2.5 text-right">
                   {r.hasRecording && (
                     <button
-                      onClick={r.id === 1 ? onShowTranscript : undefined}
-                      className="flex items-center gap-1 text-[0.72rem] text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer transition-colors ml-auto"
+                      onClick={onShowTranscript}
+                      className="flex items-center gap-1 text-[0.72rem] text-[#4F46E5] hover:text-[#4338CA] bg-transparent border-0 cursor-pointer transition-colors ml-auto"
                     >
                       <Play className="w-3 h-3" /> Recording
                     </button>
@@ -503,15 +466,15 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
 function TranscriptPanel({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-[520px] h-full bg-white shadow-2xl overflow-y-auto outreach-transcript-panel">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm animate-fadeIn" onClick={onClose} />
+      <div className="relative w-[520px] h-full bg-white border-l border-[#E5E7EB] overflow-y-auto outreach-transcript-panel animate-slideInRight">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+        <div className="px-6 py-4 border-b border-[#F3F4F6] flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
-            <h3 className="text-[0.94rem] font-medium text-gray-900" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <h3 className="text-[0.94rem] font-medium text-[#111827]">
               Call Transcript
             </h3>
-            <p className="text-[0.76rem] text-gray-400">Marcus Thompson · Mar 13, 10:42 AM · 4:12</p>
+            <p className="text-sm text-[#9CA3AF]">Marcus Thompson · Mar 13, 10:42 AM · 4:12</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer border-0 transition-colors">
             <X className="w-4 h-4 text-gray-500" />
@@ -519,9 +482,9 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Audio waveform placeholder */}
-        <div className="px-6 py-3 border-b border-gray-100">
+        <div className="px-6 py-3 border-b border-[#F3F4F6]">
           <div className="flex items-center gap-3">
-            <button className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center cursor-pointer border-0 transition-colors flex-shrink-0">
+            <button className="w-8 h-8 rounded-full bg-[#4F46E5] hover:bg-[#4338CA] flex items-center justify-center cursor-pointer border-0 transition-colors flex-shrink-0">
               <Play className="w-3.5 h-3.5 text-white ml-0.5" />
             </button>
             <div className="flex-1 flex items-center gap-[2px] h-8">
@@ -530,7 +493,7 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
                 return (
                   <div
                     key={i}
-                    className={`flex-1 rounded-full ${i < 35 ? 'bg-blue-500' : 'bg-gray-200'}`}
+                    className={`flex-1 rounded-full ${i < 35 ? 'bg-[#4F46E5]' : 'bg-gray-200'}`}
                     style={{ height: h, minWidth: 2 }}
                   />
                 )
@@ -546,7 +509,7 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
             <div key={i} className={`flex gap-3 ${line.speaker === 'ai' ? '' : 'flex-row-reverse'}`}>
               <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
                 line.speaker === 'ai'
-                  ? 'bg-gradient-to-br from-blue-500 to-blue-600'
+                  ? 'bg-gradient-to-br from-[#4F46E5] to-[#4338CA]'
                   : 'bg-gradient-to-br from-gray-400 to-gray-500'
               }`}>
                 {line.speaker === 'ai'
@@ -556,8 +519,8 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
               </div>
               <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl ${
                 line.speaker === 'ai'
-                  ? 'bg-blue-50 text-gray-800 rounded-tl-md'
-                  : 'bg-gray-100 text-gray-800 rounded-tr-md'
+                  ? 'bg-[#EEF2FF] text-[#374151] rounded-tl-md'
+                  : 'bg-gray-100 text-[#374151] rounded-tr-md'
               }`}>
                 <div className="text-[0.66rem] font-medium text-gray-400 mb-0.5 uppercase tracking-wide">
                   {line.speaker === 'ai' ? 'AI Agent (Sarah)' : 'Marcus Thompson'}
@@ -570,22 +533,22 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
 
         {/* AI Summary */}
         <div className="px-6 pb-6">
-          <div className="bg-gradient-to-br from-blue-50 to-violet-50 border border-blue-200 rounded-xl px-5 py-4">
+          <div className="bg-gradient-to-br from-[#EEF2FF] to-violet-50 border border-[#C7D2FE] rounded-lg px-5 py-4">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-[0.78rem] font-semibold text-blue-800">AI Summary</span>
+              <Sparkles className="w-4 h-4 text-[#4F46E5]" />
+              <span className="text-[0.78rem] font-semibold text-[#312E81]">AI Summary</span>
             </div>
-            <p className="text-[0.8rem] text-gray-700 leading-relaxed mb-3">
+            <p className="text-[0.8rem] text-[#374151] leading-relaxed mb-3">
               Qualified buyer. SFR, under $200K, flip strategy, 85031/85033/Maryvale, 10-day close. Cash buyer with active deal flow.
             </p>
             <div className="flex flex-wrap gap-1.5">
               {['Phoenix', 'SFR', 'Flip', 'Fast Closer', 'Cash Buyer', 'Qualified'].map(t => (
-                <span key={t} className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full bg-white text-blue-700 border border-blue-200">
+                <span key={t} className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full bg-white text-[#4F46E5] border border-[#C7D2FE]">
                   {t}
                 </span>
               ))}
             </div>
-            <p className="text-[0.72rem] text-blue-600 mt-2.5 flex items-center gap-1">
+            <p className="text-[0.72rem] text-[#4F46E5] mt-2.5 flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" /> Added to CRM with tags
             </p>
           </div>
@@ -611,35 +574,35 @@ function CallLog() {
       <div className="flex items-center gap-3 mb-4">
         <div className="relative">
           <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-          <input type="text" defaultValue="Mar 1, 2026" className="bg-white border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-[0.8rem] text-gray-600 outline-none focus:border-blue-300 w-[140px]" />
+          <input type="text" defaultValue="Mar 1, 2026" className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#4F46E5] w-[140px]" />
         </div>
-        <span className="text-[0.78rem] text-gray-400">to</span>
+        <span className="text-sm text-[#9CA3AF]">to</span>
         <div className="relative">
           <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-          <input type="text" defaultValue="Mar 13, 2026" className="bg-white border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-[0.8rem] text-gray-600 outline-none focus:border-blue-300 w-[140px]" />
+          <input type="text" defaultValue="Mar 13, 2026" className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#4F46E5] w-[140px]" />
         </div>
         <div className="relative ml-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-          <input type="text" placeholder="Search calls..." className="bg-white border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-[0.8rem] text-gray-600 placeholder-gray-400 outline-none focus:border-blue-300 w-[200px]" />
+          <input type="text" placeholder="Search calls..." className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#4F46E5] w-[200px]" />
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden overflow-x-auto">
+      <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden overflow-x-auto">
         <table className="w-full min-w-[900px]">
           <thead>
-            <tr className="border-b border-gray-100">
+            <tr className="border-b border-[#F3F4F6]">
               {['Date / Time', 'Campaign', 'Buyer Name', 'Phone', 'Duration', 'Status', 'Outcome', ''].map(h => (
-                <th key={h} className={`px-4 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium ${h === '' ? 'text-right' : 'text-left'}`}>{h}</th>
+                <th key={h} className={`px-4 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium ${h === '' ? 'text-right' : 'text-left'}`}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {callLogEntries.map((r, i) => (
-              <tr key={r.id} className={`${i < callLogEntries.length - 1 ? 'border-b border-gray-50' : ''} hover:bg-gray-50/70 transition-colors`}>
-                <td className="px-4 py-2.5 text-[0.78rem] text-gray-500 whitespace-nowrap">{r.datetime}</td>
-                <td className="px-4 py-2.5 text-[0.78rem] text-gray-600 max-w-[180px] truncate">{r.campaign}</td>
-                <td className="px-4 py-2.5 text-[0.82rem] text-gray-800 font-medium whitespace-nowrap">{r.name}</td>
+              <tr key={r.id} className={`${i < callLogEntries.length - 1 ? 'border-b border-[#F3F4F6]' : ''} hover:bg-[#F9FAFB] transition-colors`}>
+                <td className="px-4 py-2.5 text-[0.78rem] text-[#9CA3AF] whitespace-nowrap">{r.datetime}</td>
+                <td className="px-4 py-2.5 text-[0.78rem] text-[#374151] max-w-[180px] truncate">{r.campaign}</td>
+                <td className="px-4 py-2.5 text-[0.82rem] text-[#374151] font-medium whitespace-nowrap">{r.name}</td>
                 <td className="px-4 py-2.5 text-[0.78rem] text-gray-500 whitespace-nowrap">{r.phone}</td>
                 <td className="px-4 py-2.5 text-[0.78rem] text-gray-500 font-mono">{r.duration}</td>
                 <td className="px-4 py-2.5">
@@ -651,7 +614,7 @@ function CallLog() {
                 <td className="px-4 py-2.5 text-right">
                   <div className="flex items-center justify-end gap-1">
                     {r.status === 'Connected' && (
-                      <button className="p-1 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors">
+                      <button className="p-1 rounded-md text-gray-400 hover:text-[#4F46E5] hover:bg-[#EEF2FF] bg-transparent border-0 cursor-pointer transition-colors">
                         <Play className="w-3.5 h-3.5" />
                       </button>
                     )}
@@ -691,10 +654,10 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-[600px] max-h-[80vh] overflow-y-auto outreach-modal">
+      <div className="relative bg-white rounded-lg border border-[#E5E7EB] w-[600px] max-h-[80vh] overflow-y-auto outreach-modal">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-[1rem] font-medium text-gray-900" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        <div className="px-6 py-4 border-b border-[#F3F4F6] flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-[#111827]">
             New Campaign
           </h2>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer border-0 transition-colors">
@@ -703,12 +666,12 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Stepper */}
-        <div className="px-6 py-4 border-b border-gray-100">
+        <div className="px-6 py-4 border-b border-[#F3F4F6]">
           <div className="flex items-center gap-2">
             {steps.map((s, i) => (
               <div key={s} className="flex items-center gap-2 flex-1">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[0.68rem] font-bold flex-shrink-0 ${
-                  i + 1 <= step ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-400'
+                  i + 1 <= step ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-400'
                 }`}>
                   {i + 1}
                 </div>
@@ -731,7 +694,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
                 <input
                   type="text"
                   placeholder="e.g., Phoenix Cash Buyers: March"
-                  className="w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-[0.84rem] text-gray-700 placeholder-gray-400 outline-none focus:border-blue-300 transition-colors"
+                  className="w-full bg-white border border-[#D1D5DB] rounded-md px-4 py-2.5 text-[0.84rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#4F46E5] transition-colors"
                 />
               </div>
 
@@ -746,19 +709,19 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
                       <button
                         key={t.key}
                         onClick={() => setCampaignType(t.key)}
-                        className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border text-left cursor-pointer transition-all ${
+                        className={`flex items-start gap-3 px-4 py-3.5 rounded-lg border text-left cursor-pointer transition-all ${
                           selected
-                            ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
-                            : 'border-gray-200 bg-white hover:bg-gray-50'
+                            ? 'border-[#4F46E5] bg-[#EEF2FF] ring-1 ring-[#C7D2FE]'
+                            : 'border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]'
                         }`}
                       >
                         <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          selected ? 'bg-blue-600' : 'bg-gray-100'
+                          selected ? 'bg-[#4F46E5]' : 'bg-gray-100'
                         }`}>
                           <Icon className={`w-4 h-4 ${selected ? 'text-white' : 'text-gray-500'}`} />
                         </div>
                         <div>
-                          <div className={`text-[0.82rem] font-medium ${selected ? 'text-blue-800' : 'text-gray-700'}`}>{t.key}</div>
+                          <div className={`text-[0.82rem] font-medium ${selected ? 'text-[#312E81]' : 'text-[#374151]'}`}>{t.key}</div>
                           <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
                         </div>
                       </button>
@@ -771,7 +734,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
               <div>
                 <label className="text-[0.78rem] text-gray-600 mb-1.5 block font-medium">Target Market</label>
                 <div className="relative">
-                  <select className="appearance-none w-full bg-white border border-gray-200 rounded-lg pl-4 pr-8 py-2.5 text-[0.84rem] text-gray-700 outline-none focus:border-blue-300 cursor-pointer">
+                  <select className="appearance-none w-full bg-white border border-[#D1D5DB] rounded-md pl-4 pr-8 py-2.5 text-[0.84rem] text-[#374151] outline-none focus:border-[#4F46E5] cursor-pointer">
                     <option>Phoenix, AZ</option>
                     <option>Dallas, TX</option>
                     <option>Atlanta, GA</option>
@@ -815,7 +778,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-[#F3F4F6] flex items-center justify-between">
           {step > 1 ? (
             <button onClick={() => setStep(step - 1)} className="text-[0.82rem] text-gray-500 hover:text-gray-700 bg-transparent border-0 cursor-pointer transition-colors">
               Back
@@ -826,7 +789,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
           {step < 4 ? (
             <button
               onClick={() => setStep(step + 1)}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border-0 rounded-lg px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
             >
               Continue <ChevronRight className="w-4 h-4" />
             </button>
@@ -857,23 +820,20 @@ export default function AIOutreachPage() {
   const [showNewCampaign, setShowNewCampaign] = useState(false)
 
   return (
-    <div className="p-8 max-w-[1200px]">
+    <div className="p-8 max-w-[1200px] bg-[#FAFAFA] min-h-screen">
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-            className="text-[1.45rem] font-medium text-gray-900 tracking-[-0.025em] mb-1"
-          >
+          <h1 className="text-2xl font-semibold text-[#111827] mb-1">
             AI Outreach
           </h1>
-          <p className="text-[0.84rem] text-gray-400">
+          <p className="text-sm text-[#9CA3AF]">
             Launch AI-powered campaigns to qualify and engage your buyers.
           </p>
         </div>
         <button
           onClick={() => setShowNewCampaign(true)}
-          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border-0 rounded-lg px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Campaign
@@ -881,7 +841,7 @@ export default function AIOutreachPage() {
       </div>
 
       {/* Stats bar */}
-      <div className="flex items-center gap-6 bg-white border border-gray-200 rounded-xl px-5 py-3 mb-5">
+      <div className="flex items-center gap-6 bg-white border border-[#E5E7EB] rounded-lg px-5 py-3 mb-5">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-[0.82rem] text-gray-700 font-medium">1,243</span>
@@ -906,7 +866,7 @@ export default function AIOutreachPage() {
 
       {/* Sub tabs */}
       {view === 'list' && (
-        <div className="flex items-center gap-1 mb-6 border-b border-gray-200 pb-0">
+        <div className="flex items-center gap-1 mb-6 border-b border-[#E5E7EB] pb-0">
           {[
             { key: 'campaigns' as SubTab, label: 'Campaigns', icon: Layers },
             { key: 'calllog' as SubTab, label: 'Call Log', icon: Phone },
@@ -916,7 +876,7 @@ export default function AIOutreachPage() {
               onClick={() => setSubTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
                 subTab === tab.key
-                  ? 'border-blue-600 text-blue-600'
+                  ? 'border-[#4F46E5] text-[#4F46E5]'
                   : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >

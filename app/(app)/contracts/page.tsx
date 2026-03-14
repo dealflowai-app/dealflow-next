@@ -42,14 +42,8 @@ type Tab = (typeof tabs)[number]['key']
    ═══════════════════════════════════════════════ */
 const stages = ['Draft', 'Sent to Buyer', 'Buyer Signed', 'Sent to Seller', 'Fully Executed']
 
-function contractTypeBadge(t: string) {
-  switch (t) {
-    case 'Assignment': return 'text-blue-700 bg-blue-50'
-    case 'Double Close': return 'text-violet-700 bg-violet-50'
-    case 'JV Agreement': return 'text-amber-700 bg-amber-50'
-    case 'Buyer Agreement': return 'text-cyan-700 bg-cyan-50'
-    default: return 'text-gray-600 bg-gray-100'
-  }
+function contractTypeBadge(_t: string) {
+  return 'text-[#6B7280] bg-[#F3F4F6]'
 }
 
 function deadlineColor(days: number) {
@@ -121,22 +115,25 @@ function ProgressTracker({ currentStage }: { currentStage: number }) {
           <div key={s} className="flex items-center">
             <div className="flex flex-col items-center">
               <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.5rem] font-bold border-2 ${
-                done ? 'bg-emerald-500 border-emerald-500 text-white' :
-                active ? 'bg-white border-blue-500 text-blue-600' :
+                done ? 'bg-[#4F46E5] border-[#4F46E5] text-white' :
+                active ? 'bg-white border-[#4F46E5] text-[#4F46E5]' :
                 'bg-white border-gray-200 text-gray-300'
               }`}>
                 {done ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
               </div>
               <span className={`text-[0.56rem] mt-1 whitespace-nowrap max-w-[60px] text-center leading-tight ${
-                done ? 'text-emerald-600 font-medium' :
-                active ? 'text-blue-600 font-medium' :
+                done ? 'text-[#4F46E5] font-medium' :
+                active ? 'text-[#4F46E5] font-medium' :
                 'text-gray-300'
               }`}>
                 {s}
               </span>
             </div>
             {i < stages.length - 1 && (
-              <div className={`w-6 h-0.5 mx-0.5 mt-[-12px] ${done ? 'bg-emerald-400' : 'bg-gray-200'}`} />
+              <div
+                className={`w-6 h-0.5 mx-0.5 mt-[-12px] ${done ? 'bg-[#4F46E5]' : ''}`}
+                style={!done ? { backgroundImage: 'repeating-linear-gradient(90deg, #d1d5db 0, #d1d5db 3px, transparent 3px, transparent 6px)', height: '2px' } : undefined}
+              />
             )}
           </div>
         )
@@ -148,15 +145,15 @@ function ProgressTracker({ currentStage }: { currentStage: number }) {
 /* ═══════════════════════════════════════════════
    ACTIVE CONTRACTS
    ═══════════════════════════════════════════════ */
-function ActiveContractsSection({ onViewDetail }: { onViewDetail: () => void }) {
+function ActiveContractsSection({ onViewDetail }: { onViewDetail: (id: number) => void }) {
   return (
     <div className="space-y-3">
       {activeContracts.map(c => (
-        <div key={c.id} className="bg-white border border-gray-200 rounded-xl px-5 py-4">
+        <div key={c.id} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 hover:bg-[#F9FAFB] transition-colors">
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="flex items-center gap-2.5 mb-1">
-                <h3 className="text-[0.9rem] font-medium text-gray-800">{c.address}</h3>
+                <h3 className="text-[0.9rem] font-medium text-[#374151]">{c.address}</h3>
                 <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full ${contractTypeBadge(c.type)}`}>{c.type}</span>
                 {c.stage === 4 && (
                   <span className="text-[0.66rem] font-medium px-2 py-0.5 rounded-full text-emerald-700 bg-emerald-50 flex items-center gap-1">
@@ -164,18 +161,18 @@ function ActiveContractsSection({ onViewDetail }: { onViewDetail: () => void }) 
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-4 text-[0.76rem] text-gray-500">
-                <span>Seller: <strong className="text-gray-700">{c.seller}</strong></span>
+              <div className="flex items-center gap-4 text-[0.76rem] text-[#9CA3AF]">
+                <span>Seller: <strong className="text-[#374151]">{c.seller}</strong></span>
                 <span className="text-gray-300">→</span>
-                <span>Buyer: <strong className="text-gray-700">{c.buyer}</strong></span>
+                <span>Buyer: <strong className="text-[#374151]">{c.buyer}</strong></span>
                 <span className="text-gray-300">|</span>
-                <span>Fee: <strong className="text-blue-600">${c.fee.toLocaleString()}</strong></span>
+                <span>Fee: <strong className="text-[#4F46E5]">${c.fee.toLocaleString()}</strong></span>
               </div>
             </div>
             <div className="flex items-center gap-1.5 flex-shrink-0">
               <button
-                onClick={c.id === 1 ? onViewDetail : undefined}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-blue-600 hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors"
+                onClick={() => onViewDetail(c.id)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-indigo-50 bg-transparent border-0 cursor-pointer transition-colors"
               >
                 <Eye className="w-3.5 h-3.5" /> View
               </button>
@@ -185,11 +182,11 @@ function ActiveContractsSection({ onViewDetail }: { onViewDetail: () => void }) 
                 </button>
               )}
               {c.stage === 0 && (
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-gray-500 hover:bg-gray-50 bg-transparent border-0 cursor-pointer transition-colors">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#6B7280] hover:bg-[#F9FAFB] bg-transparent border-0 cursor-pointer transition-colors">
                   <Pencil className="w-3.5 h-3.5" /> Edit
                 </button>
               )}
-              <button className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[0.76rem] font-medium text-gray-400 hover:bg-gray-50 hover:text-red-500 bg-transparent border-0 cursor-pointer transition-colors">
+              <button className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[0.76rem] font-medium text-[#9CA3AF] hover:bg-[#F9FAFB] hover:text-red-500 bg-transparent border-0 cursor-pointer transition-colors">
                 <Ban className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -198,7 +195,7 @@ function ActiveContractsSection({ onViewDetail }: { onViewDetail: () => void }) 
           {/* Progress + metadata */}
           <div className="flex items-end justify-between">
             <ProgressTracker currentStage={c.stage} />
-            <div className="flex items-center gap-4 text-[0.72rem] text-gray-400 flex-shrink-0 ml-4">
+            <div className="flex items-center gap-4 text-[0.72rem] text-[#9CA3AF] flex-shrink-0 ml-4">
               <span>Created: {c.created}</span>
               {c.stage < 4 && (
                 <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.68rem] font-medium ${deadlineColor(c.daysLeft)}`}>
@@ -217,8 +214,8 @@ function ActiveContractsSection({ onViewDetail }: { onViewDetail: () => void }) 
 /* ═══════════════════════════════════════════════
    CONTRACT DETAIL VIEW
    ═══════════════════════════════════════════════ */
-function ContractDetail({ onBack }: { onBack: () => void }) {
-  const c = activeContracts[0]
+function ContractDetail({ contractId, onBack }: { contractId: number; onBack: () => void }) {
+  const c = activeContracts.find(x => x.id === contractId) || activeContracts[0]
 
   const activityLog = [
     { date: 'Mar 11, 2026', text: 'Reminder sent to seller John Delacroix' },
@@ -231,40 +228,40 @@ function ContractDetail({ onBack }: { onBack: () => void }) {
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 mb-4 bg-transparent border-0 cursor-pointer transition-colors">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-[0.82rem] text-[#6B7280] hover:text-[#374151] mb-4 bg-transparent border-0 cursor-pointer transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Contracts
       </button>
 
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl px-6 py-5 mb-5">
+      <div className="bg-white border border-[#E5E7EB] rounded-lg px-6 py-5 mb-5 animate-fadeInUp">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }} className="text-[1.2rem] font-medium text-gray-900 tracking-[-0.02em]">
+            <h2 className="text-2xl font-semibold text-[#111827]">
               {c.address}
             </h2>
             <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${contractTypeBadge(c.type)}`}>{c.type}</span>
           </div>
-          <span className="text-[0.76rem] text-gray-400">Created: {c.created}</span>
+          <span className="text-sm text-[#9CA3AF]">Created: {c.created}</span>
         </div>
         <ProgressTracker currentStage={c.stage} />
       </div>
 
       {/* Parties */}
       <div className="grid grid-cols-2 gap-4 mb-5 contracts-parties">
-        <div className="bg-white border border-gray-200 rounded-xl px-5 py-4">
-          <div className="text-[0.66rem] text-gray-400 uppercase tracking-wide mb-3 font-medium">Seller / Assignor</div>
-          <div className="text-[0.9rem] font-medium text-gray-800 mb-2">{c.seller}</div>
-          <div className="space-y-1.5 text-[0.78rem] text-gray-500">
-            <div className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-gray-400" /> (214) 555-4821</div>
-            <div className="flex items-center gap-1.5"><Mail className="w-3 h-3 text-gray-400" /> j.delacroix@email.com</div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
+          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Seller / Assignor</div>
+          <div className="text-[0.9rem] font-medium text-[#374151] mb-2">{c.seller}</div>
+          <div className="space-y-1.5 text-[0.78rem] text-[#374151]">
+            <div className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#9CA3AF]" /> (214) 555-4821</div>
+            <div className="flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#9CA3AF]" /> j.delacroix@email.com</div>
           </div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl px-5 py-4">
-          <div className="text-[0.66rem] text-gray-400 uppercase tracking-wide mb-3 font-medium">Buyer / Assignee</div>
-          <div className="text-[0.9rem] font-medium text-gray-800 mb-2">{c.buyer}</div>
-          <div className="space-y-1.5 text-[0.78rem] text-gray-500">
-            <div className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-gray-400" /> (214) 555-0147</div>
-            <div className="flex items-center gap-1.5"><Mail className="w-3 h-3 text-gray-400" /> marcus.t@gmail.com</div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
+          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Buyer / Assignee</div>
+          <div className="text-[0.9rem] font-medium text-[#374151] mb-2">{c.buyer}</div>
+          <div className="space-y-1.5 text-[0.78rem] text-[#374151]">
+            <div className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#9CA3AF]" /> (214) 555-0147</div>
+            <div className="flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#9CA3AF]" /> marcus.t@gmail.com</div>
           </div>
         </div>
       </div>
@@ -272,12 +269,12 @@ function ContractDetail({ onBack }: { onBack: () => void }) {
       {/* Deal Terms + Signatures */}
       <div className="grid grid-cols-2 gap-4 mb-5 contracts-terms">
         {/* Terms */}
-        <div className="bg-white border border-gray-200 rounded-xl px-5 py-4">
-          <div className="text-[0.66rem] text-gray-400 uppercase tracking-wide mb-3 font-medium">Deal Terms</div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
+          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Deal Terms</div>
           <div className="space-y-2">
             {[
               { label: 'Contract Price', value: '$260,000' },
-              { label: 'Assignment Fee', value: '$22,500', bold: true, color: 'text-blue-600' },
+              { label: 'Assignment Fee', value: '$22,500', bold: true, color: 'text-[#4F46E5]' },
               { label: 'Earnest Money Deposit', value: '$5,000' },
               { label: 'EMD Held By', value: 'Lone Star Title Co.' },
               { label: 'Closing Date', value: 'March 22, 2026' },
@@ -286,8 +283,8 @@ function ContractDetail({ onBack }: { onBack: () => void }) {
               { label: 'Special Conditions', value: 'Subject to clear title; buyer inspection within 5 days' },
             ].map(t => (
               <div key={t.label} className="flex items-start justify-between">
-                <span className="text-[0.78rem] text-gray-500">{t.label}</span>
-                <span className={`text-[0.82rem] text-right max-w-[55%] ${t.bold ? `font-semibold ${t.color}` : 'text-gray-800'}`} style={t.bold ? { fontFamily: "'Bricolage Grotesque', sans-serif" } : undefined}>
+                <span className="text-[0.78rem] text-[#9CA3AF]">{t.label}</span>
+                <span className={`text-[0.82rem] text-right max-w-[55%] ${t.bold ? `font-semibold ${t.color}` : 'text-[#374151]'}`}>
                   {t.value}
                 </span>
               </div>
@@ -296,39 +293,39 @@ function ContractDetail({ onBack }: { onBack: () => void }) {
         </div>
 
         {/* Signatures */}
-        <div className="bg-white border border-gray-200 rounded-xl px-5 py-4">
-          <div className="text-[0.66rem] text-gray-400 uppercase tracking-wide mb-3 font-medium">Signature Status</div>
+        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
+          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Signature Status</div>
           <div className="space-y-4">
             {/* Buyer: signed */}
-            <div className="flex items-center justify-between py-2.5 border-b border-gray-100">
+            <div className="flex items-center justify-between py-2.5 border-b border-[#F3F4F6]">
               <div>
-                <div className="text-[0.82rem] font-medium text-gray-800">{c.buyer}</div>
-                <div className="text-[0.72rem] text-gray-400">Buyer / Assignee</div>
+                <div className="text-[0.82rem] font-medium text-[#374151]">{c.buyer}</div>
+                <div className="text-[0.72rem] text-[#9CA3AF]">Buyer / Assignee</div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <div className="flex items-center gap-1 text-[0.72rem] text-emerald-600 font-medium">
                     <CheckCircle2 className="w-3 h-3" /> Signed
                   </div>
-                  <div className="text-[0.66rem] text-gray-400">Mar 9, 2026</div>
+                  <div className="text-[0.66rem] text-[#9CA3AF]">Mar 9, 2026</div>
                 </div>
                 {/* Signature squiggle */}
                 <svg width="60" height="24" viewBox="0 0 60 24" className="flex-shrink-0 opacity-60">
-                  <path d="M2 18 C10 2, 18 22, 26 12 S34 2, 42 14 S50 22, 58 6" fill="none" stroke="#1e40af" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M2 18 C10 2, 18 22, 26 12 S34 2, 42 14 S50 22, 58 6" fill="none" stroke="#4F46E5" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
             </div>
             {/* Seller: pending */}
             <div className="flex items-center justify-between py-2.5">
               <div>
-                <div className="text-[0.82rem] font-medium text-gray-800">{c.seller}</div>
-                <div className="text-[0.72rem] text-gray-400">Seller / Assignor</div>
+                <div className="text-[0.82rem] font-medium text-[#374151]">{c.seller}</div>
+                <div className="text-[0.72rem] text-[#9CA3AF]">Seller / Assignor</div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 text-[0.72rem] text-amber-600 font-medium">
                   <Clock className="w-3 h-3" /> Pending
                 </div>
-                <button className="text-[0.72rem] text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border-0 rounded-md px-2.5 py-1 cursor-pointer transition-colors font-medium">
+                <button className="text-[0.72rem] text-[#4F46E5] hover:text-[#4338CA] bg-indigo-50 hover:bg-indigo-100 border-0 rounded-md px-2.5 py-1 cursor-pointer transition-colors font-medium">
                   Send Reminder
                 </button>
               </div>
@@ -338,77 +335,77 @@ function ContractDetail({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Document Preview */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-5">
-        <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-          <span className="text-[0.7rem] text-gray-400 uppercase tracking-wide font-medium">Document Preview</span>
+      <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden mb-5">
+        <div className="px-5 py-3 border-b border-[#F3F4F6] flex items-center justify-between">
+          <span className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">Document Preview</span>
           <div className="flex items-center gap-1.5">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-blue-600 hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-indigo-50 bg-transparent border-0 cursor-pointer transition-colors">
               <Download className="w-3.5 h-3.5" /> Download PDF
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-blue-600 hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-indigo-50 bg-transparent border-0 cursor-pointer transition-colors">
               <Send className="w-3.5 h-3.5" /> Send for Signature
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-gray-500 hover:bg-gray-50 bg-transparent border-0 cursor-pointer transition-colors">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#6B7280] hover:bg-[#F9FAFB] bg-transparent border-0 cursor-pointer transition-colors">
               <Printer className="w-3.5 h-3.5" /> Print
             </button>
           </div>
         </div>
         {/* Mock document */}
-        <div className="bg-gray-50 p-6 flex justify-center">
-          <div className="bg-white shadow-lg rounded-lg w-full max-w-[560px] px-10 py-8">
+        <div className="bg-[#FAFAFA] p-6 flex justify-center">
+          <div className="bg-white border border-[#E5E7EB] rounded-lg w-full max-w-[560px] px-10 py-8">
             <div className="text-center mb-6">
-              <h3 className="text-[1.05rem] font-bold text-gray-900 uppercase tracking-wide">Assignment of Contract Agreement</h3>
+              <h3 className="text-[1.05rem] font-bold text-[#111827] uppercase tracking-wide">Assignment of Contract Agreement</h3>
               <div className="w-16 h-0.5 bg-gray-300 mx-auto mt-2" />
             </div>
-            <div className="space-y-3 text-[0.82rem] text-gray-700 leading-relaxed mb-8">
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Assignor:</span>
+            <div className="space-y-3 text-[0.82rem] text-[#374151] leading-relaxed mb-8">
+              <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
+                <span className="text-[#9CA3AF]">Assignor:</span>
                 <span className="font-medium">You (DealFlow AI User)</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Assignee:</span>
+              <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
+                <span className="text-[#9CA3AF]">Assignee:</span>
                 <span className="font-medium">Marcus Thompson</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Property:</span>
+              <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
+                <span className="text-[#9CA3AF]">Property:</span>
                 <span className="font-medium">4217 Magnolia Ave, Dallas TX 75215</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Seller:</span>
+              <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
+                <span className="text-[#9CA3AF]">Seller:</span>
                 <span className="font-medium">John Delacroix</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Contract Price:</span>
+              <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
+                <span className="text-[#9CA3AF]">Contract Price:</span>
                 <span className="font-medium">$260,000</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Assignment Fee:</span>
-                <span className="font-semibold text-blue-600">$22,500</span>
+              <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
+                <span className="text-[#9CA3AF]">Assignment Fee:</span>
+                <span className="font-semibold text-[#4F46E5]">$22,500</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Closing Date:</span>
+              <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
+                <span className="text-[#9CA3AF]">Closing Date:</span>
                 <span className="font-medium">March 22, 2026</span>
               </div>
               <div className="flex justify-between pb-2">
-                <span className="text-gray-500">EMD Amount:</span>
+                <span className="text-[#9CA3AF]">EMD Amount:</span>
                 <span className="font-medium">$5,000</span>
               </div>
             </div>
             {/* Signature lines */}
-            <div className="grid grid-cols-2 gap-8 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-8 pt-4 border-t border-[#E5E7EB]">
               <div>
                 <div className="border-b border-gray-300 h-8 mb-1 flex items-end">
                   <svg width="80" height="20" viewBox="0 0 80 20" className="opacity-50 mb-0.5">
-                    <path d="M2 16 C12 2, 22 18, 32 10 S42 2, 52 12 S62 18, 72 6" fill="none" stroke="#1e40af" strokeWidth="1.2" strokeLinecap="round" />
+                    <path d="M2 16 C12 2, 22 18, 32 10 S42 2, 52 12 S62 18, 72 6" fill="none" stroke="#4F46E5" strokeWidth="1.2" strokeLinecap="round" />
                   </svg>
                 </div>
-                <div className="text-[0.68rem] text-gray-400">Buyer / Assignee</div>
-                <div className="text-[0.72rem] text-gray-600">Marcus Thompson</div>
+                <div className="text-[0.68rem] text-[#9CA3AF]">Buyer / Assignee</div>
+                <div className="text-[0.72rem] text-[#374151]">Marcus Thompson</div>
               </div>
               <div>
                 <div className="border-b border-gray-300 h-8 mb-1" />
-                <div className="text-[0.68rem] text-gray-400">Seller / Assignor</div>
-                <div className="text-[0.72rem] text-gray-600">John Delacroix</div>
+                <div className="text-[0.68rem] text-[#9CA3AF]">Seller / Assignor</div>
+                <div className="text-[0.72rem] text-[#374151]">John Delacroix</div>
               </div>
             </div>
           </div>
@@ -416,14 +413,14 @@ function ContractDetail({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Activity Log */}
-      <div className="bg-white border border-gray-200 rounded-xl px-5 py-4">
-        <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-3 font-medium">Activity Log</div>
+      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
+        <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Activity Log</div>
         <div className="space-y-2">
           {activityLog.map((a, i) => (
             <div key={i} className="flex items-center gap-3 text-[0.78rem]">
               <span className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
-              <span className="text-gray-600">{a.text}</span>
-              <span className="text-gray-400 ml-auto whitespace-nowrap text-[0.72rem]">{a.date}</span>
+              <span className="text-[#374151]">{a.text}</span>
+              <span className="text-[#9CA3AF] ml-auto whitespace-nowrap text-[0.72rem]">{a.date}</span>
             </div>
           ))}
         </div>
@@ -439,7 +436,7 @@ function TemplatesSection() {
   return (
     <div>
       {/* State coverage */}
-      <div className="bg-white border border-gray-200 rounded-xl px-5 py-4 mb-5 flex items-center justify-between">
+      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 mb-5 flex items-center justify-between">
         <div className="flex items-center gap-4">
           {/* Mini state indicators */}
           <div className="flex items-center gap-1">
@@ -447,9 +444,9 @@ function TemplatesSection() {
               <span key={s} className="text-[0.66rem] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5">{s}</span>
             ))}
           </div>
-          <span className="text-[0.82rem] text-gray-700 font-medium">5 of 50 States Covered</span>
+          <span className="text-[0.82rem] text-[#374151] font-medium">5 of 50 States Covered</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[0.76rem] text-gray-400">
+        <div className="flex items-center gap-1.5 text-[0.76rem] text-[#9CA3AF]">
           <Lock className="w-3.5 h-3.5" />
           All 50 states available on Pro and Enterprise plans
         </div>
@@ -458,14 +455,14 @@ function TemplatesSection() {
       {/* Grid */}
       <div className="grid grid-cols-2 gap-3 contracts-template-grid">
         {templates.map(t => (
-          <div key={t.id} className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-start justify-between">
+          <div key={t.id} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 flex items-start justify-between hover:bg-[#F9FAFB] transition-colors">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-gray-400" />
+              <div className="w-10 h-10 rounded-lg bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
+                <FileText className="w-5 h-5 text-[#9CA3AF]" />
               </div>
               <div>
-                <div className="text-[0.86rem] font-medium text-gray-800 mb-0.5">{t.name}</div>
-                <div className="flex items-center gap-2 text-[0.72rem] text-gray-400">
+                <div className="text-[0.86rem] font-medium text-[#374151] mb-0.5">{t.name}</div>
+                <div className="flex items-center gap-2 text-[0.72rem] text-[#9CA3AF]">
                   <span className={`font-medium px-1.5 py-0.5 rounded ${contractTypeBadge(t.type)} text-[0.64rem]`}>{t.type}</span>
                   <span>{t.state === 'Multi' ? 'Multi-State' : t.state}</span>
                   <span>·</span>
@@ -474,10 +471,10 @@ function TemplatesSection() {
               </div>
             </div>
             <div className="flex items-center gap-1.5 flex-shrink-0 mt-1">
-              <button className="text-[0.74rem] text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border-0 rounded-md px-3 py-1.5 cursor-pointer transition-colors font-medium">
+              <button className="text-[0.74rem] text-[#4F46E5] hover:text-[#4338CA] bg-indigo-50 hover:bg-indigo-100 border-0 rounded-md px-3 py-1.5 cursor-pointer transition-colors font-medium">
                 Use
               </button>
-              <button className="text-[0.74rem] text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 border-0 rounded-md px-3 py-1.5 cursor-pointer transition-colors font-medium">
+              <button className="text-[0.74rem] text-[#374151] hover:text-[#111827] bg-white hover:bg-[#F9FAFB] border border-[#D1D5DB] rounded-md px-3 py-1.5 cursor-pointer transition-colors font-medium">
                 Preview
               </button>
             </div>
@@ -495,8 +492,8 @@ function archiveStatusStyle(s: string) {
   switch (s) {
     case 'Executed': return 'text-emerald-700 bg-emerald-50'
     case 'Voided': return 'text-red-700 bg-red-50'
-    case 'Expired': return 'text-gray-500 bg-gray-100'
-    default: return 'text-gray-500 bg-gray-100'
+    case 'Expired': return 'text-[#6B7280] bg-gray-100'
+    default: return 'text-[#6B7280] bg-gray-100'
   }
 }
 
@@ -504,55 +501,55 @@ function ArchiveSection() {
   return (
     <div>
       {/* Summary */}
-      <div className="flex items-center gap-5 text-[0.78rem] text-gray-500 mb-4">
-        <span><strong className="text-gray-700">34</strong> Total Contracts</span>
+      <div className="flex items-center gap-5 text-[0.78rem] text-[#9CA3AF] mb-4">
+        <span><strong className="text-[#374151]">34</strong> Total Contracts</span>
         <span className="text-gray-300">|</span>
         <span><strong className="text-emerald-600">28</strong> Executed ($487,500 total fees)</span>
         <span className="text-gray-300">|</span>
-        <span><strong className="text-gray-700">4</strong> Expired</span>
+        <span><strong className="text-[#374151]">4</strong> Expired</span>
         <span className="text-gray-300">|</span>
-        <span><strong className="text-gray-700">2</strong> Voided</span>
+        <span><strong className="text-[#374151]">2</strong> Voided</span>
       </div>
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-4">
         <div className="relative flex-1 max-w-[280px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input type="text" placeholder="Search archived contracts..." className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none focus:border-blue-300 transition-colors" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+          <input type="text" placeholder="Search archived contracts..." className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-10 pr-4 py-2 text-[0.82rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#4F46E5] transition-colors" />
         </div>
         <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-          <input type="text" defaultValue="Nov 2025 - Mar 2026" className="bg-white border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-[0.8rem] text-gray-600 outline-none focus:border-blue-300 w-[180px]" />
+          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF]" />
+          <input type="text" defaultValue="Nov 2025 - Mar 2026" className="bg-white border border-[#E5E7EB] rounded-lg pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#4F46E5] w-[180px]" />
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden overflow-x-auto">
+      <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden overflow-x-auto">
         <table className="w-full min-w-[800px]">
           <thead>
-            <tr className="border-b border-gray-100">
+            <tr className="border-b border-[#F3F4F6]">
               {['Property Address', 'Type', 'Parties', 'Fee', 'Status', 'Date Closed', ''].map(h => (
-                <th key={h} className={`px-4 py-2.5 text-[0.68rem] text-gray-400 uppercase tracking-wide font-medium ${h === '' ? 'text-right' : 'text-left'}`}>{h}</th>
+                <th key={h} className={`px-4 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium ${h === '' ? 'text-right' : 'text-left'}`}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {archivedContracts.map((a, i) => (
-              <tr key={a.id} className={`${i < archivedContracts.length - 1 ? 'border-b border-gray-50' : ''} hover:bg-gray-50/70 transition-colors`}>
-                <td className="px-4 py-2.5 text-[0.82rem] text-gray-800 font-medium">{a.address}</td>
+              <tr key={a.id} className={`${i < archivedContracts.length - 1 ? 'border-b border-[#F3F4F6]' : ''} hover:bg-[#F9FAFB] transition-colors`}>
+                <td className="px-4 py-2.5 text-[0.82rem] text-[#374151] font-medium">{a.address}</td>
                 <td className="px-4 py-2.5">
                   <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full ${contractTypeBadge(a.type)}`}>{a.type}</span>
                 </td>
-                <td className="px-4 py-2.5 text-[0.78rem] text-gray-600">{a.parties}</td>
-                <td className="px-4 py-2.5 text-[0.82rem] text-gray-800 font-medium" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <td className="px-4 py-2.5 text-[0.78rem] text-[#374151]">{a.parties}</td>
+                <td className="px-4 py-2.5 text-[0.82rem] text-[#374151] font-medium">
                   ${a.fee.toLocaleString()}
                 </td>
                 <td className="px-4 py-2.5">
                   <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full ${archiveStatusStyle(a.status)}`}>{a.status}</span>
                 </td>
-                <td className="px-4 py-2.5 text-[0.78rem] text-gray-500">{a.date}</td>
+                <td className="px-4 py-2.5 text-sm text-[#9CA3AF]">{a.date}</td>
                 <td className="px-4 py-2.5 text-right">
-                  <button className="text-[0.72rem] text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer transition-colors font-medium">View</button>
+                  <button className="text-[0.72rem] text-[#4F46E5] hover:text-[#4338CA] bg-transparent border-0 cursor-pointer transition-colors font-medium">View</button>
                 </td>
               </tr>
             ))}
@@ -568,25 +565,25 @@ function ArchiveSection() {
    ═══════════════════════════════════════════════ */
 export default function ContractsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('active')
-  const [showDetail, setShowDetail] = useState(false)
+  const [detailContractId, setDetailContractId] = useState<number | null>(null)
+  const showDetail = detailContractId !== null
 
   return (
-    <div className="p-8 max-w-[1200px]">
+    <div className="p-8 max-w-[1200px] bg-[#FAFAFA] min-h-screen">
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
           <h1
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-            className="text-[1.45rem] font-medium text-gray-900 tracking-[-0.025em] mb-1"
+            className="text-2xl font-semibold text-[#111827] mb-1"
           >
             Contracts
           </h1>
-          <p className="text-[0.84rem] text-gray-400">
+          <p className="text-[0.84rem] text-[#9CA3AF]">
             Generate, sign, and track assignment contracts.
           </p>
         </div>
         {!showDetail && (
-          <button className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border-0 rounded-lg px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+          <button className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
             <Plus className="w-4 h-4" /> Create New Contract
           </button>
         )}
@@ -595,30 +592,30 @@ export default function ContractsPage() {
       {!showDetail && (
         <>
           {/* Stats bar */}
-          <div className="flex items-center gap-6 bg-white border border-gray-200 rounded-xl px-5 py-3 mb-5">
+          <div className="flex items-center gap-6 bg-white border border-[#E5E7EB] rounded-lg px-5 py-3 mb-5">
             <div className="flex items-center gap-2">
-              <span className="text-[0.82rem] text-gray-700 font-medium">7</span>
-              <span className="text-[0.78rem] text-gray-400">Active Contracts</span>
+              <span className="text-[0.82rem] text-[#374151] font-medium">7</span>
+              <span className="text-[0.78rem] text-[#9CA3AF]">Active Contracts</span>
             </div>
-            <div className="w-px h-4 bg-gray-200" />
+            <div className="w-px h-4 bg-[#E5E7EB]" />
             <div className="flex items-center gap-2">
               <span className="text-[0.82rem] text-amber-600 font-medium">3</span>
-              <span className="text-[0.78rem] text-gray-400">Awaiting Signature</span>
+              <span className="text-[0.78rem] text-[#9CA3AF]">Awaiting Signature</span>
             </div>
-            <div className="w-px h-4 bg-gray-200" />
+            <div className="w-px h-4 bg-[#E5E7EB]" />
             <div className="flex items-center gap-2">
               <span className="text-[0.82rem] text-emerald-600 font-medium">2</span>
-              <span className="text-[0.78rem] text-gray-400">Fully Executed This Month</span>
+              <span className="text-[0.78rem] text-[#9CA3AF]">Fully Executed This Month</span>
             </div>
-            <div className="w-px h-4 bg-gray-200" />
+            <div className="w-px h-4 bg-[#E5E7EB]" />
             <div className="flex items-center gap-2">
-              <span className="text-[0.82rem] text-blue-600 font-medium" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>$73,500</span>
-              <span className="text-[0.78rem] text-gray-400">in Assignment Fees</span>
+              <span className="text-[0.82rem] text-[#4F46E5] font-medium">$73,500</span>
+              <span className="text-[0.78rem] text-[#9CA3AF]">in Assignment Fees</span>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex items-center gap-1 mb-6 border-b border-gray-200 pb-0">
+          <div className="flex items-center gap-1 mb-6 border-b border-[#E5E7EB] pb-0">
             {tabs.map(tab => {
               const Icon = tab.icon
               const isActive = activeTab === tab.key
@@ -628,8 +625,8 @@ export default function ContractsPage() {
                   onClick={() => setActiveTab(tab.key)}
                   className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
                     isActive
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-400 hover:text-gray-600'
+                      ? 'border-[#4F46E5] text-[#4F46E5]'
+                      : 'border-transparent text-[#9CA3AF] hover:text-[#374151]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -639,13 +636,13 @@ export default function ContractsPage() {
             })}
           </div>
 
-          {activeTab === 'active' && <ActiveContractsSection onViewDetail={() => setShowDetail(true)} />}
+          {activeTab === 'active' && <ActiveContractsSection onViewDetail={(id) => setDetailContractId(id)} />}
           {activeTab === 'templates' && <TemplatesSection />}
           {activeTab === 'archive' && <ArchiveSection />}
         </>
       )}
 
-      {showDetail && <ContractDetail onBack={() => setShowDetail(false)} />}
+      {showDetail && <ContractDetail contractId={detailContractId!} onBack={() => setDetailContractId(null)} />}
 
       <style>{`
         @media (max-width: 900px) {

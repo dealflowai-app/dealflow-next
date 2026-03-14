@@ -33,7 +33,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #edf4ff 0%, #f5f8ff 40%, #ffffff 70%)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #eff6ff 0%, #f5f7ff 40%, #ffffff 70%)', display: 'flex', flexDirection: 'column' }}>
 
       {/* Top bar - matches Nav styling */}
       <div
@@ -224,7 +224,7 @@ export default function LoginPage() {
               disabled={loading}
               style={{
                 width: '100%',
-                background: loading ? 'var(--blue-400, #93c5fd)' : 'var(--blue-600)',
+                background: loading ? 'var(--blue-400, #60A5FA)' : 'var(--blue-600)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 12,
@@ -261,7 +261,7 @@ export default function LoginPage() {
 
       <style>{`
         .login-input:focus {
-          border-color: var(--blue-400, #93c5fd) !important;
+          border-color: var(--blue-400, #60A5FA) !important;
           box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
         }
         @keyframes spin {

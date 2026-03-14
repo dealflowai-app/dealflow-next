@@ -111,7 +111,7 @@ export default function PricingPage() {
       <main style={{ paddingTop: 62, background: 'var(--white)' }}>
 
         {/* Hero */}
-        <div style={{ background: 'linear-gradient(160deg, #edf4ff 0%, #f5f8ff 40%, #ffffff 70%)' }}>
+        <div style={{ background: 'linear-gradient(160deg, #eff6ff 0%, #f5f7ff 40%, #ffffff 70%)' }}>
           <div className="pricing-hero" style={{ maxWidth: 680, margin: '0 auto', padding: '80px 40px 64px', textAlign: 'center' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 22 }}>
               <span className="eyebrow-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
@@ -143,7 +143,7 @@ export default function PricingPage() {
                   borderRadius: 14,
                   border: tier.highlight ? '1.5px solid var(--blue-600)' : '1px solid var(--gray-200)',
                   padding: '28px 24px',
-                  background: tier.highlight ? 'linear-gradient(160deg, #f0f6ff 0%, #fff 60%)' : 'var(--white)',
+                  background: tier.highlight ? 'linear-gradient(160deg, #eff6ff 0%, #fff 60%)' : 'var(--white)',
                   position: 'relative',
                   boxShadow: tier.highlight ? 'var(--shadow-lg)' : 'none',
                 }}

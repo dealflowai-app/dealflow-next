@@ -180,7 +180,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                 fontWeight: 600,
                 color: 'var(--white)',
                 border: 'none',
-                background: 'var(--blue-600)',
+                background: '#2563EB',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 transition: 'all 0.15s',
@@ -202,14 +202,14 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                 fontWeight: 600,
                 color: 'var(--white)',
                 border: 'none',
-                background: 'var(--blue-600)',
+                background: '#2563EB',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 transition: 'all 0.15s',
                 letterSpacing: '-0.01em',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'var(--blue-700)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'var(--blue-600)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#1D4ED8' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#2563EB' }}
             >
               Join waitlist
             </button>
@@ -321,7 +321,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                 fontSize: '0.95rem',
                 fontWeight: 600,
                 color: 'var(--white)',
-                background: 'var(--blue-600)',
+                background: '#2563EB',
                 textDecoration: 'none',
                 textAlign: 'center',
                 display: 'block',
@@ -339,7 +339,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                 fontWeight: 600,
                 color: 'var(--white)',
                 border: 'none',
-                background: 'var(--blue-600)',
+                background: '#2563EB',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}

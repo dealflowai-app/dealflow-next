@@ -359,9 +359,9 @@ function VisScreen1() {
         Verified cash buyers · Discovered from public records
       </div>
       {[
-        { initials: 'JM', bg: 'linear-gradient(135deg,#1d4ed8,#3b82f6)', name: 'James M.',  tag: 'SFR · $80K-$150K · Flip · Atlanta, GA',       score: 94 },
-        { initials: 'SR', bg: 'linear-gradient(135deg,#0ea5e9,#2563eb)', name: 'Sandra R.', tag: 'Multi-fam · $200K-$400K · Hold · Tampa, FL',    score: 87 },
-        { initials: 'DK', bg: 'linear-gradient(135deg,#6366f1,#3b82f6)', name: 'David K.',  tag: 'SFR · $60K-$120K · Flip · Charlotte, NC',       score: 79 },
+        { initials: 'JM', bg: 'linear-gradient(135deg,#1D4ED8,#2563EB)', name: 'James M.',  tag: 'SFR · $80K-$150K · Flip · Atlanta, GA',       score: 94 },
+        { initials: 'SR', bg: 'linear-gradient(135deg,#0ea5e9,#2563EB)', name: 'Sandra R.', tag: 'Multi-fam · $200K-$400K · Hold · Tampa, FL',    score: 87 },
+        { initials: 'DK', bg: 'linear-gradient(135deg,#6366f1,#2563EB)', name: 'David K.',  tag: 'SFR · $60K-$120K · Flip · Charlotte, NC',       score: 79 },
       ].map((b, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11, border: '1px solid var(--gray-100)', borderRadius: 10, padding: '11px 13px', marginBottom: 8, background: 'var(--white)' }}>
           <div style={{ width: 34, height: 34, borderRadius: '50%', background: b.bg, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.7rem', flexShrink: 0 }}>

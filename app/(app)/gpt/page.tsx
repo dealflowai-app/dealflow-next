@@ -235,16 +235,16 @@ export default function DealFlowGPTPage() {
       {/* ── Chat Area ── */}
       <div className={`flex flex-col transition-all duration-300 ${contextOpen ? 'flex-1' : 'w-full'}`}>
         {/* Chat Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] bg-white">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
-              <Bot className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-lg bg-[#F3F4F6] flex items-center justify-center">
+              <Bot className="w-5 h-5 text-[#6B7280]" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-gray-900" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h1 className="text-2xl font-semibold text-[#111827]">
                 DealFlow GPT
               </h1>
-              <p className="text-xs text-gray-500">AI assistant with full account context</p>
+              <p className="text-sm text-[#9CA3AF]">AI assistant with full account context</p>
             </div>
             <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -252,13 +252,13 @@ export default function DealFlowGPTPage() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+            <button className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-[#F9FAFB] transition-colors">
               <RefreshCw className="w-3.5 h-3.5" />
               New Chat
             </button>
             <button
               onClick={() => setContextOpen(!contextOpen)}
-              className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-[#F9FAFB] transition-colors"
             >
               <Database className="w-3.5 h-3.5" />
               {contextOpen ? 'Hide' : 'Show'} Context
@@ -267,17 +267,17 @@ export default function DealFlowGPTPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-gray-50">
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-[#FAFAFA]">
           {/* Welcome banner (only show if no messages) */}
           {messages.length === 0 && (
             <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 rounded-2xl bg-[#F3F4F6] flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-8 h-8 text-[#6B7280]" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h2 className="text-2xl font-semibold text-[#111827] mb-2">
                 How can I help your deals today?
               </h2>
-              <p className="text-gray-500 max-w-md mx-auto">
+              <p className="text-[#9CA3AF] max-w-md mx-auto">
                 I have access to your CRM, deals, campaigns, and market data. Ask me anything about your business.
               </p>
             </div>
@@ -286,24 +286,24 @@ export default function DealFlowGPTPage() {
           {messages.map((msg) => (
             <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
               {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1">
-                  <Bot className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
+                  <Bot className="w-4 h-4 text-[#6B7280]" />
                 </div>
               )}
               <div className={`max-w-[75%] ${msg.role === 'user' ? 'order-first' : ''}`}>
                 <div
                   className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-blue-600 text-white rounded-br-md'
-                      : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md shadow-sm'
+                      ? 'bg-[#F3F4F6] text-[#374151] rounded-br-md'
+                      : 'bg-white border border-[#E5E7EB] text-[#374151] rounded-bl-md'
                   }`}
                 >
                   {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-strong:text-gray-900 prose-p:text-gray-700">
+                    <div className="prose prose-sm max-w-none prose-headings:text-[#111827] prose-strong:text-[#111827] prose-p:text-[#374151]">
                       {msg.content.split('\n').map((line, i) => {
                         // Bold headings
                         if (line.startsWith('**') && line.endsWith('**')) {
-                          return <p key={i} className="font-semibold text-gray-900 mt-3 mb-1">{line.replace(/\*\*/g, '')}</p>
+                          return <p key={i} className="font-semibold text-[#111827] mt-3 mb-1">{line.replace(/\*\*/g, '')}</p>
                         }
                         // Table rows
                         if (line.startsWith('|')) {
@@ -311,7 +311,7 @@ export default function DealFlowGPTPage() {
                           if (cells.every(c => c.match(/^-+$/))) return null
                           const isHeader = msg.content.split('\n')[i + 1]?.includes('---')
                           return (
-                            <div key={i} className={`grid grid-cols-${cells.length} gap-2 py-1 text-xs ${isHeader ? 'font-semibold border-b border-gray-200' : ''}`}
+                            <div key={i} className={`grid grid-cols-${cells.length} gap-2 py-1 text-xs ${isHeader ? 'font-semibold border-b border-[#E5E7EB]' : ''}`}
                               style={{ gridTemplateColumns: `repeat(${cells.length}, 1fr)` }}>
                               {cells.map((cell, j) => <span key={j}>{cell}</span>)}
                             </div>
@@ -319,7 +319,7 @@ export default function DealFlowGPTPage() {
                         }
                         // Blockquotes
                         if (line.startsWith('>')) {
-                          return <blockquote key={i} className="border-l-3 border-blue-300 pl-3 py-1 my-2 text-gray-600 italic text-[13px]">{line.replace(/^>\s*/, '').replace(/"/g, '"').replace(/"/g, '"')}</blockquote>
+                          return <blockquote key={i} className="border-l-3 border-[#E5E7EB] pl-3 py-1 my-2 text-[#6B7280] italic text-[13px]">{line.replace(/^>\s*/, '').replace(/"/g, '"').replace(/"/g, '"')}</blockquote>
                         }
                         // Numbered items
                         if (line.match(/^\d+\.\s/)) {
@@ -332,7 +332,7 @@ export default function DealFlowGPTPage() {
                           })}</p>
                         }
                         // Horizontal rule
-                        if (line.trim() === '---') return <hr key={i} className="my-3 border-gray-200" />
+                        if (line.trim() === '---') return <hr key={i} className="my-3 border-[#E5E7EB]" />
                         // Bold inline
                         if (line.includes('**')) {
                           return <p key={i} className="my-1">{line.replace(/\*\*(.*?)\*\*/g, '⟨$1⟩').split('⟨').map((part, pi) => {
@@ -355,59 +355,68 @@ export default function DealFlowGPTPage() {
                 </div>
                 {/* Message actions */}
                 <div className={`flex items-center gap-1 mt-1.5 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-                  <span className="text-[10px] text-gray-400 mr-2">{msg.timestamp}</span>
+                  <span className="text-[10px] text-[#9CA3AF] mr-2">{msg.timestamp}</span>
                   {msg.role === 'assistant' && (
                     <>
                       <button
                         onClick={() => handleCopy(msg.id, msg.content)}
-                        className="p-1 rounded hover:bg-gray-200 transition-colors"
+                        className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
                         title="Copy"
                       >
                         {copiedId === msg.id ? (
                           <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                         ) : (
-                          <Copy className="w-3.5 h-3.5 text-gray-400" />
+                          <Copy className="w-3.5 h-3.5 text-[#9CA3AF] hover:text-[#374151]" />
                         )}
                       </button>
                       <button
                         onClick={() => toggleLike(msg.id)}
-                        className="p-1 rounded hover:bg-gray-200 transition-colors"
+                        className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
                         title="Helpful"
                       >
-                        <ThumbsUp className={`w-3.5 h-3.5 ${likedIds.has(msg.id) ? 'text-blue-600 fill-blue-600' : 'text-gray-400'}`} />
+                        <ThumbsUp className={`w-3.5 h-3.5 ${likedIds.has(msg.id) ? 'text-[#4F46E5] fill-[#4F46E5]' : 'text-[#9CA3AF] hover:text-[#374151]'}`} />
                       </button>
                       <button
                         onClick={() => toggleDislike(msg.id)}
-                        className="p-1 rounded hover:bg-gray-200 transition-colors"
+                        className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
                         title="Not helpful"
                       >
-                        <ThumbsDown className={`w-3.5 h-3.5 ${dislikedIds.has(msg.id) ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} />
+                        <ThumbsDown className={`w-3.5 h-3.5 ${dislikedIds.has(msg.id) ? 'text-red-500 fill-red-500' : 'text-[#9CA3AF] hover:text-[#374151]'}`} />
                       </button>
                     </>
                   )}
                 </div>
               </div>
               {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center flex-shrink-0 mt-1">
-                  <User className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
+                  <User className="w-4 h-4 text-[#6B7280]" />
                 </div>
               )}
             </div>
           ))}
 
           {/* Typing indicator */}
-          {isTyping && (
+          {isTyping ? (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1">
-                <Bot className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
+                <Bot className="w-4 h-4 text-[#6B7280]" />
               </div>
-              <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+              <div className="bg-white border border-[#E5E7EB] rounded-2xl rounded-bl-md px-4 py-3">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
+            </div>
+          ) : messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
+            <div className="flex items-center gap-2 pl-11 pt-1">
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] animate-pulse" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] animate-pulse" style={{ animationDelay: '300ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] animate-pulse" style={{ animationDelay: '600ms' }} />
+              </div>
+              <span className="text-[10px] text-[#9CA3AF]">DealFlow GPT is ready</span>
             </div>
           )}
 
@@ -416,13 +425,13 @@ export default function DealFlowGPTPage() {
 
         {/* Suggested prompts */}
         {messages.length <= 4 && (
-          <div className="px-6 py-3 bg-gray-50 border-t border-gray-100">
+          <div className="px-6 py-3 bg-[#FAFAFA] border-t border-[#E5E7EB]">
             <div className="flex flex-wrap gap-2">
               {suggestedPrompts.map((prompt, i) => (
                 <button
                   key={i}
                   onClick={() => handlePromptChip(prompt)}
-                  className="text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 transition-all"
+                  className="text-xs px-3 py-1.5 rounded-full border border-[#E5E7EB] bg-white text-[#374151] hover:bg-[#F9FAFB] transition-all"
                 >
                   {prompt}
                 </button>
@@ -432,7 +441,7 @@ export default function DealFlowGPTPage() {
         )}
 
         {/* Input area */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-white">
+        <div className="px-6 py-4 border-t border-[#E5E7EB] bg-white">
           <div className="flex items-end gap-3">
             <div className="flex-1 relative">
               <textarea
@@ -442,26 +451,26 @@ export default function DealFlowGPTPage() {
                 onKeyDown={handleKeyDown}
                 placeholder="Ask DealFlow GPT anything about your deals, buyers, campaigns..."
                 rows={1}
-                className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 pr-12 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full resize-none rounded-xl border border-[#E5E7EB] px-4 py-3 pr-12 text-sm text-[#374151] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
                 style={{ minHeight: '44px', maxHeight: '120px' }}
               />
               <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                <span className="text-[10px] text-gray-400 mr-1">⏎ Send</span>
+                <span className="text-[10px] text-[#9CA3AF] mr-1">⏎ Send</span>
               </div>
             </div>
             <button
               onClick={handleSend}
               disabled={!input.trim() || isTyping}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+              className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
                 input.trim() && !isTyping
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  ? 'bg-[#4F46E5] hover:bg-[#4338CA] text-white'
+                  : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
               }`}
             >
               <Send className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-[10px] text-gray-400 mt-2 text-center">
+          <p className="text-[10px] text-[#9CA3AF] mt-2 text-center">
             DealFlow GPT has access to your account data. Responses are AI-generated and should be verified.
           </p>
         </div>
@@ -469,22 +478,22 @@ export default function DealFlowGPTPage() {
 
       {/* ── Context Sidebar ── */}
       {contextOpen && (
-        <div className="w-[320px] border-l border-gray-200 bg-white flex flex-col overflow-y-auto">
+        <div className="w-[320px] border-l border-[#E5E7EB] bg-white flex flex-col overflow-y-auto">
           {/* Connected Data */}
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5" />
+          <div className="px-5 py-4 border-b border-[#E5E7EB]">
+            <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5 text-[#6B7280]" />
               Connected Data
             </h3>
             <div className="space-y-2">
               {dataSources.map((src, i) => (
                 <div key={i} className="flex items-center justify-between py-1.5">
                   <div className="flex items-center gap-2">
-                    <src.icon className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-700">{src.label}</span>
+                    <src.icon className="w-4 h-4 text-[#6B7280]" />
+                    <span className="text-sm text-[#374151]">{src.label}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-gray-500">{src.count}</span>
+                    <span className="text-xs font-medium text-[#6B7280]">{src.count}</span>
                     <span className="w-2 h-2 rounded-full bg-green-400" />
                   </div>
                 </div>
@@ -493,34 +502,34 @@ export default function DealFlowGPTPage() {
           </div>
 
           {/* Account Overview */}
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5" />
+          <div className="px-5 py-4 border-b border-[#E5E7EB]">
+            <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5">
+              <BarChart3 className="w-3.5 h-3.5 text-[#6B7280]" />
               Account Overview
             </h3>
             <div className="space-y-2.5">
               {accountStats.map((stat, i) => (
                 <div key={i} className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">{stat.label}</span>
-                  <span className="text-xs font-medium text-gray-800">{stat.value}</span>
+                  <span className="text-xs text-[#9CA3AF]">{stat.label}</span>
+                  <span className="text-xs font-medium text-[#374151]">{stat.value}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" />
+          <div className="px-5 py-4 border-b border-[#E5E7EB]">
+            <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#6B7280]" />
               Recent Activity
             </h3>
             <div className="space-y-3">
               {recentActivity.map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#9CA3AF] mt-1.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-gray-700 leading-snug">{item.text}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{item.time}</p>
+                    <p className="text-xs text-[#374151] leading-snug">{item.text}</p>
+                    <p className="text-[10px] text-[#9CA3AF] mt-0.5">{item.time}</p>
                   </div>
                 </div>
               ))}
@@ -528,9 +537,9 @@ export default function DealFlowGPTPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5" />
+          <div className="px-5 py-4 border-b border-[#E5E7EB]">
+            <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-[#6B7280]" />
               Quick Actions
             </h3>
             <div className="space-y-2">
@@ -538,10 +547,10 @@ export default function DealFlowGPTPage() {
                 <button
                   key={i}
                   onClick={() => handlePromptChip(action.prompt)}
-                  className="w-full text-left flex items-center justify-between px-3 py-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+                  className="w-full text-left flex items-center justify-between px-3 py-2 rounded-lg border border-[#E5E7EB] bg-white hover:bg-[#F9FAFB] transition-all group"
                 >
-                  <span className="text-xs text-gray-600 group-hover:text-blue-700">{action.label}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600" />
+                  <span className="text-xs text-[#374151]">{action.label}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#374151]" />
                 </button>
               ))}
             </div>
@@ -549,26 +558,26 @@ export default function DealFlowGPTPage() {
 
           {/* GPT Info */}
           <div className="px-5 py-4">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+            <div className="bg-white rounded-lg p-4 border border-[#E5E7EB]">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-blue-600" />
-                <span className="text-xs font-semibold text-blue-900">Powered by AI</span>
+                <Sparkles className="w-4 h-4 text-[#9CA3AF]" />
+                <span className="text-xs font-medium text-[#9CA3AF]">Powered by AI</span>
               </div>
-              <p className="text-[11px] text-blue-700 leading-relaxed">
+              <p className="text-[11px] text-[#9CA3AF] leading-relaxed">
                 DealFlow GPT analyzes your CRM, deals, campaigns, and market data in real-time to provide personalized recommendations and automate your workflow.
               </p>
               <div className="flex items-center gap-3 mt-3">
                 <div className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-green-600" />
-                  <span className="text-[10px] text-gray-600">HIPAA-ready</span>
+                  <CheckCircle2 className="w-3 h-3 text-[#9CA3AF]" />
+                  <span className="text-[10px] text-[#9CA3AF]">HIPAA-ready</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-green-600" />
-                  <span className="text-[10px] text-gray-600">SOC 2</span>
+                  <CheckCircle2 className="w-3 h-3 text-[#9CA3AF]" />
+                  <span className="text-[10px] text-[#9CA3AF]">SOC 2</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-green-600" />
-                  <span className="text-[10px] text-gray-600">Encrypted</span>
+                  <CheckCircle2 className="w-3 h-3 text-[#9CA3AF]" />
+                  <span className="text-[10px] text-[#9CA3AF]">Encrypted</span>
                 </div>
               </div>
             </div>

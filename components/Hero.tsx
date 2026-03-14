@@ -216,7 +216,7 @@ export default function Hero() {
           font-weight: 600;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #93c5fd;
+          color: #bfdbfe;
           margin-bottom: 20px;
         }
 
@@ -238,7 +238,7 @@ export default function Hero() {
         }
 
         .hero-h1-accent {
-          color: var(--blue-500)
+          color: #ffffff
         }
 
         .hero-sub {
@@ -310,7 +310,7 @@ export default function Hero() {
         }
 
         .hero-search-btn:hover {
-          background: #2563eb;
+          background: #2563EB;
         }
 
         /* Waitlist button */
@@ -406,7 +406,7 @@ export default function Hero() {
           font-weight: 700;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #93c5fd;
+          color: #bfdbfe;
           margin-bottom: 8px;
         }
 

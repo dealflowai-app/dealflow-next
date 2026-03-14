@@ -48,9 +48,9 @@ function VisualMarket() {
 /* ── 02 Buyer Intelligence ───────────────────────────────── */
 function VisualBuyers() {
   const buyers = [
-    { initials: 'JM', bg: 'linear-gradient(135deg,#1d4ed8,#3b82f6)', name: 'James M.', market: 'Atlanta, GA · SFR Flip', updated: 'Just now', score: 96, fresh: true },
-    { initials: 'SR', bg: 'linear-gradient(135deg,#0ea5e9,#2563eb)', name: 'Sandra R.', market: 'Charlotte, NC · SFR Flip', updated: '2h ago', score: 84, fresh: false },
-    { initials: 'DK', bg: 'linear-gradient(135deg,#6366f1,#3b82f6)', name: 'David K.', market: 'Tampa, FL · SFR Flip', updated: '1d ago', score: 71, fresh: false },
+    { initials: 'JM', bg: 'linear-gradient(135deg,#1D4ED8,#2563EB)', name: 'James M.', market: 'Atlanta, GA · SFR Flip', updated: 'Just now', score: 96, fresh: true },
+    { initials: 'SR', bg: 'linear-gradient(135deg,#0ea5e9,#2563EB)', name: 'Sandra R.', market: 'Charlotte, NC · SFR Flip', updated: '2h ago', score: 84, fresh: false },
+    { initials: 'DK', bg: 'linear-gradient(135deg,#6366f1,#2563EB)', name: 'David K.', market: 'Tampa, FL · SFR Flip', updated: '1d ago', score: 71, fresh: false },
   ]
   return (
     <div style={{ padding: 28 }}>

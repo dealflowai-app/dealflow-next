@@ -328,7 +328,7 @@ export default function AboutContent() {
                   width: 52,
                   height: 52,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--blue-600), #60a5fa)',
+                  background: 'linear-gradient(135deg, var(--blue-600), #60A5FA)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
