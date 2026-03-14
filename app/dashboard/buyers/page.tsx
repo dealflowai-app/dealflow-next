@@ -1,712 +1,1075 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  MapPin,
+  Home,
+  Building2,
+  LandPlot,
+  Warehouse,
+  BedDouble,
+  Bath,
+  Ruler,
+  Calendar,
+  Percent,
+  UserCircle,
+  Lock,
+  Plus,
+  BarChart3,
+  PhoneOutgoing,
+  Map as MapIcon,
+  Eye,
+  Flame,
+  Clock,
+  AlertTriangle,
+  Mail,
+  Phone,
+  Sparkles,
+} from 'lucide-react'
 
-interface Market { id: string; label: string; city?: string; state: string; zipCode?: string; buyerCount: number; lastRefreshed?: string }
-interface CashBuyer { id: string; firstName?: string; lastName?: string; entityName?: string; entityType?: string; phone?: string; email?: string; city?: string; state?: string; zip?: string; cashPurchaseCount: number; lastPurchaseDate?: string; estimatedMaxPrice?: number; estimatedMinPrice?: number; status: string; contactEnriched: boolean; buyerScore: number; strategy?: string; preferredTypes?: string[]; minPrice?: number; maxPrice?: number }
-interface Campaign { id: string; name: string; market: string; status: string; mode: string; totalBuyers: number; callsCompleted: number; qualified: number; notBuying: number; noAnswer: number; totalTalkTime: number; createdAt: string }
-interface LiveCall { buyerName: string; phone: string; duration: number; transcript: string[]; status: 'active' | 'completed'; outcome?: string; summary?: string }
-
-const MARKETS = [
-  { label: 'Atlanta, GA', city: 'Atlanta', state: 'GA' },
-  { label: 'Dallas, TX', city: 'Dallas', state: 'TX' },
-  { label: 'Phoenix, AZ', city: 'Phoenix', state: 'AZ' },
-  { label: 'Tampa, FL', city: 'Tampa', state: 'FL' },
-  { label: 'Charlotte, NC', city: 'Charlotte', state: 'NC' },
-  { label: 'Houston, TX', city: 'Houston', state: 'TX' },
-  { label: 'Indianapolis, IN', city: 'Indianapolis', state: 'IN' },
-  { label: 'Cleveland, OH', city: 'Cleveland', state: 'OH' },
-  { label: 'Memphis, TN', city: 'Memphis', state: 'TN' },
-  { label: 'Kansas City, MO', city: 'Kansas City', state: 'MO' },
-  { label: 'Detroit, MI', city: 'Detroit', state: 'MI' },
-  { label: 'Jacksonville, FL', city: 'Jacksonville', state: 'FL' },
+/* ═══════════════════════════════════════════════
+   MOCK DATA:PROPERTIES
+   ═══════════════════════════════════════════════ */
+const properties = [
+  {
+    id: 1,
+    address: '4217 Magnolia Ave',
+    city: 'Dallas',
+    zip: '75215',
+    type: 'SFR',
+    beds: 3,
+    baths: 2,
+    sqft: 1840,
+    lotSize: '6,200 sqft',
+    yearBuilt: 1978,
+    value: 285000,
+    equity: 82,
+    lastSaleDate: 'Jun 2018',
+    lastSalePrice: 165000,
+    taxAssessed: 248000,
+    owner: 'John D.',
+    ownerFull: 'John Delacroix',
+    ownerType: 'Individual',
+    mailingAddress: '901 Commerce St, Apt 4B, Dallas TX 75202',
+    ownershipYears: 6,
+    phone: '●●●-●●●-4821',
+    email: 'j●●●●@gmail.com',
+    absentee: true,
+    taxDelinquent: false,
+    preForeclosure: false,
+    probate: false,
+    pinX: 28,
+    pinY: 35,
+  },
+  {
+    id: 2,
+    address: '1502 Canton St',
+    city: 'Dallas',
+    zip: '75201',
+    type: 'Multi-Family',
+    beds: 6,
+    baths: 4,
+    sqft: 3200,
+    lotSize: '8,100 sqft',
+    yearBuilt: 1965,
+    value: 420000,
+    equity: 45,
+    lastSaleDate: 'Mar 2021',
+    lastSalePrice: 310000,
+    taxAssessed: 385000,
+    owner: 'Oakwood LLC',
+    ownerFull: 'Oakwood Properties LLC',
+    ownerType: 'LLC/Corp',
+    mailingAddress: 'PO Box 4418, Dallas TX 75208',
+    ownershipYears: 3,
+    phone: '●●●-●●●-7793',
+    email: 'o●●●●@oakwoodprop.com',
+    absentee: true,
+    taxDelinquent: true,
+    preForeclosure: false,
+    probate: false,
+    pinX: 35,
+    pinY: 28,
+  },
+  {
+    id: 3,
+    address: '8901 Bruton Rd',
+    city: 'Dallas',
+    zip: '75217',
+    type: 'SFR',
+    beds: 4,
+    baths: 2,
+    sqft: 2100,
+    lotSize: '7,500 sqft',
+    yearBuilt: 1982,
+    value: 195000,
+    equity: 91,
+    lastSaleDate: 'Aug 2010',
+    lastSalePrice: 92000,
+    taxAssessed: 178000,
+    owner: 'Maria G.',
+    ownerFull: 'Maria Gonzalez',
+    ownerType: 'Individual',
+    mailingAddress: '8901 Bruton Rd, Dallas TX 75217',
+    ownershipYears: 14,
+    phone: '●●●-●●●-2105',
+    email: 'm●●●●@yahoo.com',
+    absentee: false,
+    taxDelinquent: false,
+    preForeclosure: true,
+    probate: false,
+    pinX: 72,
+    pinY: 55,
+  },
+  {
+    id: 4,
+    address: '3340 W Illinois Ave',
+    city: 'Dallas',
+    zip: '75211',
+    type: 'SFR',
+    beds: 3,
+    baths: 1,
+    sqft: 1420,
+    lotSize: '5,800 sqft',
+    yearBuilt: 1955,
+    value: 165000,
+    equity: 100,
+    lastSaleDate: 'Dec 2003',
+    lastSalePrice: 68000,
+    taxAssessed: 152000,
+    owner: 'Estate of R. Williams',
+    ownerFull: 'Estate of Robert Williams',
+    ownerType: 'Trust',
+    mailingAddress: '2200 Ross Ave, Ste 300, Dallas TX 75201',
+    ownershipYears: 21,
+    phone: '●●●-●●●-8837',
+    email: 'r●●●●@probatelaw.com',
+    absentee: true,
+    taxDelinquent: true,
+    preForeclosure: false,
+    probate: true,
+    pinX: 18,
+    pinY: 62,
+  },
+  {
+    id: 5,
+    address: '6728 Greenville Ave',
+    city: 'Dallas',
+    zip: '75231',
+    type: 'Condo',
+    beds: 2,
+    baths: 2,
+    sqft: 1150,
+    lotSize: 'N/A',
+    yearBuilt: 2008,
+    value: 310000,
+    equity: 55,
+    lastSaleDate: 'Nov 2019',
+    lastSalePrice: 240000,
+    taxAssessed: 295000,
+    owner: 'James T.',
+    ownerFull: 'James Thornton',
+    ownerType: 'Individual',
+    mailingAddress: '1414 Elm St, Apt 12, Austin TX 78701',
+    ownershipYears: 5,
+    phone: '●●●-●●●-5519',
+    email: 'j●●●●@icloud.com',
+    absentee: true,
+    taxDelinquent: false,
+    preForeclosure: false,
+    probate: false,
+    pinX: 55,
+    pinY: 20,
+  },
+  {
+    id: 6,
+    address: 'Lot 8, Chalk Hill Rd',
+    city: 'Dallas',
+    zip: '75212',
+    type: 'Land',
+    beds: 0,
+    baths: 0,
+    sqft: 0,
+    lotSize: '12,400 sqft',
+    yearBuilt: 0,
+    value: 78000,
+    equity: 100,
+    lastSaleDate: 'Apr 2015',
+    lastSalePrice: 32000,
+    taxAssessed: 65000,
+    owner: 'Horizon Dev.',
+    ownerFull: 'Horizon Development Group LLC',
+    ownerType: 'LLC/Corp',
+    mailingAddress: '500 N Akard St, Ste 2100, Dallas TX 75201',
+    ownershipYears: 9,
+    phone: '●●●-●●●-6601',
+    email: 'i●●●●@horizondev.com',
+    absentee: true,
+    taxDelinquent: false,
+    preForeclosure: false,
+    probate: false,
+    pinX: 22,
+    pinY: 48,
+  },
+  {
+    id: 7,
+    address: '2914 Pine St',
+    city: 'Dallas',
+    zip: '75226',
+    type: 'SFR',
+    beds: 3,
+    baths: 2,
+    sqft: 1680,
+    lotSize: '6,000 sqft',
+    yearBuilt: 1972,
+    value: 230000,
+    equity: 73,
+    lastSaleDate: 'Jan 2017',
+    lastSalePrice: 128000,
+    taxAssessed: 210000,
+    owner: 'Patricia M.',
+    ownerFull: 'Patricia Moreno',
+    ownerType: 'Individual',
+    mailingAddress: '2914 Pine St, Dallas TX 75226',
+    ownershipYears: 7,
+    phone: '●●●-●●●-3342',
+    email: 'p●●●●@hotmail.com',
+    absentee: false,
+    taxDelinquent: false,
+    preForeclosure: false,
+    probate: false,
+    pinX: 48,
+    pinY: 40,
+  },
+  {
+    id: 8,
+    address: '5100 Samuell Blvd',
+    city: 'Dallas',
+    zip: '75228',
+    type: 'SFR',
+    beds: 4,
+    baths: 3,
+    sqft: 2400,
+    lotSize: '9,200 sqft',
+    yearBuilt: 1990,
+    value: 340000,
+    equity: 38,
+    lastSaleDate: 'Sep 2022',
+    lastSalePrice: 295000,
+    taxAssessed: 320000,
+    owner: 'DBR Capital',
+    ownerFull: 'DBR Capital Holdings LLC',
+    ownerType: 'LLC/Corp',
+    mailingAddress: '3500 Maple Ave, Ste 400, Dallas TX 75219',
+    ownershipYears: 2,
+    phone: '●●●-●●●-9014',
+    email: 'a●●●●@dbrcapital.com',
+    absentee: true,
+    taxDelinquent: false,
+    preForeclosure: false,
+    probate: false,
+    pinX: 65,
+    pinY: 65,
+  },
+  {
+    id: 9,
+    address: '1847 Oak Lawn Ave',
+    city: 'Dallas',
+    zip: '75219',
+    type: 'Multi-Family',
+    beds: 8,
+    baths: 6,
+    sqft: 4800,
+    lotSize: '10,500 sqft',
+    yearBuilt: 1958,
+    value: 580000,
+    equity: 67,
+    lastSaleDate: 'Jul 2016',
+    lastSalePrice: 320000,
+    taxAssessed: 540000,
+    owner: 'Vera S.',
+    ownerFull: 'Vera Stanton',
+    ownerType: 'Individual',
+    mailingAddress: '4200 Cedar Springs Rd, Dallas TX 75219',
+    ownershipYears: 8,
+    phone: '●●●-●●●-7720',
+    email: 'v●●●●@gmail.com',
+    absentee: true,
+    taxDelinquent: false,
+    preForeclosure: true,
+    probate: false,
+    pinX: 38,
+    pinY: 18,
+  },
+  {
+    id: 10,
+    address: '7622 Military Pkwy',
+    city: 'Dallas',
+    zip: '75227',
+    type: 'SFR',
+    beds: 3,
+    baths: 2,
+    sqft: 1550,
+    lotSize: '5,500 sqft',
+    yearBuilt: 1968,
+    value: 175000,
+    equity: 88,
+    lastSaleDate: 'Feb 2012',
+    lastSalePrice: 75000,
+    taxAssessed: 160000,
+    owner: 'Anthony B.',
+    ownerFull: 'Anthony Brooks',
+    ownerType: 'Individual',
+    mailingAddress: '210 E Davis St, Mesquite TX 75149',
+    ownershipYears: 12,
+    phone: '●●●-●●●-1456',
+    email: 'a●●●●@att.net',
+    absentee: true,
+    taxDelinquent: true,
+    preForeclosure: false,
+    probate: false,
+    pinX: 78,
+    pinY: 50,
+  },
 ]
 
-const SCRIPTS = [
-  { id: 'standard_qualification', name: 'Standard Buyer Qualification', desc: 'Full buy box discovery - property type, price range, strategy, close speed.', qualify: '68%', duration: '3-5 min' },
-  { id: 'check_in', name: 'Quick Check-In', desc: 'Verify existing buyer is still active and update their preferences.', qualify: '74%', duration: '1-2 min' },
-  { id: 'deal_specific', name: 'Deal-Specific Outreach', desc: 'Pitch a specific property under contract to matched buyers.', qualify: '51%', duration: '2-4 min' },
-  { id: 'new_market', name: 'New Market Introduction', desc: 'Introduce your network to buyers in a new market.', qualify: '44%', duration: '2-3 min' },
-]
+type Property = typeof properties[number]
 
-export default function DiscoveryPage() {
-  const [query, setQuery] = useState('')
-  const [showSugg, setShowSugg] = useState(false)
-  const [markets, setMarkets] = useState<Market[]>([])
-  const [activeMarket, setActiveMarket] = useState<Market | null>(null)
-  const [buyers, setBuyers] = useState<CashBuyer[]>([])
-  const [loading, setLoading] = useState(false)
-  const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [enriching, setEnriching] = useState(false)
-  const [enrichProgress, setEnrichProgress] = useState(0)
-  const [viewMode, setViewMode] = useState<'table' | 'card'>('table')
-  const [filterStatus, setFilterStatus] = useState('all')
-  const [sortBy, setSortBy] = useState<'score' | 'purchases' | 'date'>('purchases')
-  const [showBuilder, setShowBuilder] = useState(false)
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [activeCampaign, setActiveCampaign] = useState<Campaign | null>(null)
-  const [liveCalls, setLiveCalls] = useState<LiveCall[]>([])
-  const [tab, setTab] = useState<'discover' | 'history'>('discover')
-  const [cName, setCName] = useState('')
-  const [script, setScript] = useState('standard_qualification')
-  const [company, setCompany] = useState('')
-  const [agent, setAgent] = useState('Alex')
-  const [callMode, setCallMode] = useState<'AI' | 'MANUAL'>('AI')
-  const [concurrent, setConcurrent] = useState(10)
-  const [voicemail, setVoicemail] = useState(true)
-  const [retries, setRetries] = useState(2)
-  const [launching, setLaunching] = useState(false)
-  const [agreed, setAgreed] = useState(false)
-  const pollRef = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => { fetchCampaigns() }, [])
-  useEffect(() => {
-    if (activeCampaign?.status === 'RUNNING') {
-      pollRef.current = setInterval(() => {
-        setLiveCalls(p => simulateLive(p))
-        fetchCampaign(activeCampaign.id)
-      }, 2500)
-    } else { if (pollRef.current) clearInterval(pollRef.current) }
-    return () => { if (pollRef.current) clearInterval(pollRef.current) }
-  }, [activeCampaign?.status])
-
-  const suggestions = MARKETS.filter(m => m.label.toLowerCase().includes(query.toLowerCase()) && !markets.find(x => x.label === m.label))
-
-  async function pickMarket(s: typeof MARKETS[0]) {
-    setQuery(''); setShowSugg(false); setLoading(true); setSelected(new Set())
-    try {
-      const res = await fetch('/api/discovery/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ market: s.label, city: s.city, state: s.state }) })
-      const data = await res.json()
-      if (data.market) {
-        const m = { ...data.market, buyerCount: data.buyers?.length || 0 }
-        setMarkets(p => [...p.filter(x => x.id !== m.id), m])
-        setActiveMarket(m)
-        setBuyers(data.buyers || [])
-      }
-    } catch {
-      const mockB = mockBuyers(s.city, s.state, 24)
-      const m: Market = { id: `mock_${Math.random().toString(36).slice(2)}`, label: s.label, city: s.city, state: s.state, buyerCount: mockB.length, lastRefreshed: new Date().toISOString() }
-      setMarkets(p => [...p.filter(x => x.label !== s.label), m])
-      setActiveMarket(m)
-      setBuyers(mockB)
-    } finally { setLoading(false) }
+/* ═══════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════ */
+function typeIcon(type: string) {
+  switch (type) {
+    case 'SFR': return <Home className="w-3.5 h-3.5" />
+    case 'Multi-Family': return <Building2 className="w-3.5 h-3.5" />
+    case 'Land': return <LandPlot className="w-3.5 h-3.5" />
+    case 'Condo': return <Building2 className="w-3.5 h-3.5" />
+    case 'Commercial': return <Warehouse className="w-3.5 h-3.5" />
+    default: return <Home className="w-3.5 h-3.5" />
   }
+}
 
-  async function enrich(ids: string[]) {
-    if (!ids.length) return
-    setEnriching(true); setEnrichProgress(0)
-    const iv = setInterval(() => setEnrichProgress(p => Math.min(p + 7, 90)), 180)
-    try {
-      await fetch('/api/discovery/enrich', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ buyerIds: ids }) })
-      setBuyers(p => p.map(b => ids.includes(b.id) ? { ...b, contactEnriched: true, phone: b.phone || `+1${rPhone()}`, buyerScore: Math.max(b.buyerScore, 30) } : b))
-    } catch (e) { console.error(e) }
-    finally { clearInterval(iv); setEnrichProgress(100); setTimeout(() => { setEnriching(false); setEnrichProgress(0) }, 500) }
+function typeBadgeColor(type: string) {
+  switch (type) {
+    case 'SFR': return 'text-blue-700 bg-blue-50'
+    case 'Multi-Family': return 'text-violet-700 bg-violet-50'
+    case 'Land': return 'text-amber-700 bg-amber-50'
+    case 'Condo': return 'text-cyan-700 bg-cyan-50'
+    case 'Commercial': return 'text-rose-700 bg-rose-50'
+    default: return 'text-gray-600 bg-gray-100'
   }
+}
 
-  async function launch() {
-    if (!agreed || !cName || selected.size === 0) return
-    setLaunching(true)
-    try {
-      const res = await fetch('/api/campaigns', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: cName, market: activeMarket?.label || '', mode: callMode, buyerIds: Array.from(selected), scriptTemplate: script, companyName: company, agentName: agent, maxConcurrentCalls: concurrent, leaveVoicemail: voicemail, maxRetries: retries }) })
-      const data = await res.json()
-      if (data.campaign) {
-        setCampaigns(p => [data.campaign, ...p])
-        setActiveCampaign(data.campaign)
-        setShowBuilder(false)
-        setLiveCalls(Array.from(selected).slice(0, concurrent).map(id => { const b = buyers.find(x => x.id === id); return { buyerName: displayName(b), phone: b?.phone || '', duration: 0, transcript: [], status: 'active' } }))
-      }
-    } catch (e) { console.error(e) } finally { setLaunching(false) }
+function equityColor(pct: number) {
+  if (pct >= 70) return 'bg-emerald-500'
+  if (pct >= 40) return 'bg-amber-400'
+  return 'bg-red-400'
+}
+
+function equityTextColor(pct: number) {
+  if (pct >= 70) return 'text-emerald-600'
+  if (pct >= 40) return 'text-amber-600'
+  return 'text-red-500'
+}
+
+function pinColor(type: string) {
+  switch (type) {
+    case 'SFR': return '#3b82f6'
+    case 'Multi-Family': return '#8b5cf6'
+    case 'Land': return '#f59e0b'
+    case 'Condo': return '#06b6d4'
+    case 'Commercial': return '#ef4444'
+    default: return '#6b7280'
   }
+}
 
-  async function fetchCampaigns() {
-    try { const r = await fetch('/api/campaigns'); const d = await r.json(); if (d.campaigns) setCampaigns(d.campaigns) } catch { /* silent */ }
+function ownerTypeBadge(type: string) {
+  switch (type) {
+    case 'Individual': return 'text-gray-600 bg-gray-100'
+    case 'LLC/Corp': return 'text-blue-700 bg-blue-50'
+    case 'Trust': return 'text-violet-700 bg-violet-50'
+    case 'Bank-Owned': return 'text-rose-700 bg-rose-50'
+    default: return 'text-gray-600 bg-gray-100'
   }
-  async function fetchCampaign(id: string) {
-    try { const r = await fetch(`/api/campaigns/${id}`); const d = await r.json(); if (d.campaign) { setActiveCampaign(d.campaign); setCampaigns(p => p.map(c => c.id === id ? d.campaign : c)) } } catch { /* silent */ }
-  }
+}
 
-  const filtered = buyers
-    .filter(b => filterStatus === 'all' || b.status.toLowerCase() === filterStatus.toLowerCase())
-    .sort((a, b) => sortBy === 'score' ? b.buyerScore - a.buyerScore : sortBy === 'purchases' ? b.cashPurchaseCount - a.cashPurchaseCount : new Date(b.lastPurchaseDate || 0).getTime() - new Date(a.lastPurchaseDate || 0).getTime())
-
-  const enrichedCount = buyers.filter(b => b.contactEnriched).length
-  const unenrichedCount = buyers.length - enrichedCount
-  const allSelected = selected.size > 0 && selected.size === filtered.length
-  const liveStats = activeCampaign ? { active: liveCalls.filter(c => c.status === 'active').length, qualified: activeCampaign.qualified, notBuying: activeCampaign.notBuying, noAnswer: activeCampaign.noAnswer, total: activeCampaign.totalBuyers, completed: activeCampaign.callsCompleted } : null
-  const toggleOne = (id: string) => setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n })
-  const toggleAll = () => setSelected(allSelected ? new Set() : new Set(filtered.map(b => b.id)))
+/* ═══════════════════════════════════════════════
+   MAP COMPONENT (styled placeholder)
+   ═══════════════════════════════════════════════ */
+function DiscoveryMap({ properties, onPinClick, activeId }: { properties: Property[]; onPinClick: (id: number) => void; activeId: number | null }) {
+  const [layers, setLayers] = useState({ equity: false, distressed: false, cashBuyers: false, dom: false })
 
   return (
-    <div style={{ padding: '32px 40px', maxWidth: 1200, fontFamily: 'var(--font-sans, system-ui)' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
-        <div>
-          <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.45rem', fontWeight: 500, color: 'var(--gray-900)', letterSpacing: '-0.025em', margin: 0 }}>Buyer Discovery</h1>
-          <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginTop: 5 }}>Find verified cash buyers, enrich contacts, and launch AI calling campaigns.</p>
+    <div className="relative w-full h-full rounded-xl overflow-hidden bg-[#1a1d23] border border-gray-800">
+      {/* Grid pattern to simulate map */}
+      <svg className="absolute inset-0 w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" strokeWidth="0.5" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+      </svg>
+
+      {/* Simulated roads */}
+      <svg className="absolute inset-0 w-full h-full opacity-[0.08]">
+        <line x1="0" y1="30%" x2="100%" y2="30%" stroke="#ffffff" strokeWidth="2" />
+        <line x1="0" y1="60%" x2="100%" y2="55%" stroke="#ffffff" strokeWidth="1.5" />
+        <line x1="25%" y1="0" x2="30%" y2="100%" stroke="#ffffff" strokeWidth="2" />
+        <line x1="60%" y1="0" x2="55%" y2="100%" stroke="#ffffff" strokeWidth="1.5" />
+        <line x1="0" y1="80%" x2="100%" y2="78%" stroke="#ffffff" strokeWidth="1" />
+        <line x1="80%" y1="0" x2="82%" y2="100%" stroke="#ffffff" strokeWidth="1" />
+        <line x1="10%" y1="0" x2="12%" y2="100%" stroke="#ffffff" strokeWidth="0.5" />
+        <line x1="45%" y1="0" x2="43%" y2="100%" stroke="#ffffff" strokeWidth="0.5" />
+        <line x1="0" y1="15%" x2="100%" y2="18%" stroke="#ffffff" strokeWidth="0.5" />
+        <line x1="0" y1="45%" x2="100%" y2="42%" stroke="#ffffff" strokeWidth="0.5" />
+      </svg>
+
+      {/* Cash buyers heat overlay */}
+      {layers.cashBuyers && (
+        <div className="absolute inset-0">
+          <div className="absolute w-[200px] h-[200px] rounded-full bg-blue-500/10 blur-3xl" style={{ left: '20%', top: '15%' }} />
+          <div className="absolute w-[280px] h-[280px] rounded-full bg-blue-500/15 blur-3xl" style={{ left: '40%', top: '30%' }} />
+          <div className="absolute w-[150px] h-[150px] rounded-full bg-blue-400/10 blur-3xl" style={{ left: '65%', top: '50%' }} />
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setTab(tab === 'discover' ? 'history' : 'discover')} style={S.btn2}>
-            {tab === 'discover' ? `Campaign History (${campaigns.length})` : '← Back to Discovery'}
-          </button>
-          {selected.size > 0 && <button onClick={() => setShowBuilder(true)} style={S.btn1}>Launch Campaign ({selected.size})</button>}
-        </div>
-      </div>
-
-      {tab === 'history' ? <CampaignHistory campaigns={campaigns} onSelect={c => { setActiveCampaign(c); setTab('discover') }} /> : (<>
-
-        {/* Live Monitor */}
-        {activeCampaign?.status === 'RUNNING' && liveStats && (
-          <LiveMonitor campaign={activeCampaign} stats={liveStats} liveCalls={liveCalls}
-            onPause={() => fetch(`/api/campaigns/${activeCampaign.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'pause' }) }).then(() => setActiveCampaign(p => p ? { ...p, status: 'PAUSED' } : null))}
-            onStop={() => fetch(`/api/campaigns/${activeCampaign.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'stop' }) }).then(() => setActiveCampaign(p => p ? { ...p, status: 'CANCELLED' } : null))} />
-        )}
-
-        {/* Market search */}
-        <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, padding: 18, marginBottom: 16 }}>
-          <div style={{ display: 'flex', gap: 10, marginBottom: markets.length ? 14 : 0 }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input value={query} onChange={e => { setQuery(e.target.value); setShowSugg(true) }} onFocus={() => setShowSugg(true)} onBlur={() => setTimeout(() => setShowSugg(false), 150)}
-                placeholder="Search city, county, or zip code..." style={{ width: '100%', padding: '9px 14px 9px 36px', border: '1px solid #e5e7eb', borderRadius: 7, fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box' }} />
-              {showSugg && suggestions.length > 0 && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: 'white', border: '1px solid #e5e7eb', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.08)', zIndex: 50, overflow: 'hidden' }}>
-                  {suggestions.map(s => (
-                    <button key={s.label} onMouseDown={() => pickMarket(s)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '10px 14px', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid #f9fafb', cursor: 'pointer', fontSize: '0.875rem', color: 'var(--gray-900)' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#f9fafb')} onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
-                      <span>{s.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button onClick={() => activeMarket && pickMarket(MARKETS.find(m => m.label === activeMarket.label)!)} disabled={!activeMarket || loading} style={{ ...S.btn2, opacity: activeMarket ? 1 : 0.4 }}>
-              {loading ? 'Loading' : 'Refresh'}
-            </button>
-          </div>
-
-          {markets.length > 0 && (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {markets.map(m => {
-                const isActive = activeMarket?.id === m.id
-                return (
-                  <button key={m.id} onClick={() => setActiveMarket(m)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 20, fontSize: '0.8rem', fontWeight: 400, cursor: 'pointer', border: isActive ? '1.5px solid #93c5fd' : '1px solid #e5e7eb', background: isActive ? '#eff6ff' : 'white', color: isActive ? '#1d4ed8' : '#6b7280', transition: 'all 0.15s' }}>
-                    {m.label}
-                    {m.buyerCount > 0 && <span style={{ background: isActive ? '#bfdbfe' : '#f3f4f6', color: isActive ? '#1e40af' : '#6b7280', borderRadius: 10, padding: '1px 6px', fontSize: '0.7rem', fontWeight: 400 }}>{m.buyerCount}</span>}
-                    <span onClick={e => { e.stopPropagation(); setMarkets(p => p.filter(x => x.id !== m.id)); if (activeMarket?.id === m.id) { setActiveMarket(null); setBuyers([]) } }} style={{ marginLeft: 2, color: '#d1d5db', fontWeight: 400, fontSize: '0.9rem', lineHeight: 1, cursor: 'pointer' }}>×</span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Enrich progress */}
-        {enriching && (
-          <div style={{ background: 'white', border: '1px solid #bfdbfe', borderRadius: 12, padding: '12px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1d4ed8', whiteSpace: 'nowrap' }}>Enriching contacts...</span>
-            <div style={{ flex: 1, height: 5, background: '#eff6ff', borderRadius: 4 }}>
-              <div style={{ height: '100%', width: `${enrichProgress}%`, background: '#2563eb', borderRadius: 4, transition: 'width 0.2s' }} />
-            </div>
-            <span style={{ fontSize: '0.82rem', color: '#2563eb', fontWeight: 700 }}>{enrichProgress}%</span>
-          </div>
-        )}
-
-        {/* Buyer panel */}
-        {(loading || buyers.length > 0) && (
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
-            {/* Toolbar */}
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                {loading ? (
-                  <span style={{ fontSize: '0.875rem', color: 'var(--gray-500)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid #bfdbfe', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                    Scanning county records...
-                  </span>
-                ) : (<>
-                  <span style={{ fontSize: '0.875rem', color: 'var(--gray-700)' }}>{filtered.length} buyers</span>
-                  {enrichedCount > 0 && <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 500, background: '#d1fae5', padding: '2px 8px', borderRadius: 4 }}>{enrichedCount} enriched</span>}
-                  {unenrichedCount > 0 && <span style={{ fontSize: '0.78rem', color: 'var(--gray-400)' }}>{unenrichedCount} need contact info</span>}
-                </>)}
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={S.sel}>
-                  <option value="all">All Buyers</option>
-                  <option value="active">Active</option>
-                  <option value="recently_verified">Recently Verified</option>
-                  <option value="dormant">Dormant</option>
-                </select>
-                <select value={sortBy} onChange={e => setSortBy(e.target.value as any)} style={S.sel}>
-                  <option value="purchases">Sort: Most Purchases</option>
-                  <option value="score">Sort: Highest Score</option>
-                  <option value="date">Sort: Most Recent</option>
-                </select>
-                <div style={{ display: 'flex', background: 'var(--gray-100)', borderRadius: 8, padding: 2, gap: 1 }}>
-                  {(['table', 'card'] as const).map(v => (
-                    <button key={v} onClick={() => setViewMode(v)} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, background: viewMode === v ? 'white' : 'transparent', color: viewMode === v ? 'var(--gray-900)' : 'var(--gray-500)', boxShadow: viewMode === v ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
-                      {v === 'table' ? '☰ Table' : '⊞ Cards'}
-                    </button>
-                  ))}
-                </div>
-                {unenrichedCount > 0 && <button onClick={() => enrich(buyers.filter(b => !b.contactEnriched).map(b => b.id))} disabled={enriching} style={{ ...S.btn1, fontSize: '0.8rem', padding: '6px 14px', opacity: enriching ? 0.6 : 1 }}>
-                  {enriching ? 'Enriching...' : `Enrich All (${unenrichedCount})`}
-                </button>}
-              </div>
-            </div>
-
-            {/* Bulk bar */}
-            {selected.size > 0 && (
-              <div style={{ padding: '9px 20px', background: '#f8fafc', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: '0.84rem', color: '#374151' }}>{selected.size} selected</span>
-                <div style={{ width: 1, height: 14, background: '#e5e7eb' }} />
-                <button onClick={() => enrich(Array.from(selected).filter(id => !buyers.find(b => b.id === id)?.contactEnriched))} disabled={enriching} style={{ ...S.btn2, fontSize: '0.8rem', padding: '4px 12px' }}>Enrich Selected</button>
-                <button onClick={() => setShowBuilder(true)} style={{ ...S.btn1, fontSize: '0.8rem', padding: '5px 14px' }}>Launch Campaign</button>
-                <button onClick={() => setSelected(new Set())} style={{ fontSize: '0.8rem', color: '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto' }}>Clear</button>
-              </div>
-            )}
-
-            {loading ? (
-              <div style={{ padding: '56px 24px', textAlign: 'center' }}>
-                <div style={{ display: 'inline-block', width: 20, height: 20, border: '2px solid #e5e7eb', borderTopColor: '#6b7280', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: 16 }} />
-                <p style={{ fontSize: '0.875rem', color: 'var(--gray-500)', margin: 0 }}>Scanning county records for cash buyers...</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--gray-400)', marginTop: 6 }}>Filtering for cash transactions in the last 12 months</p>
-              </div>
-            ) : viewMode === 'table' ? (
-              <BuyerTable buyers={filtered} selected={selected} enriching={enriching} onToggle={toggleOne} onToggleAll={toggleAll} allSelected={allSelected} onEnrichOne={id => enrich([id])} />
-            ) : (
-              <BuyerCards buyers={filtered} selected={selected} onToggle={toggleOne} />
-            )}
-          </div>
-        )}
-
-        {/* Empty state */}
-        {!loading && buyers.length === 0 && (
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, padding: '60px 24px', textAlign: 'center' }}>
-            <div style={{ width: 40, height: 40, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#9ca3af' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--gray-900)', marginBottom: 6 }}>Search a market to get started</h3>
-            <p style={{ fontSize: '0.85rem', color: '#9ca3af', maxWidth: 380, margin: '0 auto 20px' }}>Enter a city above to pull active cash buyers directly from county property records.</p>
-            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
-              {MARKETS.slice(0, 6).map(s => <button key={s.label} onClick={() => pickMarket(s)} style={{ ...S.btn2, fontSize: '0.8rem' }}>{s.label}</button>)}
-            </div>
-          </div>
-        )}
-      </>)}
-
-      {/* Campaign Builder */}
-      {showBuilder && (
-        <Builder buyers={buyers} selected={selected} market={activeMarket} cName={cName} setCName={setCName} script={script} setScript={setScript} company={company} setCompany={setCompany} agent={agent} setAgent={setAgent} callMode={callMode} setCallMode={setCallMode} concurrent={concurrent} setConcurrent={setConcurrent} voicemail={voicemail} setVoicemail={setVoicemail} retries={retries} setRetries={setRetries} agreed={agreed} setAgreed={setAgreed} launching={launching} onLaunch={launch} onClose={() => setShowBuilder(false)} />
       )}
 
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}`}</style>
-    </div>
-  )
-}
+      {/* Cluster indicator */}
+      <div
+        className="absolute flex items-center justify-center w-10 h-10 rounded-full bg-blue-600/80 border-2 border-blue-400/50 cursor-pointer hover:scale-110 transition-transform"
+        style={{ left: '42%', top: '42%' }}
+      >
+        <span className="text-[0.7rem] font-bold text-white">124</span>
+      </div>
+      <div
+        className="absolute flex items-center justify-center w-8 h-8 rounded-full bg-violet-600/80 border-2 border-violet-400/50 cursor-pointer hover:scale-110 transition-transform"
+        style={{ left: '15%', top: '72%' }}
+      >
+        <span className="text-[0.62rem] font-bold text-white">47</span>
+      </div>
 
-// ─── Buyer Table ───────────────────────────────────────────────────────────────
-
-function BuyerTable({ buyers, selected, enriching, onToggle, onToggleAll, allSelected, onEnrichOne }: { buyers: CashBuyer[]; selected: Set<string>; enriching: boolean; onToggle: (id: string) => void; onToggleAll: () => void; allSelected: boolean; onEnrichOne: (id: string) => void }) {
-  return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
-            <th style={{ padding: '10px 16px', width: 40 }}><input type="checkbox" checked={allSelected} onChange={onToggleAll} style={{ cursor: 'pointer' }} /></th>
-            {['Buyer', 'Type', 'Purchases', 'Last Purchase', 'Price Range', 'Contact', 'Score', ''].map(h => (
-              <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 400, color: '#9ca3af', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {buyers.map(b => {
-            const sel = selected.has(b.id)
-            return (
-              <tr key={b.id} onClick={() => onToggle(b.id)} style={{ borderBottom: '1px solid var(--gray-100)', background: sel ? '#eff6ff' : 'white', cursor: 'pointer' }}
-                onMouseEnter={e => { if (!sel) e.currentTarget.style.background = 'var(--gray-50)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = sel ? '#eff6ff' : 'white' }}>
-                <td style={{ padding: '13px 16px' }}><input type="checkbox" checked={sel} onChange={() => onToggle(b.id)} onClick={e => e.stopPropagation()} /></td>
-                <td style={{ padding: '13px 16px' }}>
-                  <div style={{ fontWeight: 500, color: 'var(--gray-900)' }}>{displayName(b)}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 2 }}>{b.city}, {b.state} {b.zip}</div>
-                </td>
-                <td style={{ padding: '13px 16px' }}><TypeBadge type={b.entityType} /></td>
-                <td style={{ padding: '13px 16px' }}>
-                  <span style={{ fontWeight: 500, color: 'var(--gray-900)' }}>{b.cashPurchaseCount}</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginLeft: 4 }}>{b.cashPurchaseCount === 1 ? 'deal' : 'deals'}</span>
-                </td>
-                <td style={{ padding: '13px 16px', fontSize: '0.82rem', color: 'var(--gray-600)' }}>{relDate(b.lastPurchaseDate)}</td>
-                <td style={{ padding: '13px 16px' }}><PriceCol min={b.estimatedMinPrice} max={b.estimatedMaxPrice} /></td>
-                <td style={{ padding: '13px 16px' }}><ContactCol buyer={b} onEnrich={() => onEnrichOne(b.id)} enriching={enriching} /></td>
-                <td style={{ padding: '13px 16px' }}><Score score={b.buyerScore} /></td>
-                <td style={{ padding: '13px 10px' }}>
-                  <div style={{ display: 'flex', gap: 5 }} onClick={e => e.stopPropagation()}>
-                    <Tip label="Add to CRM" icon="+" /><Tip label="Send deal" icon="→" />
-                  </div>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-// ─── Buyer Cards ───────────────────────────────────────────────────────────────
-
-function BuyerCards({ buyers, selected, onToggle }: { buyers: CashBuyer[]; selected: Set<string>; onToggle: (id: string) => void }) {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: 12, padding: 16 }}>
-      {buyers.map(b => {
-        const sel = selected.has(b.id)
-        return (
-          <div key={b.id} onClick={() => onToggle(b.id)} style={{ border: sel ? '2px solid #60a5fa' : '1px solid var(--gray-200)', borderRadius: 12, padding: 16, cursor: 'pointer', background: sel ? '#eff6ff' : 'white', transition: 'all 0.15s', position: 'relative' }}
-            onMouseEnter={e => { if (!sel) e.currentTarget.style.borderColor = 'var(--gray-300)' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = sel ? '#60a5fa' : 'var(--gray-200)' }}>
-            <div style={{ position: 'absolute', top: 14, right: 14 }}><Score score={b.buyerScore} size="sm" /></div>
-            <div style={{ marginBottom: 10, paddingRight: 44 }}>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--gray-900)', marginBottom: 2 }}>{displayName(b)}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>{b.city}, {b.state}</div>
-            </div>
-            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 10 }}>
-              <TypeBadge type={b.entityType} />
-              <span style={S.tag}>{b.cashPurchaseCount} {b.cashPurchaseCount === 1 ? 'deal' : 'deals'}</span>
-              {b.estimatedMaxPrice && <span style={S.tag}>Up to ${(b.estimatedMaxPrice / 1000).toFixed(0)}K</span>}
-            </div>
-            <div style={{ fontSize: '0.78rem' }}>
-              {b.contactEnriched ? <span style={{ color: '#059669', fontWeight: 500 }}>{fmtPhone(b.phone)}</span> : <span style={{ color: 'var(--gray-400)' }}>No contact info</span>}
-            </div>
-            <div style={{ marginTop: 5, fontSize: '0.72rem', color: 'var(--gray-400)' }}>Last purchase: {relDate(b.lastPurchaseDate)}</div>
+      {/* Property pins */}
+      {properties.map(p => (
+        <button
+          key={p.id}
+          onClick={() => onPinClick(p.id)}
+          className="absolute cursor-pointer border-0 bg-transparent p-0 group"
+          style={{ left: `${p.pinX}%`, top: `${p.pinY}%`, transform: 'translate(-50%, -100%)' }}
+          title={p.address}
+        >
+          <div className="relative">
+            <svg width="24" height="32" viewBox="0 0 24 32">
+              <path
+                d="M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z"
+                fill={activeId === p.id ? '#ffffff' : pinColor(p.type)}
+                opacity={activeId === p.id ? 1 : 0.9}
+              />
+              <circle cx="12" cy="11" r="4.5" fill={activeId === p.id ? pinColor(p.type) : '#ffffff'} opacity="0.9" />
+            </svg>
+            {activeId === p.id && (
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-1 rounded-full bg-white/30 blur-sm" />
+            )}
           </div>
-        )
-      })}
+        </button>
+      ))}
+
+      {/* Legend */}
+      <div className="absolute bottom-3 left-3 bg-[#12141a]/90 backdrop-blur-sm rounded-lg px-3 py-2.5 border border-gray-700/50">
+        <div className="text-[0.62rem] text-gray-400 uppercase tracking-wide mb-1.5">Legend</div>
+        <div className="space-y-1">
+          {[
+            { label: 'SFR', color: '#3b82f6' },
+            { label: 'Multi-Family', color: '#8b5cf6' },
+            { label: 'Land', color: '#f59e0b' },
+            { label: 'Condo', color: '#06b6d4' },
+          ].map(l => (
+            <div key={l.label} className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full" style={{ background: l.color }} />
+              <span className="text-[0.66rem] text-gray-300">{l.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Layer toggles */}
+      <div className="absolute top-3 right-3 flex flex-col gap-1.5">
+        {[
+          { key: 'equity' as const, label: 'High Equity', icon: Percent },
+          { key: 'distressed' as const, label: 'Distressed', icon: AlertTriangle },
+          { key: 'cashBuyers' as const, label: 'Cash Buyers', icon: Flame },
+          { key: 'dom' as const, label: 'Long DOM', icon: Clock },
+        ].map(l => {
+          const Icon = l.icon
+          const active = layers[l.key]
+          return (
+            <button
+              key={l.key}
+              onClick={() => setLayers(prev => ({ ...prev, [l.key]: !prev[l.key] }))}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[0.68rem] font-medium border cursor-pointer transition-all ${
+                active
+                  ? 'bg-blue-600 border-blue-500 text-white'
+                  : 'bg-[#12141a]/80 backdrop-blur-sm border-gray-700/50 text-gray-400 hover:text-gray-200 hover:border-gray-600'
+              }`}
+            >
+              <Icon className="w-3 h-3" />
+              {l.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* "Dallas, TX" label */}
+      <div className="absolute top-3 left-3 bg-[#12141a]/80 backdrop-blur-sm rounded-md px-2.5 py-1.5 border border-gray-700/50">
+        <span className="text-[0.72rem] text-gray-300 font-medium">Dallas, TX</span>
+      </div>
     </div>
   )
 }
 
-// ─── Live Monitor ──────────────────────────────────────────────────────────────
-
-function LiveMonitor({ campaign, stats, liveCalls, onPause, onStop }: { campaign: Campaign; stats: any; liveCalls: LiveCall[]; onPause: () => void; onStop: () => void }) {
-  const prog = stats.total > 0 ? Math.min((stats.completed / stats.total) * 100, 100) : 0
+/* ═══════════════════════════════════════════════
+   FILTER PANEL
+   ═══════════════════════════════════════════════ */
+function FilterPanel({ onClose }: { onClose: () => void }) {
   return (
-    <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, padding: 22, marginBottom: 18 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse-dot 1.5s infinite' }} />
-          <span style={{ fontWeight: 500, fontSize: '0.9rem', color: 'var(--gray-900)' }}>{campaign.name}</span>
-          <span style={{ fontSize: '0.68rem', background: '#d1fae5', color: '#065f46', padding: '2px 7px', borderRadius: 4, fontWeight: 500 }}>Live</span>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={onPause} style={S.btn2}>Pause</button>
-          <button onClick={onStop} style={{ ...S.btn2, color: '#dc2626', borderColor: '#fca5a5' }}>Stop</button>
-        </div>
+    <div className="bg-white border border-gray-200 rounded-xl px-5 py-5 mb-4">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-[0.88rem] font-medium text-gray-800">Filters</span>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 cursor-pointer bg-transparent border-0 transition-colors">
+          <X className="w-4 h-4" />
+        </button>
       </div>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--gray-500)', marginBottom: 5 }}>
-          <span>{stats.completed} of {stats.total} calls</span><span style={{ fontWeight: 600 }}>{Math.round(prog)}%</span>
-        </div>
-        <div style={{ height: 5, background: 'var(--gray-100)', borderRadius: 4 }}>
-          <div style={{ height: '100%', width: `${prog}%`, background: '#2563eb', borderRadius: 4, transition: 'width 0.5s' }} />
-        </div>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
-        {[['Active Calls', stats.active, '#1d4ed8', '#eff6ff'], ['Qualified', stats.qualified, '#065f46', '#d1fae5'], ['Not Buying', stats.notBuying, '#92400e', '#fef3c7'], ['No Answer', stats.noAnswer, '#6b7280', '#f3f4f6']].map(([l, v, c, bg]) => (
-          <div key={l as string} style={{ background: bg as string, borderRadius: 7, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.35rem', fontWeight: 400, color: c as string }}>{v as number}</div>
-            <div style={{ fontSize: '0.7rem', color: c as string, marginTop: 2 }}>{l as string}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        {[['On the line now', liveCalls.filter(c => c.status === 'active')], ['Completed', liveCalls.filter(c => c.status === 'completed')]].map(([title, calls]) => (
-          <div key={title as string}>
-            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-400)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title as string}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 200, overflowY: 'auto' }}>
-              {(calls as LiveCall[]).slice(0, 4).map((call, i) => (
-                <div key={i} style={{ background: '#f8fafc', borderRadius: 8, padding: 10, fontSize: '0.8rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: call.transcript?.length || call.summary ? 4 : 0 }}>
-                    <span style={{ fontWeight: 600, color: 'var(--gray-900)' }}>{call.buyerName}</span>
-                    {call.status === 'active' ? <span style={{ color: 'var(--gray-400)', fontSize: '0.75rem' }}>{fmtDur(call.duration)}</span> : <OutcomeTag outcome={call.outcome || ''} />}
+
+      <div className="grid grid-cols-2 gap-6 disc-filter-grid">
+        {/* Property Filters */}
+        <div>
+          <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-3 font-medium">Property Filters</div>
+          <div className="space-y-3">
+            {/* Property Type */}
+            <div>
+              <label className="text-[0.76rem] text-gray-600 mb-1.5 block">Property Type</label>
+              <div className="flex flex-wrap gap-1.5">
+                {['SFR', 'Multi-Family', 'Condo', 'Land', 'Commercial'].map(t => (
+                  <label key={t} className="flex items-center gap-1.5 text-[0.76rem] text-gray-600 bg-gray-50 border border-gray-200 rounded-md px-2.5 py-1.5 cursor-pointer hover:bg-gray-100 transition-colors">
+                    <input type="checkbox" className="accent-blue-600 w-3 h-3" defaultChecked={t === 'SFR'} />
+                    {t}
+                  </label>
+                ))}
+              </div>
+            </div>
+            {/* Bed/Bath/Sqft row */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: 'Bedrooms', min: '0', max: 'Any' },
+                { label: 'Bathrooms', min: '0', max: 'Any' },
+                { label: 'Sq Ft', min: '0', max: 'Any' },
+              ].map(f => (
+                <div key={f.label}>
+                  <label className="text-[0.72rem] text-gray-500 mb-1 block">{f.label}</label>
+                  <div className="flex gap-1">
+                    <input type="text" placeholder={f.min} className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
+                    <input type="text" placeholder={f.max} className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
                   </div>
-                  {call.status === 'active' && call.transcript.slice(-1).map((line, j) => (
-                    <div key={j} style={{ color: 'var(--gray-500)', fontSize: '0.75rem', borderLeft: '2px solid #bfdbfe', paddingLeft: 7 }}>{line}</div>
-                  ))}
-                  {call.summary && <div style={{ color: 'var(--gray-500)', fontSize: '0.75rem' }}>{call.summary}</div>}
                 </div>
               ))}
-              {(calls as LiveCall[]).length === 0 && <div style={{ color: 'var(--gray-300)', fontSize: '0.82rem' }}>None yet</div>}
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ─── Campaign Builder ──────────────────────────────────────────────────────────
-
-function Builder({ buyers, selected, market, cName, setCName, script, setScript, company, setCompany, agent, setAgent, callMode, setCallMode, concurrent, setConcurrent, voicemail, setVoicemail, retries, setRetries, agreed, setAgreed, launching, onLaunch, onClose }: any) {
-  const enrichedSel = Array.from(selected as Set<string>).filter((id: string) => buyers.find((b: CashBuyer) => b.id === id && b.contactEnriched)).length
-  const needs = (selected as Set<string>).size - enrichedSel
-  const canLaunch = agreed && cName.trim() && (selected as Set<string>).size > 0 && !launching
-  const cost = ((selected as Set<string>).size * 3 * 0.09).toFixed(2)
-
-  return (<>
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, backdropFilter: 'blur(2px)' }} />
-    <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 500, background: 'white', zIndex: 101, display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 48px rgba(0,0,0,0.12)' }}>
-      <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <h3 style={{ fontWeight: 500, fontSize: '0.95rem', color: 'var(--gray-900)', margin: 0 }}>Launch Campaign</h3>
-          <p style={{ fontSize: '0.78rem', color: 'var(--gray-400)', margin: '2px 0 0' }}>{market?.label || 'No market selected'}</p>
-        </div>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 24, color: 'var(--gray-300)', lineHeight: 1 }}>×</button>
-      </div>
-
-      <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-        <label style={S.lbl}>Campaign Name</label>
-        <input value={cName} onChange={e => setCName(e.target.value)} placeholder={`${market?.label || 'Market'} - ${new Date().toLocaleDateString()}`} style={{ ...S.inp, marginBottom: 20 }} />
-
-        <div style={{ background: (selected as Set<string>).size > 0 ? '#eff6ff' : 'var(--gray-50)', border: `1px solid ${(selected as Set<string>).size > 0 ? '#bfdbfe' : 'var(--gray-200)'}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: needs > 0 ? 6 : 0 }}>
-            <span style={{ fontWeight: 500, color: '#1d4ed8' }}>{(selected as Set<string>).size} buyers selected</span>
-            <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 600 }}>{enrichedSel} with contact info</span>
-          </div>
-          {needs > 0 && <div style={{ fontSize: '0.78rem', color: '#d97706' }}>{needs} buyers have no phone - they&apos;ll be skipped unless enriched first</div>}
-        </div>
-
-        <label style={S.lbl}>Calling Mode</label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
-          {(['AI', 'MANUAL'] as const).map(m => (
-            <button key={m} onClick={() => setCallMode(m)} style={{ padding: 12, borderRadius: 7, cursor: 'pointer', fontWeight: 500, fontSize: '0.875rem', border: callMode === m ? '1.5px solid #374151' : '1px solid #e5e7eb', background: callMode === m ? '#111827' : 'white', color: callMode === m ? 'white' : '#6b7280', transition: 'all 0.15s', textAlign: 'left' as const }}>
-              {m === 'AI' ? 'AI Mode' : 'Manual Mode'}
-              <div style={{ fontSize: '0.72rem', fontWeight: 400, marginTop: 3, color: callMode === m ? '#9ca3af' : '#9ca3af' }}>{m === 'AI' ? 'Calls run automatically' : 'You dial each number'}</div>
-            </button>
-          ))}
-        </div>
-
-        <label style={S.lbl}>Script Template</label>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 20 }}>
-          {SCRIPTS.map(t => (
-            <button key={t.id} onClick={() => setScript(t.id)} style={{ padding: '12px 14px', borderRadius: 7, cursor: 'pointer', textAlign: 'left' as const, border: script === t.id ? '1.5px solid #374151' : '1px solid #e5e7eb', background: script === t.id ? '#f9fafb' : 'white', transition: 'all 0.15s' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                <span style={{ fontWeight: 500, fontSize: '0.84rem', color: 'var(--gray-900)' }}>{t.name}</span>
-                <div style={{ display: 'flex', gap: 5 }}>
-                  <span style={{ ...S.tag }}>{t.qualify} qualify</span>
-                  <span style={{ ...S.tag }}>{t.duration}</span>
+            {/* Year Built */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[0.72rem] text-gray-500 mb-1 block">Year Built (min)</label>
+                <input type="text" placeholder="1900" className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
+              </div>
+              <div>
+                <label className="text-[0.72rem] text-gray-500 mb-1 block">Year Built (max)</label>
+                <input type="text" placeholder="2026" className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
+              </div>
+            </div>
+            {/* Value / Equity */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[0.72rem] text-gray-500 mb-1 block">Est. Value Range</label>
+                <div className="flex gap-1">
+                  <input type="text" placeholder="$0" className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
+                  <input type="text" placeholder="$1M+" className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
                 </div>
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#9ca3af' }}>{t.desc}</div>
-            </button>
-          ))}
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-          <div><label style={S.lbl}>Company Name</label><input value={company} onChange={e => setCompany(e.target.value)} placeholder="Your company" style={S.inp} /></div>
-          <div><label style={S.lbl}>Agent Name</label><input value={agent} onChange={e => setAgent(e.target.value)} placeholder="Alex" style={S.inp} /></div>
-        </div>
-
-        {callMode === 'AI' && (<>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <label style={{ ...S.lbl, margin: 0 }}>Max Concurrent Calls</label>
-            <span style={{ fontWeight: 700, color: '#2563eb', fontSize: '0.9rem' }}>{concurrent}</span>
-          </div>
-          <input type="range" min={1} max={50} value={concurrent} onChange={e => setConcurrent(Number(e.target.value))} style={{ width: '100%', marginBottom: 16, accentColor: '#2563eb' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <label style={{ fontSize: '0.85rem', color: 'var(--gray-700)', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <input type="checkbox" checked={voicemail} onChange={e => setVoicemail(e.target.checked)} style={{ accentColor: '#2563eb' }} />Leave voicemail if no answer
-            </label>
-            <label style={{ fontSize: '0.85rem', color: 'var(--gray-700)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              Retry:<select value={retries} onChange={e => setRetries(Number(e.target.value))} style={{ ...S.sel, marginLeft: 4 }}>{[0, 1, 2, 3].map(n => <option key={n} value={n}>{n === 0 ? 'None' : `${n}x`}</option>)}</select>
-            </label>
-          </div>
-        </>)}
-
-        <div style={{ background: 'var(--gray-50)', borderRadius: 12, padding: 16, marginBottom: 20, border: '1px solid var(--gray-100)' }}>
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--gray-400)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Estimated Cost</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', color: 'var(--gray-600)', marginBottom: 5 }}>
-            <span>AI call minutes (~3 min avg @ $0.09/min)</span><span style={{ fontWeight: 600 }}>${cost}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', color: 'var(--gray-600)', paddingBottom: 10, borderBottom: '1px solid var(--gray-200)' }}>
-            <span>Contact enrichment</span><span style={{ fontWeight: 600 }}>$0.04/lookup</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 10, fontWeight: 500, fontSize: '0.9rem' }}>
-            <span>Total estimated</span><span>~${cost}</span>
+              <div>
+                <label className="text-[0.72rem] text-gray-500 mb-1 block">Equity %</label>
+                <div className="flex gap-1">
+                  <input type="text" placeholder="0%" className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
+                  <input type="text" placeholder="100%" className="w-full bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer', fontSize: '0.8rem', color: 'var(--gray-600)', lineHeight: 1.5 }}>
-          <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ marginTop: 3, flexShrink: 0, cursor: 'pointer', accentColor: '#2563eb' }} />
-          I confirm these calls are being made to business contacts with verifiable real estate purchase history, in compliance with TCPA B2B exemptions and applicable calling hour restrictions.
-        </label>
+        {/* Owner Filters */}
+        <div>
+          <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-3 font-medium">Owner Filters</div>
+          <div className="space-y-3">
+            <div>
+              <label className="text-[0.76rem] text-gray-600 mb-1.5 block">Owner Type</label>
+              <div className="flex flex-wrap gap-1.5">
+                {['Individual', 'LLC/Corp', 'Trust', 'Bank-Owned'].map(t => (
+                  <label key={t} className="flex items-center gap-1.5 text-[0.76rem] text-gray-600 bg-gray-50 border border-gray-200 rounded-md px-2.5 py-1.5 cursor-pointer hover:bg-gray-100 transition-colors">
+                    <input type="checkbox" className="accent-blue-600 w-3 h-3" />
+                    {t}
+                  </label>
+                ))}
+              </div>
+            </div>
+            {/* Toggles */}
+            <div className="space-y-2.5 pt-1">
+              {[
+                { label: 'Absentee Owner', key: 'absentee' },
+                { label: 'Tax Delinquent', key: 'tax' },
+                { label: 'Pre-Foreclosure', key: 'prefc' },
+                { label: 'Probate', key: 'probate' },
+              ].map(tog => (
+                <div key={tog.key} className="flex items-center justify-between">
+                  <span className="text-[0.78rem] text-gray-600">{tog.label}</span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" />
+                    <div className="w-9 h-5 bg-gray-200 peer-checked:bg-blue-600 rounded-full transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                  </label>
+                </div>
+              ))}
+            </div>
+            {/* Ownership length */}
+            <div>
+              <label className="text-[0.72rem] text-gray-500 mb-1 block">Min Ownership (years)</label>
+              <input type="text" placeholder="Any" className="w-24 bg-gray-50 border border-gray-200 rounded px-2 py-1.5 text-[0.76rem] text-gray-700 outline-none focus:border-blue-300" />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div style={{ padding: '16px 24px', borderTop: '1px solid var(--gray-100)', display: 'flex', gap: 10 }}>
-        <button onClick={onClose} style={{ ...S.btn2, flex: 1, justifyContent: 'center' }}>Cancel</button>
-        <button onClick={onLaunch} disabled={!canLaunch} style={{ ...S.btn1, flex: 2, justifyContent: 'center', opacity: canLaunch ? 1 : 0.45, cursor: canLaunch ? 'pointer' : 'not-allowed', fontSize: '0.9rem' }}>
-          {launching ? 'Launching...' : 'Launch Campaign'}
+      {/* Apply */}
+      <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
+        <button className="text-[0.78rem] text-gray-400 hover:text-gray-600 cursor-pointer bg-transparent border-0 transition-colors">
+          Reset all filters
+        </button>
+        <button
+          onClick={onClose}
+          className="bg-blue-600 hover:bg-blue-700 text-white border-0 rounded-lg px-5 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+        >
+          Apply Filters
         </button>
       </div>
     </div>
-  </>)
+  )
 }
 
-// ─── Campaign History ──────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════
+   PROPERTY DETAIL PANEL
+   ═══════════════════════════════════════════════ */
+function PropertyDetail({ property, onClose }: { property: Property; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-end">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 
-function CampaignHistory({ campaigns, onSelect }: { campaigns: Campaign[]; onSelect: (c: Campaign) => void }) {
-  if (!campaigns.length) return (
-    <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, padding: '60px 24px', textAlign: 'center' }}>
-      <div style={{ width: 40, height: 40, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', color: '#9ca3af' }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
-        </svg>
+      {/* Panel */}
+      <div className="relative w-[520px] h-full bg-white shadow-2xl overflow-y-auto disc-detail-panel">
+        {/* Header with mini map */}
+        <div className="h-[160px] bg-[#1a1d23] relative">
+          <svg className="absolute inset-0 w-full h-full opacity-[0.08]">
+            <defs>
+              <pattern id="detailGrid" width="30" height="30" patternUnits="userSpaceOnUse">
+                <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#ffffff" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#detailGrid)" />
+          </svg>
+          <svg className="absolute inset-0 w-full h-full opacity-[0.06]">
+            <line x1="0" y1="40%" x2="100%" y2="38%" stroke="#ffffff" strokeWidth="1.5" />
+            <line x1="35%" y1="0" x2="38%" y2="100%" stroke="#ffffff" strokeWidth="1.5" />
+            <line x1="0" y1="65%" x2="100%" y2="68%" stroke="#ffffff" strokeWidth="1" />
+            <line x1="65%" y1="0" x2="62%" y2="100%" stroke="#ffffff" strokeWidth="1" />
+          </svg>
+          {/* Pin */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <svg width="32" height="42" viewBox="0 0 24 32">
+              <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z" fill={pinColor(property.type)} />
+              <circle cx="12" cy="11" r="5" fill="#ffffff" opacity="0.9" />
+            </svg>
+          </div>
+          {/* Close */}
+          <button onClick={onClose} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center cursor-pointer border-0 hover:bg-white/20 transition-colors">
+            <X className="w-4 h-4 text-white" />
+          </button>
+        </div>
+
+        <div className="px-6 py-5">
+          {/* Address */}
+          <h2 className="text-[1.1rem] font-medium text-gray-900 mb-0.5" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            {property.address}
+          </h2>
+          <p className="text-[0.82rem] text-gray-400 mb-4 flex items-center gap-1">
+            <MapPin className="w-3.5 h-3.5" />
+            {property.city}, TX {property.zip}
+          </p>
+
+          {/* Status flags */}
+          <div className="flex flex-wrap gap-1.5 mb-5">
+            <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${typeBadgeColor(property.type)}`}>
+              {property.type}
+            </span>
+            {property.absentee && (
+              <span className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full text-blue-700 bg-blue-50">Absentee</span>
+            )}
+            {property.taxDelinquent && (
+              <span className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full text-red-700 bg-red-50">Tax Delinquent</span>
+            )}
+            {property.preForeclosure && (
+              <span className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full text-amber-700 bg-amber-50">Pre-Foreclosure</span>
+            )}
+            {property.probate && (
+              <span className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full text-violet-700 bg-violet-50">Probate</span>
+            )}
+          </div>
+
+          {/* Property Characteristics */}
+          <div className="mb-5">
+            <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-2.5 font-medium">Property Details</div>
+            <div className="grid grid-cols-3 gap-y-3 gap-x-4">
+              {property.beds > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <BedDouble className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-[0.8rem] text-gray-700">{property.beds} Beds</span>
+                </div>
+              )}
+              {property.baths > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <Bath className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-[0.8rem] text-gray-700">{property.baths} Baths</span>
+                </div>
+              )}
+              {property.sqft > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <Ruler className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-[0.8rem] text-gray-700">{property.sqft.toLocaleString()} sqft</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                <LandPlot className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-[0.8rem] text-gray-700">{property.lotSize}</span>
+              </div>
+              {property.yearBuilt > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-[0.8rem] text-gray-700">Built {property.yearBuilt}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                {typeIcon(property.type)}
+                <span className="text-[0.8rem] text-gray-400">{property.type}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Valuation */}
+          <div className="mb-5">
+            <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-2.5 font-medium">Valuation</div>
+            <div className="bg-gray-50 rounded-lg px-4 py-3 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500">Estimated Value</span>
+                <span className="text-[0.88rem] font-semibold text-gray-900" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                  ${property.value.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500">Estimated Equity</span>
+                <span className={`text-[0.88rem] font-semibold ${equityTextColor(property.equity)}`} style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                  {property.equity}%
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500">Last Sale</span>
+                <span className="text-[0.82rem] text-gray-700">{property.lastSaleDate} for ${property.lastSalePrice.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500">Tax Assessed</span>
+                <span className="text-[0.82rem] text-gray-700">${property.taxAssessed.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Owner Information */}
+          <div className="mb-5">
+            <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-2.5 font-medium">Owner Information</div>
+            <div className="bg-gray-50 rounded-lg px-4 py-3 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500">Name</span>
+                <span className="text-[0.82rem] font-medium text-gray-800">{property.ownerFull}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500">Owner Type</span>
+                <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded-full ${ownerTypeBadge(property.ownerType)}`}>
+                  {property.ownerType}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500">Mailing Address</span>
+                <span className="text-[0.78rem] text-gray-700 text-right max-w-[60%]">{property.mailingAddress}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500">Ownership</span>
+                <span className="text-[0.82rem] text-gray-700">{property.ownershipYears} years</span>
+              </div>
+              {/* Locked fields */}
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500 flex items-center gap-1">
+                  <Phone className="w-3 h-3" /> Phone
+                </span>
+                <span className="flex items-center gap-1.5 text-[0.78rem] text-gray-400">
+                  {property.phone}
+                  <Lock className="w-3 h-3 text-gray-300" />
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[0.78rem] text-gray-500 flex items-center gap-1">
+                  <Mail className="w-3 h-3" /> Email
+                </span>
+                <span className="flex items-center gap-1.5 text-[0.78rem] text-gray-400">
+                  {property.email}
+                  <Lock className="w-3 h-3 text-gray-300" />
+                </span>
+              </div>
+              {/* Upgrade banner */}
+              <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 mt-1">
+                <Sparkles className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <span className="text-[0.74rem] text-blue-700">
+                  <strong>Upgrade to Pro</strong> to unlock full contact info
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <button className="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white border-0 rounded-lg py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+              <Plus className="w-4 h-4" />
+              Add to CRM
+            </button>
+            <button className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+              <BarChart3 className="w-4 h-4" />
+              Run Analysis
+            </button>
+            <button className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+              <PhoneOutgoing className="w-4 h-4" />
+              Start Outreach
+            </button>
+            <button className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+              <MapIcon className="w-4 h-4" />
+              View on Map
+            </button>
+          </div>
+        </div>
       </div>
-      <h3 style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--gray-900)', margin: '0 0 6px' }}>No campaigns yet</h3>
-      <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>Launch your first campaign to see history here.</p>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .disc-detail-panel { width: 100% !important; }
+        }
+      `}</style>
     </div>
   )
+}
+
+/* ═══════════════════════════════════════════════
+   MAIN DISCOVERY PAGE
+   ═══════════════════════════════════════════════ */
+export default function DiscoveryPage() {
+  const [showFilters, setShowFilters] = useState(false)
+  const [detailProperty, setDetailProperty] = useState<Property | null>(null)
+  const [activePin, setActivePin] = useState<number | null>(null)
+  const [searchValue, setSearchValue] = useState('Dallas, TX')
+
+  function handleViewDetails(p: Property) {
+    setDetailProperty(p)
+    setActivePin(p.id)
+  }
+
+  function handlePinClick(id: number) {
+    setActivePin(id === activePin ? null : id)
+  }
+
   return (
-    <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid var(--gray-100)', background: 'var(--gray-50)' }}>
-            {['Campaign', 'Market', 'Status', 'Buyers', 'Qualified', 'Talk Time', 'Date', ''].map(h => (
-              <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--gray-400)', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Search bar + filters */}
+      <div className="px-6 pt-5 pb-0 flex-shrink-0">
+        <div className="flex items-center gap-3 mb-3">
+          {/* Search */}
+          <div className="relative flex-1 max-w-[420px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchValue}
+              onChange={e => setSearchValue(e.target.value)}
+              placeholder="Search city, county, or zip code..."
+              className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-[0.84rem] text-gray-700 placeholder-gray-400 outline-none focus:border-blue-300 transition-colors"
+            />
+          </div>
+          {/* Filter toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[0.82rem] font-medium border cursor-pointer transition-colors ${
+              showFilters
+                ? 'bg-blue-50 border-blue-200 text-blue-600'
+                : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            Filters
+          </button>
+          {/* Search count badge */}
+          <div className="flex items-center gap-1.5 text-[0.78rem] text-gray-500 ml-auto">
+            <span className="text-[0.82rem] font-medium text-gray-700">2,847</span>
+            properties in <span className="font-medium text-gray-700">Dallas, TX</span>
+          </div>
+          {/* Free tier indicator */}
+          <div className="flex items-center gap-1.5 text-[0.72rem] text-gray-400 border border-gray-200 rounded-full px-3 py-1">
+            <Eye className="w-3 h-3" />
+            <span>72 / 100 free searches remaining</span>
+          </div>
+        </div>
+
+        {/* Filter panel */}
+        {showFilters && <FilterPanel onClose={() => setShowFilters(false)} />}
+      </div>
+
+      {/* Split screen: Map + List */}
+      <div className="flex-1 flex gap-0 px-6 pb-5 pt-3 min-h-0 disc-split">
+        {/* Map */}
+        <div className="w-[55%] pr-3 disc-map-col">
+          <DiscoveryMap properties={properties} onPinClick={handlePinClick} activeId={activePin} />
+        </div>
+
+        {/* Property list */}
+        <div className="w-[45%] overflow-y-auto disc-list-col">
+          <div className="space-y-2">
+            {properties.map(p => (
+              <div
+                key={p.id}
+                className={`bg-white border rounded-xl px-4 py-3.5 cursor-pointer transition-all hover:shadow-sm ${
+                  activePin === p.id ? 'border-blue-300 shadow-sm ring-1 ring-blue-100' : 'border-gray-200'
+                }`}
+                onClick={() => setActivePin(p.id === activePin ? null : p.id)}
+              >
+                <div className="flex items-start gap-3">
+                  {/* Left content */}
+                  <div className="flex-1 min-w-0">
+                    {/* Address + type */}
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-[0.86rem] font-medium text-gray-800 truncate">{p.address}</h3>
+                      <span className={`flex items-center gap-1 text-[0.66rem] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0 ${typeBadgeColor(p.type)}`}>
+                        {typeIcon(p.type)}
+                        {p.type}
+                      </span>
+                    </div>
+                    <div className="text-[0.74rem] text-gray-400 mb-2 flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {p.city}, TX {p.zip}
+                    </div>
+
+                    {/* Property specs */}
+                    {p.beds > 0 ? (
+                      <div className="flex items-center gap-3 text-[0.76rem] text-gray-500 mb-2.5">
+                        <span className="flex items-center gap-1"><BedDouble className="w-3 h-3 text-gray-400" />{p.beds} bd</span>
+                        <span className="flex items-center gap-1"><Bath className="w-3 h-3 text-gray-400" />{p.baths} ba</span>
+                        <span className="flex items-center gap-1"><Ruler className="w-3 h-3 text-gray-400" />{p.sqft.toLocaleString()} sqft</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 text-[0.76rem] text-gray-500 mb-2.5">
+                        <span className="flex items-center gap-1"><LandPlot className="w-3 h-3 text-gray-400" />{p.lotSize}</span>
+                      </div>
+                    )}
+
+                    {/* Value + Equity row */}
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <div className="text-[0.64rem] text-gray-400 uppercase tracking-wide">Value</div>
+                        <div className="text-[0.86rem] font-semibold text-gray-900" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                          ${p.value.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="flex-1 max-w-[120px]">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-[0.64rem] text-gray-400 uppercase tracking-wide">Equity</span>
+                          <span className={`text-[0.72rem] font-semibold ${equityTextColor(p.equity)}`}>{p.equity}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${equityColor(p.equity)}`} style={{ width: `${p.equity}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right side: owner + actions */}
+                  <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-2">
+                    {/* Owner */}
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 text-[0.76rem] text-gray-600">
+                        <UserCircle className="w-3.5 h-3.5 text-gray-400" />
+                        {p.owner}
+                      </div>
+                      <span className={`text-[0.64rem] font-medium px-1.5 py-0.5 rounded-full ${ownerTypeBadge(p.ownerType)}`}>
+                        {p.ownerType}
+                      </span>
+                    </div>
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleViewDetails(p) }}
+                        className="text-[0.72rem] text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border-0 rounded-md px-2.5 py-1.5 cursor-pointer transition-colors font-medium"
+                      >
+                        View Details
+                      </button>
+                      <button
+                        onClick={e => e.stopPropagation()}
+                        className="text-[0.72rem] text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 border-0 rounded-md px-2.5 py-1.5 cursor-pointer transition-colors font-medium flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" />
+                        CRM
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status flags inline */}
+                {(p.absentee || p.taxDelinquent || p.preForeclosure || p.probate) && (
+                  <div className="flex gap-1 mt-2 pt-2 border-t border-gray-50">
+                    {p.absentee && <span className="text-[0.62rem] font-medium px-1.5 py-0.5 rounded-full text-blue-600 bg-blue-50">Absentee</span>}
+                    {p.taxDelinquent && <span className="text-[0.62rem] font-medium px-1.5 py-0.5 rounded-full text-red-600 bg-red-50">Tax Delinquent</span>}
+                    {p.preForeclosure && <span className="text-[0.62rem] font-medium px-1.5 py-0.5 rounded-full text-amber-600 bg-amber-50">Pre-Foreclosure</span>}
+                    {p.probate && <span className="text-[0.62rem] font-medium px-1.5 py-0.5 rounded-full text-violet-600 bg-violet-50">Probate</span>}
+                  </div>
+                )}
+              </div>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {campaigns.map(c => (
-            <tr key={c.id} onClick={() => onSelect(c)} style={{ borderBottom: '1px solid var(--gray-100)', cursor: 'pointer' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--gray-50)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
-              <td style={{ padding: '13px 16px', fontWeight: 500, color: 'var(--gray-900)' }}>{c.name}</td>
-              <td style={{ padding: '13px 16px', color: 'var(--gray-500)', fontSize: '0.82rem' }}>{c.market}</td>
-              <td style={{ padding: '13px 16px' }}><StatusBadge status={c.status} /></td>
-              <td style={{ padding: '13px 16px', color: 'var(--gray-700)' }}>{c.totalBuyers}</td>
-              <td style={{ padding: '13px 16px', color: '#059669', fontWeight: 500 }}>{c.qualified}</td>
-              <td style={{ padding: '13px 16px', color: 'var(--gray-500)', fontSize: '0.82rem' }}>{fmtDur(c.totalTalkTime)}</td>
-              <td style={{ padding: '13px 16px', color: 'var(--gray-400)', fontSize: '0.8rem' }}>{new Date(c.createdAt).toLocaleDateString()}</td>
-              <td style={{ padding: '13px 16px' }}><button style={{ ...S.btn2, fontSize: '0.78rem', padding: '4px 10px' }}>Re-run</button></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-// ─── Micro Components ──────────────────────────────────────────────────────────
-
-function Score({ score, size = 'md' }: { score: number; size?: 'sm' | 'md' }) {
-  const d = size === 'sm' ? 32 : 38, r = size === 'sm' ? 12 : 15, sw = size === 'sm' ? 2.5 : 3
-  const circ = 2 * Math.PI * r, filled = score > 0 ? (score / 100) * circ : 0
-  const color = score >= 70 ? '#059669' : score >= 40 ? '#d97706' : score > 0 ? '#9ca3af' : '#e5e7eb'
-  return (
-    <div style={{ position: 'relative', width: d, height: d, flexShrink: 0 }}>
-      <svg width={d} height={d} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={d / 2} cy={d / 2} r={r} fill="none" stroke="#f3f4f6" strokeWidth={sw} />
-        {score > 0 && <circle cx={d / 2} cy={d / 2} r={r} fill="none" stroke={color} strokeWidth={sw} strokeDasharray={`${filled} ${circ - filled}`} strokeLinecap="round" />}
-      </svg>
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size === 'sm' ? '0.65rem' : '0.72rem', fontWeight: 700, color }}>
-        {score > 0 ? score : '-'}
+          </div>
+        </div>
       </div>
+
+      {/* Detail panel */}
+      {detailProperty && (
+        <PropertyDetail property={detailProperty} onClose={() => setDetailProperty(null)} />
+      )}
+
+      <style>{`
+        @media (max-width: 1000px) {
+          .disc-split { flex-direction: column !important; }
+          .disc-map-col { width: 100% !important; padding-right: 0 !important; height: 300px; margin-bottom: 12px; flex-shrink: 0; }
+          .disc-list-col { width: 100% !important; }
+        }
+        @media (max-width: 900px) {
+          .disc-filter-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   )
-}
-
-function TypeBadge({ type }: { type?: string }) {
-  const t = (type || 'individual').toLowerCase()
-  const isBiz = t === 'llc' || t === 'corporation' || t === 'trust'
-  const label = t === 'trust' ? 'Trust' : t === 'corporation' ? 'Corp' : t === 'llc' ? 'LLC' : 'Individual'
-  return <span style={{ fontSize: '0.72rem', padding: '3px 8px', borderRadius: 6, fontWeight: 600, background: isBiz ? '#eff6ff' : '#f9fafb', color: isBiz ? '#1d4ed8' : '#6b7280', border: `1px solid ${isBiz ? '#bfdbfe' : '#e5e7eb'}` }}>{label}</span>
-}
-
-function PriceCol({ min, max }: { min?: number; max?: number }) {
-  if (!min && !max) return <span style={{ color: 'var(--gray-400)', fontSize: '0.82rem' }}>-</span>
-  if (min && max && Math.abs(max - min) > 10000) return <span style={{ fontSize: '0.82rem', color: 'var(--gray-700)', fontWeight: 500 }}>${(min / 1000).toFixed(0)}K-${(max / 1000).toFixed(0)}K</span>
-  return <span style={{ fontSize: '0.82rem', color: 'var(--gray-700)', fontWeight: 500 }}>Up to ${((max || min)! / 1000).toFixed(0)}K</span>
-}
-
-function ContactCol({ buyer, onEnrich, enriching }: { buyer: CashBuyer; onEnrich: () => void; enriching: boolean }) {
-  if (buyer.contactEnriched && buyer.phone) return (
-    <div>
-      <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 500 }}>{fmtPhone(buyer.phone)}</div>
-      {buyer.email && <div style={{ fontSize: '0.72rem', color: 'var(--gray-400)', marginTop: 2 }}>{buyer.email}</div>}
-    </div>
-  )
-  return <button onClick={e => { e.stopPropagation(); onEnrich() }} disabled={enriching} style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: 6, border: '1px solid var(--gray-200)', background: 'white', cursor: enriching ? 'default' : 'pointer', color: 'var(--gray-500)', fontWeight: 500 }}>{enriching ? 'Enriching...' : '+ Get contact'}</button>
-}
-
-function Tip({ label, icon }: { label: string; icon: string }) {
-  const [h, setH] = useState(false)
-  return (
-    <div style={{ position: 'relative' }}>
-      <button title={label} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid var(--gray-200)', background: h ? 'var(--gray-50)' : 'white', cursor: 'pointer', fontSize: '0.82rem' }}>{icon}</button>
-      {h && <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 5, background: '#111827', color: 'white', fontSize: '0.72rem', padding: '3px 8px', borderRadius: 5, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 10 }}>{label}</div>}
-    </div>
-  )
-}
-
-function OutcomeTag({ outcome }: { outcome: string }) {
-  const m: Record<string, [string, string, string]> = { QUALIFIED: ['#d1fae5', '#065f46', 'Qualified'], NOT_BUYING: ['#fef3c7', '#92400e', 'Not Buying'], NO_ANSWER: ['#f3f4f6', '#6b7280', 'No Answer'], VOICEMAIL: ['#eff6ff', '#1e40af', 'Voicemail'] }
-  const [bg, color, label] = m[outcome] || ['#f3f4f6', '#6b7280', outcome]
-  return <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: 20, background: bg, color, fontWeight: 600 }}>{label}</span>
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const m: Record<string, [string, string]> = { RUNNING: ['#d1fae5', '#065f46'], COMPLETED: ['#eff6ff', '#1e40af'], PAUSED: ['#fef3c7', '#92400e'], CANCELLED: ['#fee2e2', '#991b1b'], DRAFT: ['#f3f4f6', '#6b7280'] }
-  const [bg, color] = m[status] || m.DRAFT
-  return <span style={{ fontSize: '0.72rem', padding: '3px 9px', borderRadius: 20, background: bg, color, fontWeight: 600 }}>{status}</span>
-}
-
-// ─── Utils ─────────────────────────────────────────────────────────────────────
-
-function displayName(b?: CashBuyer | null) { if (!b) return 'Unknown'; if (b.entityName) return b.entityName; const n = `${b.firstName || ''} ${b.lastName || ''}`.trim(); return n || 'Unknown Buyer' }
-function relDate(d?: string) { if (!d) return '-'; const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000); if (days === 0) return 'Today'; if (days === 1) return 'Yesterday'; if (days < 7) return `${days}d ago`; if (days < 30) return `${Math.floor(days / 7)}w ago`; if (days < 365) return `${Math.floor(days / 30)}mo ago`; return `${Math.floor(days / 365)}y ago` }
-function fmtPhone(p?: string) { if (!p) return ''; const d = p.replace(/\D/g, '').replace(/^1/, ''); if (d.length !== 10) return p; return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` }
-function fmtDur(s: number) { if (!s) return '0s'; const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; if (h > 0) return `${h}h ${m}m`; if (m > 0) return `${m}m ${sec}s`; return `${sec}s` }
-function rPhone() { const c = ['404','678','214','972','480','813','704','816','602','615']; return `${c[~~(Math.random()*c.length)]}${~~(Math.random()*9e6)+1e6}` }
-
-function mockBuyers(city: string, state: string, count: number): CashBuyer[] {
-  const names = [['Marcus','Johnson'],['Sandra','Williams'],['David','Kim'],['Rachel','Torres'],['James','Patel'],['Angela','Chen'],['Robert','Murphy'],['Lisa','Washington'],['Kevin','Okafor'],['Diane','Reyes'],['Brian','Scott'],['Monica','Adams']]
-  const ents = ['Premier REI LLC','Apex Property Group','BlueSky Investments LLC','Cornerstone Capital RE','Delta Acquisitions LLC','Eagle Eye Properties','First Choice Realty LLC','Liberty RE Investments','Iron Horse Capital','Keystone Property Group']
-  const prices = [75,95,110,125,145,165,180,210,250,290]
-  const statuses = ['ACTIVE','ACTIVE','ACTIVE','ACTIVE','RECENTLY_VERIFIED','DORMANT']
-  const zips = ['30301','30303','30305','30306','30307','30308','30309','30310']
-  return Array.from({ length: count }, (_, i) => {
-    const isEnt = Math.random() > 0.42
-    const [first, last] = names[i % names.length]
-    const daysAgo = ~~(Math.random() * 340) + 14
-    const d = new Date(); d.setDate(d.getDate() - daysAgo)
-    const enriched = Math.random() > 0.55
-    const minP = prices[i % prices.length], maxP = prices[(i + 2) % prices.length]
-    return { id: `mock_${i}_${Math.random().toString(36).slice(2,7)}`, firstName: isEnt ? undefined : first, lastName: isEnt ? undefined : last, entityName: isEnt ? ents[i % ents.length] : undefined, entityType: isEnt ? (Math.random() > 0.8 ? 'trust' : 'llc') : 'individual', city, state, zip: zips[i % zips.length], cashPurchaseCount: ~~(Math.random() * 11) + 1, lastPurchaseDate: d.toISOString(), estimatedMinPrice: minP * 1000, estimatedMaxPrice: maxP * 1000, status: statuses[i % statuses.length], contactEnriched: enriched, phone: enriched ? `+1${rPhone()}` : undefined, buyerScore: enriched ? ~~(Math.random() * 55) + 35 : ~~(Math.random() * 30) + 5 }
-  })
-}
-
-function simulateLive(prev: LiveCall[]): LiveCall[] {
-  const lines = ['AI: Hi, this is Alex from DealFlow Properties...','AI: Are you still actively buying in Atlanta?','Buyer: Yeah, definitely still buying.','AI: What property types are you focused on?','Buyer: Mostly single family, some multifamily.','AI: What price range are you working in?','Buyer: 80 to 160 thousand.','AI: Fix-and-flip or buy-and-hold?','Buyer: Mostly flips.','AI: How quickly can you close?','Buyer: 10 to 14 days, cash.']
-  const outcomes = ['QUALIFIED','QUALIFIED','QUALIFIED','NOT_BUYING','NO_ANSWER','VOICEMAIL']
-  const sums = ['Active SFR buyer. $80K-$160K, flip-focused. Closes 10-14 days.','SFR + small MF. Flip/hold. 21-day close.','Not buying in this market.','No answer.','Voicemail left.']
-  return prev.map(c => {
-    if (c.status === 'completed') return c
-    if (Math.random() > 0.65) { const i = ~~(Math.random() * outcomes.length); return { ...c, status: 'completed', outcome: outcomes[i], summary: sums[i], duration: ~~(Math.random()*240)+60 } }
-    return { ...c, duration: c.duration + 2, transcript: [...c.transcript.slice(-5), lines[c.transcript.length % lines.length]] }
-  })
-}
-
-// ─── Styles ────────────────────────────────────────────────────────────────────
-
-const S = {
-  btn1: { display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:6,border:'none',background:'#111827',color:'white',fontSize:'0.84rem',fontWeight:500,cursor:'pointer' } as React.CSSProperties,
-  btn2: { display:'flex',alignItems:'center',gap:6,padding:'7px 13px',borderRadius:6,border:'1px solid #e5e7eb',background:'white',color:'#374151',fontSize:'0.84rem',fontWeight:400,cursor:'pointer' } as React.CSSProperties,
-  sel: { padding:'6px 10px',border:'1px solid #e5e7eb',borderRadius:6,fontSize:'0.8rem',outline:'none',background:'white',cursor:'pointer' } as React.CSSProperties,
-  lbl: { display:'block',fontSize:'0.78rem',fontWeight:400,color:'#6b7280',marginBottom:6 } as React.CSSProperties,
-  inp: { width:'100%',padding:'9px 12px',border:'1px solid #e5e7eb',borderRadius:6,fontSize:'0.875rem',outline:'none',boxSizing:'border-box' } as React.CSSProperties,
-  tag: { fontSize:'0.7rem',padding:'2px 6px',borderRadius:4,background:'#f3f4f6',color:'#6b7280',fontWeight:400 } as React.CSSProperties,
 }
