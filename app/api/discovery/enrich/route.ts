@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // Development fallback — generate realistic phone numbers
+        // Development fallback - generate realistic phone numbers
         if (!phone) {
           const areaCodes = ['404', '678', '770', '470', '214', '972', '469', '480', '602', '623', '813', '727', '941']
           const areaCode = areaCodes[Math.floor(Math.random() * areaCodes.length)]

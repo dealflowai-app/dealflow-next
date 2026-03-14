@@ -49,7 +49,7 @@ export default async function SettingsPage() {
             <div>
               <div style={{ fontSize: '0.875rem', color: '#111827' }}>{user?.email}</div>
               <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginTop: 2 }}>
-                Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—'}
+                Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '-'}
               </div>
             </div>
           </div>

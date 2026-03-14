@@ -1,23 +1,18 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { Role } from '@prisma/client'
 
 export async function POST(request: Request) {
   try {
-    const { userId, email, firstName, lastName, phone, role } = await request.json()
+    const { userId, email, firstName, lastName, phone } = await request.json()
 
-    if (!userId || !email || !role) {
+    if (!userId || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-
-    if (!Object.values(Role).includes(role as Role)) {
-      return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
     }
 
     const profile = await prisma.profile.upsert({
       where: { userId },
-      create: { userId, email, firstName, lastName, phone, role: role as Role },
-      update: { email, firstName, lastName, phone, role: role as Role },
+      create: { userId, email, firstName, lastName, phone, role: 'WHOLESALER' },
+      update: { email, firstName, lastName, phone },
     })
 
     return NextResponse.json({ profile })

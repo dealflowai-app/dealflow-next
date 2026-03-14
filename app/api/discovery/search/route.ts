@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── 3. Development fallback — realistic mock data ─────────────────────────
+    // ── 3. Development fallback - realistic mock data ─────────────────────────
     if (attomBuyers.length === 0) {
       attomBuyers = generateMockBuyers(city || county || 'Unknown', state, 24)
     }

@@ -7,8 +7,7 @@ const columns = [
   {
     heading: 'Product',
     links: [
-      { label: 'How it works', href: '/#how' },
-      { label: 'Platform', href: '/#platform' },
+      { label: 'Features', href: '/#how' },
       { label: 'Who it\'s for', href: '/#who' },
       { label: 'Pricing', href: '/pricing' },
       { label: 'Join waitlist', href: '/#cta' },

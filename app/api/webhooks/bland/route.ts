@@ -5,7 +5,7 @@ import crypto from 'crypto'
 const BLAND_WEBHOOK_SECRET = process.env.BLAND_WEBHOOK_SECRET
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
-// POST /api/webhooks/bland — receives call events from Bland AI
+// POST /api/webhooks/bland - receives call events from Bland AI
 export async function POST(req: NextRequest) {
   try {
     const body = await req.text()
@@ -241,7 +241,7 @@ function generateSummary(data: ExtractedCallData): string {
 
   const parts: string[] = ['Active buyer.']
   if (data.preferredTypes?.length) parts.push(`Wants: ${data.preferredTypes.join(', ')}.`)
-  if (data.minPrice && data.maxPrice) parts.push(`Range: $${(data.minPrice/1000).toFixed(0)}K–$${(data.maxPrice/1000).toFixed(0)}K.`)
+  if (data.minPrice && data.maxPrice) parts.push(`Range: $${(data.minPrice/1000).toFixed(0)}K-$${(data.maxPrice/1000).toFixed(0)}K.`)
   if (data.strategy) parts.push(`Strategy: ${data.strategy}.`)
   if (data.closeSpeedDays) parts.push(`Closes in ${data.closeSpeedDays} days.`)
   return parts.join(' ')

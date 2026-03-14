@@ -196,7 +196,7 @@ export default function CampaignHistory({ campaigns, onView, onRerun, onDuplicat
                       </td>
                       <td style={{ padding: '14px 12px', textAlign: 'center' }}>
                         <span style={{ fontSize: '0.82rem', color: 'var(--gray-600)' }}>
-                          {campaign.totalTalkSeconds > 0 ? formatDuration(campaign.totalTalkSeconds) : '—'}
+                          {campaign.totalTalkSeconds > 0 ? formatDuration(campaign.totalTalkSeconds) : '-'}
                         </span>
                       </td>
                       <td style={{ padding: '14px 12px' }}>
@@ -226,7 +226,7 @@ export default function CampaignHistory({ campaigns, onView, onRerun, onDuplicat
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, paddingTop: 14 }}>
                             <ExpandStat label="Not Buying" value={String(campaign.callsNotBuying)} color="#b91c1c" />
                             <ExpandStat label="No Answer" value={String(campaign.callsNoAnswer)} color="var(--gray-500)" />
-                            <ExpandStat label="Avg Call" value={campaign.buyersCalled > 0 ? formatDuration(Math.round(campaign.totalTalkSeconds / campaign.buyersCalled)) : '—'} color="var(--gray-700)" />
+                            <ExpandStat label="Avg Call" value={campaign.buyersCalled > 0 ? formatDuration(Math.round(campaign.totalTalkSeconds / campaign.buyersCalled)) : '-'} color="var(--gray-700)" />
                             <ExpandStat label="Script" value={campaign.scriptTemplate.replace('_', ' ')} color="var(--gray-700)" />
                             <ExpandStat label="Company" value={campaign.companyName} color="var(--gray-700)" />
                           </div>

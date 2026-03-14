@@ -78,7 +78,7 @@ export default function ContactPage() {
                 Message sent!
               </h2>
               <p style={{ fontSize: '0.95rem', color: 'var(--gray-600)' }}>
-                We&apos;ll get back to you at <strong>{form.email}</strong> within 1–2 business days.
+                We&apos;ll get back to you at <strong>{form.email}</strong> within 1-2 business days.
               </p>
             </div>
           ) : (

@@ -23,7 +23,7 @@ const TIERS_MAX_CONCURRENT = 10 // would come from user's plan
 export default function CampaignBuilder({
   isOpen, onClose, onLaunch, buyers, selectedBuyerIds, marketName,
 }: CampaignBuilderProps) {
-  const [name, setName] = useState(`Campaign — ${marketName} — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`)
+  const [name, setName] = useState(`Campaign - ${marketName} - ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`)
   const [buyerSource, setBuyerSource] = useState<'discovery' | 'crm' | 'both'>('discovery')
   const [scriptTemplate, setScriptTemplate] = useState('standard')
   const [showScriptRaw, setShowScriptRaw] = useState(false)
@@ -63,7 +63,7 @@ export default function CampaignBuilder({
 
   // Update name when market changes
   useEffect(() => {
-    setName(`Campaign — ${marketName} — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`)
+    setName(`Campaign - ${marketName} - ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`)
   }, [marketName])
 
   function handleLaunch() {

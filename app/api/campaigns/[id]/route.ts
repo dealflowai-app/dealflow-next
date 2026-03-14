@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
  
-// PATCH /api/campaigns/[id] — update campaign status
+// PATCH /api/campaigns/[id] - update campaign status
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -54,7 +54,7 @@ export async function PATCH(
   }
 }
 
-// GET /api/campaigns/[id] — get single campaign with calls
+// GET /api/campaigns/[id] - get single campaign with calls
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }

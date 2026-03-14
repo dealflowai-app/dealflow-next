@@ -73,39 +73,6 @@ const wholesalerTiers = [
   },
 ]
 
-const buyerTiers = [
-  {
-    name: 'Free',
-    price: '$0',
-    period: '',
-    tagline: 'For investors getting started on the platform',
-    highlight: false,
-    features: [
-      'Live deal map (deals matching your buy box)',
-      'View deal summaries and AI analysis',
-      'No credit card required',
-      'Acquired organically through wholesaler campaigns',
-    ],
-    cta: 'Join free',
-  },
-  {
-    name: 'Premium',
-    price: '$49',
-    period: '/mo',
-    tagline: 'For serious investors who want the edge',
-    highlight: true,
-    badge: 'Best for investors',
-    features: [
-      'Early deal access before the broader pool',
-      'Full AI deal analysis with comp data',
-      'Priority offer placement',
-      'Deal alert notifications via SMS + email',
-      'Saved searches and custom map filters',
-    ],
-    cta: 'Join waitlist',
-  },
-]
-
 const compare = [
   { feature: 'AI buyer discovery', starter: true, pro: true, enterprise: true },
   { feature: 'AI voice calling', starter: true, pro: true, enterprise: true },
@@ -154,7 +121,7 @@ export default function PricingPage() {
               Simple pricing, serious results
             </h1>
             <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', lineHeight: 1.7, maxWidth: 480, margin: '0 auto 28px' }}>
-              Replace PropStream, your dialer, your CRM, and your contract platform — all in one. Founding members lock in their rate forever.
+              Replace PropStream, your dialer, your CRM, and your contract platform, all in one. Founding members lock in their rate forever.
             </p>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 20, padding: '6px 16px', fontSize: '0.8rem', color: '#166534', fontWeight: 500 }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
@@ -166,7 +133,7 @@ export default function PricingPage() {
         {/* Wholesaler tiers */}
         <div className="pricing-section" style={{ maxWidth: 1160, margin: '0 auto', padding: '64px 40px 0' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 28 }}>
-            For wholesalers
+            Plans
           </p>
           <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, alignItems: 'start' }}>
             {wholesalerTiers.map((tier) => (
@@ -194,68 +161,6 @@ export default function PricingPage() {
                 <p style={{ fontSize: '0.82rem', color: 'var(--gray-500)', marginBottom: 22, lineHeight: 1.5 }}>{tier.tagline}</p>
                 <Link
                   href={tier.ctaHref ?? '/#cta'}
-                  style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    padding: '10px 20px',
-                    borderRadius: 8,
-                    fontSize: '0.87rem',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    background: tier.highlight ? 'var(--blue-600)' : 'var(--gray-900)',
-                    color: 'var(--white)',
-                    border: 'none',
-                    marginBottom: 22,
-                    transition: 'opacity 0.15s',
-                  }}
-                >
-                  {tier.cta}
-                </Link>
-                <div style={{ height: 1, background: 'var(--gray-100)', marginBottom: 18 }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {tier.features.map((f) => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
-                      <div style={{ marginTop: 1, flexShrink: 0 }}><Check /></div>
-                      <span style={{ fontSize: '0.84rem', color: 'var(--gray-600)', lineHeight: 1.5 }}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Buyer tiers */}
-        <div className="pricing-section" style={{ maxWidth: 1160, margin: '0 auto', padding: '56px 40px 0' }}>
-          <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 28 }}>
-            For cash buyers &amp; investors
-          </p>
-          <div className="pricing-buyer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, maxWidth: 760, margin: '0 auto 0 0' }}>
-            {buyerTiers.map((tier) => (
-              <div
-                key={tier.name}
-                style={{
-                  borderRadius: 14,
-                  border: tier.highlight ? '1.5px solid var(--blue-600)' : '1px solid var(--gray-200)',
-                  padding: '28px 24px',
-                  background: tier.highlight ? 'linear-gradient(160deg, #f0f6ff 0%, #fff 60%)' : 'var(--white)',
-                  position: 'relative',
-                  boxShadow: tier.highlight ? 'var(--shadow-lg)' : 'none',
-                }}
-              >
-                {tier.badge && (
-                  <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: 'var(--blue-600)', color: 'white', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', padding: '3px 12px', borderRadius: 20, whiteSpace: 'nowrap' }}>
-                    {tier.badge}
-                  </div>
-                )}
-                <p style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: tier.highlight ? 'var(--blue-600)' : 'var(--gray-400)', marginBottom: 16 }}>{tier.name}</p>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 4 }}>
-                  <span style={{ fontSize: '2.1rem', fontWeight: 700, color: 'var(--gray-900)', letterSpacing: '-0.03em', lineHeight: 1 }}>{tier.price}</span>
-                  <span style={{ fontSize: '0.83rem', color: 'var(--gray-400)' }}>{tier.period}</span>
-                </div>
-                <p style={{ fontSize: '0.82rem', color: 'var(--gray-500)', marginBottom: 22, lineHeight: 1.5 }}>{tier.tagline}</p>
-                <Link
-                  href="/#cta"
                   style={{
                     display: 'block',
                     textAlign: 'center',
@@ -328,7 +233,7 @@ export default function PricingPage() {
             <div>
               <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--gray-900)', marginBottom: 5 }}>How we compare</p>
               <p style={{ fontSize: '0.86rem', color: 'var(--gray-500)', lineHeight: 1.7, maxWidth: 700 }}>
-                PropStream alone is $99–$399/mo for data only. Add a dialer ($100–$200/mo), a CRM, and a contract platform and you&apos;re at $400–$700/mo with no automation and no matching. DealFlow AI replaces all of it for less — and actually does the work.
+                PropStream alone is $99 to $399/mo for data only. Add a dialer ($100 to $200/mo), a CRM, and a contract platform and you&apos;re at $400 to $700/mo with no automation and no matching. DealFlow AI replaces all of it for less and actually does the work.
               </p>
             </div>
           </div>
@@ -373,8 +278,7 @@ export default function PricingPage() {
           .pricing-section { padding-left: 20px !important; padding-right: 20px !important; }
           .pricing-compare { padding-top: 48px !important; }
           .pricing-grid { grid-template-columns: 1fr !important; }
-          .pricing-buyer-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
-          .pricing-compare table { font-size: 0.82rem; }
+.pricing-compare table { font-size: 0.82rem; }
           .pricing-compare td, .pricing-compare th { padding: 10px 14px !important; }
         }
       `}</style>

@@ -26,7 +26,7 @@ const OUTCOME_CONFIG: Record<CallOutcome, { label: string; color: string; bg: st
 }
 
 const MOCK_COMPLETED_NAMES = [
-  { name: 'ATL Fast Close LLC', outcome: 'qualified' as CallOutcome, duration: 214, summary: 'Active buyer. SFR focus, $50k–$165k. Closes in 7 days cash. Wants deals sent to email.' },
+  { name: 'ATL Fast Close LLC', outcome: 'qualified' as CallOutcome, duration: 214, summary: 'Active buyer. SFR focus, $50k-$165k. Closes in 7 days cash. Wants deals sent to email.' },
   { name: 'Heritage Capital Holdings LLC', outcome: 'qualified' as CallOutcome, duration: 187, summary: 'Still buying. Looking for SFR and small multi. Max $220k. Asked for monthly deal list.' },
   { name: 'Sandra G. Morales', outcome: 'not_buying' as CallOutcome, duration: 43, summary: 'On pause for 6 months. Relocated to Florida. Remove from Atlanta list.' },
   { name: 'Jerome & Keisha Williams', outcome: 'no_answer' as CallOutcome, duration: 0, summary: 'No answer. Voicemail not set up. Retry in 4 hours.' },
@@ -200,7 +200,7 @@ export default function LiveCampaignMonitor({ campaign, onPause, onStop, onResum
             ))}
             {activeCalls.length === 0 && (
               <div style={{ padding: '24px 16px', textAlign: 'center', fontSize: '0.82rem', color: 'var(--gray-400)' }}>
-                {campaign.status === 'paused' ? 'Campaign paused — calls suspended' : 'No active calls'}
+                {campaign.status === 'paused' ? 'Campaign paused - calls suspended' : 'No active calls'}
               </div>
             )}
           </div>
@@ -272,9 +272,9 @@ export default function LiveCampaignMonitor({ campaign, onPause, onStop, onResum
         <h4 style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--gray-700)', marginBottom: 14 }}>Campaign Stats</h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
           <FooterStat label="Total Talk Time" value={formatDuration(campaign.totalTalkSeconds + completedCalls.reduce((a, c) => a + c.duration, 0))} />
-          <FooterStat label="Avg Call Duration" value={completedCalls.length > 0 ? formatDuration(Math.round(completedCalls.reduce((a, c) => a + c.duration, 0) / completedCalls.length)) : '—'} />
-          <FooterStat label="Qualify Rate" value={qualifyRate > 0 ? `${qualifyRate}%` : '—'} highlight />
-          <FooterStat label="Top Objection" value={notBuying > 0 ? 'Not Active' : '—'} />
+          <FooterStat label="Avg Call Duration" value={completedCalls.length > 0 ? formatDuration(Math.round(completedCalls.reduce((a, c) => a + c.duration, 0) / completedCalls.length)) : '-'} />
+          <FooterStat label="Qualify Rate" value={qualifyRate > 0 ? `${qualifyRate}%` : '-'} highlight />
+          <FooterStat label="Top Objection" value={notBuying > 0 ? 'Not Active' : '-'} />
           <FooterStat label="Calls Remaining" value={String(Math.max(0, campaign.buyersTotal - buyersCalled))} />
         </div>
       </div>

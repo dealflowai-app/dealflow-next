@@ -12,7 +12,7 @@ const wholesalerSteps = [
   {
     n: '02',
     title: 'Find real cash buyers',
-    body: 'We scan county property records and surface people who have actually purchased real estate with cash in the last 6–12 months. Real buyers with real purchase history, not generic list contacts.',
+    body: 'We scan county property records and surface people who have actually purchased real estate with cash in the last 6-12 months. Real buyers with real purchase history, not generic list contacts.',
   },
   {
     n: '03',

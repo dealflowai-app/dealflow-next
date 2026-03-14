@@ -4,7 +4,6 @@ import { useState } from 'react'
 
 const roles = [
   { value: 'wholesaler', label: 'Real estate wholesaler', icon: '🏚️' },
-  { value: 'buyer', label: 'Cash buyer / investor', icon: '💰' },
   { value: 'agent', label: 'Agent / broker', icon: '🤝' },
   { value: 'other', label: 'Other', icon: '👋' },
 ]
@@ -58,15 +57,13 @@ export default function Hero() {
 
         {/* Headline */}
         <h1 className="hero-h1">
-          Automate Off-Market{' '}
-          <span className="hero-h1-accent">Real Estate</span>
+          Automating Real Estate{' '}
+          <span className="hero-h1-accent">Wholesaling</span>
         </h1>
 
         {/* Subtext */}
         <p className="hero-sub">
-          DealFlow AI is the first platform that actually does the work of connecting buyers and sellers.
-          Wholesalers get an AI disposition team to automatically call and qualify cash buyers, while
-          investors get a noise-free map of analyzed deals matching their exact criteria.
+          Let our AI do the heavy lifting. DealFlow AI analyzes thousands of off-market data points to beat your competitors and hand you the highest margin deals instantly.
         </p>
 
         {/* City search box */}
@@ -241,7 +238,7 @@ export default function Hero() {
         }
 
         .hero-h1-accent {
-          color: var(--blue-600);
+          color: var(--blue-500)
         }
 
         .hero-sub {

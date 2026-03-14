@@ -10,8 +10,6 @@ datasource db {
 
 enum Role {
   WHOLESALER
-  BUYER
-  BOTH
 }
 
 enum CampaignStatus {
@@ -99,7 +97,6 @@ model Profile {
   savedMarkets    SavedMarket[]
   campaigns       Campaign[]
   deals           Deal[]
-  buyerProfile    BuyerProfile?
 
   @@map("profiles")
 }
@@ -344,34 +341,6 @@ model DealMatch {
   @@index([dealId])
   @@index([buyerId])
   @@map("deal_matches")
-}
-
-// ─── BUYER PROFILE (for buyers who sign up directly) ────────────────────────
-
-model BuyerProfile {
-  id          String   @id @default(cuid())
-  profileId   String   @unique
-
-  // Buy box
-  markets           String[]
-  propertyTypes     PropertyType[]
-  strategy          InvestorStrategy?
-  minBudget         Int?
-  maxBudget         Int?
-  closeSpeedDays    Int?
-  preferDistressed  Boolean  @default(false)
-
-  // Verification
-  proofOfFundsUrl   String?
-  verified          Boolean  @default(false)
-  verifiedAt        DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  @@map("buyer_profiles")
 }
 
 // ─── OFFERS & TRANSACTIONS ───────────────────────────────────────────────────

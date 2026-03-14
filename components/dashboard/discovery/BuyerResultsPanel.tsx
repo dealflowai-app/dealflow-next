@@ -505,7 +505,7 @@ function BuyerTable({ buyers, selectedBuyerIds, allSelected, sortKey, sortDir, o
                 </td>
                 <td style={{ padding: '12px 12px' }}>
                   <span style={{ fontWeight: 600, color: 'var(--gray-800)', fontSize: '0.82rem' }}>
-                    {formatPrice(buyer.priceRangeMin)} – {formatPrice(buyer.priceRangeMax)}
+                    {formatPrice(buyer.priceRangeMin)} - {formatPrice(buyer.priceRangeMax)}
                   </span>
                 </td>
                 <td style={{ padding: '12px 12px' }}>
@@ -624,7 +624,7 @@ function BuyerGrid({ buyers, selectedBuyerIds, onToggle, onEnrich }: {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
               <CardStat label="Purchases (12mo)" value={String(buyer.cashPurchases12mo)} />
               <CardStat label="Last Purchase" value={formatDate(buyer.lastPurchaseDate)} />
-              <CardStat label="Price Range" value={`${formatPrice(buyer.priceRangeMin)}–${formatPrice(buyer.priceRangeMax)}`} />
+              <CardStat label="Price Range" value={`${formatPrice(buyer.priceRangeMin)}-${formatPrice(buyer.priceRangeMax)}`} />
               <div>
                 <div style={{ fontSize: '0.68rem', color: 'var(--gray-400)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 3 }}>Buys</div>
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>

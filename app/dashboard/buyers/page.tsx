@@ -23,10 +23,10 @@ const MARKETS = [
 ]
 
 const SCRIPTS = [
-  { id: 'standard_qualification', name: 'Standard Buyer Qualification', desc: 'Full buy box discovery — property type, price range, strategy, close speed.', qualify: '68%', duration: '3–5 min' },
-  { id: 'check_in', name: 'Quick Check-In', desc: 'Verify existing buyer is still active and update their preferences.', qualify: '74%', duration: '1–2 min' },
-  { id: 'deal_specific', name: 'Deal-Specific Outreach', desc: 'Pitch a specific property under contract to matched buyers.', qualify: '51%', duration: '2–4 min' },
-  { id: 'new_market', name: 'New Market Introduction', desc: 'Introduce your network to buyers in a new market.', qualify: '44%', duration: '2–3 min' },
+  { id: 'standard_qualification', name: 'Standard Buyer Qualification', desc: 'Full buy box discovery - property type, price range, strategy, close speed.', qualify: '68%', duration: '3-5 min' },
+  { id: 'check_in', name: 'Quick Check-In', desc: 'Verify existing buyer is still active and update their preferences.', qualify: '74%', duration: '1-2 min' },
+  { id: 'deal_specific', name: 'Deal-Specific Outreach', desc: 'Pitch a specific property under contract to matched buyers.', qualify: '51%', duration: '2-4 min' },
+  { id: 'new_market', name: 'New Market Introduction', desc: 'Introduce your network to buyers in a new market.', qualify: '44%', duration: '2-3 min' },
 ]
 
 export default function DiscoveryPage() {
@@ -469,14 +469,14 @@ function Builder({ buyers, selected, market, cName, setCName, script, setScript,
 
       <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
         <label style={S.lbl}>Campaign Name</label>
-        <input value={cName} onChange={e => setCName(e.target.value)} placeholder={`${market?.label || 'Market'} — ${new Date().toLocaleDateString()}`} style={{ ...S.inp, marginBottom: 20 }} />
+        <input value={cName} onChange={e => setCName(e.target.value)} placeholder={`${market?.label || 'Market'} - ${new Date().toLocaleDateString()}`} style={{ ...S.inp, marginBottom: 20 }} />
 
         <div style={{ background: (selected as Set<string>).size > 0 ? '#eff6ff' : 'var(--gray-50)', border: `1px solid ${(selected as Set<string>).size > 0 ? '#bfdbfe' : 'var(--gray-200)'}`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: needs > 0 ? 6 : 0 }}>
             <span style={{ fontWeight: 500, color: '#1d4ed8' }}>{(selected as Set<string>).size} buyers selected</span>
             <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 600 }}>{enrichedSel} with contact info</span>
           </div>
-          {needs > 0 && <div style={{ fontSize: '0.78rem', color: '#d97706' }}>{needs} buyers have no phone — they&apos;ll be skipped unless enriched first</div>}
+          {needs > 0 && <div style={{ fontSize: '0.78rem', color: '#d97706' }}>{needs} buyers have no phone - they&apos;ll be skipped unless enriched first</div>}
         </div>
 
         <label style={S.lbl}>Calling Mode</label>
@@ -613,7 +613,7 @@ function Score({ score, size = 'md' }: { score: number; size?: 'sm' | 'md' }) {
         {score > 0 && <circle cx={d / 2} cy={d / 2} r={r} fill="none" stroke={color} strokeWidth={sw} strokeDasharray={`${filled} ${circ - filled}`} strokeLinecap="round" />}
       </svg>
       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size === 'sm' ? '0.65rem' : '0.72rem', fontWeight: 700, color }}>
-        {score > 0 ? score : '—'}
+        {score > 0 ? score : '-'}
       </div>
     </div>
   )
@@ -627,8 +627,8 @@ function TypeBadge({ type }: { type?: string }) {
 }
 
 function PriceCol({ min, max }: { min?: number; max?: number }) {
-  if (!min && !max) return <span style={{ color: 'var(--gray-400)', fontSize: '0.82rem' }}>—</span>
-  if (min && max && Math.abs(max - min) > 10000) return <span style={{ fontSize: '0.82rem', color: 'var(--gray-700)', fontWeight: 500 }}>${(min / 1000).toFixed(0)}K–${(max / 1000).toFixed(0)}K</span>
+  if (!min && !max) return <span style={{ color: 'var(--gray-400)', fontSize: '0.82rem' }}>-</span>
+  if (min && max && Math.abs(max - min) > 10000) return <span style={{ fontSize: '0.82rem', color: 'var(--gray-700)', fontWeight: 500 }}>${(min / 1000).toFixed(0)}K-${(max / 1000).toFixed(0)}K</span>
   return <span style={{ fontSize: '0.82rem', color: 'var(--gray-700)', fontWeight: 500 }}>Up to ${((max || min)! / 1000).toFixed(0)}K</span>
 }
 
@@ -667,7 +667,7 @@ function StatusBadge({ status }: { status: string }) {
 // ─── Utils ─────────────────────────────────────────────────────────────────────
 
 function displayName(b?: CashBuyer | null) { if (!b) return 'Unknown'; if (b.entityName) return b.entityName; const n = `${b.firstName || ''} ${b.lastName || ''}`.trim(); return n || 'Unknown Buyer' }
-function relDate(d?: string) { if (!d) return '—'; const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000); if (days === 0) return 'Today'; if (days === 1) return 'Yesterday'; if (days < 7) return `${days}d ago`; if (days < 30) return `${Math.floor(days / 7)}w ago`; if (days < 365) return `${Math.floor(days / 30)}mo ago`; return `${Math.floor(days / 365)}y ago` }
+function relDate(d?: string) { if (!d) return '-'; const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000); if (days === 0) return 'Today'; if (days === 1) return 'Yesterday'; if (days < 7) return `${days}d ago`; if (days < 30) return `${Math.floor(days / 7)}w ago`; if (days < 365) return `${Math.floor(days / 30)}mo ago`; return `${Math.floor(days / 365)}y ago` }
 function fmtPhone(p?: string) { if (!p) return ''; const d = p.replace(/\D/g, '').replace(/^1/, ''); if (d.length !== 10) return p; return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` }
 function fmtDur(s: number) { if (!s) return '0s'; const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; if (h > 0) return `${h}h ${m}m`; if (m > 0) return `${m}m ${sec}s`; return `${sec}s` }
 function rPhone() { const c = ['404','678','214','972','480','813','704','816','602','615']; return `${c[~~(Math.random()*c.length)]}${~~(Math.random()*9e6)+1e6}` }
@@ -692,7 +692,7 @@ function mockBuyers(city: string, state: string, count: number): CashBuyer[] {
 function simulateLive(prev: LiveCall[]): LiveCall[] {
   const lines = ['AI: Hi, this is Alex from DealFlow Properties...','AI: Are you still actively buying in Atlanta?','Buyer: Yeah, definitely still buying.','AI: What property types are you focused on?','Buyer: Mostly single family, some multifamily.','AI: What price range are you working in?','Buyer: 80 to 160 thousand.','AI: Fix-and-flip or buy-and-hold?','Buyer: Mostly flips.','AI: How quickly can you close?','Buyer: 10 to 14 days, cash.']
   const outcomes = ['QUALIFIED','QUALIFIED','QUALIFIED','NOT_BUYING','NO_ANSWER','VOICEMAIL']
-  const sums = ['Active SFR buyer. $80K–$160K, flip-focused. Closes 10–14 days.','SFR + small MF. Flip/hold. 21-day close.','Not buying in this market.','No answer.','Voicemail left.']
+  const sums = ['Active SFR buyer. $80K-$160K, flip-focused. Closes 10-14 days.','SFR + small MF. Flip/hold. 21-day close.','Not buying in this market.','No answer.','Voicemail left.']
   return prev.map(c => {
     if (c.status === 'completed') return c
     if (Math.random() > 0.65) { const i = ~~(Math.random() * outcomes.length); return { ...c, status: 'completed', outcome: outcomes[i], summary: sums[i], duration: ~~(Math.random()*240)+60 } }

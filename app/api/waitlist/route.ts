@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       .insert({ email: email.trim().toLowerCase(), role: role ?? null, source: source ?? 'hero' })
 
     if (error) {
-      // Duplicate email — treat as success so we don't leak info
+      // Duplicate email - treat as success so we don't leak info
       if (error.code === '23505') {
         return NextResponse.json({ success: true, existing: true })
       }

@@ -13,13 +13,13 @@ const steps = [
     num: '02',
     name: 'Discover verified cash buyers',
     badge: 'Automated',
-    desc: 'We scan county property records for everyone who bought real estate with cash in the last 6–12 months. Proven buyers, real transaction history.',
+    desc: 'We scan county property records for everyone who bought real estate with cash in the last 6-12 months. Proven buyers, real transaction history.',
   },
   {
     num: '03',
     name: 'AI qualifies every buyer',
     badge: 'While you sleep',
-    desc: 'AI voice agents call dozens of buyers simultaneously — capturing buy box, price range, strategy, and close timeline. All saved automatically.',
+    desc: 'AI voice agents call dozens of buyers simultaneously - capturing buy box, price range, strategy, and close timeline. All saved automatically.',
   },
   {
     num: '04',
@@ -359,9 +359,9 @@ function VisScreen1() {
         Verified cash buyers · Discovered from public records
       </div>
       {[
-        { initials: 'JM', bg: 'linear-gradient(135deg,#1d4ed8,#3b82f6)', name: 'James M.',  tag: 'SFR · $80K–$150K · Flip · Atlanta, GA',       score: 94 },
-        { initials: 'SR', bg: 'linear-gradient(135deg,#0ea5e9,#2563eb)', name: 'Sandra R.', tag: 'Multi-fam · $200K–$400K · Hold · Tampa, FL',    score: 87 },
-        { initials: 'DK', bg: 'linear-gradient(135deg,#6366f1,#3b82f6)', name: 'David K.',  tag: 'SFR · $60K–$120K · Flip · Charlotte, NC',       score: 79 },
+        { initials: 'JM', bg: 'linear-gradient(135deg,#1d4ed8,#3b82f6)', name: 'James M.',  tag: 'SFR · $80K-$150K · Flip · Atlanta, GA',       score: 94 },
+        { initials: 'SR', bg: 'linear-gradient(135deg,#0ea5e9,#2563eb)', name: 'Sandra R.', tag: 'Multi-fam · $200K-$400K · Hold · Tampa, FL',    score: 87 },
+        { initials: 'DK', bg: 'linear-gradient(135deg,#6366f1,#3b82f6)', name: 'David K.',  tag: 'SFR · $60K-$120K · Flip · Charlotte, NC',       score: 79 },
       ].map((b, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11, border: '1px solid var(--gray-100)', borderRadius: 10, padding: '11px 13px', marginBottom: 8, background: 'var(--white)' }}>
           <div style={{ width: 34, height: 34, borderRadius: '50%', background: b.bg, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.7rem', flexShrink: 0 }}>
@@ -390,7 +390,7 @@ function VisScreen2() {
     <div className="vis-screen-active">
       <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 12, padding: '14px 16px', fontSize: '0.82rem', color: 'var(--gray-500)', lineHeight: 1.75, marginBottom: 14 }}>
         <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>AI Agent:</span>
-        {' '}&ldquo;Hi, this is Alex from Premier Acquisitions. I see you recently closed a cash deal in Charlotte — are you looking for more properties in the Carolinas?&rdquo;
+        {' '}&ldquo;Hi, this is Alex from Premier Acquisitions. I see you recently closed a cash deal in Charlotte - are you looking for more properties in the Carolinas?&rdquo;
         <br /><br />
         <span style={{ color: 'var(--gray-900)', fontWeight: 500 }}>David K.:</span>
         {' '}&ldquo;Yeah, single family, under $120k, Charlotte metro...&rdquo;

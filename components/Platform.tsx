@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 
 const engines = [
   { num: '01', name: 'Market Intelligence',   tagline: 'See live deal spreads and ARV trends before you spend a dime on leads.' },
-  { num: '02', name: 'Buyer Intelligence',     tagline: 'Every buyer pulled from real deed records — verified cash, wired in the last 12 months.' },
-  { num: '03', name: 'Property Discovery',     tagline: 'Get to motivated sellers 3–11 days before any list service sees them.' },
+  { num: '02', name: 'Buyer Intelligence',     tagline: 'Every buyer pulled from real deed records. Verified cash, wired in the last 12 months.' },
+  { num: '03', name: 'Property Discovery',     tagline: 'Get to motivated sellers 3 to 11 days before any list service sees them.' },
   { num: '04', name: 'Smart Deal Matching',    tagline: 'Finds your top 3 most likely buyers the moment you upload a deal.' },
   { num: '05', name: 'Outreach Automation',    tagline: 'AI runs 48 qualified calls while you sleep. Wake up with a hot list.' },
-  { num: '06', name: 'Transaction Center',     tagline: 'Offer accepted to e-signed contract — no Word docs, no email chains.' },
+  { num: '06', name: 'Transaction Center',     tagline: 'Offer accepted to e-signed contract. No Word docs, no email chains.' },
 ]
 
 /* ── 01 Market Intelligence ──────────────────────────────── */
@@ -18,7 +18,7 @@ function VisualMarket() {
   return (
     <div style={{ padding: 28 }}>
       <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 20 }}>
-        Atlanta, GA — Deal spread trend
+        Atlanta, GA · Deal spread trend
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 90 }}>
         {bars.map((h, i) => (

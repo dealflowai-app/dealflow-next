@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
-  // Use DIRECT_URL (session mode, port 5432) — Prisma's pg adapter doesn't work with PgBouncer
+  // Use DIRECT_URL (session mode, port 5432) - Prisma's pg adapter doesn't work with PgBouncer
   const pool = new Pool({ connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL })
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })

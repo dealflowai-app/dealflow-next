@@ -35,15 +35,63 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #edf4ff 0%, #f5f8ff 40%, #ffffff 70%)', display: 'flex', flexDirection: 'column' }}>
 
-      {/* Top bar */}
-      <div style={{ padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <Image src="/Logo.png" alt="DealFlow AI" width={32} height={32} style={{ objectFit: 'contain' }} />
-          <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>
-            DealFlow AI
+      {/* Top bar - matches Nav styling */}
+      <div
+        style={{
+          height: 62,
+          padding: '0 40px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid var(--gray-200)',
+        }}
+      >
+        <Link
+          href="/"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 9,
+            fontFamily: 'inherit',
+            fontWeight: 500,
+            fontSize: '0.97rem',
+            color: 'var(--gray-900)',
+            textDecoration: 'none',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          <Image
+            src="/Logo.png"
+            alt="DealFlow AI logo"
+            width={28}
+            height={28}
+            style={{ objectFit: 'contain', flexShrink: 0 }}
+          />
+          DealFlow AI
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              fontSize: '0.68rem',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              color: 'var(--blue-600)',
+              background: 'var(--blue-50)',
+              border: '1px solid var(--blue-100)',
+              borderRadius: 20,
+              padding: '2px 8px',
+              lineHeight: 1,
+            }}
+          >
+            Beta
           </span>
         </Link>
-        <span style={{ fontSize: '0.82rem', color: 'var(--gray-500)' }}>
+        <span style={{ fontSize: '0.85rem', color: 'var(--gray-500)' }}>
           No account?{' '}
           <Link href="/#hero-form" style={{ color: 'var(--blue-600)', fontWeight: 600, textDecoration: 'none' }}>
             Join the waitlist
@@ -73,7 +121,7 @@ export default function LoginPage() {
             </svg>
           </div>
 
-          <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.7rem', fontWeight: 800, color: 'var(--gray-900)', letterSpacing: '-0.03em', marginBottom: 6, lineHeight: 1.1 }}>
+          <h1 style={{ fontFamily: 'inherit', fontSize: '1.7rem', fontWeight: 600, color: 'var(--gray-900)', letterSpacing: '-0.03em', marginBottom: 6, lineHeight: 1.1 }}>
             Welcome back
           </h1>
           <p style={{ fontSize: '0.88rem', color: 'var(--gray-500)', marginBottom: 32, lineHeight: 1.5 }}>
@@ -181,8 +229,8 @@ export default function LoginPage() {
                 border: 'none',
                 borderRadius: 12,
                 padding: '13px 24px',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
-                fontWeight: 700,
+                fontFamily: 'inherit',
+                fontWeight: 600,
                 fontSize: '0.95rem',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 marginTop: 4,
@@ -230,6 +278,9 @@ export default function LoginPage() {
         }
         @media (max-width: 480px) {
           .login-card { padding: 32px 24px !important; border-radius: 16px !important; }
+        }
+        @media (max-width: 640px) {
+          .login-card + style ~ div { padding: 0 16px !important; }
         }
       `}</style>
     </div>

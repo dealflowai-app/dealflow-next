@@ -17,7 +17,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
   useEffect(() => {
     if (activePage) return
 
-    const sections = ['how', 'platform', 'who']
+    const sections = ['how', 'who']
 
     function updateNav() {
       let active: string | null = null
@@ -46,15 +46,13 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
 
   const mobileLinks = activePage
     ? [
-        { label: 'How it works', href: '/#how' },
-        { label: 'Platform', href: '/#platform' },
+        { label: 'Features', href: '/#how' },
         { label: "Who it's for", href: '/#who' },
         { label: 'Pricing', href: '/pricing' },
         { label: 'About', href: '/about' },
       ]
     : [
-        { label: 'How it works', href: '#how' },
-        { label: 'Platform', href: '#platform' },
+        { label: 'Features', href: '#how' },
         { label: "Who it's for", href: '#who' },
         { label: 'Pricing', href: '/pricing' },
         { label: 'About', href: '/about' },
@@ -126,15 +124,14 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           </span>
         </Link>
 
-        {/* Center links — desktop only */}
+        {/* Center links - desktop only */}
         <div
           className="nav-center-links"
           style={{ display: 'flex', gap: 2 }}
         >
           {activePage ? (
             <>
-              <Link href="/#how" style={navLinkStyle(false)}>How it works</Link>
-              <Link href="/#platform" style={navLinkStyle(false)}>Platform</Link>
+              <Link href="/#how" style={navLinkStyle(false)}>Features</Link>
               <Link href="/#who" style={navLinkStyle(false)}>Who it&apos;s for</Link>
               <div style={{ width: 1, height: 18, background: 'var(--gray-200)', margin: '0 6px', alignSelf: 'center' }} />
               <Link href="/pricing" style={navLinkStyle(activePage === 'pricing')}>Pricing</Link>
@@ -142,8 +139,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
             </>
           ) : (
             <>
-              <Link href="#how" style={navLinkStyle(activeSection === 'how')}>How it works</Link>
-              <Link href="#platform" style={navLinkStyle(activeSection === 'platform')}>Platform</Link>
+              <Link href="#how" style={navLinkStyle(activeSection === 'how')}>Features</Link>
               <Link href="#who" style={navLinkStyle(activeSection === 'who')}>Who it&apos;s for</Link>
               <div style={{ width: 1, height: 18, background: 'var(--gray-200)', margin: '0 6px', alignSelf: 'center' }} />
               <Link href="/pricing" style={navLinkStyle(false)}>Pricing</Link>
@@ -152,7 +148,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           )}
         </div>
 
-        {/* Right buttons — desktop only */}
+        {/* Right buttons - desktop only */}
         <div className="nav-right-desktop" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <Link
             href="/login"
@@ -220,7 +216,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           )}
         </div>
 
-        {/* Hamburger — mobile only */}
+        {/* Hamburger - mobile only */}
         <button
           className="nav-hamburger"
           onClick={() => setMenuOpen(!menuOpen)}

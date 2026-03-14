@@ -8,7 +8,7 @@ const lines = [
   { from: 'ai', text: 'Got it. Are you looking to flip or hold for rental income?', ts: '0:22' },
   { from: 'buyer', text: 'Flip. I can close in 10 to 14 days if the numbers are right.', ts: '0:29' },
   { from: 'ai', text: 'Perfect. I have a deal that fits. Sending it over to you right now.', ts: '0:35' },
-  { from: 'captured', text: 'SFR · Under $150K · Atlanta, GA · Flip · Close 10–14 days', ts: '0:37' },
+  { from: 'captured', text: 'SFR · Under $150K · Atlanta, GA · Flip · Close 10-14 days', ts: '0:37' },
 ] as const
 
 const TIMINGS = [800, 3000, 4700, 6100, 7500, 9000]
@@ -110,7 +110,7 @@ export default function AiCallDemo() {
         {/* Right: call widget */}
         <div style={{ background: 'var(--white)', border: '1px solid var(--gray-200)', borderRadius: 18, boxShadow: 'var(--shadow-lg)', overflow: 'hidden' }}>
 
-          {/* Call header — dark phone-call style */}
+          {/* Call header - dark phone-call style */}
           <div style={{ background: '#0f172a', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--blue-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 0 0 3px rgba(37,99,235,0.3)' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

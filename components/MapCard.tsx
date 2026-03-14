@@ -383,7 +383,7 @@ export default function MapCard() {
           overflow: 'visible',
         }}
       >
-        {/* Background layer — clipped */}
+        {/* Background layer - clipped */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#edf2f9' }}>
           {/* Grid lines */}
           <div
@@ -427,7 +427,7 @@ export default function MapCard() {
           ))}
         </div>
 
-        {/* Pins — overflow visible */}
+        {/* Pins - overflow visible */}
         {pins.map((pin, i) => (
           <PinComponent key={i} pin={pin} visible={isPinVisible(pin)} />
         ))}

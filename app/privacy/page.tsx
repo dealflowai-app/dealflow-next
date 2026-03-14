@@ -15,9 +15,9 @@ const sections = [
     title: '2. Information We Collect',
     body: `We collect information in the following ways:
 
-Information you provide directly: When you join our waitlist, create an account, or contact us, we collect your name, email address, phone number, professional role (wholesaler, cash buyer, or both), and any other information you choose to provide.
+Information you provide directly: When you join our waitlist, create an account, or contact us, we collect your name, email address, phone number, and any other information you choose to provide.
 
-Property and transaction data: If you are a wholesaler, you may upload property details, contract information, and deal-related documents. If you are a buyer, you may provide your investment criteria, purchase history, and preferences.
+Property and transaction data: You may upload property details, contract information, and deal-related documents.
 
 AI call data: When our AI voice agents contact you or call buyers on your behalf, those calls may be recorded and transcribed. Call recordings and transcripts are stored and used to update buyer profiles, improve matching accuracy, and for quality assurance. All calls are subject to applicable federal and state wiretapping and call recording laws.
 
@@ -46,7 +46,7 @@ Communications: If you contact us by email or other means, we retain those commu
     title: '4. AI Voice Calls and TCPA Compliance',
     body: `DealFlow AI uses artificial intelligence voice agents to contact real estate investors and cash buyers on behalf of wholesalers using our platform. This section is important.
 
-Consent: By registering as a cash buyer or providing your phone number to DealFlow AI or a wholesaler using our platform, you expressly consent to receive automated and pre-recorded calls and text messages from DealFlow AI and its users at the number you provide. This consent is not a condition of any purchase.
+Consent: Cash buyers and investors whose contact information is sourced from public records or provided to wholesalers using our platform may receive automated and pre-recorded calls and text messages from DealFlow AI on behalf of wholesalers. Recipients may opt out at any time as described below.
 
 Opt-out: You may opt out of AI-initiated calls or texts at any time by replying STOP to any text message, stating "remove me" or "do not call" during any call, or emailing hello@dealflow.ai. Opt-out requests are processed within 24 hours and applied across the platform.
 
@@ -60,7 +60,7 @@ Do Not Call Registry: We honor the National Do Not Call Registry. Wholesalers us
     title: '5. Information Sharing and Disclosure',
     body: `We do not sell your personal information. We may share your information in the following circumstances:
 
-With other platform users: Wholesalers can see buyer profiles including investment criteria, preferred markets, and deal history. Buyers can see deal details submitted by wholesalers. Personally identifiable contact information is only shared when both parties have been matched and a deal interaction has been initiated.
+With other platform users: Wholesalers can see buyer lead profiles including investment criteria, preferred markets, and deal history within their account. Personally identifiable contact information is used for outreach purposes within the platform only.
 
 With service providers: We share information with trusted vendors who help us operate the platform, including cloud infrastructure (Supabase), AI calling (Vapi.ai), communication services (Twilio), payment processing (Stripe), contract generation (Anvil), and data providers (ATTOM, Melissa Data). These providers are contractually bound to handle your data only as necessary to provide their services.
 

@@ -137,7 +137,6 @@ export default function CtaSection() {
               >
                 <option value="" disabled>I am a...</option>
                 <option value="wholesaler">Real estate wholesaler</option>
-                <option value="buyer">Cash buyer / investor</option>
                 <option value="agent">Agent</option>
                 <option value="other">Other</option>
               </select>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 
-// GET /api/campaigns — list all campaigns for current user
+// GET /api/campaigns - list all campaigns for current user
 export async function GET(req: NextRequest) {
   try {
     const supabase = createClient()
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/campaigns — create a new campaign
+// POST /api/campaigns - create a new campaign
 export async function POST(req: NextRequest) {
   try {
     const supabase = createClient()
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     // If launching now, trigger the calling engine
     if (!scheduledAt && mode === 'AI') {
-      // Fire and forget — don't await
+      // Fire and forget - don't await
       triggerCampaign(campaign.id, buyers.map(b => ({
         callId: '',
         buyerId: b.id,
@@ -145,7 +145,7 @@ interface CampaignConfig {
 async function triggerCampaign(campaignId: string, buyers: BuyerCall[], config: CampaignConfig) {
   const BLAND_KEY = process.env.BLAND_API_KEY
   if (!BLAND_KEY) {
-    console.log('No BLAND_API_KEY set — skipping actual calls in development')
+    console.log('No BLAND_API_KEY set - skipping actual calls in development')
     return
   }
 
@@ -171,11 +171,11 @@ async function triggerCampaign(campaignId: string, buyers: BuyerCall[], config: 
             return
           }
 
-          // Compliance check — only call during allowed hours in buyer's timezone
+          // Compliance check - only call during allowed hours in buyer's timezone
           const now = new Date()
           const hour = now.getHours()
           if (hour < 9 || hour > 19) {
-            console.log(`Skipping call to ${buyer.phone} — outside calling hours`)
+            console.log(`Skipping call to ${buyer.phone} - outside calling hours`)
             return
           }
 
@@ -247,28 +247,28 @@ You are ${agent}, a real estate acquisition specialist calling on behalf of ${co
 
 You are calling to speak with a cash real estate investor about potential deals in ${market}.
 
-STEP 1 — Introduction:
-"Hi, this is ${agent} calling from ${company}. I'm reaching out because our records show you've been an active cash buyer in ${market}. I have a quick question for you — are you still actively buying investment properties in this area?"
+STEP 1 - Introduction:
+"Hi, this is ${agent} calling from ${company}. I'm reaching out because our records show you've been an active cash buyer in ${market}. I have a quick question for you - are you still actively buying investment properties in this area?"
 
 If YES, proceed to Step 2.
 If NO or not interested, thank them politely and end the call. Mark as NOT_BUYING.
 
-STEP 2 — Qualify their buy box:
+STEP 2 - Qualify their buy box:
 Ask these questions naturally in conversation (not as a list):
-1. "What types of properties are you focused on right now — single family, multifamily, or land?"
+1. "What types of properties are you focused on right now - single family, multifamily, or land?"
 2. "What price range are you working in?"
 3. "Are you more of a fix-and-flip investor or do you prefer buy-and-hold for rentals?"
-4. "And roughly, if the right deal came along — how quickly could you close?"
+4. "And roughly, if the right deal came along - how quickly could you close?"
 
-STEP 3 — Close:
-"Perfect, that's really helpful. I'm going to add you to our buyer network and send you deals that match exactly what you just described — only properties that fit your criteria. Would that be alright?"
+STEP 3 - Close:
+"Perfect, that's really helpful. I'm going to add you to our buyer network and send you deals that match exactly what you just described - only properties that fit your criteria. Would that be alright?"
 
 If yes: "Great. I'll have our system send you details on any new matches in ${market}. Thanks for your time, have a great day."
 
 IMPORTANT RULES:
 - Be conversational, not robotic. Listen and adapt.
 - Never push someone who says they're not buying.
-- If asked if you're an AI, be transparent: "Yes, I'm an AI assistant — but the deals and the team behind them are very real."
+- If asked if you're an AI, be transparent: "Yes, I'm an AI assistant - but the deals and the team behind them are very real."
 - Keep the call under 5 minutes.
 - Do not discuss specific deals unless specifically prompted.
     `.trim(),
@@ -276,10 +276,10 @@ IMPORTANT RULES:
     check_in: `
 You are ${agent} from ${company}, calling to check in with an existing buyer contact in ${market}.
 
-"Hi, this is ${agent} from ${company}. We've worked together before and I just wanted to do a quick check-in — are you still actively looking for investment properties in ${market}?"
+"Hi, this is ${agent} from ${company}. We've worked together before and I just wanted to do a quick check-in - are you still actively looking for investment properties in ${market}?"
 
 If yes, ask:
-- "Has anything changed in your buy box — price range or property types?"
+- "Has anything changed in your buy box - price range or property types?"
 - "How's your timeline looking for your next deal?"
 
 Keep it brief and friendly. This is a relationship call, not a hard pitch.

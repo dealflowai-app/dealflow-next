@@ -3,14 +3,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { type Profile, Role } from '@prisma/client'
+import { type Profile } from '@prisma/client'
 import {
   LayoutDashboard,
   FileText,
   Plus,
   Radar,
-  Crosshair,
-  Rss,
   Settings,
   LogOut,
   Activity,
@@ -22,26 +20,21 @@ interface NavItem {
   label: string
   href: string
   icon: React.ElementType
-  roles: Role[]
 }
 
 const navItems: NavItem[] = [
-  { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH] },
-  { label: 'My Deals', href: '/dashboard/deals', icon: FileText, roles: [Role.WHOLESALER, Role.BOTH] },
-  { label: 'Submit Deal', href: '/dashboard/deals/new', icon: Plus, roles: [Role.WHOLESALER, Role.BOTH] },
-  { label: 'Discovery', href: '/dashboard/buyers', icon: Radar, roles: [Role.WHOLESALER, Role.BOTH] },
-  { label: 'Buy Box', href: '/dashboard/buyerbox', icon: Crosshair, roles: [Role.BUYER, Role.BOTH] },
-  { label: 'Deal Feed', href: '/dashboard/feed', icon: Rss, roles: [Role.BUYER, Role.BOTH] },
-  { label: 'Activity', href: '/dashboard/activity', icon: Activity, roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH] },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings, roles: [Role.WHOLESALER, Role.BUYER, Role.BOTH] },
+  { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'My Deals', href: '/dashboard/deals', icon: FileText },
+  { label: 'Submit Deal', href: '/dashboard/deals/new', icon: Plus },
+  { label: 'Discovery', href: '/dashboard/buyers', icon: Radar },
+  { label: 'Activity', href: '/dashboard/activity', icon: Activity },
+  { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
 export default function Sidebar({ profile }: { profile: Profile }) {
   const pathname = usePathname()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
-
-  const visibleItems = navItems.filter(item => item.roles.includes(profile.role))
 
   const initials =
     profile.firstName && profile.lastName
@@ -79,7 +72,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       {/* Nav */}
       <nav className="flex-1 px-2.5 py-3 overflow-y-auto">
         <div className="space-y-px">
-          {visibleItems.map(item => {
+          {navItems.map(item => {
             const Icon = item.icon
             const isActive =
               item.href === '/dashboard'

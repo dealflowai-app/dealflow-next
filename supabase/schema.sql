@@ -11,7 +11,7 @@
 create table if not exists waitlist (
   id          uuid primary key default gen_random_uuid(),
   email       text not null unique,
-  role        text check (role in ('wholesaler', 'buyer', 'agent', 'other')),
+  role        text check (role in ('wholesaler', 'agent', 'other')),
   source      text default 'hero',          -- which form they came from
   ip          text,                          -- optional, for dedup
   created_at  timestamptz default now()
