@@ -49,7 +49,7 @@ function statusBadge(s: string) {
     case 'Running': return 'text-emerald-700 bg-emerald-50'
     case 'Paused': return 'text-amber-700 bg-amber-50'
     case 'Completed': return 'text-[#6B7280] bg-gray-100'
-    case 'Scheduled': return 'text-[#4F46E5] bg-[#EEF2FF]'
+    case 'Scheduled': return 'text-[#2563EB] bg-[#EFF6FF]'
     default: return 'text-[#6B7280] bg-gray-100'
   }
 }
@@ -241,7 +241,7 @@ function callStatusStyle(s: string) {
 function outcomeStyle(o: string) {
   switch (o) {
     case 'Qualified': return 'text-emerald-700 bg-emerald-50'
-    case 'Interested': return 'text-[#4F46E5] bg-[#EEF2FF]'
+    case 'Interested': return 'text-[#2563EB] bg-[#EFF6FF]'
     case 'Not Interested': return 'text-gray-500 bg-gray-100'
     case 'Callback': return 'text-amber-700 bg-amber-50'
     case 'Wrong Number': return 'text-rose-700 bg-rose-50'
@@ -285,7 +285,7 @@ function CampaignList({ onViewDetail }: { onViewDetail: () => void }) {
                 )}
                 <button
                   onClick={onViewDetail}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-[#EEF2FF] bg-transparent border-0 cursor-pointer transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#2563EB] hover:bg-[#EFF6FF] bg-transparent border-0 cursor-pointer transition-colors"
                 >
                   View Details
                 </button>
@@ -310,7 +310,7 @@ function CampaignList({ onViewDetail }: { onViewDetail: () => void }) {
               <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
-                    c.status === 'Running' ? 'bg-emerald-500' : c.status === 'Paused' ? 'bg-amber-400' : 'bg-[#4F46E5]'
+                    c.status === 'Running' ? 'bg-emerald-500' : c.status === 'Paused' ? 'bg-amber-400' : 'bg-[#2563EB]'
                   }`}
                   style={{ width: `${pct}%` }}
                 />
@@ -321,7 +321,7 @@ function CampaignList({ onViewDetail }: { onViewDetail: () => void }) {
             <div className="flex items-center gap-4 text-[0.74rem] flex-wrap">
               <span className="text-gray-500">Connect: <strong className="text-gray-700">{c.connect}%</strong></span>
               <span className="text-gray-500">Qualified: <strong className="text-emerald-600">{c.qualified}</strong></span>
-              <span className="text-gray-500">Interested: <strong className="text-[#4F46E5]">{c.interested}</strong></span>
+              <span className="text-gray-500">Interested: <strong className="text-[#2563EB]">{c.interested}</strong></span>
               <span className="text-gray-500">Not Interested: <strong className="text-gray-600">{c.notInterested}</strong></span>
               <span className="text-gray-500">No Answer: <strong className="text-gray-600">{c.noAnswer}</strong></span>
               {c.callback > 0 && <span className="text-gray-500">Callback: <strong className="text-amber-600">{c.callback}</strong></span>}
@@ -343,7 +343,7 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
     { label: 'Total Calls', value: c.made, color: 'bg-gray-100 text-gray-700' },
     { label: 'Connected', value: 47, color: 'bg-emerald-50 text-emerald-700' },
     { label: 'Qualified', value: c.qualified, color: 'bg-emerald-50 text-emerald-700' },
-    { label: 'Interested', value: c.interested, color: 'bg-[#EEF2FF] text-[#4F46E5]' },
+    { label: 'Interested', value: c.interested, color: 'bg-[#EFF6FF] text-[#2563EB]' },
     { label: 'Not Interested', value: c.notInterested, color: 'bg-gray-100 text-gray-600' },
     { label: 'No Answer', value: c.noAnswer, color: 'bg-gray-100 text-gray-500' },
     { label: 'Callback', value: c.callback, color: 'bg-amber-50 text-amber-700' },
@@ -354,7 +354,7 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
   const total = 89
   const segments = [
     { label: 'Qualified', pct: 26, color: 'bg-emerald-500' },
-    { label: 'Interested', pct: 16, color: 'bg-[#4F46E5]' },
+    { label: 'Interested', pct: 16, color: 'bg-[#2563EB]' },
     { label: 'Not Interested', pct: 9, color: 'bg-gray-400' },
     { label: 'Callback', pct: 7, color: 'bg-amber-400' },
     { label: 'No Answer', pct: 37, color: 'bg-gray-200' },
@@ -445,7 +445,7 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
                   {r.hasRecording && (
                     <button
                       onClick={onShowTranscript}
-                      className="flex items-center gap-1 text-[0.72rem] text-[#4F46E5] hover:text-[#4338CA] bg-transparent border-0 cursor-pointer transition-colors ml-auto"
+                      className="flex items-center gap-1 text-[0.72rem] text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer transition-colors ml-auto"
                     >
                       <Play className="w-3 h-3" /> Recording
                     </button>
@@ -484,7 +484,7 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
         {/* Audio waveform placeholder */}
         <div className="px-6 py-3 border-b border-[#F3F4F6]">
           <div className="flex items-center gap-3">
-            <button className="w-8 h-8 rounded-full bg-[#4F46E5] hover:bg-[#4338CA] flex items-center justify-center cursor-pointer border-0 transition-colors flex-shrink-0">
+            <button className="w-8 h-8 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] flex items-center justify-center cursor-pointer border-0 transition-colors flex-shrink-0">
               <Play className="w-3.5 h-3.5 text-white ml-0.5" />
             </button>
             <div className="flex-1 flex items-center gap-[2px] h-8">
@@ -493,7 +493,7 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
                 return (
                   <div
                     key={i}
-                    className={`flex-1 rounded-full ${i < 35 ? 'bg-[#4F46E5]' : 'bg-gray-200'}`}
+                    className={`flex-1 rounded-full ${i < 35 ? 'bg-[#2563EB]' : 'bg-gray-200'}`}
                     style={{ height: h, minWidth: 2 }}
                   />
                 )
@@ -509,7 +509,7 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
             <div key={i} className={`flex gap-3 ${line.speaker === 'ai' ? '' : 'flex-row-reverse'}`}>
               <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
                 line.speaker === 'ai'
-                  ? 'bg-gradient-to-br from-[#4F46E5] to-[#4338CA]'
+                  ? 'bg-gradient-to-br from-[#2563EB] to-[#1D4ED8]'
                   : 'bg-gradient-to-br from-gray-400 to-gray-500'
               }`}>
                 {line.speaker === 'ai'
@@ -519,7 +519,7 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
               </div>
               <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl ${
                 line.speaker === 'ai'
-                  ? 'bg-[#EEF2FF] text-[#374151] rounded-tl-md'
+                  ? 'bg-[#EFF6FF] text-[#374151] rounded-tl-md'
                   : 'bg-gray-100 text-[#374151] rounded-tr-md'
               }`}>
                 <div className="text-[0.66rem] font-medium text-gray-400 mb-0.5 uppercase tracking-wide">
@@ -533,22 +533,22 @@ function TranscriptPanel({ onClose }: { onClose: () => void }) {
 
         {/* AI Summary */}
         <div className="px-6 pb-6">
-          <div className="bg-gradient-to-br from-[#EEF2FF] to-violet-50 border border-[#C7D2FE] rounded-lg px-5 py-4">
+          <div className="bg-gradient-to-br from-[#EFF6FF] to-violet-50 border border-[#BFDBFE] rounded-lg px-5 py-4">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-[#4F46E5]" />
-              <span className="text-[0.78rem] font-semibold text-[#312E81]">AI Summary</span>
+              <Sparkles className="w-4 h-4 text-[#2563EB]" />
+              <span className="text-[0.78rem] font-semibold text-[#1E3A8A]">AI Summary</span>
             </div>
             <p className="text-[0.8rem] text-[#374151] leading-relaxed mb-3">
               Qualified buyer. SFR, under $200K, flip strategy, 85031/85033/Maryvale, 10-day close. Cash buyer with active deal flow.
             </p>
             <div className="flex flex-wrap gap-1.5">
               {['Phoenix', 'SFR', 'Flip', 'Fast Closer', 'Cash Buyer', 'Qualified'].map(t => (
-                <span key={t} className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full bg-white text-[#4F46E5] border border-[#C7D2FE]">
+                <span key={t} className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full bg-white text-[#2563EB] border border-[#BFDBFE]">
                   {t}
                 </span>
               ))}
             </div>
-            <p className="text-[0.72rem] text-[#4F46E5] mt-2.5 flex items-center gap-1">
+            <p className="text-[0.72rem] text-[#2563EB] mt-2.5 flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" /> Added to CRM with tags
             </p>
           </div>
@@ -574,16 +574,16 @@ function CallLog() {
       <div className="flex items-center gap-3 mb-4">
         <div className="relative">
           <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-          <input type="text" defaultValue="Mar 1, 2026" className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#4F46E5] w-[140px]" />
+          <input type="text" defaultValue="Mar 1, 2026" className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] w-[140px]" />
         </div>
         <span className="text-sm text-[#9CA3AF]">to</span>
         <div className="relative">
           <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-          <input type="text" defaultValue="Mar 13, 2026" className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#4F46E5] w-[140px]" />
+          <input type="text" defaultValue="Mar 13, 2026" className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] w-[140px]" />
         </div>
         <div className="relative ml-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-          <input type="text" placeholder="Search calls..." className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#4F46E5] w-[200px]" />
+          <input type="text" placeholder="Search calls..." className="bg-white border border-[#D1D5DB] rounded-md pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] w-[200px]" />
         </div>
       </div>
 
@@ -614,7 +614,7 @@ function CallLog() {
                 <td className="px-4 py-2.5 text-right">
                   <div className="flex items-center justify-end gap-1">
                     {r.status === 'Connected' && (
-                      <button className="p-1 rounded-md text-gray-400 hover:text-[#4F46E5] hover:bg-[#EEF2FF] bg-transparent border-0 cursor-pointer transition-colors">
+                      <button className="p-1 rounded-md text-gray-400 hover:text-[#2563EB] hover:bg-[#EFF6FF] bg-transparent border-0 cursor-pointer transition-colors">
                         <Play className="w-3.5 h-3.5" />
                       </button>
                     )}
@@ -671,7 +671,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
             {steps.map((s, i) => (
               <div key={s} className="flex items-center gap-2 flex-1">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[0.68rem] font-bold flex-shrink-0 ${
-                  i + 1 <= step ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-400'
+                  i + 1 <= step ? 'bg-[#2563EB] text-white' : 'bg-gray-100 text-gray-400'
                 }`}>
                   {i + 1}
                 </div>
@@ -694,7 +694,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
                 <input
                   type="text"
                   placeholder="e.g., Phoenix Cash Buyers: March"
-                  className="w-full bg-white border border-[#D1D5DB] rounded-md px-4 py-2.5 text-[0.84rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#4F46E5] transition-colors"
+                  className="w-full bg-white border border-[#D1D5DB] rounded-md px-4 py-2.5 text-[0.84rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] transition-colors"
                 />
               </div>
 
@@ -711,17 +711,17 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
                         onClick={() => setCampaignType(t.key)}
                         className={`flex items-start gap-3 px-4 py-3.5 rounded-lg border text-left cursor-pointer transition-all ${
                           selected
-                            ? 'border-[#4F46E5] bg-[#EEF2FF] ring-1 ring-[#C7D2FE]'
+                            ? 'border-[#2563EB] bg-[#EFF6FF] ring-1 ring-[#BFDBFE]'
                             : 'border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]'
                         }`}
                       >
                         <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          selected ? 'bg-[#4F46E5]' : 'bg-gray-100'
+                          selected ? 'bg-[#2563EB]' : 'bg-gray-100'
                         }`}>
                           <Icon className={`w-4 h-4 ${selected ? 'text-white' : 'text-gray-500'}`} />
                         </div>
                         <div>
-                          <div className={`text-[0.82rem] font-medium ${selected ? 'text-[#312E81]' : 'text-[#374151]'}`}>{t.key}</div>
+                          <div className={`text-[0.82rem] font-medium ${selected ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.key}</div>
                           <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
                         </div>
                       </button>
@@ -734,7 +734,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
               <div>
                 <label className="text-[0.78rem] text-gray-600 mb-1.5 block font-medium">Target Market</label>
                 <div className="relative">
-                  <select className="appearance-none w-full bg-white border border-[#D1D5DB] rounded-md pl-4 pr-8 py-2.5 text-[0.84rem] text-[#374151] outline-none focus:border-[#4F46E5] cursor-pointer">
+                  <select className="appearance-none w-full bg-white border border-[#D1D5DB] rounded-md pl-4 pr-8 py-2.5 text-[0.84rem] text-[#374151] outline-none focus:border-[#2563EB] cursor-pointer">
                     <option>Phoenix, AZ</option>
                     <option>Dallas, TX</option>
                     <option>Atlanta, GA</option>
@@ -789,7 +789,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
           {step < 4 ? (
             <button
               onClick={() => setStep(step + 1)}
-              className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
             >
               Continue <ChevronRight className="w-4 h-4" />
             </button>
@@ -833,7 +833,7 @@ export default function AIOutreachPage() {
         </div>
         <button
           onClick={() => setShowNewCampaign(true)}
-          className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Campaign
@@ -876,7 +876,7 @@ export default function AIOutreachPage() {
               onClick={() => setSubTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
                 subTab === tab.key
-                  ? 'border-[#4F46E5] text-[#4F46E5]'
+                  ? 'border-[#2563EB] text-[#2563EB]'
                   : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >

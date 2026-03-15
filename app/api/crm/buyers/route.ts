@@ -1,0 +1,204 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { getAuthProfile } from '@/lib/auth'
+import { Prisma } from '@prisma/client'
+import { logActivity } from '@/lib/activity'
+
+export async function GET(req: NextRequest) {
+  try {
+    const { profile, error, status } = await getAuthProfile()
+    if (!profile) return NextResponse.json({ error }, { status })
+
+    const params = req.nextUrl.searchParams
+    const page = Math.max(1, parseInt(params.get('page') || '1'))
+    const limit = Math.min(100, Math.max(1, parseInt(params.get('limit') || '25')))
+    const search = params.get('search') || ''
+    const statusFilter = params.get('status') || ''
+    const market = params.get('market') || ''
+    const scoreMin = params.get('scoreMin') ? parseInt(params.get('scoreMin')!) : undefined
+    const type = params.get('type') || ''
+    const strategy = params.get('strategy') || ''
+    const tag = params.get('tag') || ''
+    const motivationParam = params.get('motivation') || ''
+    const sortBy = params.get('sortBy') || 'createdAt'
+    const sortOrder = (params.get('sortOrder') || 'desc') as 'asc' | 'desc'
+
+    const archived = params.get('archived') === 'true'
+
+    const where: Prisma.CashBuyerWhereInput = {
+      profileId: profile.id,
+      isOptedOut: archived,
+    }
+
+    if (search) {
+      where.OR = [
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { entityName: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+
+    if (statusFilter) {
+      where.status = statusFilter as Prisma.EnumBuyerStatusFilter['equals']
+    }
+
+    if (market) {
+      where.preferredMarkets = { has: market }
+    }
+
+    if (scoreMin !== undefined) {
+      where.buyerScore = { gte: scoreMin }
+    }
+
+    if (type) {
+      where.primaryPropertyType = type as Prisma.EnumPropertyTypeNullableFilter['equals']
+    }
+
+    if (strategy) {
+      where.strategy = strategy as Prisma.EnumInvestorStrategyNullableFilter['equals']
+    }
+
+    if (tag) {
+      where.tags = {
+        some: { tag: { name: tag } },
+      }
+    }
+
+    if (motivationParam) {
+      where.motivation = motivationParam as Prisma.EnumBuyerMotivationNullableFilter['equals']
+    }
+
+    const allowedSortFields = [
+      'createdAt', 'updatedAt', 'buyerScore', 'lastContactedAt',
+      'firstName', 'entityName', 'cashPurchaseCount',
+    ]
+    const orderField = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt'
+
+    const [buyers, total, statusCounts] = await Promise.all([
+      prisma.cashBuyer.findMany({
+        where,
+        include: {
+          tags: {
+            include: {
+              tag: { select: { name: true, label: true, color: true, type: true } },
+            },
+          },
+        },
+        orderBy: { [orderField]: sortOrder },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.cashBuyer.count({ where }),
+      prisma.cashBuyer.groupBy({
+        by: ['status'],
+        where: { profileId: profile.id, isOptedOut: archived },
+        _count: true,
+      }),
+    ])
+
+    const stats = statusCounts.reduce(
+      (acc, row) => {
+        acc[row.status] = row._count
+        return acc
+      },
+      {} as Record<string, number>,
+    )
+
+    return NextResponse.json({
+      buyers,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      stats,
+    })
+  } catch (err) {
+    console.error('GET /api/crm/buyers error:', err)
+    return NextResponse.json({ error: 'Failed to fetch buyers', detail: err instanceof Error ? err.message : String(err) }, { status: 500 })
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { profile, error, status } = await getAuthProfile()
+    if (!profile) return NextResponse.json({ error }, { status })
+
+    let body: Record<string, unknown>
+    try {
+      body = await req.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    }
+
+    if (!body.firstName && !body.entityName) {
+      return NextResponse.json(
+        { error: 'Either firstName or entityName is required' },
+        { status: 400 },
+      )
+    }
+
+    if (body.phone) {
+      const existing = await prisma.cashBuyer.findFirst({
+        where: { profileId: profile.id, phone: body.phone as string | undefined, isOptedOut: false },
+      })
+      if (existing) {
+        return NextResponse.json(
+          { error: 'A buyer with this phone number already exists', existingId: existing.id },
+          { status: 409 },
+        )
+      }
+    }
+
+    const contactEnriched = !!(body.phone && body.email)
+
+    const createData = {
+      profileId: profile.id,
+      firstName: body.firstName || null,
+      lastName: body.lastName || null,
+      entityName: body.entityName || null,
+      entityType: body.entityType || null,
+      phone: body.phone || null,
+      email: body.email || null,
+      address: body.address || null,
+      city: body.city || null,
+      state: body.state || null,
+      zip: body.zip || null,
+      primaryPropertyType: body.primaryPropertyType || null,
+      strategy: body.strategy || null,
+      preferredMarkets: body.preferredMarkets || [],
+      preferredTypes: body.preferredTypes || [],
+      minPrice: body.minPrice ?? null,
+      maxPrice: body.maxPrice ?? null,
+      notes: body.notes || null,
+      buyerScore: body.buyerScore ?? 0,
+      motivation: body.motivation || null,
+      buyerType: body.buyerType || null,
+      fundingSource: body.fundingSource || null,
+      conditionPreference: body.conditionPreference || null,
+      communicationPref: body.communicationPref || null,
+      preferredZips: body.preferredZips || [],
+      portfolioSize: body.portfolioSize ?? null,
+      avgPurchasePrice: body.avgPurchasePrice ?? null,
+      followUpDate: body.followUpDate ? new Date(body.followUpDate as string) : null,
+      source: body.source || null,
+      assignedTo: body.assignedTo || null,
+      contactEnriched,
+      enrichedAt: contactEnriched ? new Date() : null,
+    }
+
+    const buyer = await prisma.cashBuyer.create({
+      data: createData as never,
+    })
+
+    logActivity({
+      buyerId: buyer.id,
+      profileId: profile.id,
+      type: 'created',
+      title: `Buyer ${buyer.firstName || buyer.entityName || ''} created`,
+    })
+
+    return NextResponse.json({ buyer }, { status: 201 })
+  } catch (err) {
+    console.error('POST /api/crm/buyers error:', err)
+    return NextResponse.json({ error: 'Failed to create buyer', detail: err instanceof Error ? err.message : String(err) }, { status: 500 })
+  }
+}

@@ -268,7 +268,7 @@ function FeedSection() {
           <button className="flex items-center gap-1.5 text-[#9CA3AF] hover:text-[#6B7280] cursor-pointer bg-transparent border-0 transition-colors">
             <ImageIcon className="w-4 h-4" />
           </button>
-          <button className="bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-4 py-2 text-[0.8rem] font-medium cursor-pointer transition-colors flex items-center gap-1.5">
+          <button className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.8rem] font-medium cursor-pointer transition-colors flex items-center gap-1.5">
             <Send className="w-3.5 h-3.5" />
             Post
           </button>
@@ -311,7 +311,7 @@ function FeedSection() {
                   <Heart className="w-4 h-4" fill={isLiked ? 'currentColor' : 'none'} />
                   {likeCount}
                 </button>
-                <button className="flex items-center gap-1.5 text-[0.78rem] text-[#9CA3AF] hover:text-[#4F46E5] cursor-pointer bg-transparent border-0 transition-colors">
+                <button className="flex items-center gap-1.5 text-[0.78rem] text-[#9CA3AF] hover:text-[#2563EB] cursor-pointer bg-transparent border-0 transition-colors">
                   <MessageCircle className="w-4 h-4" />
                   {post.comments}
                 </button>
@@ -376,7 +376,7 @@ function GroupsSection() {
                 className={`w-full py-2 rounded-md text-[0.8rem] font-medium cursor-pointer transition-all border ${
                   isJoined
                     ? 'bg-white border-[#D1D5DB] text-[#374151] hover:border-[#9CA3AF]'
-                    : 'bg-[#4F46E5] border-[#4F46E5] text-white hover:bg-[#4338CA]'
+                    : 'bg-[#2563EB] border-[#2563EB] text-white hover:bg-[#1D4ED8]'
                 }`}
               >
                 {isJoined ? (
@@ -411,7 +411,7 @@ function NewsSection() {
             <span
               className={`text-[0.66rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${
                 item.source === 'DealFlow AI'
-                  ? 'text-[#4338CA] bg-[#EEF2FF]'
+                  ? 'text-[#1D4ED8] bg-[#EFF6FF]'
                   : 'text-amber-700 bg-amber-50'
               }`}
             >
@@ -419,7 +419,7 @@ function NewsSection() {
             </span>
             <span className="text-sm text-[#9CA3AF]">{item.date}</span>
           </div>
-          <h3 className="text-[0.9rem] font-medium text-[#111827] mb-1.5 group-hover:text-[#4F46E5] transition-colors flex items-center gap-1.5">
+          <h3 className="text-[0.9rem] font-medium text-[#111827] mb-1.5 group-hover:text-[#2563EB] transition-colors flex items-center gap-1.5">
             {item.title}
             <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
           </h3>
@@ -457,13 +457,13 @@ function InboxSection() {
               key={c.id}
               onClick={() => setActiveConvo(c.id)}
               className={`w-full flex items-center gap-3 px-4 py-3.5 cursor-pointer border-0 text-left transition-colors ${
-                activeConvo === c.id ? 'bg-[#EEF2FF]' : 'bg-white hover:bg-[#F9FAFB]'
+                activeConvo === c.id ? 'bg-[#EFF6FF]' : 'bg-white hover:bg-[#F9FAFB]'
               }`}
             >
               <div className="relative flex-shrink-0">
                 <Avatar initials={c.initials} size={38} />
                 {c.unread && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-[#4F46E5] rounded-full border-2 border-white" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-[#2563EB] rounded-full border-2 border-white" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -497,12 +497,12 @@ function InboxSection() {
               <div
                 className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${
                   msg.from === 'me'
-                    ? 'bg-[#4F46E5] text-white rounded-br-md'
+                    ? 'bg-[#2563EB] text-white rounded-br-md'
                     : 'bg-[#F3F4F6] text-[#111827] rounded-bl-md'
                 }`}
               >
                 <p className="text-[0.82rem] leading-relaxed">{msg.text}</p>
-                <p className={`text-[0.66rem] mt-1 ${msg.from === 'me' ? 'text-[#C7D2FE]' : 'text-[#9CA3AF]'}`}>
+                <p className={`text-[0.66rem] mt-1 ${msg.from === 'me' ? 'text-[#BFDBFE]' : 'text-[#9CA3AF]'}`}>
                   {msg.time}
                 </p>
               </div>
@@ -518,7 +518,7 @@ function InboxSection() {
               placeholder="Type a message..."
               className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[0.82rem] text-[#374151] placeholder-[#9CA3AF] outline-none focus:border-[#A5B4FC] focus:bg-white transition-colors"
             />
-            <button className="bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md p-2.5 cursor-pointer transition-colors flex items-center justify-center">
+            <button className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md p-2.5 cursor-pointer transition-colors flex items-center justify-center">
               <Send className="w-4 h-4" />
             </button>
           </div>
@@ -559,14 +559,14 @@ export default function CommunityPage() {
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
                 isActive
-                  ? 'border-b-[#4F46E5] text-[#4F46E5]'
+                  ? 'border-b-[#2563EB] text-[#2563EB]'
                   : 'border-transparent text-[#9CA3AF] hover:text-[#6B7280]'
               }`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
               {tab.key === 'inbox' && (
-                <span className="bg-[#4F46E5] text-white text-[0.62rem] font-semibold w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ width: 18, height: 18 }}>
+                <span className="bg-[#2563EB] text-white text-[0.62rem] font-semibold w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ width: 18, height: 18 }}>
                   2
                 </span>
               )}

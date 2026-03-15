@@ -78,6 +78,48 @@ enum InvestorStrategy {
   COMMERCIAL
 }
 
+enum BuyerMotivation {
+  HOT           // Ready to buy now, actively looking
+  WARM          // Interested, needs the right deal
+  COLD          // Not actively looking but open
+  NOT_INTERESTED
+  DNC           // Do not contact
+}
+
+enum BuyerType {
+  CASH_BUYER
+  FLIPPER
+  LANDLORD
+  WHOLESALER
+  DEVELOPER
+  OWNER_OCCUPANT
+  HEDGE_FUND
+}
+
+enum FundingSource {
+  CASH
+  HARD_MONEY
+  CONVENTIONAL
+  PRIVATE_MONEY
+  SELF_DIRECTED_IRA
+  LINE_OF_CREDIT
+}
+
+enum ConditionPreference {
+  TURNKEY
+  LIGHT_REHAB
+  HEAVY_REHAB
+  TEARDOWN
+  ANY
+}
+
+enum CommunicationPreference {
+  CALL
+  TEXT
+  EMAIL
+  ANY
+}
+
 // ─── CORE MODELS ─────────────────────────────────────────────────────────────
 
 model Profile {
@@ -97,8 +139,50 @@ model Profile {
   savedMarkets    SavedMarket[]
   campaigns       Campaign[]
   deals           Deal[]
+  buyers          CashBuyer[]
+  scoringConfig   ScoringConfig?
+  tags            Tag[]
 
   @@map("profiles")
+}
+
+// ─── SCORING CONFIGURATION (per-user) ──────────────────────────────────────
+
+model ScoringConfig {
+  id        String @id @default(cuid())
+  profileId String @unique
+
+  // Custom weights (must sum to 100). Null = use system defaults.
+  weightTransaction    Int?   // default 25
+  weightRecency        Int?   // default 20
+  weightResponsiveness Int?   // default 20
+  weightCompleteness   Int?   // default 15
+  weightEngagement     Int?   // default 10
+  weightClosing        Int?   // default 10
+
+  // Status threshold overrides
+  highConfidenceMinScore   Int?   // default 75
+  highConfidenceMaxDays    Int?   // default 14
+  recentlyVerifiedMaxDays  Int?   // default 14
+  dormantMinDays           Int?   // default 90
+  dormantMaxScore          Int?   // default 20
+  activeMinScore           Int?   // default 40
+
+  // Decay multiplier overrides (0.0 - 1.0)
+  decay30to60  Float?  // default 0.9
+  decay60to90  Float?  // default 0.75
+  decay90to180 Float?  // default 0.5
+  decay180plus Float?  // default 0.25
+
+  // Custom tag definitions: [{ tag, label, scoreBonus }]
+  customTags Json?  // Array<{ tag: string, label: string, scoreBonus: number }>
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("scoring_configs")
 }
 
 // ─── MARKET & BUYER DISCOVERY ────────────────────────────────────────────────
@@ -124,6 +208,7 @@ model SavedMarket {
 model CashBuyer {
   id               String      @id @default(cuid())
   savedMarketId    String?
+  profileId        String?
   // Identity
   firstName        String?
   lastName         String?
@@ -148,11 +233,34 @@ model CashBuyer {
   enrichedAt       DateTime?
   isOptedOut       Boolean      @default(false)
   optedOutAt       DateTime?
-  // CRM data (built from calls)
+  // CRM data
   notes            String?
-  buyerScore       Int          @default(0)  // 0-100 dynamic score
+  buyerScore       Int          @default(0)  // 0-100, manually set by user
   lastContactedAt  DateTime?
   lastVerifiedAt   DateTime?
+  // Wholesaler-specific fields
+  motivation          BuyerMotivation?     // How motivated is this buyer right now
+  buyerType           BuyerType?           // What kind of buyer (flipper, landlord, etc.)
+  fundingSource       FundingSource?       // How they pay (cash, hard money, etc.)
+  conditionPreference ConditionPreference? // What condition properties they want
+  communicationPref   CommunicationPreference? // How they prefer to be contacted
+  preferredZips       String[]             // Specific zip codes they buy in
+  portfolioSize       Int?                 // How many properties they currently own
+  avgPurchasePrice    Int?                 // Average purchase price from history
+  followUpDate        DateTime?            // Next scheduled follow-up
+  source              String?              // Lead source (referral, driving, list, etc.)
+  assignedTo          String?              // Team member assigned to this buyer
+  // Manual scoring overrides
+  scorePinned      Boolean      @default(false)  // if true, auto-rescore skips this buyer
+  scoreOverride    Int?         // manually set score (replaces calculated score when set)
+  scoreAdjustment  Int          @default(0)       // +/- manual adjustment added to calculated score
+  overrideReason   String?      // why the score was manually overridden
+  overrideSetAt    DateTime?
+  // Custom tags for per-user classification (references ScoringConfig.customTags)
+  customTags       String[]     // e.g. ["vip", "repeat_buyer", "slow_closer"]
+  // AI Insights
+  aiInsight             String?
+  aiInsightGeneratedAt  DateTime?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
@@ -166,14 +274,76 @@ model CashBuyer {
   proofOfFundsVerified Boolean     @default(false)
 
   savedMarket   SavedMarket?   @relation(fields: [savedMarketId], references: [id])
-  campaignCalls CampaignCall[]
-  dealMatches   DealMatch[]
-  offers        Offer[]
+  profile       Profile?       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  campaignCalls  CampaignCall[]
+  dealMatches    DealMatch[]
+  offers         Offer[]
+  activityEvents ActivityEvent[]
+  tags           BuyerTag[]
 
   @@index([savedMarketId])
+  @@index([profileId])
   @@index([status])
   @@index([buyerScore])
   @@map("cash_buyers")
+}
+
+// ─── ACTIVITY TIMELINE ──────────────────────────────────────────────────────
+
+model ActivityEvent {
+  id        String   @id @default(cuid())
+  buyerId   String
+  profileId String
+
+  type      String   // "created" | "edited" | "archived" | "imported" | "score_updated" | "status_changed" | "call_completed" | "deal_matched" | "offer_received" | "note_added"
+  title     String   // human-readable summary e.g. "Score updated from 42 to 78"
+  detail    String?  // optional longer description
+  metadata  Json?    // arbitrary payload (changed fields, old/new values, etc.)
+
+  createdAt DateTime @default(now())
+
+  buyer   CashBuyer @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+
+  @@index([buyerId, createdAt(sort: Desc)])
+  @@index([profileId, createdAt(sort: Desc)])
+  @@index([type])
+  @@map("activity_events")
+}
+
+// ─── TAGS & SEGMENTATION ────────────────────────────────────────────────────
+
+model Tag {
+  id          String   @id @default(cuid())
+  profileId   String
+  name        String   // "repeat_closer", "hot_lead", "going_cold", etc.
+  label       String   // Human-readable: "Repeat Closer", "Hot Lead", "Going Cold"
+  color       String   // Hex color for UI pill: "#15803d", "#dc2626", etc.
+  type        String   // "auto" (system-generated) or "manual" (user-created)
+  description String?  // What this tag means
+  createdAt   DateTime @default(now())
+
+  profile Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  buyers  BuyerTag[]
+
+  @@unique([profileId, name])
+  @@index([profileId])
+  @@map("tags")
+}
+
+model BuyerTag {
+  id          String   @id @default(cuid())
+  buyerId     String
+  tagId       String
+  autoApplied Boolean  @default(false) // true if system applied it, false if user applied it
+  appliedAt   DateTime @default(now())
+
+  buyer CashBuyer @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  tag   Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([buyerId, tagId])
+  @@index([buyerId])
+  @@index([tagId])
+  @@map("buyer_tags")
 }
 
 // ─── CAMPAIGNS ───────────────────────────────────────────────────────────────

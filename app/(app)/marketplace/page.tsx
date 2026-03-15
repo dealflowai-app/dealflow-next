@@ -38,7 +38,7 @@ type Tab = (typeof tabs)[number]['key']
    ═══════════════════════════════════════════════ */
 function scoreStyle(grade: string) {
   if (grade.startsWith('A')) return 'bg-emerald-50 text-emerald-700 border-emerald-200'
-  if (grade.startsWith('B')) return 'bg-[#EEF2FF] text-[#4F46E5] border-[#C7D2FE]'
+  if (grade.startsWith('B')) return 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]'
   if (grade.startsWith('C')) return 'bg-amber-50 text-amber-700 border-amber-200'
   return 'bg-gray-50 text-[#6B7280] border-gray-200'
 }
@@ -90,7 +90,7 @@ function FilterSelect({ label, options }: { label: string; options: string[] }) 
   return (
     <div className="relative">
       <select
-        className="appearance-none bg-white border border-[#D1D5DB] rounded-md pl-3 pr-8 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#4F46E5] transition-colors cursor-pointer"
+        className="appearance-none bg-white border border-[#D1D5DB] rounded-md pl-3 pr-8 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
         defaultValue=""
       >
         <option value="" disabled>{label}</option>
@@ -143,7 +143,7 @@ function DealListingsSection() {
             <select
               value={sort}
               onChange={e => setSort(e.target.value)}
-              className="appearance-none bg-white border border-[#D1D5DB] rounded-md pl-3 pr-8 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#4F46E5] transition-colors cursor-pointer"
+              className="appearance-none bg-white border border-[#D1D5DB] rounded-md pl-3 pr-8 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
             >
               <option>Newest</option>
               <option>Highest Score</option>
@@ -187,7 +187,7 @@ function DealListingsSection() {
             <div className="px-4 py-3.5">
               <div className="flex items-start justify-between mb-1.5">
                 <div className="min-w-0">
-                  <h3 className="text-[0.88rem] font-medium text-[#111827] truncate group-hover:text-[#4F46E5] transition-colors">
+                  <h3 className="text-[0.88rem] font-medium text-[#111827] truncate group-hover:text-[#2563EB] transition-colors">
                     {d.address}
                   </h3>
                   <div className="flex items-center gap-1 text-sm text-[#9CA3AF]">
@@ -249,7 +249,7 @@ function BuyerBoardSection() {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <p className="text-[0.82rem] text-[#374151]">Active buy box criteria posted by wholesalers for their verified buyers.</p>
-        <button className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Plus className="w-4 h-4" />
           Post Buy Box
         </button>
@@ -324,7 +324,7 @@ function statusStyle(status: string) {
   switch (status) {
     case 'Active': return 'text-emerald-700 bg-emerald-50'
     case 'Pending': return 'text-amber-700 bg-amber-50'
-    case 'Closed': return 'text-[#4F46E5] bg-[#EEF2FF]'
+    case 'Closed': return 'text-[#2563EB] bg-[#EFF6FF]'
     case 'Expired': return 'text-[#6B7280] bg-gray-100'
     default: return 'text-[#6B7280] bg-gray-100'
   }
@@ -336,7 +336,7 @@ function MyListingsSection() {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <p className="text-[0.82rem] text-[#374151]">Manage your deals and buy box posts.</p>
-        <button className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Plus className="w-4 h-4" />
           List New Deal
         </button>
@@ -367,7 +367,7 @@ function MyListingsSection() {
                 </td>
                 <td className="px-4 py-3.5">
                   <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded-full ${
-                    item.kind === 'Deal' ? 'text-[#4F46E5] bg-[#EEF2FF]' : 'text-violet-700 bg-violet-50'
+                    item.kind === 'Deal' ? 'text-[#2563EB] bg-[#EFF6FF]' : 'text-violet-700 bg-violet-50'
                   }`}>
                     {item.kind}
                   </span>
@@ -396,7 +396,7 @@ function MyListingsSection() {
                   <div className="flex items-center justify-end gap-1">
                     <button
                       title="Edit"
-                      className="p-1.5 rounded-md text-[#9CA3AF] hover:text-[#4F46E5] hover:bg-[#EEF2FF] transition-colors cursor-pointer bg-transparent border-0"
+                      className="p-1.5 rounded-md text-[#9CA3AF] hover:text-[#2563EB] hover:bg-[#EFF6FF] transition-colors cursor-pointer bg-transparent border-0"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
@@ -473,7 +473,7 @@ export default function MarketplacePage() {
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
                 isActive
-                  ? 'border-[#4F46E5] text-[#4F46E5]'
+                  ? 'border-[#2563EB] text-[#2563EB]'
                   : 'border-transparent text-[#9CA3AF] hover:text-[#374151]'
               }`}
             >

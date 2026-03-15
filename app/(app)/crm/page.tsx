@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import {
   Search,
   Plus,
@@ -14,62 +15,67 @@ import {
   Phone,
   Mail,
   Home,
-  FileSignature,
   PhoneOutgoing,
-  Send,
   Pencil,
   Archive,
+  ArchiveRestore,
   Tag,
   Download,
   X,
   Clock,
-  Circle,
-  Flame,
+  Layers,
   UserPlus,
-  Target,
-  Zap,
+  Loader2,
+  AlertCircle,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  CheckCircle2,
+  FileDown,
+  Merge,
 } from 'lucide-react'
+import {
+  useBuyers,
+  useTags,
+  type ApiBuyer,
+  type BuyerFilters,
+} from '@/lib/hooks/useCRM'
+import {
+  createBuyer,
+  importBuyers,
+  bulkAction,
+  archiveBuyer,
+  unarchiveBuyer,
+  checkDuplicates,
+  mergeBuyers,
+} from '@/lib/hooks/useCRMActions'
 
 /* ═══════════════════════════════════════════════
-   TYPES & HELPERS
+   HELPERS
    ═══════════════════════════════════════════════ */
-interface Buyer {
-  id: number
-  name: string
-  initials: string
-  color: string
-  phone: string
-  email: string
-  mailingAddress: string
-  preferredContact: string
-  markets: string[]
-  buyBox: string
-  propertyTypes: string[]
-  priceRange: string
-  priceMin: number
-  priceMax: number
-  targetZips: string
-  strategy: string
-  closingSpeed: string
-  pofStatus: string
-  pofDate: string
-  fundingSource: string
-  score: string
-  status: string
-  lastContact: string
-  dealsClosed: number
-  source: string
-  stage: string
-  daysInStage: number
-  tags: string[]
-  pinX: number
-  pinY: number
+
+function buyerName(b: ApiBuyer): string {
+  return b.entityName || [b.firstName, b.lastName].filter(Boolean).join(' ') || 'Unknown'
+}
+
+function buyerInitials(b: ApiBuyer): string {
+  if (b.firstName && b.lastName) return (b.firstName[0] + b.lastName[0]).toUpperCase()
+  if (b.entityName) return b.entityName.slice(0, 2).toUpperCase()
+  return '??'
+}
+
+function scoreGrade(score: number): string {
+  if (score >= 90) return 'A'
+  if (score >= 70) return 'B'
+  if (score >= 50) return 'C'
+  return 'D'
 }
 
 function scoreColor(s: string) {
   switch (s) {
     case 'A': return 'text-emerald-700 bg-emerald-50 border-emerald-200'
-    case 'B': return 'text-[#4F46E5] bg-[#EEF2FF] border-[#C7D2FE]'
+    case 'B': return 'text-[#2563EB] bg-[#EFF6FF] border-[#BFDBFE]'
     case 'C': return 'text-amber-700 bg-amber-50 border-amber-200'
     case 'D': return 'text-red-700 bg-red-50 border-red-200'
     default: return 'text-gray-600 bg-gray-100 border-gray-200'
@@ -79,79 +85,292 @@ function scoreColor(s: string) {
 function scoreDot(s: string) {
   switch (s) {
     case 'A': return '#10b981'
-    case 'B': return '#4F46E5'
+    case 'B': return '#2563EB'
     case 'C': return '#f59e0b'
     case 'D': return '#ef4444'
     default: return '#9ca3af'
   }
 }
 
+const STATUS_DISPLAY: Record<string, string> = {
+  ACTIVE: 'Active',
+  DORMANT: 'Dormant',
+  HIGH_CONFIDENCE: 'High-Confidence',
+  RECENTLY_VERIFIED: 'Recently Verified',
+  DO_NOT_CALL: 'Do Not Call',
+}
+
+function displayStatus(s: string): string {
+  return STATUS_DISPLAY[s] || s
+}
+
+function motivationBadge(m: string | null) {
+  switch (m) {
+    case 'HOT': return { label: 'Hot', style: 'text-red-700 bg-red-50', dot: 'bg-red-500' }
+    case 'WARM': return { label: 'Warm', style: 'text-orange-700 bg-orange-50', dot: 'bg-orange-400' }
+    case 'COLD': return { label: 'Cold', style: 'text-blue-700 bg-blue-50', dot: 'bg-blue-400' }
+    case 'NOT_INTERESTED': return { label: 'Not Int.', style: 'text-gray-600 bg-gray-100', dot: 'bg-gray-400' }
+    case 'DNC': return { label: 'DNC', style: 'text-red-800 bg-red-100', dot: 'bg-red-700' }
+    default: return null
+  }
+}
+
 function statusStyle(s: string) {
-  switch (s) {
+  const display = displayStatus(s)
+  switch (display) {
     case 'Active': return 'text-emerald-700 bg-emerald-50'
     case 'Dormant': return 'text-[#6B7280] bg-gray-100'
-    case 'New': return 'text-[#4F46E5] bg-[#EEF2FF]'
     case 'High-Confidence': return 'text-amber-700 bg-amber-50'
     case 'Recently Verified': return 'text-violet-700 bg-violet-50'
+    case 'Do Not Call': return 'text-red-700 bg-red-50'
     default: return 'text-gray-500 bg-gray-100'
   }
 }
 
-function sourceIcon(s: string) {
-  switch (s) {
-    case 'AI Outreach': return <span title="AI Outreach"><Zap className="w-3 h-3 text-[#4F46E5]" /></span>
-    case 'Manual Entry': return <span title="Manual Entry"><Pencil className="w-3 h-3 text-gray-400" /></span>
-    case 'Discovery Import': return <span title="Discovery Import"><Target className="w-3 h-3 text-violet-500" /></span>
-    case 'Marketplace': return <span title="Marketplace"><Home className="w-3 h-3 text-amber-500" /></span>
-    default: return <Circle className="w-3 h-3 text-gray-300" />
-  }
+function formatPrice(n: number | null): string {
+  if (n == null) return '—'
+  if (n >= 1000) return `$${Math.round(n / 1000)}K`
+  return `$${n}`
 }
 
-function tagColor(_t: string) {
-  return 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]'
+function buyBox(b: ApiBuyer): string {
+  const parts: string[] = []
+  if (b.preferredTypes?.length) parts.push(b.preferredTypes.join(', '))
+  if (b.minPrice != null || b.maxPrice != null) parts.push(`${formatPrice(b.minPrice)}–${formatPrice(b.maxPrice)}`)
+  if (b.strategy) parts.push(b.strategy)
+  return parts.join(', ') || '—'
+}
+
+function relativeDate(dateStr: string | null): string {
+  if (!dateStr) return '—'
+  const d = new Date(dateStr)
+  const now = new Date()
+  const diffMs = now.getTime() - d.getTime()
+  const diffDays = Math.floor(diffMs / 86400000)
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays}d ago`
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+function hashPosition(id: string): { x: number; y: number } {
+  let h = 0
+  for (let i = 0; i < id.length; i++) {
+    h = ((h << 5) - h + id.charCodeAt(i)) | 0
+  }
+  const x = 10 + Math.abs(h % 80)
+  const y = 10 + Math.abs((h >> 8) % 75)
+  return { x, y }
+}
+
+/** Parse CSV text handling quoted fields, BOM, and Windows line endings */
+function parseCSV(text: string): string[][] {
+  // Strip BOM
+  const clean = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  const lines = clean.split('\n')
+  const result: string[][] = []
+  for (const line of lines) {
+    if (!line.trim()) continue
+    const row: string[] = []
+    let current = ''
+    let inQuotes = false
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i]
+      if (inQuotes) {
+        if (ch === '"') {
+          if (i + 1 < line.length && line[i + 1] === '"') {
+            current += '"'
+            i++
+          } else {
+            inQuotes = false
+          }
+        } else {
+          current += ch
+        }
+      } else {
+        if (ch === '"') {
+          inQuotes = true
+        } else if (ch === ',') {
+          row.push(current.trim())
+          current = ''
+        } else {
+          current += ch
+        }
+      }
+    }
+    row.push(current.trim())
+    result.push(row)
+  }
+  return result
 }
 
 /* ═══════════════════════════════════════════════
-   MOCK DATA
+   TOAST SYSTEM
    ═══════════════════════════════════════════════ */
-const buyers: Buyer[] = [
-  { id: 1, name: 'Marcus Thompson', initials: 'MT', color: '', phone: '(214) 555-0147', email: 'marcus.t@gmail.com', mailingAddress: '4510 Travis St, Dallas TX 75205', preferredContact: 'Phone', markets: ['Dallas', 'Fort Worth'], buyBox: 'SFR, $100K-$200K, Flip', propertyTypes: ['SFR'], priceRange: '$100K–$200K', priceMin: 100000, priceMax: 200000, targetZips: '75215, 75216, 75217, 75228', strategy: 'Flip', closingSpeed: '7 days', pofStatus: 'Verified', pofDate: 'Feb 28, 2026', fundingSource: 'Cash', score: 'A', status: 'Active', lastContact: 'Mar 11', dealsClosed: 8, source: 'AI Outreach', stage: 'Qualified', daysInStage: 3, tags: ['Dallas', 'Flip Buyer', 'Fast Closer', 'POF Verified', 'VIP'], pinX: 42, pinY: 38 },
-  { id: 2, name: 'Jessica Rivera', initials: 'JR', color: '', phone: '(404) 555-0293', email: 'jrivera@investatlanta.com', mailingAddress: '890 Peachtree St NE, Atlanta GA 30308', preferredContact: 'Email', markets: ['Atlanta'], buyBox: 'Multi-Family, $200K-$400K, Rental', propertyTypes: ['Multi-Family'], priceRange: '$200K–$400K', priceMin: 200000, priceMax: 400000, targetZips: '30310, 30312, 30314, 30318', strategy: 'Rental', closingSpeed: '14 days', pofStatus: 'Verified', pofDate: 'Mar 1, 2026', fundingSource: 'Hard Money', score: 'A', status: 'High-Confidence', lastContact: 'Mar 12', dealsClosed: 5, source: 'Discovery Import', stage: 'Offer Sent', daysInStage: 2, tags: ['Atlanta', 'Multi-Family', 'POF Verified'], pinX: 55, pinY: 25 },
-  { id: 3, name: 'David Chen', initials: 'DC', color: '', phone: '(602) 555-0184', email: 'dchen@azcashbuyers.com', mailingAddress: '1220 N Central Ave, Phoenix AZ 85004', preferredContact: 'Phone', markets: ['Phoenix', 'Scottsdale'], buyBox: 'SFR, $150K-$300K, Either', propertyTypes: ['SFR', 'Condo'], priceRange: '$150K–$300K', priceMin: 150000, priceMax: 300000, targetZips: '85003, 85006, 85008, 85014', strategy: 'Either', closingSpeed: '10 days', pofStatus: 'Verified', pofDate: 'Feb 15, 2026', fundingSource: 'Cash', score: 'A', status: 'Active', lastContact: 'Mar 10', dealsClosed: 12, source: 'Manual Entry', stage: 'Qualified', daysInStage: 5, tags: ['Phoenix', 'Flip Buyer', 'VIP', 'Fast Closer'], pinX: 30, pinY: 45 },
-  { id: 4, name: 'Aisha Williams', initials: 'AW', color: '', phone: '(214) 555-0376', email: 'aisha.w@outlook.com', mailingAddress: '2300 Leonard St, Dallas TX 75201', preferredContact: 'Phone', markets: ['Dallas'], buyBox: 'SFR, $80K-$150K, Flip', propertyTypes: ['SFR'], priceRange: '$80K–$150K', priceMin: 80000, priceMax: 150000, targetZips: '75210, 75215, 75216', strategy: 'Flip', closingSpeed: '14 days', pofStatus: 'Verified', pofDate: 'Jan 20, 2026', fundingSource: 'Private Lending', score: 'B', status: 'Active', lastContact: 'Mar 8', dealsClosed: 3, source: 'AI Outreach', stage: 'Contacted', daysInStage: 4, tags: ['Dallas', 'Flip Buyer', 'POF Verified'], pinX: 48, pinY: 55 },
-  { id: 5, name: 'Ryan Mitchell', initials: 'RM', color: '', phone: '(813) 555-0421', email: 'ryan.m@tampainvest.com', mailingAddress: '501 E Kennedy Blvd, Tampa FL 33602', preferredContact: 'Email', markets: ['Tampa', 'St. Petersburg'], buyBox: 'Land, $30K-$80K, Hold', propertyTypes: ['Land'], priceRange: '$30K–$80K', priceMin: 30000, priceMax: 80000, targetZips: '33602, 33605, 33610, 33612', strategy: 'Hold', closingSpeed: '30 days', pofStatus: 'Unverified', pofDate: '', fundingSource: 'Cash', score: 'B', status: 'Recently Verified', lastContact: 'Mar 9', dealsClosed: 1, source: 'Marketplace', stage: 'Contacted', daysInStage: 6, tags: ['Tampa', 'Land Buyer'], pinX: 65, pinY: 30 },
-  { id: 6, name: 'Kevin Nguyen', initials: 'KN', color: '', phone: '(214) 555-0198', email: 'knguyen@rehabpros.com', mailingAddress: '3900 Elm St, Dallas TX 75226', preferredContact: 'Phone', markets: ['Dallas', 'Plano'], buyBox: 'SFR, $120K-$250K, Flip', propertyTypes: ['SFR'], priceRange: '$120K–$250K', priceMin: 120000, priceMax: 250000, targetZips: '75226, 75228, 75231, 75238', strategy: 'Flip', closingSpeed: '7 days', pofStatus: 'Verified', pofDate: 'Mar 5, 2026', fundingSource: 'Cash', score: 'A', status: 'High-Confidence', lastContact: 'Mar 12', dealsClosed: 15, source: 'Manual Entry', stage: 'Under Contract', daysInStage: 1, tags: ['Dallas', 'Flip Buyer', 'Fast Closer', 'VIP', 'POF Verified'], pinX: 38, pinY: 48 },
-  { id: 7, name: 'Sarah Kim', initials: 'SK', color: '', phone: '(404) 555-0582', email: 'sarah.kim@gmail.com', mailingAddress: '200 Peachtree St NW, Atlanta GA 30303', preferredContact: 'Email', markets: ['Atlanta', 'Decatur'], buyBox: 'SFR, $100K-$180K, Rental', propertyTypes: ['SFR', 'Multi-Family'], priceRange: '$100K–$180K', priceMin: 100000, priceMax: 180000, targetZips: '30305, 30306, 30307, 30309', strategy: 'Rental', closingSpeed: '14 days', pofStatus: 'Verified', pofDate: 'Feb 10, 2026', fundingSource: 'Hard Money', score: 'B', status: 'Active', lastContact: 'Mar 7', dealsClosed: 2, source: 'Discovery Import', stage: 'Qualified', daysInStage: 8, tags: ['Atlanta', 'Rental Buyer', 'POF Verified'], pinX: 58, pinY: 62 },
-  { id: 8, name: 'Carlos Medina', initials: 'CM', color: '', phone: '(602) 555-0744', email: 'cmedina@desertflip.com', mailingAddress: '3434 N 7th Ave, Phoenix AZ 85013', preferredContact: 'Phone', markets: ['Phoenix'], buyBox: 'SFR, $80K-$160K, Flip', propertyTypes: ['SFR'], priceRange: '$80K–$160K', priceMin: 80000, priceMax: 160000, targetZips: '85006, 85008, 85040, 85042', strategy: 'Flip', closingSpeed: '10 days', pofStatus: 'Unverified', pofDate: '', fundingSource: 'Cash', score: 'C', status: 'New', lastContact: 'Mar 13', dealsClosed: 0, source: 'AI Outreach', stage: 'New Lead', daysInStage: 1, tags: ['Phoenix', 'New Lead'], pinX: 25, pinY: 35 },
-  { id: 9, name: 'Tanya Brooks', initials: 'TB', color: '', phone: '(214) 555-0831', email: 'tbrooks@yahoo.com', mailingAddress: '8100 Forest Ln, Dallas TX 75243', preferredContact: 'Phone', markets: ['Dallas'], buyBox: 'SFR, $60K-$120K, Flip', propertyTypes: ['SFR'], priceRange: '$60K–$120K', priceMin: 60000, priceMax: 120000, targetZips: '75217, 75227, 75228', strategy: 'Flip', closingSpeed: '21 days', pofStatus: 'Unverified', pofDate: '', fundingSource: 'Private Lending', score: 'C', status: 'Dormant', lastContact: 'Feb 14', dealsClosed: 1, source: 'Manual Entry', stage: 'Contacted', daysInStage: 28, tags: ['Dallas', 'Flip Buyer'], pinX: 52, pinY: 20 },
-  { id: 10, name: 'Derrick Jones', initials: 'DJ', color: '', phone: '(404) 555-0962', email: 'djones@builditinv.com', mailingAddress: '430 Whitehall St, Atlanta GA 30303', preferredContact: 'Phone', markets: ['Atlanta'], buyBox: 'Multi-Family, $150K-$350K, Rental', propertyTypes: ['Multi-Family'], priceRange: '$150K–$350K', priceMin: 150000, priceMax: 350000, targetZips: '30310, 30311, 30314, 30318', strategy: 'Rental', closingSpeed: '14 days', pofStatus: 'Verified', pofDate: 'Mar 3, 2026', fundingSource: 'Cash', score: 'A', status: 'Active', lastContact: 'Mar 11', dealsClosed: 7, source: 'AI Outreach', stage: 'Offer Sent', daysInStage: 3, tags: ['Atlanta', 'Multi-Family', 'Fast Closer', 'VIP'], pinX: 72, pinY: 45 },
-  { id: 11, name: 'Lisa Park', initials: 'LP', color: '', phone: '(813) 555-0137', email: 'lpark@tampaprops.com', mailingAddress: '201 N Franklin St, Tampa FL 33602', preferredContact: 'Email', markets: ['Tampa'], buyBox: 'SFR, $100K-$200K, Either', propertyTypes: ['SFR', 'Condo'], priceRange: '$100K–$200K', priceMin: 100000, priceMax: 200000, targetZips: '33602, 33605, 33607, 33609', strategy: 'Either', closingSpeed: '14 days', pofStatus: 'Verified', pofDate: 'Feb 22, 2026', fundingSource: 'Hard Money', score: 'B', status: 'Active', lastContact: 'Mar 6', dealsClosed: 4, source: 'Discovery Import', stage: 'Qualified', daysInStage: 10, tags: ['Tampa', 'POF Verified'], pinX: 78, pinY: 58 },
-  { id: 12, name: 'Omar Bryant', initials: 'OB', color: '', phone: '(602) 555-0488', email: 'omar.b@proton.me', mailingAddress: '2901 E Thomas Rd, Phoenix AZ 85016', preferredContact: 'Phone', markets: ['Phoenix', 'Mesa'], buyBox: 'Land, $20K-$60K, Hold', propertyTypes: ['Land'], priceRange: '$20K–$60K', priceMin: 20000, priceMax: 60000, targetZips: '85003, 85006, 85040', strategy: 'Hold', closingSpeed: '30 days', pofStatus: 'Unverified', pofDate: '', fundingSource: 'Cash', score: 'C', status: 'New', lastContact: 'Mar 13', dealsClosed: 0, source: 'AI Outreach', stage: 'New Lead', daysInStage: 1, tags: ['Phoenix', 'Land Buyer', 'New Lead'], pinX: 15, pinY: 55 },
-  { id: 13, name: 'Rachel Martinez', initials: 'RM2', color: '', phone: '(214) 555-0654', email: 'rachel.m@dallascash.com', mailingAddress: '1700 Pacific Ave, Dallas TX 75201', preferredContact: 'Phone', markets: ['Dallas'], buyBox: 'SFR, $150K-$280K, Flip', propertyTypes: ['SFR'], priceRange: '$150K–$280K', priceMin: 150000, priceMax: 280000, targetZips: '75201, 75204, 75226, 75231', strategy: 'Flip', closingSpeed: '10 days', pofStatus: 'Verified', pofDate: 'Mar 8, 2026', fundingSource: 'Cash', score: 'A', status: 'Recently Verified', lastContact: 'Mar 12', dealsClosed: 6, source: 'Manual Entry', stage: 'Under Contract', daysInStage: 2, tags: ['Dallas', 'Flip Buyer', 'POF Verified', 'Fast Closer'], pinX: 45, pinY: 30 },
-  { id: 14, name: 'Travis King', initials: 'TK', color: '', phone: '(813) 555-0819', email: 'tking@kingproperties.com', mailingAddress: '2001 W Platt St, Tampa FL 33606', preferredContact: 'Phone', markets: ['Tampa', 'Clearwater'], buyBox: 'Multi-Family, $180K-$400K, Rental', propertyTypes: ['Multi-Family'], priceRange: '$180K–$400K', priceMin: 180000, priceMax: 400000, targetZips: '33602, 33604, 33605, 33610', strategy: 'Rental', closingSpeed: '21 days', pofStatus: 'Verified', pofDate: 'Jan 30, 2026', fundingSource: 'Private Lending', score: 'B', status: 'Active', lastContact: 'Mar 5', dealsClosed: 3, source: 'Marketplace', stage: 'Contacted', daysInStage: 9, tags: ['Tampa', 'Multi-Family', 'Rental Buyer'], pinX: 82, pinY: 40 },
-  { id: 15, name: 'Angela Scott', initials: 'AS', color: '', phone: '(404) 555-0273', email: 'ascott@investwise.com', mailingAddress: '191 Peachtree St NE, Atlanta GA 30303', preferredContact: 'Email', markets: ['Atlanta'], buyBox: 'SFR, $80K-$140K, Flip', propertyTypes: ['SFR'], priceRange: '$80K–$140K', priceMin: 80000, priceMax: 140000, targetZips: '30310, 30312, 30315, 30316', strategy: 'Flip', closingSpeed: '7 days', pofStatus: 'Verified', pofDate: 'Mar 10, 2026', fundingSource: 'Cash', score: 'D', status: 'Dormant', lastContact: 'Jan 22', dealsClosed: 0, source: 'Discovery Import', stage: 'New Lead', daysInStage: 45, tags: ['Atlanta'], pinX: 62, pinY: 70 },
-]
+type ToastType = 'success' | 'error' | 'info'
+interface Toast {
+  id: number
+  message: string
+  type: ToastType
+}
 
-/* Activity timeline for the detail buyer (Marcus Thompson id=1) */
-const timeline = [
-  { date: 'Mar 11, 2026', time: '3:42 PM', type: 'phone', text: 'AI call completed, qualified. Prefers SFR under $200K in 75215-75217. Close in 7 days cash.' },
-  { date: 'Mar 9, 2026', time: '11:15 AM', type: 'deal', text: 'Deal sent: 4217 Magnolia Ave, Dallas TX for $22,500 assignment fee' },
-  { date: 'Mar 8, 2026', time: '2:30 PM', type: 'phone', text: 'Follow-up call, confirmed interest in Magnolia Ave property. Requested walkthrough photos.' },
-  { date: 'Mar 6, 2026', time: '9:00 AM', type: 'email', text: 'Comp package sent for 4217 Magnolia Ave. ARV $285K, rehab est. $42K.' },
-  { date: 'Mar 3, 2026', time: '4:20 PM', type: 'deal', text: 'Offer received: $260,000 on 4217 Magnolia Ave' },
-  { date: 'Feb 28, 2026', time: '10:05 AM', type: 'contract', text: 'Contract signed: 2740 Elm St, $15,000 assignment fee. Closed in 6 days.' },
-  { date: 'Feb 20, 2026', time: '1:45 PM', type: 'phone', text: 'Initial AI outreach, spoke for 4:12. Qualified as Flip buyer, cash, DFW market.' },
-]
+let toastId = 0
+
+function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: number) => void }) {
+  return (
+    <div className="fixed top-4 right-4 z-[100] space-y-2 max-w-sm">
+      {toasts.map((t) => (
+        <div
+          key={t.id}
+          className={`flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-sm font-medium animate-slideInRight ${
+            t.type === 'success' ? 'bg-emerald-600 text-white'
+              : t.type === 'error' ? 'bg-red-600 text-white'
+                : 'bg-gray-800 text-white'
+          }`}
+        >
+          {t.type === 'success' && <CheckCircle2 className="w-4 h-4 flex-shrink-0" />}
+          {t.type === 'error' && <AlertCircle className="w-4 h-4 flex-shrink-0" />}
+          <span className="flex-1">{t.message}</span>
+          <button onClick={() => onDismiss(t.id)} className="text-white/70 hover:text-white bg-transparent border-0 cursor-pointer p-0">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function useToasts() {
+  const [toasts, setToasts] = useState<Toast[]>([])
+
+  const addToast = useCallback((message: string, type: ToastType = 'success') => {
+    const id = ++toastId
+    setToasts((prev) => [...prev, { id, message, type }])
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id))
+    }, 4000)
+  }, [])
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }, [])
+
+  return { toasts, addToast, dismissToast }
+}
+
+/* ═══════════════════════════════════════════════
+   SKELETON LOADERS
+   ═══════════════════════════════════════════════ */
+function SkeletonRow() {
+  return (
+    <tr className="border-b border-[#F3F4F6]">
+      <td className="px-3 py-3"><div className="w-3.5 h-3.5 bg-gray-200 rounded animate-pulse" /></td>
+      <td className="px-3 py-3"><div className="flex items-center gap-2">
+        <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse" />
+        <div className="w-28 h-4 bg-gray-200 rounded animate-pulse" />
+      </div></td>
+      <td className="px-3 py-3"><div className="w-24 h-4 bg-gray-200 rounded animate-pulse" /></td>
+      <td className="px-3 py-3"><div className="w-16 h-4 bg-gray-200 rounded animate-pulse" /></td>
+      <td className="px-3 py-3"><div className="w-32 h-4 bg-gray-200 rounded animate-pulse" /></td>
+      <td className="px-3 py-3 text-center"><div className="w-8 h-5 bg-gray-200 rounded-full animate-pulse mx-auto" /></td>
+      <td className="px-3 py-3"><div className="w-12 h-5 bg-gray-200 rounded-full animate-pulse" /></td>
+      <td className="px-3 py-3"><div className="w-16 h-5 bg-gray-200 rounded-full animate-pulse" /></td>
+      <td className="px-3 py-3"><div className="w-14 h-4 bg-gray-200 rounded animate-pulse" /></td>
+      <td className="px-3 py-3 text-center"><div className="w-6 h-4 bg-gray-200 rounded animate-pulse mx-auto" /></td>
+      <td className="px-3 py-3"><div className="w-16 h-4 bg-gray-200 rounded animate-pulse" /></td>
+      <td className="px-3 py-3"><div className="w-5 h-5 bg-gray-200 rounded animate-pulse ml-auto" /></td>
+    </tr>
+  )
+}
+
+function TableSkeleton() {
+  return (
+    <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-none overflow-hidden">
+      <table className="w-full min-w-[1000px]">
+        <thead>
+          <tr className="border-b border-[#F3F4F6]">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <th key={i} className="px-3 py-3"><div className="w-12 h-3 bg-gray-200 rounded animate-pulse" /></th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 7 }).map((_, i) => <SkeletonRow key={i} />)}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function DetailSkeleton() {
+  return (
+    <div className="px-6 pt-6 pb-4 space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
+        <div className="space-y-2">
+          <div className="w-36 h-5 bg-gray-200 rounded animate-pulse" />
+          <div className="flex gap-2">
+            <div className="w-16 h-5 bg-gray-200 rounded-full animate-pulse" />
+            <div className="w-20 h-5 bg-gray-200 rounded-full animate-pulse" />
+          </div>
+        </div>
+      </div>
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="space-y-2">
+          <div className="w-24 h-3 bg-gray-200 rounded animate-pulse" />
+          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+            {[1, 2, 3].map((j) => (
+              <div key={j} className="flex justify-between">
+                <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
+                <div className="w-28 h-4 bg-gray-200 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function TimelineSkeleton() {
+  return (
+    <div className="space-y-4 pl-5">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="space-y-1">
+          <div className="w-32 h-3 bg-gray-200 rounded animate-pulse" />
+          <div className="w-48 h-4 bg-gray-200 rounded animate-pulse" />
+        </div>
+      ))}
+    </div>
+  )
+}
 
 /* ═══════════════════════════════════════════════
    FILTER SELECT
    ═══════════════════════════════════════════════ */
-function FilterSelect({ label, options }: { label: string; options: string[] }) {
+function FilterSelect({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: { value: string; label: string }[]
+  value: string
+  onChange: (v: string) => void
+}) {
   return (
     <div className="relative">
-      <select className="appearance-none bg-white border border-gray-200 rounded-lg pl-3 pr-7 py-2 text-[0.78rem] text-gray-600 outline-none focus:border-[#4F46E5] transition-colors cursor-pointer">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="appearance-none bg-white border border-gray-200 rounded-lg pl-3 pr-7 py-2 text-[0.78rem] text-gray-600 outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
+      >
         <option value="">{label}</option>
-        {options.map(o => <option key={o} value={o}>{o}</option>)}
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
       </select>
       <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
     </div>
@@ -159,49 +378,711 @@ function FilterSelect({ label, options }: { label: string; options: string[] }) 
 }
 
 /* ═══════════════════════════════════════════════
+   ADD BUYER MODAL
+   ═══════════════════════════════════════════════ */
+function AddBuyerModal({ onClose, onCreated }: { onClose: () => void; onCreated: (msg: string) => void }) {
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', entityName: '', phone: '', email: '',
+    city: '', state: '', strategy: '', minPrice: '', maxPrice: '',
+    motivation: '', buyerType: '', fundingSource: '', source: '', buyerScore: '50',
+  })
+  const [saving, setSaving] = useState(false)
+  const [err, setErr] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.firstName && !form.entityName) { setErr('Name or entity is required'); return }
+    setSaving(true)
+    setErr('')
+    try {
+      const payload: Record<string, unknown> = {}
+      for (const [k, v] of Object.entries(form)) {
+        if (v === '') continue
+        if (k === 'minPrice' || k === 'maxPrice' || k === 'buyerScore') { payload[k] = Number(v); continue }
+        payload[k] = v
+      }
+      await createBuyer(payload)
+      onCreated('Buyer created')
+      onClose()
+    } catch (ex) {
+      setErr(ex instanceof Error ? ex.message : 'Failed to create buyer')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const scoreVal = Number(form.buyerScore) || 0
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <form onSubmit={handleSubmit} className="relative bg-white rounded-xl shadow-xl p-6 w-[520px] max-h-[90vh] overflow-y-auto">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Buyer</h3>
+        {err && <div className="text-red-600 text-sm mb-3">{err}</div>}
+
+        {/* Score Slider */}
+        <div className="mb-4 bg-gray-50 rounded-lg p-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-medium text-gray-600">Buyer Score</label>
+            <span className={`text-[0.72rem] font-bold px-2 py-0.5 rounded-full border ${scoreColor(scoreGrade(scoreVal))}`}>
+              {scoreGrade(scoreVal)} ({scoreVal})
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <input type="range" min="0" max="100" value={form.buyerScore} onChange={e => setForm(p => ({ ...p, buyerScore: e.target.value }))}
+              className="flex-1 h-2 accent-[#2563EB] cursor-pointer" />
+            <input type="number" min="0" max="100" value={form.buyerScore} onChange={e => setForm(p => ({ ...p, buyerScore: e.target.value }))}
+              className="w-14 text-center text-sm font-bold border border-gray-200 rounded-md py-1 outline-none focus:border-[#2563EB]" />
+          </div>
+        </div>
+
+        {/* Motivation */}
+        <div className="mb-4">
+          <label className="text-xs text-gray-500 mb-1.5 block">Motivation Level</label>
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { value: 'HOT', label: 'Hot', dot: 'bg-red-500' },
+              { value: 'WARM', label: 'Warm', dot: 'bg-orange-400' },
+              { value: 'COLD', label: 'Cold', dot: 'bg-blue-400' },
+              { value: 'NOT_INTERESTED', label: 'Not Interested', dot: 'bg-gray-400' },
+            ].map(m => (
+              <button key={m.value} type="button"
+                onClick={() => setForm(p => ({ ...p, motivation: p.motivation === m.value ? '' : m.value }))}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[0.76rem] font-medium border cursor-pointer transition-all ${
+                  form.motivation === m.value ? 'bg-gray-900 text-white border-gray-900' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}>
+                <span className={`w-2 h-2 rounded-full ${m.dot}`} />
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {[
+            { key: 'firstName', label: 'First Name' },
+            { key: 'lastName', label: 'Last Name' },
+            { key: 'entityName', label: 'Entity / LLC' },
+            { key: 'phone', label: 'Phone' },
+            { key: 'email', label: 'Email' },
+            { key: 'city', label: 'City' },
+            { key: 'state', label: 'State' },
+            { key: 'minPrice', label: 'Min Price' },
+            { key: 'maxPrice', label: 'Max Price' },
+          ].map((f) => (
+            <div key={f.key}>
+              <label className="text-xs text-gray-500 mb-1 block">{f.label}</label>
+              <input
+                value={form[f.key as keyof typeof form]}
+                onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
+                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB]"
+              />
+            </div>
+          ))}
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Strategy</label>
+            <select value={form.strategy} onChange={(e) => setForm((p) => ({ ...p, strategy: e.target.value }))}
+              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB] bg-white">
+              <option value="">Select...</option>
+              <option value="FLIP">Flip</option><option value="HOLD">Hold</option>
+              <option value="BOTH">Both</option><option value="LAND">Land</option>
+              <option value="COMMERCIAL">Commercial</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Buyer Type</label>
+            <select value={form.buyerType} onChange={(e) => setForm((p) => ({ ...p, buyerType: e.target.value }))}
+              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB] bg-white">
+              <option value="">Select...</option>
+              <option value="CASH_BUYER">Cash Buyer</option><option value="FLIPPER">Flipper</option>
+              <option value="LANDLORD">Landlord</option><option value="WHOLESALER">Wholesaler</option>
+              <option value="DEVELOPER">Developer</option><option value="HEDGE_FUND">Hedge Fund</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Funding</label>
+            <select value={form.fundingSource} onChange={(e) => setForm((p) => ({ ...p, fundingSource: e.target.value }))}
+              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB] bg-white">
+              <option value="">Select...</option>
+              <option value="CASH">Cash</option><option value="HARD_MONEY">Hard Money</option>
+              <option value="CONVENTIONAL">Conventional</option><option value="PRIVATE_MONEY">Private Money</option>
+              <option value="SELF_DIRECTED_IRA">Self-Directed IRA</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Lead Source</label>
+            <select value={form.source} onChange={(e) => setForm((p) => ({ ...p, source: e.target.value }))}
+              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB] bg-white">
+              <option value="">Select...</option>
+              {['Driving for Dollars','Referral','Cash Buyer List','Tax Records','Auction','Networking Event','Cold Call','Inbound Lead','Other'].map(s =>
+                <option key={s} value={s}>{s}</option>
+              )}
+            </select>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">Cancel</button>
+          <button type="submit" disabled={saving} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-md border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+            {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            {saving ? 'Saving...' : 'Create Buyer'}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   CSV IMPORT MODAL
+   ═══════════════════════════════════════════════ */
+const CSV_TEMPLATE = 'First Name,Last Name,Company,Phone,Email,Address,City,State,Zip,Notes'
+
+function ImportModal({ onClose, onImported }: { onClose: () => void; onImported: (msg: string) => void }) {
+  const [csvText, setCsvText] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [result, setResult] = useState<{ imported: number; skipped: number; total: number; errors: Array<{ index: number; reason: string }> } | null>(null)
+  const [preview, setPreview] = useState<{ headers: string[]; rows: string[][]; mapped: Record<string, string> } | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  function downloadTemplate() {
+    const blob = new Blob([CSV_TEMPLATE + '\n'], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'buyer-import-template.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string
+      setCsvText(text)
+      buildPreview(text)
+    }
+    reader.readAsText(file)
+  }
+
+  function buildPreview(text: string) {
+    const parsed = parseCSV(text)
+    if (parsed.length < 2) { setPreview(null); return }
+    const headers = parsed[0]
+    const rows = parsed.slice(1, 6) // first 5 data rows
+    const KNOWN = ['firstname', 'first name', 'lastname', 'last name', 'company', 'entityname', 'phone', 'email', 'address', 'city', 'state', 'zip', 'notes']
+    const mapped: Record<string, string> = {}
+    for (const h of headers) {
+      const lower = h.toLowerCase().trim()
+      if (KNOWN.includes(lower)) mapped[h] = lower
+    }
+    setPreview({ headers, rows, mapped })
+  }
+
+  useEffect(() => {
+    if (csvText) buildPreview(csvText)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  async function handleImport() {
+    if (!csvText.trim()) return
+    setImporting(true)
+    setResult(null)
+    try {
+      const parsed = parseCSV(csvText)
+      if (parsed.length < 2) { setResult({ imported: 0, skipped: 0, total: 0, errors: [{ index: 0, reason: 'Need header + at least 1 row' }] }); setImporting(false); return }
+      const headers = parsed[0]
+      const rows = parsed.slice(1).map((vals) => {
+        const obj: Record<string, string> = {}
+        headers.forEach((h, i) => { obj[h.trim()] = vals[i] || '' })
+        return obj
+      })
+      const data = await importBuyers(rows)
+      setResult(data)
+      const msg = `Imported ${data.imported} buyer${data.imported !== 1 ? 's' : ''}. ${data.skipped} skipped.`
+      onImported(msg)
+    } catch (ex) {
+      setResult({ imported: 0, skipped: 0, total: 0, errors: [{ index: -1, reason: ex instanceof Error ? ex.message : 'Import failed' }] })
+    } finally {
+      setImporting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-xl shadow-xl p-6 w-[580px] max-h-[85vh] overflow-y-auto">
+        <h3 className="text-lg font-semibold text-gray-900 mb-1">Import Buyers (CSV)</h3>
+        <div className="flex items-center gap-3 mb-4">
+          <p className="text-xs text-gray-400">Upload a CSV or paste data below.</p>
+          <button onClick={downloadTemplate} className="text-xs text-[#2563EB] hover:underline bg-transparent border-0 cursor-pointer flex items-center gap-1">
+            <FileDown className="w-3 h-3" />
+            Download template
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 mb-3">
+          <input ref={fileRef} type="file" accept=".csv,text/csv" onChange={handleFileChange} className="hidden" />
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-md cursor-pointer transition-colors"
+          >
+            Choose File
+          </button>
+          <span className="text-xs text-gray-400">or paste below</span>
+        </div>
+
+        <textarea
+          value={csvText}
+          onChange={(e) => { setCsvText(e.target.value); buildPreview(e.target.value) }}
+          rows={6}
+          className="w-full border border-gray-200 rounded-md px-3 py-2 text-xs font-mono outline-none focus:border-[#2563EB] mb-3 resize-none"
+          placeholder={CSV_TEMPLATE + '\nJohn,Doe,,2145550100,john@example.com,,Dallas,TX,75201,'}
+        />
+
+        {/* Preview */}
+        {preview && (
+          <div className="mb-3">
+            <div className="text-xs font-medium text-gray-600 mb-1.5">Preview (first {preview.rows.length} rows)</div>
+            {/* Column mapping */}
+            <div className="flex flex-wrap gap-1 mb-2">
+              {preview.headers.map((h, i) => (
+                <span key={i} className={`text-[0.64rem] px-1.5 py-0.5 rounded ${preview.mapped[h] ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
+                  {h}{preview.mapped[h] ? ' ✓' : ' ?'}
+                </span>
+              ))}
+            </div>
+            <div className="overflow-x-auto border border-gray-200 rounded-md">
+              <table className="text-[0.68rem] w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    {preview.headers.map((h, i) => (
+                      <th key={i} className="px-2 py-1 text-left font-medium text-gray-500 whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {preview.rows.map((row, ri) => (
+                    <tr key={ri} className="border-t border-gray-100">
+                      {row.map((cell, ci) => (
+                        <td key={ci} className="px-2 py-1 text-gray-700 whitespace-nowrap max-w-[120px] truncate">{cell || '—'}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Results */}
+        {result && (
+          <div className={`text-sm p-3 rounded-md mb-3 ${result.imported > 0 ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}>
+            {result.imported > 0 && <div className="font-medium">{result.imported} imported, {result.skipped} skipped</div>}
+            {result.errors.length > 0 && result.errors.slice(0, 5).map((e, i) => (
+              <div key={i} className="text-xs mt-1">{e.index >= 0 ? `Row ${e.index + 1}: ` : ''}{e.reason}</div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex justify-end gap-2">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
+            {result ? 'Done' : 'Cancel'}
+          </button>
+          {!result && (
+            <button onClick={handleImport} disabled={importing || !csvText.trim()} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-md border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+              {importing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {importing ? 'Importing...' : 'Import'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   DUPLICATE DETECTION MODAL
+   ═══════════════════════════════════════════════ */
+interface DuplicateGroup {
+  buyerIds: string[]
+  buyers: Array<{ id: string; firstName?: string; lastName?: string; entityName?: string; buyerScore: number }>
+  reasons: string[]
+  confidence: 'high' | 'medium' | 'low'
+}
+
+function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged: (msg: string) => void }) {
+  const [groups, setGroups] = useState<DuplicateGroup[]>([])
+  const [summary, setSummary] = useState<{ high: number; medium: number; low: number } | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [merging, setMerging] = useState<string | null>(null) // group index being merged
+  const [mergeTarget, setMergeTarget] = useState<{ group: DuplicateGroup; primaryId: string } | null>(null)
+
+  const fetchDups = useCallback(async () => {
+    setLoading(true)
+    try {
+      const data = await checkDuplicates()
+      setGroups(data.groups || [])
+      setSummary(data.summary || null)
+    } catch {
+      // handled by empty state
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { fetchDups() }, [fetchDups])
+
+  async function handleMerge() {
+    if (!mergeTarget) return
+    setMerging(mergeTarget.primaryId)
+    try {
+      const secondaryIds = mergeTarget.group.buyerIds.filter((id) => id !== mergeTarget.primaryId)
+      await mergeBuyers(mergeTarget.primaryId, secondaryIds)
+      setMergeTarget(null)
+      onMerged('Buyers merged successfully')
+      fetchDups() // refresh list
+    } catch {
+      // toast handled by parent
+    } finally {
+      setMerging(null)
+    }
+  }
+
+  function buyerLabel(b: DuplicateGroup['buyers'][0]): string {
+    return b.entityName || [b.firstName, b.lastName].filter(Boolean).join(' ') || b.id.slice(0, 8)
+  }
+
+  const confBadge = (c: string) => {
+    if (c === 'high') return 'bg-red-50 text-red-700 border-red-200'
+    if (c === 'medium') return 'bg-amber-50 text-amber-700 border-amber-200'
+    return 'bg-gray-100 text-gray-600 border-gray-200'
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-xl shadow-xl p-6 w-[560px] max-h-[85vh] overflow-y-auto">
+        <h3 className="text-lg font-semibold text-gray-900 mb-1">Duplicate Detection</h3>
+        {summary && (
+          <div className="flex gap-3 text-xs text-gray-500 mb-4">
+            <span className="text-red-600 font-medium">{summary.high} high</span>
+            <span className="text-amber-600 font-medium">{summary.medium} medium</span>
+            <span className="text-gray-500 font-medium">{summary.low} low</span>
+          </div>
+        )}
+
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+          </div>
+        )}
+
+        {!loading && groups.length === 0 && (
+          <div className="text-center py-12 text-gray-400">
+            <CheckCircle2 className="w-10 h-10 mx-auto mb-2 text-emerald-400" />
+            <p className="text-sm font-medium text-gray-600">No duplicates found</p>
+            <p className="text-xs mt-1">Your buyer list looks clean!</p>
+          </div>
+        )}
+
+        {/* Merge sub-view */}
+        {mergeTarget && (
+          <div className="border border-blue-200 bg-blue-50 rounded-lg p-4 mb-4">
+            <div className="text-sm font-medium text-gray-800 mb-2">Select primary buyer (keeps this record):</div>
+            <div className="space-y-1.5 mb-3">
+              {mergeTarget.group.buyers.map((b) => (
+                <label key={b.id} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="primary"
+                    checked={mergeTarget.primaryId === b.id}
+                    onChange={() => setMergeTarget({ ...mergeTarget, primaryId: b.id })}
+                    className="accent-[#2563EB]"
+                  />
+                  <span className="text-sm text-gray-700">{buyerLabel(b)}</span>
+                  <span className={`text-[0.64rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(scoreGrade(b.buyerScore))}`}>{scoreGrade(b.buyerScore)}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={handleMerge} disabled={!!merging} className="px-3 py-1.5 text-sm bg-[#2563EB] text-white rounded-md border-0 cursor-pointer hover:bg-[#1D4ED8] disabled:opacity-50 flex items-center gap-1">
+                {merging && <Loader2 className="w-3 h-3 animate-spin" />}
+                Confirm Merge
+              </button>
+              <button onClick={() => setMergeTarget(null)} className="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {/* Groups list */}
+        <div className="space-y-3">
+          {groups.map((g, gi) => (
+            <div key={gi} className="border border-gray-200 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`text-[0.64rem] font-medium px-1.5 py-0.5 rounded-full border ${confBadge(g.confidence)}`}>
+                  {g.confidence}
+                </span>
+                <span className="text-xs text-gray-400">{g.reasons.join(', ')}</span>
+              </div>
+              <div className="space-y-1 mb-2">
+                {g.buyers.map((b) => (
+                  <div key={b.id} className="flex items-center gap-2 text-sm text-gray-700">
+                    <span className="font-medium">{buyerLabel(b)}</span>
+                    <span className={`text-[0.62rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(scoreGrade(b.buyerScore))}`}>
+                      {scoreGrade(b.buyerScore)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => setMergeTarget({ group: g, primaryId: g.buyerIds[0] })}
+                className="text-xs text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer flex items-center gap-1"
+              >
+                <Merge className="w-3 h-3" /> Merge
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">Close</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   PAGINATION BAR
+   ═══════════════════════════════════════════════ */
+function PaginationBar({
+  page,
+  totalPages,
+  total,
+  onPage,
+}: {
+  page: number
+  totalPages: number
+  total: number
+  onPage: (p: number) => void
+}) {
+  if (totalPages <= 1) return null
+  return (
+    <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+      <span>{total} buyer{total !== 1 ? 's' : ''}</span>
+      <div className="flex items-center gap-1">
+        <button
+          disabled={page <= 1}
+          onClick={() => onPage(page - 1)}
+          className="p-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <span className="px-3 text-[0.78rem]">Page {page} of {totalPages}</span>
+        <button
+          disabled={page >= totalPages}
+          onClick={() => onPage(page + 1)}
+          className="p-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   ROW MENU (fixed positioning to escape overflow)
+   ═══════════════════════════════════════════════ */
+function RowMenu({ isOpen, onToggle, onClose, actions }: {
+  isOpen: boolean
+  onToggle: () => void
+  onClose: () => void
+  actions: { label: string; icon: React.ComponentType<{ className?: string }>; onClick: () => void }[]
+}) {
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+
+  useEffect(() => {
+    if (isOpen && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      setPos({ top: rect.bottom + 4, left: rect.right - 160 })
+    }
+  }, [isOpen])
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        onClick={(e) => { e.stopPropagation(); onToggle() }}
+        className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 bg-transparent border-0 cursor-pointer transition-colors"
+      >
+        <MoreHorizontal className="w-4 h-4" />
+      </button>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-[100]" onClick={onClose} />
+          <div
+            className="fixed z-[101] bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px]"
+            style={{ top: pos.top, left: pos.left }}
+          >
+            {actions.map((a) => (
+              <button
+                key={a.label}
+                onClick={a.onClick}
+                className="w-full flex items-center gap-2 px-3 py-2 text-[0.78rem] text-gray-600 hover:bg-gray-50 bg-transparent border-0 cursor-pointer transition-colors text-left"
+              >
+                <a.icon className="w-3.5 h-3.5 text-gray-400" />
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  )
+}
+
+/* ═══════════════════════════════════════════════
    LIST VIEW
    ═══════════════════════════════════════════════ */
-function ListView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
-  const [selected, setSelected] = useState<Set<number>>(new Set())
+function ListView({
+  buyers,
+  isLoading,
+  hasFilters,
+  showArchived,
+  onOpenDetail,
+  onRefetch,
+  onClearFilters,
+  addToast,
+}: {
+  buyers: ApiBuyer[]
+  isLoading: boolean
+  hasFilters: boolean
+  showArchived?: boolean
+  onOpenDetail: (id: string) => void
+  onRefetch: () => void
+  onClearFilters: () => void
+  addToast: (msg: string, type?: ToastType) => void
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sortCol, setSortCol] = useState<string>('score')
-  const [menuOpen, setMenuOpen] = useState<number | null>(null)
+  const [menuOpen, setMenuOpen] = useState<string | null>(null)
+  const [bulkLoading, setBulkLoading] = useState(false)
 
-  const allSelected = selected.size === buyers.length
-  function toggleAll() { setSelected(allSelected ? new Set() : new Set(buyers.map(b => b.id))) }
-  function toggle(id: number) { setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n }) }
+  const allSelected = buyers.length > 0 && selected.size === buyers.length
+  function toggleAll() { setSelected(allSelected ? new Set() : new Set(buyers.map((b) => b.id))) }
+  function toggle(id: string) { setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n }) }
+
+  async function handleBulk(action: string) {
+    if (selected.size === 0) return
+    setBulkLoading(true)
+    try {
+      const data = await bulkAction(action, Array.from(selected))
+      addToast(`${data.updated ?? selected.size} buyer${(data.updated ?? selected.size) !== 1 ? 's' : ''} ${action === 'archive' ? 'archived' : action === 'activate' ? 'activated' : 'updated'}`)
+      setSelected(new Set())
+      onRefetch()
+    } catch (ex) {
+      addToast(ex instanceof Error ? ex.message : 'Bulk action failed', 'error')
+    } finally {
+      setBulkLoading(false)
+    }
+  }
+
+  async function handleArchive(id: string) {
+    setMenuOpen(null)
+    try {
+      await archiveBuyer(id)
+      addToast('Buyer archived')
+      onRefetch()
+    } catch (ex) {
+      addToast(ex instanceof Error ? ex.message : 'Archive failed', 'error')
+    }
+  }
+
+  async function handleUnarchive(id: string) {
+    setMenuOpen(null)
+    try {
+      await unarchiveBuyer(id)
+      addToast('Buyer restored')
+      onRefetch()
+    } catch (ex) {
+      addToast(ex instanceof Error ? ex.message : 'Restore failed', 'error')
+    }
+  }
+
+  // Skeleton while loading
+  if (isLoading) return <TableSkeleton />
+
+  // Empty state: no buyers at all
+  if (buyers.length === 0 && !hasFilters) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[#E5E7EB] rounded-lg">
+        <Users className="w-14 h-14 mb-3 text-gray-300" />
+        <p className="text-base font-medium text-gray-600 mb-1">Your buyer list is empty</p>
+        <p className="text-sm text-gray-400 mb-5">Add buyers manually or import from a CSV file.</p>
+        <div className="flex gap-2">
+          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openAddModal'))} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
+            <UserPlus className="w-4 h-4" /> Add Buyer
+          </button>
+          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openImportModal'))} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
+            <Upload className="w-4 h-4" /> Import CSV
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Empty state: no search results
+  if (buyers.length === 0 && hasFilters) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[#E5E7EB] rounded-lg">
+        <Search className="w-12 h-12 mb-3 text-gray-300" />
+        <p className="text-sm font-medium text-gray-500">No buyers match your filters</p>
+        <button onClick={onClearFilters} className="mt-3 text-sm text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer">Clear all filters</button>
+      </div>
+    )
+  }
 
   return (
     <div>
       {/* Bulk action bar */}
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 bg-[#EEF2FF] border border-[#C7D2FE] rounded-lg px-4 py-2.5 mb-3">
-          <span className="text-[0.8rem] text-[#4F46E5] font-medium">{selected.size} selected</span>
+        <div className="flex items-center gap-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg px-4 py-2.5 mb-3">
+          <span className="text-[0.8rem] text-[#2563EB] font-medium">{selected.size} selected</span>
           <div className="flex items-center gap-1.5 ml-auto">
             {[
-              { label: 'Send Campaign', icon: PhoneOutgoing },
-              { label: 'Add Tag', icon: Tag },
-              { label: 'Export', icon: Download },
-              { label: 'Archive', icon: Archive },
-            ].map(a => (
-              <button key={a.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-[#E0E7FF] bg-transparent border-0 cursor-pointer transition-colors">
+              { label: 'Send Campaign', icon: PhoneOutgoing, action: 'campaign' },
+              { label: 'Add Tag', icon: Tag, action: 'tag' },
+              { label: 'Export', icon: Download, action: 'export' },
+              { label: 'Archive', icon: Archive, action: 'archive' },
+            ].map((a) => (
+              <button
+                key={a.label}
+                onClick={() => handleBulk(a.action)}
+                disabled={bulkLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#2563EB] hover:bg-[#DBEAFE] bg-transparent border-0 cursor-pointer transition-colors disabled:opacity-50"
+              >
                 <a.icon className="w-3.5 h-3.5" />
                 {a.label}
               </button>
             ))}
           </div>
-          <button onClick={() => setSelected(new Set())} className="text-[#818CF8] hover:text-[#4F46E5] bg-transparent border-0 cursor-pointer">
+          <button onClick={() => setSelected(new Set())} className="text-[#60A5FA] hover:text-[#2563EB] bg-transparent border-0 cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {/* Table */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-none overflow-hidden overflow-x-auto">
+      <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-none overflow-x-auto">
         <table className="w-full min-w-[1000px]">
           <thead>
             <tr className="border-b border-[#F3F4F6]">
               <th className="w-10 px-3 py-3">
-                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#4F46E5] w-3.5 h-3.5 cursor-pointer" />
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#2563EB] w-3.5 h-3.5 cursor-pointer" />
               </th>
               {[
                 { key: 'name', label: 'Buyer Name', align: 'left' },
@@ -209,12 +1090,13 @@ function ListView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
                 { key: 'market', label: 'Market(s)', align: 'left' },
                 { key: 'buybox', label: 'Buy Box', align: 'left' },
                 { key: 'score', label: 'Score', align: 'center' },
+                { key: 'motivation', label: 'Motivation', align: 'left' },
                 { key: 'status', label: 'Status', align: 'left' },
                 { key: 'lastContact', label: 'Last Contact', align: 'left' },
                 { key: 'deals', label: 'Closed', align: 'center' },
-                { key: 'source', label: 'Src', align: 'center' },
+                { key: 'tags', label: 'Tags', align: 'left' },
                 { key: 'actions', label: '', align: 'right' },
-              ].map(col => (
+              ].map((col) => (
                 <th
                   key={col.key}
                   onClick={() => col.key !== 'actions' ? setSortCol(col.key) : null}
@@ -231,72 +1113,93 @@ function ListView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
             </tr>
           </thead>
           <tbody>
-            {buyers.map((b, i) => (
-              <tr
-                key={b.id}
-                className={`${i < buyers.length - 1 ? 'border-b border-[#F3F4F6]' : ''} bg-white hover:bg-[#F9FAFB] transition-colors`}
-              >
-                <td className="px-3 py-3">
-                  <input type="checkbox" checked={selected.has(b.id)} onChange={() => toggle(b.id)} className="accent-[#4F46E5] w-3.5 h-3.5 cursor-pointer" />
-                </td>
-                <td className="px-3 py-3">
-                  <button onClick={() => onOpenDetail(b)} className="flex items-center gap-2 bg-transparent border-0 cursor-pointer text-left p-0 group">
-                    <div className="w-7 h-7 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
-                      <span className="text-[0.52rem] font-medium text-[#6B7280]">{b.initials}</span>
-                    </div>
-                    <span className="text-[0.82rem] font-medium text-gray-800 group-hover:text-[#4F46E5] transition-colors">{b.name}</span>
-                  </button>
-                </td>
-                <td className="px-3 py-3 text-[0.78rem] text-gray-600 whitespace-nowrap">{b.phone}</td>
-                <td className="px-3 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {b.markets.map(m => (
-                      <span key={m} className="text-[0.66rem] text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{m}</span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-3 py-3 text-[0.76rem] text-gray-600 max-w-[160px] truncate">{b.buyBox}</td>
-                <td className="px-3 py-3 text-center">
-                  <span className={`text-[0.72rem] font-bold px-2 py-0.5 rounded-full border ${scoreColor(b.score)}`}>{b.score}</span>
-                </td>
-                <td className="px-3 py-3">
-                  <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${statusStyle(b.status)}`}>{b.status}</span>
-                </td>
-                <td className="px-3 py-3 text-[0.78rem] text-gray-500 whitespace-nowrap">{b.lastContact}</td>
-                <td className="px-3 py-3 text-center text-[0.82rem] text-gray-700 font-medium">{b.dealsClosed}</td>
-                <td className="px-3 py-3 text-center">{sourceIcon(b.source)}</td>
-                <td className="px-3 py-3 text-right relative">
-                  <button
-                    onClick={() => setMenuOpen(menuOpen === b.id ? null : b.id)}
-                    className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 bg-transparent border-0 cursor-pointer transition-colors"
-                  >
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
-                  {menuOpen === b.id && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(null)} />
-                      <div className="absolute right-0 top-full mt-1 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px]">
-                        {[
-                          { label: 'Edit', icon: Pencil },
-                          { label: 'Start Outreach', icon: PhoneOutgoing },
-                          { label: 'Match to Deal', icon: Target },
-                          { label: 'Archive', icon: Archive },
-                        ].map(a => (
-                          <button
-                            key={a.label}
-                            onClick={() => setMenuOpen(null)}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-[0.78rem] text-gray-600 hover:bg-gray-50 bg-transparent border-0 cursor-pointer transition-colors text-left"
-                          >
-                            <a.icon className="w-3.5 h-3.5 text-gray-400" />
-                            {a.label}
-                          </button>
-                        ))}
+            {buyers.map((b, i) => {
+              const grade = scoreGrade(b.buyerScore)
+              return (
+                <tr
+                  key={b.id}
+                  className={`${i < buyers.length - 1 ? 'border-b border-[#F3F4F6]' : ''} bg-white hover:bg-[#F9FAFB] transition-colors cursor-pointer`}
+                  onDoubleClick={() => onOpenDetail(b.id)}
+                >
+                  <td className="px-3 py-3">
+                    <input type="checkbox" checked={selected.has(b.id)} onChange={() => toggle(b.id)} className="accent-[#2563EB] w-3.5 h-3.5 cursor-pointer" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <button onClick={() => onOpenDetail(b.id)} className="flex items-center gap-2 bg-transparent border-0 cursor-pointer text-left p-0 group">
+                      <div className="w-7 h-7 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
+                        <span className="text-[0.52rem] font-medium text-[#6B7280]">{buyerInitials(b)}</span>
                       </div>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
+                      <span className="text-[0.82rem] font-medium text-gray-800 group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
+                    </button>
+                  </td>
+                  <td className="px-3 py-3 text-[0.78rem] text-gray-600 whitespace-nowrap">{b.phone || '—'}</td>
+                  <td className="px-3 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {(b.preferredMarkets || []).map((m) => (
+                        <span key={m} className="text-[0.66rem] text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{m}</span>
+                      ))}
+                      {(!b.preferredMarkets || b.preferredMarkets.length === 0) && <span className="text-[0.66rem] text-gray-400">—</span>}
+                    </div>
+                  </td>
+                  <td className="px-3 py-3 text-[0.76rem] text-gray-600 max-w-[160px] truncate">{buyBox(b)}</td>
+                  <td className="px-3 py-3 text-center">
+                    <span className={`text-[0.72rem] font-bold px-2 py-0.5 rounded-full border ${scoreColor(grade)}`}>{grade}</span>
+                  </td>
+                  <td className="px-3 py-3">
+                    {(() => {
+                      const mb = motivationBadge(b.motivation)
+                      if (!mb) return <span className="text-[0.68rem] text-gray-300">—</span>
+                      return (
+                        <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full whitespace-nowrap flex items-center gap-1 w-fit ${mb.style}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${mb.dot}`} />
+                          {mb.label}
+                        </span>
+                      )
+                    })()}
+                  </td>
+                  <td className="px-3 py-3">
+                    <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${statusStyle(b.status)}`}>{displayStatus(b.status)}</span>
+                  </td>
+                  <td className="px-3 py-3 text-[0.78rem] text-gray-500 whitespace-nowrap">{relativeDate(b.lastContactedAt)}</td>
+                  <td className="px-3 py-3 text-center text-[0.82rem] text-gray-700 font-medium">{b.cashPurchaseCount}</td>
+                  <td className="px-3 py-3">
+                    <div className="flex flex-wrap gap-1 max-w-[140px]">
+                      {(b.tags || []).slice(0, 3).map((bt) => (
+                        <span
+                          key={bt.id}
+                          className="text-[0.62rem] font-medium px-1.5 py-0.5 rounded-full border"
+                          style={{
+                            color: bt.tag.color,
+                            borderColor: bt.tag.color + '40',
+                            backgroundColor: bt.tag.color + '10',
+                          }}
+                        >
+                          {bt.tag.label}
+                        </span>
+                      ))}
+                      {(b.tags || []).length > 3 && (
+                        <span className="text-[0.62rem] text-gray-400">+{b.tags!.length - 3}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-3 py-3 text-right">
+                    <RowMenu
+                      isOpen={menuOpen === b.id}
+                      onToggle={() => setMenuOpen(menuOpen === b.id ? null : b.id)}
+                      onClose={() => setMenuOpen(null)}
+                      actions={showArchived ? [
+                        { label: 'View Details', icon: Pencil, onClick: () => { setMenuOpen(null); onOpenDetail(b.id) } },
+                        { label: 'Restore Buyer', icon: ArchiveRestore, onClick: () => handleUnarchive(b.id) },
+                      ] : [
+                        { label: 'View Details', icon: Pencil, onClick: () => { setMenuOpen(null); onOpenDetail(b.id) } },
+                        { label: 'Start Outreach', icon: PhoneOutgoing, onClick: () => setMenuOpen(null) },
+                        { label: 'Archive', icon: Archive, onClick: () => handleArchive(b.id) },
+                      ]}
+                    />
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -307,65 +1210,88 @@ function ListView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
 /* ═══════════════════════════════════════════════
    PIPELINE VIEW
    ═══════════════════════════════════════════════ */
-const stages = ['New Lead', 'Contacted', 'Qualified', 'Offer Sent', 'Under Contract', 'Closed']
-const stageColors: Record<string, string> = {
-  'New Lead': 'border-t-gray-400',
-  'Contacted': 'border-t-indigo-400',
-  'Qualified': 'border-t-violet-400',
-  'Offer Sent': 'border-t-amber-400',
-  'Under Contract': 'border-t-emerald-400',
-  'Closed': 'border-t-green-500',
-}
+const PIPELINE_STATUSES = [
+  { key: 'ACTIVE', label: 'Active', borderColor: 'border-t-emerald-400' },
+  { key: 'RECENTLY_VERIFIED', label: 'Recently Verified', borderColor: 'border-t-violet-400' },
+  { key: 'HIGH_CONFIDENCE', label: 'High-Confidence', borderColor: 'border-t-amber-400' },
+  { key: 'DORMANT', label: 'Dormant', borderColor: 'border-t-gray-400' },
+  { key: 'DO_NOT_CALL', label: 'Do Not Call', borderColor: 'border-t-red-400' },
+]
 
-function PipelineView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
+function PipelineView({
+  buyers,
+  isLoading,
+  onOpenDetail,
+}: {
+  buyers: ApiBuyer[]
+  isLoading: boolean
+  onOpenDetail: (id: string) => void
+}) {
+  if (isLoading) {
+    return (
+      <div className="flex gap-3 overflow-x-auto pb-4">
+        {PIPELINE_STATUSES.map((s) => (
+          <div key={s.key} className="flex-shrink-0 w-[210px]">
+            <div className={`bg-gray-50 rounded-xl border-t-[3px] ${s.borderColor} p-3 min-h-[400px]`}>
+              <div className="w-20 h-4 bg-gray-200 rounded animate-pulse mb-3" />
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white border border-gray-200 rounded-lg p-3 mb-2">
+                  <div className="w-24 h-4 bg-gray-200 rounded animate-pulse mb-2" />
+                  <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (buyers.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+        <Users className="w-12 h-12 mb-3 text-gray-300" />
+        <p className="text-sm font-medium text-gray-500">No buyers to display</p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex gap-3 overflow-x-auto pb-4 crm-pipeline">
-      {stages.map(stage => {
-        const cards = buyers.filter(b => b.stage === stage)
-        // Add some "closed" entries as mock
-        const closedCards = stage === 'Closed'
-          ? [
-              { id: 100, name: 'Kevin Nguyen', initials: 'KN', color: '', markets: ['Dallas'], buyBox: 'SFR, $120K-$250K, Flip', score: 'A', daysInStage: 0 },
-              { id: 101, name: 'Jessica Rivera', initials: 'JR', color: '', markets: ['Atlanta'], buyBox: 'MF, $200K-$400K, Rental', score: 'A', daysInStage: 0 },
-              { id: 102, name: 'Marcus Thompson', initials: 'MT', color: '', markets: ['Dallas'], buyBox: 'SFR, $100K-$200K, Flip', score: 'A', daysInStage: 0 },
-            ]
-          : []
-        const allCards = [...cards.map(c => ({ id: c.id, name: c.name, initials: c.initials, color: c.color, markets: c.markets, buyBox: c.buyBox, score: c.score, daysInStage: c.daysInStage })), ...closedCards]
-
+      {PIPELINE_STATUSES.map((stage) => {
+        const cards = buyers.filter((b) => b.status === stage.key)
         return (
-          <div key={stage} className="flex-shrink-0 w-[210px]">
-            <div className={`bg-gray-50 rounded-xl border-t-[3px] ${stageColors[stage]} p-3 min-h-[400px]`}>
+          <div key={stage.key} className="flex-shrink-0 w-[210px]">
+            <div className={`bg-gray-50 rounded-xl border-t-[3px] ${stage.borderColor} p-3 min-h-[400px]`}>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[0.76rem] font-medium text-gray-700">{stage}</span>
-                <span className="text-[0.68rem] font-medium text-gray-400 bg-white rounded-full px-2 py-0.5">{allCards.length}</span>
+                <span className="text-[0.76rem] font-medium text-gray-700">{stage.label}</span>
+                <span className="text-[0.68rem] font-medium text-gray-400 bg-white rounded-full px-2 py-0.5">{cards.length}</span>
               </div>
               <div className="space-y-2">
-                {allCards.map(c => (
-                  <button
-                    key={c.id}
-                    onClick={() => { const full = buyers.find(b => b.id === c.id); if (full) onOpenDetail(full) }}
-                    className="w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-left cursor-pointer hover:bg-[#F9FAFB] shadow-none transition-colors group"
-                  >
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-6 h-6 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
-                        <span className="text-[0.46rem] font-medium text-[#6B7280]">{c.initials}</span>
+                {cards.map((b) => {
+                  const grade = scoreGrade(b.buyerScore)
+                  return (
+                    <button
+                      key={b.id}
+                      onClick={() => onOpenDetail(b.id)}
+                      className="w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-left cursor-pointer hover:bg-[#F9FAFB] shadow-none transition-colors group"
+                    >
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <div className="w-6 h-6 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
+                          <span className="text-[0.46rem] font-medium text-[#6B7280]">{buyerInitials(b)}</span>
+                        </div>
+                        <span className="text-[0.78rem] font-medium text-gray-800 truncate group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
                       </div>
-                      <span className="text-[0.78rem] font-medium text-gray-800 truncate group-hover:text-[#4F46E5] transition-colors">{c.name}</span>
-                    </div>
-                    <div className="text-[0.68rem] text-gray-400 mb-1.5 flex gap-1 flex-wrap">
-                      {c.markets.map(m => <span key={m}>{m}</span>)}
-                    </div>
-                    <div className="text-[0.7rem] text-gray-500 truncate mb-2">{c.buyBox}</div>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[0.64rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(c.score)}`}>{c.score}</span>
-                      {c.daysInStage > 0 && (
-                        <span className="text-[0.64rem] text-gray-400 flex items-center gap-0.5">
-                          <Clock className="w-2.5 h-2.5" />{c.daysInStage}d
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                ))}
+                      <div className="text-[0.68rem] text-gray-400 mb-1.5 flex gap-1 flex-wrap">
+                        {(b.preferredMarkets || []).map((m) => <span key={m}>{m}</span>)}
+                      </div>
+                      <div className="text-[0.7rem] text-gray-500 truncate mb-2">{buyBox(b)}</div>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[0.64rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(grade)}`}>{grade}</span>
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -378,22 +1304,22 @@ function PipelineView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
 /* ═══════════════════════════════════════════════
    MAP VIEW
    ═══════════════════════════════════════════════ */
-function MapView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
-  const [hoverBuyer, setHoverBuyer] = useState<number | null>(null)
+function MapView({
+  buyers,
+  onOpenDetail,
+}: {
+  buyers: ApiBuyer[]
+  onOpenDetail: (id: string) => void
+}) {
+  const [hoverBuyer, setHoverBuyer] = useState<string | null>(null)
   const [heatmap, setHeatmap] = useState(false)
 
   return (
     <div className="relative w-full rounded-xl overflow-hidden bg-[#1a1d23] border border-gray-800" style={{ height: 560 }}>
-      {/* Grid */}
       <svg className="absolute inset-0 w-full h-full opacity-[0.06]">
-        <defs>
-          <pattern id="crmGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" strokeWidth="0.5" />
-          </pattern>
-        </defs>
+        <defs><pattern id="crmGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" strokeWidth="0.5" /></pattern></defs>
         <rect width="100%" height="100%" fill="url(#crmGrid)" />
       </svg>
-      {/* Roads */}
       <svg className="absolute inset-0 w-full h-full opacity-[0.08]">
         <line x1="0" y1="30%" x2="100%" y2="28%" stroke="#fff" strokeWidth="2" />
         <line x1="0" y1="55%" x2="100%" y2="58%" stroke="#fff" strokeWidth="1.5" />
@@ -403,68 +1329,53 @@ function MapView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
         <line x1="82%" y1="0" x2="80%" y2="100%" stroke="#fff" strokeWidth="1" />
       </svg>
 
-      {/* Heat overlay */}
       {heatmap && (
         <div className="absolute inset-0">
           <div className="absolute w-[180px] h-[180px] rounded-full bg-emerald-500/12 blur-3xl" style={{ left: '35%', top: '30%' }} />
-          <div className="absolute w-[220px] h-[220px] rounded-full bg-indigo-500/10 blur-3xl" style={{ left: '55%', top: '40%' }} />
+          <div className="absolute w-[220px] h-[220px] rounded-full bg-blue-500/10 blur-3xl" style={{ left: '55%', top: '40%' }} />
           <div className="absolute w-[140px] h-[140px] rounded-full bg-amber-500/10 blur-3xl" style={{ left: '20%', top: '50%' }} />
           <div className="absolute w-[160px] h-[160px] rounded-full bg-emerald-400/08 blur-3xl" style={{ left: '70%', top: '55%' }} />
         </div>
       )}
 
-      {/* Pins */}
-      {buyers.map(b => (
-        <div
-          key={b.id}
-          className="absolute cursor-pointer group"
-          style={{ left: `${b.pinX}%`, top: `${b.pinY}%`, transform: 'translate(-50%, -50%)' }}
-          onMouseEnter={() => setHoverBuyer(b.id)}
-          onMouseLeave={() => setHoverBuyer(null)}
-        >
-          <div
-            className="w-3 h-3 rounded-full border-2 border-white/60 group-hover:scale-150 transition-transform"
-            style={{ background: scoreDot(b.score) }}
-          />
-          {/* Popup */}
-          {hoverBuyer === b.id && (
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#12141a] border border-gray-700 rounded-lg px-3 py-2.5 shadow-xl z-10 min-w-[180px]">
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="w-6 h-6 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
-                  <span className="text-[0.46rem] font-medium text-[#6B7280]">{b.initials}</span>
+      {buyers.map((b) => {
+        const pos = hashPosition(b.id)
+        const grade = scoreGrade(b.buyerScore)
+        return (
+          <div key={b.id} className="absolute cursor-pointer group" style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: 'translate(-50%, -50%)' }}
+            onMouseEnter={() => setHoverBuyer(b.id)} onMouseLeave={() => setHoverBuyer(null)}>
+            <div className="w-3 h-3 rounded-full border-2 border-white/60 group-hover:scale-150 transition-transform" style={{ background: scoreDot(grade) }} />
+            {hoverBuyer === b.id && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#12141a] border border-gray-700 rounded-lg px-3 py-2.5 shadow-xl z-10 min-w-[180px]">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="w-6 h-6 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
+                    <span className="text-[0.46rem] font-medium text-[#6B7280]">{buyerInitials(b)}</span>
+                  </div>
+                  <span className="text-[0.8rem] font-medium text-white">{buyerName(b)}</span>
+                  <span className={`text-[0.6rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(grade)}`}>{grade}</span>
                 </div>
-                <span className="text-[0.8rem] font-medium text-white">{b.name}</span>
-                <span className={`text-[0.6rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(b.score)}`}>{b.score}</span>
+                <div className="text-[0.7rem] text-gray-400 mb-2">{buyBox(b)}</div>
+                <button onClick={() => onOpenDetail(b.id)} className="w-full text-[0.72rem] font-medium text-[#60A5FA] hover:text-[#A5B4FC] bg-transparent border-0 cursor-pointer text-left transition-colors">View Profile →</button>
+                <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-[#12141a] border-r border-b border-gray-700 rotate-45" />
               </div>
-              <div className="text-[0.7rem] text-gray-400 mb-2">{b.buyBox}</div>
-              <button
-                onClick={() => onOpenDetail(b)}
-                className="w-full text-[0.72rem] font-medium text-[#818CF8] hover:text-[#A5B4FC] bg-transparent border-0 cursor-pointer text-left transition-colors"
-              >
-                View Profile →
-              </button>
-              {/* Arrow */}
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-[#12141a] border-r border-b border-gray-700 rotate-45" />
-            </div>
-          )}
-        </div>
-      ))}
+            )}
+          </div>
+        )
+      })}
 
-      {/* Map label */}
       <div className="absolute top-3 left-3 bg-[#12141a]/80 backdrop-blur-sm rounded-md px-2.5 py-1.5 border border-gray-700/50">
         <span className="text-[0.72rem] text-gray-300 font-medium">All Markets</span>
       </div>
 
-      {/* Legend */}
       <div className="absolute bottom-3 left-3 bg-[#12141a]/90 backdrop-blur-sm rounded-lg px-3 py-2.5 border border-gray-700/50">
         <div className="text-[0.62rem] text-gray-400 uppercase tracking-wide mb-1.5">Buyer Score</div>
         <div className="space-y-1">
           {[
             { label: 'A: Top Buyer', color: '#10b981' },
-            { label: 'B: Good', color: '#4F46E5' },
+            { label: 'B: Good', color: '#2563EB' },
             { label: 'C: Fair', color: '#f59e0b' },
             { label: 'D: Low', color: '#ef4444' },
-          ].map(l => (
+          ].map((l) => (
             <div key={l.label} className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ background: l.color }} />
               <span className="text-[0.66rem] text-gray-300">{l.label}</span>
@@ -473,204 +1384,11 @@ function MapView({ onOpenDetail }: { onOpenDetail: (b: Buyer) => void }) {
         </div>
       </div>
 
-      {/* Heatmap toggle */}
       <div className="absolute top-3 right-3">
-        <button
-          onClick={() => setHeatmap(!heatmap)}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[0.68rem] font-medium border cursor-pointer transition-all ${
-            heatmap
-              ? 'bg-[#4F46E5] border-[#4338CA] text-white'
-              : 'bg-[#12141a]/80 backdrop-blur-sm border-gray-700/50 text-gray-400 hover:text-gray-200 hover:border-gray-600'
-          }`}
-        >
-          <Flame className="w-3 h-3" />
-          Buyer Density
+        <button onClick={() => setHeatmap(!heatmap)} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[0.68rem] font-medium border cursor-pointer transition-all ${heatmap ? 'bg-[#2563EB] border-[#1D4ED8] text-white' : 'bg-[#12141a]/80 backdrop-blur-sm border-gray-700/50 text-gray-400 hover:text-gray-200 hover:border-gray-600'}`}>
+          <Layers className="w-3 h-3" /> Density
         </button>
       </div>
-    </div>
-  )
-}
-
-/* ═══════════════════════════════════════════════
-   BUYER DETAIL PANEL
-   ═══════════════════════════════════════════════ */
-function BuyerDetail({ buyer, onClose }: { buyer: Buyer; onClose: () => void }) {
-  function tlIcon(type: string) {
-    switch (type) {
-      case 'phone': return <Phone className="w-3.5 h-3.5 text-[#4F46E5]" />
-      case 'email': return <Mail className="w-3.5 h-3.5 text-violet-500" />
-      case 'deal': return <Home className="w-3.5 h-3.5 text-amber-500" />
-      case 'contract': return <FileSignature className="w-3.5 h-3.5 text-emerald-500" />
-      default: return <Circle className="w-3.5 h-3.5 text-gray-400" />
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm animate-fadeIn" onClick={onClose} />
-      <div className="relative w-[520px] h-full bg-white shadow-none overflow-y-auto crm-detail-panel animate-slideInRight border-l border-[#E5E7EB]">
-        {/* Header */}
-        <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer border-0 transition-colors">
-            <X className="w-4 h-4 text-gray-500" />
-          </button>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
-              <span className="text-[0.7rem] font-medium text-[#6B7280]">{buyer.initials}</span>
-            </div>
-            <div>
-              <h2 className="text-[1.1rem] font-medium text-gray-900">
-                {buyer.name}
-              </h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className={`text-[0.68rem] font-bold px-2 py-0.5 rounded-full border ${scoreColor(buyer.score)}`}>
-                  Score: {buyer.score}
-                </span>
-                <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${statusStyle(buyer.status)}`}>
-                  {buyer.status}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {buyer.markets.map(m => (
-              <span key={m} className="text-[0.68rem] text-gray-500 bg-gray-100 rounded-full px-2 py-0.5 flex items-center gap-1">
-                <MapPin className="w-2.5 h-2.5" />{m}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="px-6 py-5 space-y-5">
-          {/* Contact Info */}
-          <div>
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-2.5">Contact Info</div>
-            <div className="bg-gray-50 rounded-lg px-4 py-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500 flex items-center gap-1.5"><Phone className="w-3 h-3" />Phone</span>
-                <span className="text-[0.82rem] text-gray-800">{buyer.phone}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500 flex items-center gap-1.5"><Mail className="w-3 h-3" />Email</span>
-                <span className="text-[0.82rem] text-gray-800">{buyer.email}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500 flex items-center gap-1.5"><MapPin className="w-3 h-3" />Address</span>
-                <span className="text-[0.78rem] text-gray-700 text-right max-w-[55%]">{buyer.mailingAddress}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500">Preferred</span>
-                <span className="text-[0.78rem] text-gray-700">{buyer.preferredContact}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Buy Box */}
-          <div>
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-2.5">Buy Box</div>
-            <div className="bg-gray-50 rounded-lg px-4 py-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500">Property Types</span>
-                <span className="text-[0.82rem] text-gray-800">{buyer.propertyTypes.join(', ')}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500">Price Range</span>
-                <span className="text-[0.82rem] font-medium text-gray-800">{buyer.priceRange}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500">Target Zips</span>
-                <span className="text-[0.78rem] text-gray-700">{buyer.targetZips}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500">Strategy</span>
-                <span className="text-[0.82rem] text-gray-800">{buyer.strategy}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500">Closing Speed</span>
-                <span className="text-[0.82rem] text-gray-800">{buyer.closingSpeed}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500">Proof of Funds</span>
-                <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded-full ${
-                  buyer.pofStatus === 'Verified' ? 'text-emerald-700 bg-emerald-50' : 'text-gray-500 bg-gray-200'
-                }`}>
-                  {buyer.pofStatus === 'Verified' ? `✓ Verified ${buyer.pofDate}` : 'Unverified'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[0.78rem] text-gray-500">Funding Source</span>
-                <span className="text-[0.82rem] text-gray-800">{buyer.fundingSource}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Activity Timeline */}
-          <div>
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-2.5">Activity Timeline</div>
-            <div className="relative pl-5">
-              {/* Vertical line */}
-              <div className="absolute left-[7px] top-2 bottom-2 w-px bg-gray-200" />
-              <div className="space-y-4">
-                {timeline.map((e, i) => (
-                  <div key={i} className="relative">
-                    <div className="absolute left-[-20px] top-0.5 w-[15px] h-[15px] rounded-full bg-white border-2 border-gray-200 flex items-center justify-center">
-                      {tlIcon(e.type)}
-                    </div>
-                    <div>
-                      <div className="text-[0.68rem] text-gray-400 mb-0.5">{e.date} · {e.time}</div>
-                      <div className="text-[0.78rem] text-gray-700 leading-relaxed">{e.text}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Tags */}
-          <div>
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-2.5">Tags</div>
-            <div className="flex flex-wrap gap-1.5">
-              {buyer.tags.map(t => (
-                <span key={t} className={`text-[0.72rem] font-medium px-2.5 py-1 rounded-full border ${tagColor(t)}`}>
-                  {t}
-                </span>
-              ))}
-              <button className="text-[0.72rem] text-gray-400 hover:text-[#4F46E5] border border-dashed border-gray-300 hover:border-[#4F46E5] rounded-full px-2.5 py-1 bg-transparent cursor-pointer transition-colors flex items-center gap-1">
-                <Plus className="w-3 h-3" />
-                Add Tag
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom actions */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4">
-          <div className="grid grid-cols-2 gap-2.5">
-            <button className="flex items-center justify-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
-              <PhoneOutgoing className="w-4 h-4" />
-              Start Outreach
-            </button>
-            <button className="flex items-center justify-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
-              <Send className="w-4 h-4" />
-              Send Deal
-            </button>
-            <button className="flex items-center justify-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
-              <Pencil className="w-4 h-4" />
-              Edit Profile
-            </button>
-            <button className="flex items-center justify-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
-              <Archive className="w-4 h-4" />
-              Archive
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <style>{`
-        @media (max-width: 640px) {
-          .crm-detail-panel { width: 100% !important; }
-        }
-      `}</style>
     </div>
   )
 }
@@ -679,29 +1397,160 @@ function BuyerDetail({ buyer, onClose }: { buyer: Buyer; onClose: () => void }) 
    MAIN CRM PAGE
    ═══════════════════════════════════════════════ */
 export default function BuyerCrmPage() {
-  const [view, setView] = useState<'list' | 'pipeline' | 'map'>('list')
-  const [detailBuyer, setDetailBuyer] = useState<Buyer | null>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Initialize from URL params
+  const [view, setView] = useState<'list' | 'pipeline' | 'map'>((searchParams.get('view') as 'list' | 'pipeline' | 'map') || 'list')
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [showDuplicatesModal, setShowDuplicatesModal] = useState(false)
+  const [showArchived, setShowArchived] = useState(searchParams.get('archived') === 'true')
+
+  // Filters from URL
+  const [search, setSearch] = useState(searchParams.get('search') || '')
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
+  const [marketFilter, setMarketFilter] = useState(searchParams.get('market') || '')
+  const [strategyFilter, setStrategyFilter] = useState(searchParams.get('strategy') || '')
+  const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || '')
+  const [scoreFilter, setScoreFilter] = useState(searchParams.get('score') || '')
+  const [tagFilter, setTagFilter] = useState(searchParams.get('tag') || '')
+  const [motivationFilter, setMotivationFilter] = useState(searchParams.get('motivation') || '')
+  const [page, setPage] = useState(Number(searchParams.get('page')) || 1)
+
+  const { toasts, addToast, dismissToast } = useToasts()
+
+  const hasFilters = !!(search || statusFilter || marketFilter || strategyFilter || typeFilter || scoreFilter || tagFilter || motivationFilter)
+
+  function clearFilters() {
+    setSearch(''); setStatusFilter(''); setMarketFilter(''); setStrategyFilter('')
+    setTypeFilter(''); setScoreFilter(''); setTagFilter(''); setMotivationFilter(''); setPage(1)
+  }
+
+  const filters: BuyerFilters = {
+    page,
+    limit: 25,
+    search,
+    status: statusFilter || undefined,
+    market: marketFilter || undefined,
+    strategy: strategyFilter || undefined,
+    type: typeFilter || undefined,
+    scoreMin: scoreFilter ? ({ A: 90, B: 70, C: 50, D: 0 } as Record<string, number>)[scoreFilter] : undefined,
+    tag: tagFilter || undefined,
+    motivation: motivationFilter || undefined,
+    sortBy: searchParams.get('sort') || undefined,
+    sortOrder: (searchParams.get('order') as 'asc' | 'desc') || undefined,
+    archived: showArchived,
+  }
+
+  const { buyers, pagination, stats, isLoading, error, refetch } = useBuyers(filters)
+  const { tags } = useTags()
+
+  // Reset page on filter change
+  useEffect(() => { setPage(1) }, [search, statusFilter, marketFilter, strategyFilter, typeFilter, scoreFilter, tagFilter, motivationFilter])
+
+  // URL sync — update URL when state changes
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (view !== 'list') params.set('view', view)
+    if (search) params.set('search', search)
+    if (statusFilter) params.set('status', statusFilter)
+    if (marketFilter) params.set('market', marketFilter)
+    if (strategyFilter) params.set('strategy', strategyFilter)
+    if (typeFilter) params.set('type', typeFilter)
+    if (scoreFilter) params.set('score', scoreFilter)
+    if (tagFilter) params.set('tag', tagFilter)
+    if (motivationFilter) params.set('motivation', motivationFilter)
+    if (page > 1) params.set('page', String(page))
+    if (showArchived) params.set('archived', 'true')
+    const qs = params.toString()
+    router.replace(qs ? `?${qs}` : '?', { scroll: false })
+  }, [view, search, statusFilter, marketFilter, strategyFilter, typeFilter, scoreFilter, tagFilter, motivationFilter, page, showArchived, router])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      // Escape: close detail panel or modals
+      if (e.key === 'Escape') {
+        if (showAddModal) { setShowAddModal(false); return }
+        if (showImportModal) { setShowImportModal(false); return }
+        if (showDuplicatesModal) { setShowDuplicatesModal(false); return }
+
+      }
+      // Don't trigger shortcuts if typing in an input
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return
+
+      // / or Cmd+K: focus search
+      if (e.key === '/' || (e.metaKey && e.key === 'k')) {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+      // Cmd+N: open add buyer modal
+      if (e.metaKey && e.key === 'n') {
+        e.preventDefault()
+        setShowAddModal(true)
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [showAddModal, showImportModal, showDuplicatesModal])
+
+  // Listen for custom events from empty state buttons
+  useEffect(() => {
+    const handleOpenAdd = () => setShowAddModal(true)
+    const handleOpenImport = () => setShowImportModal(true)
+    document.addEventListener('crm:openAddModal', handleOpenAdd)
+    document.addEventListener('crm:openImportModal', handleOpenImport)
+    return () => {
+      document.removeEventListener('crm:openAddModal', handleOpenAdd)
+      document.removeEventListener('crm:openImportModal', handleOpenImport)
+    }
+  }, [])
+
+  const handleOpenDetail = useCallback((id: string) => router.push(`/crm/${id}`), [router])
 
   return (
     <div className="p-8 max-w-[1400px] bg-[#FAFAFA]">
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1
-            className="text-2xl font-semibold text-[#111827] mb-1"
-          >
-            Buyer CRM
-          </h1>
-          <p className="text-sm text-[#9CA3AF]">
-            Manage your cash buyer relationships and pipeline.
-          </p>
+          <h1 className="text-2xl font-semibold text-[#111827] mb-1">Buyer CRM</h1>
+          <p className="text-sm text-[#9CA3AF]">Manage your cash buyer relationships and pipeline.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+          <button
+            onClick={() => { setShowArchived(!showArchived); setPage(1) }}
+            className={`flex items-center gap-1.5 border rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors ${
+              showArchived
+                ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
+                : 'bg-white border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151]'
+            }`}
+          >
+            <Archive className="w-4 h-4" />
+            {showArchived ? 'Viewing Archived' : 'Archived'}
+          </button>
+          <button
+            onClick={() => setShowDuplicatesModal(true)}
+            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          >
+            <Copy className="w-4 h-4" />
+            Check Duplicates
+          </button>
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          >
             <Upload className="w-4 h-4" />
             Import CSV
           </button>
-          <button className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          >
             <UserPlus className="w-4 h-4" />
             Add Buyer
           </button>
@@ -713,17 +1562,36 @@ export default function BuyerCrmPage() {
         <div className="relative w-[260px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
+            ref={searchInputRef}
             type="text"
-            placeholder="Search name, phone, market, tag..."
-            className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none focus:border-[#4F46E5] transition-colors"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search name, phone, market... (/ to focus)"
+            className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-16 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none focus:border-[#2563EB] transition-colors"
           />
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.58rem] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5">Cmd+K</kbd>
         </div>
-        <FilterSelect label="Market" options={['Dallas', 'Atlanta', 'Phoenix', 'Tampa', 'All']} />
-        <FilterSelect label="Score" options={['A', 'B', 'C', 'D']} />
-        <FilterSelect label="Status" options={['Active', 'Dormant', 'New', 'High-Confidence', 'Recently Verified']} />
-        <FilterSelect label="Strategy" options={['Flip', 'Rental', 'Either', 'Hold']} />
-        <FilterSelect label="Type Pref" options={['SFR', 'Multi-Family', 'Land', 'Condo']} />
-        <FilterSelect label="Source" options={['AI Outreach', 'Manual Entry', 'Discovery Import', 'Marketplace']} />
+        <FilterSelect label="Market" value={marketFilter} onChange={setMarketFilter}
+          options={[{ value: 'Dallas', label: 'Dallas' }, { value: 'Atlanta', label: 'Atlanta' }, { value: 'Phoenix', label: 'Phoenix' }, { value: 'Tampa', label: 'Tampa' }]} />
+        <FilterSelect label="Score" value={scoreFilter} onChange={setScoreFilter}
+          options={[{ value: 'A', label: 'A (90+)' }, { value: 'B', label: 'B (70-89)' }, { value: 'C', label: 'C (50-69)' }, { value: 'D', label: 'D (<50)' }]} />
+        <FilterSelect label="Motivation" value={motivationFilter} onChange={setMotivationFilter}
+          options={[{ value: 'HOT', label: 'Hot' }, { value: 'WARM', label: 'Warm' }, { value: 'COLD', label: 'Cold' }, { value: 'NOT_INTERESTED', label: 'Not Interested' }]} />
+        <FilterSelect label="Status" value={statusFilter} onChange={setStatusFilter}
+          options={[{ value: 'ACTIVE', label: 'Active' }, { value: 'DORMANT', label: 'Dormant' }, { value: 'HIGH_CONFIDENCE', label: 'High-Confidence' }, { value: 'RECENTLY_VERIFIED', label: 'Recently Verified' }]} />
+        <FilterSelect label="Strategy" value={strategyFilter} onChange={setStrategyFilter}
+          options={[{ value: 'FLIP', label: 'Flip' }, { value: 'HOLD', label: 'Hold' }, { value: 'BOTH', label: 'Both' }]} />
+        <FilterSelect label="Type" value={typeFilter} onChange={setTypeFilter}
+          options={[{ value: 'SFR', label: 'SFR' }, { value: 'MULTI_FAMILY', label: 'Multi-Family' }, { value: 'LAND', label: 'Land' }, { value: 'CONDO', label: 'Condo' }]} />
+        {tags.length > 0 && (
+          <FilterSelect label="Tag" value={tagFilter} onChange={setTagFilter}
+            options={tags.map((t) => ({ value: t.name, label: t.label }))} />
+        )}
+        {hasFilters && (
+          <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-red-500 bg-transparent border-0 cursor-pointer">
+            Clear
+          </button>
+        )}
 
         {/* View toggle */}
         <div className="ml-auto flex items-center bg-gray-100 rounded-lg p-0.5">
@@ -731,18 +1599,15 @@ export default function BuyerCrmPage() {
             { key: 'list' as const, icon: List, label: 'List' },
             { key: 'pipeline' as const, icon: Columns3, label: 'Pipeline' },
             { key: 'map' as const, icon: MapPin, label: 'Map' },
-          ].map(v => (
+          ].map((v) => (
             <button
               key={v.key}
               onClick={() => setView(v.key)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium border-0 cursor-pointer transition-colors ${
-                view === v.key
-                  ? 'bg-white text-gray-800 shadow-sm'
-                  : 'bg-transparent text-gray-400 hover:text-gray-600'
+                view === v.key ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
-              <v.icon className="w-3.5 h-3.5" />
-              {v.label}
+              <v.icon className="w-3.5 h-3.5" /> {v.label}
             </button>
           ))}
         </div>
@@ -750,27 +1615,65 @@ export default function BuyerCrmPage() {
 
       {/* Stats bar */}
       <div className="flex items-center gap-5 text-[0.78rem] text-gray-500 mb-5">
-        <span><strong className="text-gray-700">847</strong> buyers</span>
-        <span className="text-gray-300">|</span>
-        <span><strong className="text-gray-700">312</strong> Active</span>
-        <span className="text-gray-300">|</span>
-        <span><strong className="text-gray-700">89</strong> High-Confidence</span>
-        <span className="text-gray-300">|</span>
-        <span><strong className="text-gray-700">147</strong> Recently Verified</span>
+        {isLoading ? (
+          <span className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading...</span>
+        ) : (
+          <>
+            <span><strong className="text-gray-700">{pagination.total}</strong> buyers</span>
+            {Object.entries(stats).map(([key, val]) => (
+              <span key={key}>
+                <span className="text-gray-300 mr-5">|</span>
+                <strong className="text-gray-700">{val}</strong> {displayStatus(key)}
+              </span>
+            ))}
+          </>
+        )}
       </div>
 
-      {/* Views */}
-      {view === 'list' && <ListView onOpenDetail={setDetailBuyer} />}
-      {view === 'pipeline' && <PipelineView onOpenDetail={setDetailBuyer} />}
-      {view === 'map' && <MapView onOpenDetail={setDetailBuyer} />}
+      {/* Error */}
+      {error && (
+        <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4 text-sm text-red-700">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span className="flex-1">{error}</span>
+          <button onClick={refetch} className="text-red-600 hover:text-red-800 bg-transparent border-0 cursor-pointer text-sm font-medium">Try Again</button>
+        </div>
+      )}
 
-      {/* Detail panel */}
-      {detailBuyer && <BuyerDetail buyer={detailBuyer} onClose={() => setDetailBuyer(null)} />}
+      {/* Archived banner */}
+      {showArchived && (
+        <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 mb-3">
+          <Archive className="w-4 h-4 text-amber-600" />
+          <span className="text-[0.82rem] text-amber-700 font-medium">Viewing archived buyers</span>
+          <button onClick={() => { setShowArchived(false); setPage(1) }} className="ml-auto text-[0.78rem] text-amber-600 hover:text-amber-800 bg-transparent border-0 cursor-pointer underline">
+            Back to active buyers
+          </button>
+        </div>
+      )}
+
+      {/* Views */}
+      {view === 'list' && (
+        <ListView buyers={buyers} isLoading={isLoading} hasFilters={hasFilters} showArchived={showArchived}
+          onOpenDetail={handleOpenDetail} onRefetch={refetch} onClearFilters={clearFilters} addToast={addToast} />
+      )}
+      {view === 'pipeline' && <PipelineView buyers={buyers} isLoading={isLoading} onOpenDetail={handleOpenDetail} />}
+      {view === 'map' && <MapView buyers={buyers} onOpenDetail={handleOpenDetail} />}
+
+      {/* Pagination */}
+      {view === 'list' && !isLoading && (
+        <PaginationBar page={pagination.page} totalPages={pagination.totalPages} total={pagination.total} onPage={setPage} />
+      )}
+
+      {/* Modals */}
+      {showAddModal && <AddBuyerModal onClose={() => setShowAddModal(false)} onCreated={(msg) => { addToast(msg); refetch() }} />}
+      {showImportModal && <ImportModal onClose={() => setShowImportModal(false)} onImported={(msg) => { addToast(msg); refetch() }} />}
+      {showDuplicatesModal && <DuplicatesModal onClose={() => setShowDuplicatesModal(false)} onMerged={(msg) => { addToast(msg); refetch() }} />}
 
       <style>{`
-        @media (max-width: 1000px) {
-          .crm-pipeline { overflow-x: auto; }
+        @keyframes slideInRight {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
         }
+        @media (max-width: 1000px) { .crm-pipeline { overflow-x: auto; } }
       `}</style>
     </div>
   )

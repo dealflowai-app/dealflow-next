@@ -369,7 +369,7 @@ function equityTextColor(pct: number) {
 }
 
 function pinColor(_type: string) {
-  return '#4F46E5'
+  return '#2563EB'
 }
 
 function ownerTypeBadge(_type: string) {
@@ -411,15 +411,15 @@ function DiscoveryMap({ properties, onPinClick, activeId }: { properties: Proper
       {/* Cash buyers heat overlay */}
       {layers.cashBuyers && (
         <div className="absolute inset-0">
-          <div className="absolute w-[200px] h-[200px] rounded-full bg-indigo-500/10 blur-3xl" style={{ left: '20%', top: '15%' }} />
-          <div className="absolute w-[280px] h-[280px] rounded-full bg-indigo-500/15 blur-3xl" style={{ left: '40%', top: '30%' }} />
-          <div className="absolute w-[150px] h-[150px] rounded-full bg-indigo-400/10 blur-3xl" style={{ left: '65%', top: '50%' }} />
+          <div className="absolute w-[200px] h-[200px] rounded-full bg-blue-500/10 blur-3xl" style={{ left: '20%', top: '15%' }} />
+          <div className="absolute w-[280px] h-[280px] rounded-full bg-blue-500/15 blur-3xl" style={{ left: '40%', top: '30%' }} />
+          <div className="absolute w-[150px] h-[150px] rounded-full bg-blue-400/10 blur-3xl" style={{ left: '65%', top: '50%' }} />
         </div>
       )}
 
       {/* Cluster indicator */}
       <div
-        className="absolute flex items-center justify-center w-10 h-10 rounded-full bg-[#4F46E5]/80 border-2 border-[#818CF8]/50 cursor-pointer hover:scale-110 transition-transform"
+        className="absolute flex items-center justify-center w-10 h-10 rounded-full bg-[#2563EB]/80 border-2 border-[#60A5FA]/50 cursor-pointer hover:scale-110 transition-transform"
         style={{ left: '42%', top: '42%' }}
       >
         <span className="text-[0.7rem] font-bold text-white">124</span>
@@ -461,10 +461,10 @@ function DiscoveryMap({ properties, onPinClick, activeId }: { properties: Proper
         <div className="text-[0.62rem] text-gray-400 uppercase tracking-wide mb-1.5">Legend</div>
         <div className="space-y-1">
           {[
-            { label: 'SFR', color: '#4F46E5' },
-            { label: 'Multi-Family', color: '#4F46E5' },
-            { label: 'Land', color: '#4F46E5' },
-            { label: 'Condo', color: '#4F46E5' },
+            { label: 'SFR', color: '#2563EB' },
+            { label: 'Multi-Family', color: '#2563EB' },
+            { label: 'Land', color: '#2563EB' },
+            { label: 'Condo', color: '#2563EB' },
           ].map(l => (
             <div key={l.label} className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ background: l.color }} />
@@ -490,7 +490,7 @@ function DiscoveryMap({ properties, onPinClick, activeId }: { properties: Proper
               onClick={() => setLayers(prev => ({ ...prev, [l.key]: !prev[l.key] }))}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[0.68rem] font-medium border cursor-pointer transition-all ${
                 active
-                  ? 'bg-[#4F46E5] border-[#4F46E5] text-white'
+                  ? 'bg-[#2563EB] border-[#2563EB] text-white'
                   : 'bg-[#12141a]/80 backdrop-blur-sm border-gray-700/50 text-gray-400 hover:text-gray-200 hover:border-gray-600'
               }`}
             >
@@ -533,7 +533,7 @@ function FilterPanel({ onClose }: { onClose: () => void }) {
               <div className="flex flex-wrap gap-1.5">
                 {['SFR', 'Multi-Family', 'Condo', 'Land', 'Commercial'].map(t => (
                   <label key={t} className="flex items-center gap-1.5 text-[0.76rem] text-[#374151] bg-[#F3F4F6] border border-[#E5E7EB] rounded-md px-2.5 py-1.5 cursor-pointer hover:bg-[#F9FAFB] transition-colors">
-                    <input type="checkbox" className="accent-[#4F46E5] w-3 h-3" defaultChecked={t === 'SFR'} />
+                    <input type="checkbox" className="accent-[#2563EB] w-3 h-3" defaultChecked={t === 'SFR'} />
                     {t}
                   </label>
                 ))}
@@ -549,8 +549,8 @@ function FilterPanel({ onClose }: { onClose: () => void }) {
                 <div key={f.label}>
                   <label className="text-[0.72rem] text-gray-500 mb-1 block">{f.label}</label>
                   <div className="flex gap-1">
-                    <input type="text" placeholder={f.min} className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
-                    <input type="text" placeholder={f.max} className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
+                    <input type="text" placeholder={f.min} className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
+                    <input type="text" placeholder={f.max} className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
                   </div>
                 </div>
               ))}
@@ -559,11 +559,11 @@ function FilterPanel({ onClose }: { onClose: () => void }) {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Year Built (min)</label>
-                <input type="text" placeholder="1900" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
+                <input type="text" placeholder="1900" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
               </div>
               <div>
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Year Built (max)</label>
-                <input type="text" placeholder="2026" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
+                <input type="text" placeholder="2026" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
               </div>
             </div>
             {/* Value / Equity */}
@@ -571,15 +571,15 @@ function FilterPanel({ onClose }: { onClose: () => void }) {
               <div>
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Est. Value Range</label>
                 <div className="flex gap-1">
-                  <input type="text" placeholder="$0" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
-                  <input type="text" placeholder="$1M+" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
+                  <input type="text" placeholder="$0" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
+                  <input type="text" placeholder="$1M+" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
                 </div>
               </div>
               <div>
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Equity %</label>
                 <div className="flex gap-1">
-                  <input type="text" placeholder="0%" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
-                  <input type="text" placeholder="100%" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
+                  <input type="text" placeholder="0%" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
+                  <input type="text" placeholder="100%" className="w-full bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
                 </div>
               </div>
             </div>
@@ -595,7 +595,7 @@ function FilterPanel({ onClose }: { onClose: () => void }) {
               <div className="flex flex-wrap gap-1.5">
                 {['Individual', 'LLC/Corp', 'Trust', 'Bank-Owned'].map(t => (
                   <label key={t} className="flex items-center gap-1.5 text-[0.76rem] text-[#374151] bg-[#F3F4F6] border border-[#E5E7EB] rounded-md px-2.5 py-1.5 cursor-pointer hover:bg-[#F9FAFB] transition-colors">
-                    <input type="checkbox" className="accent-[#4F46E5] w-3 h-3" />
+                    <input type="checkbox" className="accent-[#2563EB] w-3 h-3" />
                     {t}
                   </label>
                 ))}
@@ -613,7 +613,7 @@ function FilterPanel({ onClose }: { onClose: () => void }) {
                   <span className="text-[0.78rem] text-[#6B7280]">{tog.label}</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" />
-                    <div className="w-9 h-5 bg-gray-200 peer-checked:bg-[#4F46E5] rounded-full transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                    <div className="w-9 h-5 bg-gray-200 peer-checked:bg-[#2563EB] rounded-full transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
                 </div>
               ))}
@@ -621,7 +621,7 @@ function FilterPanel({ onClose }: { onClose: () => void }) {
             {/* Ownership length */}
             <div>
               <label className="text-[0.72rem] text-gray-500 mb-1 block">Min Ownership (years)</label>
-              <input type="text" placeholder="Any" className="w-24 bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#4F46E5]" />
+              <input type="text" placeholder="Any" className="w-24 bg-white border border-[#E5E7EB] rounded px-2 py-1.5 text-[0.76rem] text-[#374151] outline-none focus:border-[#2563EB]" />
             </div>
           </div>
         </div>
@@ -634,7 +634,7 @@ function FilterPanel({ onClose }: { onClose: () => void }) {
         </button>
         <button
           onClick={onClose}
-          className="bg-[#4F46E5] hover:bg-[#4338CA] text-white font-medium border-0 rounded-md px-5 py-2 text-[0.82rem] cursor-pointer transition-colors"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium border-0 rounded-md px-5 py-2 text-[0.82rem] cursor-pointer transition-colors"
         >
           Apply Filters
         </button>
@@ -820,9 +820,9 @@ function PropertyDetail({ property, onClose }: { property: Property; onClose: ()
                 </span>
               </div>
               {/* Upgrade banner */}
-              <div className="flex items-center gap-2 bg-[#EEF2FF] border border-[#C7D2FE] rounded-lg px-3 py-2 mt-1">
-                <Sparkles className="w-4 h-4 text-[#4F46E5] flex-shrink-0" />
-                <span className="text-[0.74rem] text-[#4338CA]">
+              <div className="flex items-center gap-2 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg px-3 py-2 mt-1">
+                <Sparkles className="w-4 h-4 text-[#2563EB] flex-shrink-0" />
+                <span className="text-[0.74rem] text-[#1D4ED8]">
                   <strong>Upgrade to Pro</strong> to unlock full contact info
                 </span>
               </div>
@@ -831,7 +831,7 @@ function PropertyDetail({ property, onClose }: { property: Property; onClose: ()
 
           {/* Actions */}
           <div className="grid grid-cols-2 gap-2.5">
-            <button className="flex items-center justify-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-medium border-0 rounded-md py-2.5 text-[0.82rem] cursor-pointer transition-colors">
+            <button className="flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-medium border-0 rounded-md py-2.5 text-[0.82rem] cursor-pointer transition-colors">
               <Plus className="w-4 h-4" />
               Add to CRM
             </button>
@@ -891,7 +891,7 @@ export default function DiscoveryPage() {
               value={searchValue}
               onChange={e => setSearchValue(e.target.value)}
               placeholder="Search city, county, or zip code..."
-              className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-10 pr-4 py-2.5 text-[0.84rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#4F46E5] transition-colors"
+              className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-10 pr-4 py-2.5 text-[0.84rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] transition-colors"
             />
           </div>
           {/* Filter toggle */}
@@ -899,7 +899,7 @@ export default function DiscoveryPage() {
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[0.82rem] font-medium border cursor-pointer transition-colors ${
               showFilters
-                ? 'bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5]'
+                ? 'bg-[#EFF6FF] border-[#BFDBFE] text-[#2563EB]'
                 : 'bg-white border-[#D1D5DB] text-[#374151] hover:bg-[#F9FAFB]'
             }`}
           >
@@ -936,7 +936,7 @@ export default function DiscoveryPage() {
               <div
                 key={p.id}
                 className={`bg-white border rounded-lg px-4 py-3.5 cursor-pointer transition-all ${
-                  activePin === p.id ? 'border-[#4F46E5] ring-1 ring-[#EEF2FF]' : 'border-[#E5E7EB] hover:bg-[#F9FAFB]'
+                  activePin === p.id ? 'border-[#2563EB] ring-1 ring-[#EFF6FF]' : 'border-[#E5E7EB] hover:bg-[#F9FAFB]'
                 }`}
                 onClick={() => setActivePin(p.id === activePin ? null : p.id)}
               >
@@ -1005,7 +1005,7 @@ export default function DiscoveryPage() {
                     <div className="flex items-center gap-1.5 mt-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleViewDetails(p) }}
-                        className="text-[0.72rem] text-[#4F46E5] hover:text-[#4338CA] bg-[#EEF2FF] hover:bg-[#E0E7FF] border-0 rounded-md px-2.5 py-1.5 cursor-pointer transition-colors font-medium"
+                        className="text-[0.72rem] text-[#2563EB] hover:text-[#1D4ED8] bg-[#EFF6FF] hover:bg-[#DBEAFE] border-0 rounded-md px-2.5 py-1.5 cursor-pointer transition-colors font-medium"
                       >
                         View Details
                       </button>

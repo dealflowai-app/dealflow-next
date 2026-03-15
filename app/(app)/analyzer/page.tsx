@@ -33,7 +33,7 @@ import {
    ═══════════════════════════════════════════════ */
 const recentAnalyses = [
   { address: '1847 Oak St, Dallas TX 75216', date: 'Mar 12, 2026', score: 'A-', scoreColor: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
-  { address: '5100 Samuell Blvd, Dallas TX 75228', date: 'Mar 10, 2026', score: 'B+', scoreColor: 'text-[#4F46E5] bg-[#EEF2FF] border-[#C7D2FE]' },
+  { address: '5100 Samuell Blvd, Dallas TX 75228', date: 'Mar 10, 2026', score: 'B+', scoreColor: 'text-[#2563EB] bg-[#EFF6FF] border-[#BFDBFE]' },
   { address: '902 Cactus Rd, Phoenix AZ 85003', date: 'Mar 8, 2026', score: 'A', scoreColor: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
   { address: '3340 W Illinois Ave, Dallas TX 75211', date: 'Mar 5, 2026', score: 'C+', scoreColor: 'text-amber-700 bg-amber-50 border-amber-200' },
   { address: '1083 Peachtree Ct, Atlanta GA 30310', date: 'Mar 2, 2026', score: 'A-', scoreColor: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
@@ -88,12 +88,12 @@ function InputState({ onAnalyze }: { onAnalyze: () => void }) {
             value={searchVal}
             onChange={e => setSearchVal(e.target.value)}
             placeholder="Enter property address..."
-            className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-12 pr-4 py-3.5 text-[0.92rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#4F46E5] transition-all"
+            className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-12 pr-4 py-3.5 text-[0.92rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] transition-all"
           />
         </div>
         <button
           onClick={onAnalyze}
-          className="bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-7 py-3.5 text-[0.88rem] font-medium cursor-pointer transition-colors flex items-center gap-2"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-7 py-3.5 text-[0.88rem] font-medium cursor-pointer transition-colors flex items-center gap-2"
         >
           Analyze
         </button>
@@ -113,26 +113,26 @@ function InputState({ onAnalyze }: { onAnalyze: () => void }) {
             <div className="grid grid-cols-2 gap-3 mb-3 analyzer-manual-grid">
               <div className="col-span-2">
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Address</label>
-                <input type="text" placeholder="123 Main St" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                <input type="text" placeholder="123 Main St" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
               </div>
               <div>
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">City</label>
-                <input type="text" placeholder="Dallas" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                <input type="text" placeholder="Dallas" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[0.72rem] text-gray-500 mb-1 block">State</label>
-                  <input type="text" placeholder="TX" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                  <input type="text" placeholder="TX" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
                 </div>
                 <div>
                   <label className="text-[0.72rem] text-gray-500 mb-1 block">Zip</label>
-                  <input type="text" placeholder="75216" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                  <input type="text" placeholder="75216" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
                 </div>
               </div>
               <div>
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Property Type</label>
                 <div className="relative">
-                  <select className="appearance-none w-full bg-gray-50 border border-[#E5E7EB] rounded-lg pl-3 pr-8 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5] cursor-pointer">
+                  <select className="appearance-none w-full bg-gray-50 border border-[#E5E7EB] rounded-lg pl-3 pr-8 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB] cursor-pointer">
                     <option>SFR</option><option>Multi-Family</option><option>Condo</option><option>Land</option><option>Commercial</option>
                   </select>
                   <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
@@ -141,29 +141,29 @@ function InputState({ onAnalyze }: { onAnalyze: () => void }) {
               <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="text-[0.72rem] text-gray-500 mb-1 block">Beds</label>
-                  <input type="text" placeholder="3" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                  <input type="text" placeholder="3" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
                 </div>
                 <div>
                   <label className="text-[0.72rem] text-gray-500 mb-1 block">Baths</label>
-                  <input type="text" placeholder="2" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                  <input type="text" placeholder="2" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
                 </div>
                 <div>
                   <label className="text-[0.72rem] text-gray-500 mb-1 block">Sq Ft</label>
-                  <input type="text" placeholder="1,750" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                  <input type="text" placeholder="1,750" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
                 </div>
               </div>
               <div>
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Year Built</label>
-                <input type="text" placeholder="1978" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                <input type="text" placeholder="1978" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
               </div>
               <div>
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Asking / Contract Price</label>
-                <input type="text" placeholder="$142,000" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5]" />
+                <input type="text" placeholder="$142,000" className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]" />
               </div>
               <div className="col-span-2">
                 <label className="text-[0.72rem] text-gray-500 mb-1 block">Estimated Repair Level</label>
                 <div className="relative">
-                  <select className="appearance-none w-full bg-gray-50 border border-[#E5E7EB] rounded-lg pl-3 pr-8 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#4F46E5] cursor-pointer">
+                  <select className="appearance-none w-full bg-gray-50 border border-[#E5E7EB] rounded-lg pl-3 pr-8 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB] cursor-pointer">
                     <option>Cosmetic</option><option>Moderate</option><option>Full Rehab</option><option>Tear Down</option>
                   </select>
                   <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
@@ -172,7 +172,7 @@ function InputState({ onAnalyze }: { onAnalyze: () => void }) {
             </div>
             <button
               onClick={onAnalyze}
-              className="w-full bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md py-2.5 text-[0.84rem] font-medium cursor-pointer transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md py-2.5 text-[0.84rem] font-medium cursor-pointer transition-colors flex items-center justify-center gap-2"
             >
               Run Analysis
             </button>
@@ -198,7 +198,7 @@ function InputState({ onAnalyze }: { onAnalyze: () => void }) {
               </div>
               <button
                 onClick={onAnalyze}
-                className="text-[0.76rem] text-[#4F46E5] hover:text-[#4338CA] bg-transparent border-0 cursor-pointer transition-colors font-medium"
+                className="text-[0.76rem] text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer transition-colors font-medium"
               >
                 View Again
               </button>
@@ -213,7 +213,7 @@ function InputState({ onAnalyze }: { onAnalyze: () => void }) {
 /* ═══════════════════════════════════════════════
    SPARKLINE
    ═══════════════════════════════════════════════ */
-function Sparkline({ data, color = '#4F46E5' }: { data: number[]; color?: string }) {
+function Sparkline({ data, color = '#2563EB' }: { data: number[]; color?: string }) {
   const min = Math.min(...data)
   const max = Math.max(...data)
   const range = max - min || 1
@@ -323,7 +323,7 @@ function ResultsState({ onBack }: { onBack: () => void }) {
           <div className="bg-gray-50 rounded-lg p-3">
             <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-2">Contract vs ARV Spread</div>
             <div className="relative h-6 rounded-full bg-gray-200 overflow-hidden">
-              <div className="absolute inset-y-0 left-0 bg-[#4F46E5] rounded-full" style={{ width: `${(contract / arv) * 100}%` }} />
+              <div className="absolute inset-y-0 left-0 bg-[#2563EB] rounded-full" style={{ width: `${(contract / arv) * 100}%` }} />
               <div className="absolute inset-y-0 left-0 flex items-center" style={{ width: `${(contract / arv) * 100}%`, paddingRight: 8 }}>
                 <span className="text-[0.62rem] text-white font-bold ml-2">$142K</span>
               </div>
@@ -360,7 +360,7 @@ function ResultsState({ onBack }: { onBack: () => void }) {
                 </div>
                 <div className={`text-[0.64rem] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${
                   c.match >= 90 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' :
-                  c.match >= 85 ? 'text-[#4F46E5] bg-[#EEF2FF] border-[#C7D2FE]' :
+                  c.match >= 85 ? 'text-[#2563EB] bg-[#EFF6FF] border-[#BFDBFE]' :
                   'text-amber-700 bg-amber-50 border-amber-200'
                 }`}>
                   {c.match}%
@@ -397,7 +397,7 @@ function ResultsState({ onBack }: { onBack: () => void }) {
                 </div>
                 <div className="flex justify-between text-[0.76rem]">
                   <span className="text-gray-500">Assignment Fee</span>
-                  <span className="text-[#4F46E5] font-semibold">$25,000</span>
+                  <span className="text-[#2563EB] font-semibold">$25,000</span>
                 </div>
                 <div className="flex justify-between text-[0.76rem] pt-1.5 border-t border-[#E5E7EB]">
                   <span className="text-gray-700 font-medium">Buyer Net Profit</span>
@@ -413,7 +413,7 @@ function ResultsState({ onBack }: { onBack: () => void }) {
                 <div className="flex items-center gap-1.5">
                   <span className="text-[0.58rem] text-gray-400 w-10 text-right">ARV</span>
                   <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#4F46E5] rounded-full" style={{ width: '100%' }} />
+                    <div className="h-full bg-[#2563EB] rounded-full" style={{ width: '100%' }} />
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -461,7 +461,7 @@ function ResultsState({ onBack }: { onBack: () => void }) {
                 <div className="flex items-center gap-1.5">
                   <span className="text-[0.58rem] text-gray-400 w-14 text-right">Income</span>
                   <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#4F46E5] rounded-full" style={{ width: '100%' }} />
+                    <div className="h-full bg-[#2563EB] rounded-full" style={{ width: '100%' }} />
                   </div>
                   <span className="text-[0.58rem] text-gray-500 w-10">$1,850</span>
                 </div>
@@ -515,7 +515,7 @@ function ResultsState({ onBack }: { onBack: () => void }) {
               <span className="text-[0.8rem] text-gray-500 flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5 text-gray-400" /> Active Cash Buyers (this zip)
               </span>
-              <span className="text-[0.88rem] font-semibold text-[#4F46E5]">34</span>
+              <span className="text-[0.88rem] font-semibold text-[#2563EB]">34</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-[0.8rem] text-gray-500">Buyer Demand Level</span>
@@ -546,7 +546,7 @@ function ResultsState({ onBack }: { onBack: () => void }) {
 
       {/* Action bar */}
       <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-3.5 flex items-center gap-2.5 flex-wrap">
-        <button className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Store className="w-4 h-4" /> List on Marketplace
         </button>
         <button className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">

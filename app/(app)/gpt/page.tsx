@@ -374,7 +374,7 @@ export default function DealFlowGPTPage() {
                         className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
                         title="Helpful"
                       >
-                        <ThumbsUp className={`w-3.5 h-3.5 ${likedIds.has(msg.id) ? 'text-[#4F46E5] fill-[#4F46E5]' : 'text-[#9CA3AF] hover:text-[#374151]'}`} />
+                        <ThumbsUp className={`w-3.5 h-3.5 ${likedIds.has(msg.id) ? 'text-[#2563EB] fill-[#2563EB]' : 'text-[#9CA3AF] hover:text-[#374151]'}`} />
                       </button>
                       <button
                         onClick={() => toggleDislike(msg.id)}
@@ -451,7 +451,7 @@ export default function DealFlowGPTPage() {
                 onKeyDown={handleKeyDown}
                 placeholder="Ask DealFlow GPT anything about your deals, buyers, campaigns..."
                 rows={1}
-                className="w-full resize-none rounded-xl border border-[#E5E7EB] px-4 py-3 pr-12 text-sm text-[#374151] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+                className="w-full resize-none rounded-xl border border-[#E5E7EB] px-4 py-3 pr-12 text-sm text-[#374151] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                 style={{ minHeight: '44px', maxHeight: '120px' }}
               />
               <div className="absolute right-2 bottom-2 flex items-center gap-1">
@@ -463,7 +463,7 @@ export default function DealFlowGPTPage() {
               disabled={!input.trim() || isTyping}
               className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
                 input.trim() && !isTyping
-                  ? 'bg-[#4F46E5] hover:bg-[#4338CA] text-white'
+                  ? 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
                   : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
               }`}
             >

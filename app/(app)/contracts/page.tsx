@@ -115,15 +115,15 @@ function ProgressTracker({ currentStage }: { currentStage: number }) {
           <div key={s} className="flex items-center">
             <div className="flex flex-col items-center">
               <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.5rem] font-bold border-2 ${
-                done ? 'bg-[#4F46E5] border-[#4F46E5] text-white' :
-                active ? 'bg-white border-[#4F46E5] text-[#4F46E5]' :
+                done ? 'bg-[#2563EB] border-[#2563EB] text-white' :
+                active ? 'bg-white border-[#2563EB] text-[#2563EB]' :
                 'bg-white border-gray-200 text-gray-300'
               }`}>
                 {done ? <CheckCircle2 className="w-3 h-3" /> : i + 1}
               </div>
               <span className={`text-[0.56rem] mt-1 whitespace-nowrap max-w-[60px] text-center leading-tight ${
-                done ? 'text-[#4F46E5] font-medium' :
-                active ? 'text-[#4F46E5] font-medium' :
+                done ? 'text-[#2563EB] font-medium' :
+                active ? 'text-[#2563EB] font-medium' :
                 'text-gray-300'
               }`}>
                 {s}
@@ -131,7 +131,7 @@ function ProgressTracker({ currentStage }: { currentStage: number }) {
             </div>
             {i < stages.length - 1 && (
               <div
-                className={`w-6 h-0.5 mx-0.5 mt-[-12px] ${done ? 'bg-[#4F46E5]' : ''}`}
+                className={`w-6 h-0.5 mx-0.5 mt-[-12px] ${done ? 'bg-[#2563EB]' : ''}`}
                 style={!done ? { backgroundImage: 'repeating-linear-gradient(90deg, #d1d5db 0, #d1d5db 3px, transparent 3px, transparent 6px)', height: '2px' } : undefined}
               />
             )}
@@ -166,13 +166,13 @@ function ActiveContractsSection({ onViewDetail }: { onViewDetail: (id: number) =
                 <span className="text-gray-300">→</span>
                 <span>Buyer: <strong className="text-[#374151]">{c.buyer}</strong></span>
                 <span className="text-gray-300">|</span>
-                <span>Fee: <strong className="text-[#4F46E5]">${c.fee.toLocaleString()}</strong></span>
+                <span>Fee: <strong className="text-[#2563EB]">${c.fee.toLocaleString()}</strong></span>
               </div>
             </div>
             <div className="flex items-center gap-1.5 flex-shrink-0">
               <button
                 onClick={() => onViewDetail(c.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-indigo-50 bg-transparent border-0 cursor-pointer transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#2563EB] hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors"
               >
                 <Eye className="w-3.5 h-3.5" /> View
               </button>
@@ -274,7 +274,7 @@ function ContractDetail({ contractId, onBack }: { contractId: number; onBack: ()
           <div className="space-y-2">
             {[
               { label: 'Contract Price', value: '$260,000' },
-              { label: 'Assignment Fee', value: '$22,500', bold: true, color: 'text-[#4F46E5]' },
+              { label: 'Assignment Fee', value: '$22,500', bold: true, color: 'text-[#2563EB]' },
               { label: 'Earnest Money Deposit', value: '$5,000' },
               { label: 'EMD Held By', value: 'Lone Star Title Co.' },
               { label: 'Closing Date', value: 'March 22, 2026' },
@@ -311,7 +311,7 @@ function ContractDetail({ contractId, onBack }: { contractId: number; onBack: ()
                 </div>
                 {/* Signature squiggle */}
                 <svg width="60" height="24" viewBox="0 0 60 24" className="flex-shrink-0 opacity-60">
-                  <path d="M2 18 C10 2, 18 22, 26 12 S34 2, 42 14 S50 22, 58 6" fill="none" stroke="#4F46E5" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M2 18 C10 2, 18 22, 26 12 S34 2, 42 14 S50 22, 58 6" fill="none" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
             </div>
@@ -325,7 +325,7 @@ function ContractDetail({ contractId, onBack }: { contractId: number; onBack: ()
                 <div className="flex items-center gap-1 text-[0.72rem] text-amber-600 font-medium">
                   <Clock className="w-3 h-3" /> Pending
                 </div>
-                <button className="text-[0.72rem] text-[#4F46E5] hover:text-[#4338CA] bg-indigo-50 hover:bg-indigo-100 border-0 rounded-md px-2.5 py-1 cursor-pointer transition-colors font-medium">
+                <button className="text-[0.72rem] text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 border-0 rounded-md px-2.5 py-1 cursor-pointer transition-colors font-medium">
                   Send Reminder
                 </button>
               </div>
@@ -339,10 +339,10 @@ function ContractDetail({ contractId, onBack }: { contractId: number; onBack: ()
         <div className="px-5 py-3 border-b border-[#F3F4F6] flex items-center justify-between">
           <span className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">Document Preview</span>
           <div className="flex items-center gap-1.5">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-indigo-50 bg-transparent border-0 cursor-pointer transition-colors">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#2563EB] hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors">
               <Download className="w-3.5 h-3.5" /> Download PDF
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#4F46E5] hover:bg-indigo-50 bg-transparent border-0 cursor-pointer transition-colors">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#2563EB] hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors">
               <Send className="w-3.5 h-3.5" /> Send for Signature
             </button>
             <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#6B7280] hover:bg-[#F9FAFB] bg-transparent border-0 cursor-pointer transition-colors">
@@ -380,7 +380,7 @@ function ContractDetail({ contractId, onBack }: { contractId: number; onBack: ()
               </div>
               <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
                 <span className="text-[#9CA3AF]">Assignment Fee:</span>
-                <span className="font-semibold text-[#4F46E5]">$22,500</span>
+                <span className="font-semibold text-[#2563EB]">$22,500</span>
               </div>
               <div className="flex justify-between border-b border-[#F3F4F6] pb-2">
                 <span className="text-[#9CA3AF]">Closing Date:</span>
@@ -396,7 +396,7 @@ function ContractDetail({ contractId, onBack }: { contractId: number; onBack: ()
               <div>
                 <div className="border-b border-gray-300 h-8 mb-1 flex items-end">
                   <svg width="80" height="20" viewBox="0 0 80 20" className="opacity-50 mb-0.5">
-                    <path d="M2 16 C12 2, 22 18, 32 10 S42 2, 52 12 S62 18, 72 6" fill="none" stroke="#4F46E5" strokeWidth="1.2" strokeLinecap="round" />
+                    <path d="M2 16 C12 2, 22 18, 32 10 S42 2, 52 12 S62 18, 72 6" fill="none" stroke="#2563EB" strokeWidth="1.2" strokeLinecap="round" />
                   </svg>
                 </div>
                 <div className="text-[0.68rem] text-[#9CA3AF]">Buyer / Assignee</div>
@@ -471,7 +471,7 @@ function TemplatesSection() {
               </div>
             </div>
             <div className="flex items-center gap-1.5 flex-shrink-0 mt-1">
-              <button className="text-[0.74rem] text-[#4F46E5] hover:text-[#4338CA] bg-indigo-50 hover:bg-indigo-100 border-0 rounded-md px-3 py-1.5 cursor-pointer transition-colors font-medium">
+              <button className="text-[0.74rem] text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 border-0 rounded-md px-3 py-1.5 cursor-pointer transition-colors font-medium">
                 Use
               </button>
               <button className="text-[0.74rem] text-[#374151] hover:text-[#111827] bg-white hover:bg-[#F9FAFB] border border-[#D1D5DB] rounded-md px-3 py-1.5 cursor-pointer transition-colors font-medium">
@@ -515,11 +515,11 @@ function ArchiveSection() {
       <div className="flex items-center gap-3 mb-4">
         <div className="relative flex-1 max-w-[280px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
-          <input type="text" placeholder="Search archived contracts..." className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-10 pr-4 py-2 text-[0.82rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#4F46E5] transition-colors" />
+          <input type="text" placeholder="Search archived contracts..." className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-10 pr-4 py-2 text-[0.82rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] transition-colors" />
         </div>
         <div className="relative">
           <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF]" />
-          <input type="text" defaultValue="Nov 2025 - Mar 2026" className="bg-white border border-[#E5E7EB] rounded-lg pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#4F46E5] w-[180px]" />
+          <input type="text" defaultValue="Nov 2025 - Mar 2026" className="bg-white border border-[#E5E7EB] rounded-lg pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] w-[180px]" />
         </div>
       </div>
 
@@ -549,7 +549,7 @@ function ArchiveSection() {
                 </td>
                 <td className="px-4 py-2.5 text-sm text-[#9CA3AF]">{a.date}</td>
                 <td className="px-4 py-2.5 text-right">
-                  <button className="text-[0.72rem] text-[#4F46E5] hover:text-[#4338CA] bg-transparent border-0 cursor-pointer transition-colors font-medium">View</button>
+                  <button className="text-[0.72rem] text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer transition-colors font-medium">View</button>
                 </td>
               </tr>
             ))}
@@ -583,7 +583,7 @@ export default function ContractsPage() {
           </p>
         </div>
         {!showDetail && (
-          <button className="flex items-center gap-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+          <button className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
             <Plus className="w-4 h-4" /> Create New Contract
           </button>
         )}
@@ -609,7 +609,7 @@ export default function ContractsPage() {
             </div>
             <div className="w-px h-4 bg-[#E5E7EB]" />
             <div className="flex items-center gap-2">
-              <span className="text-[0.82rem] text-[#4F46E5] font-medium">$73,500</span>
+              <span className="text-[0.82rem] text-[#2563EB] font-medium">$73,500</span>
               <span className="text-[0.78rem] text-[#9CA3AF]">in Assignment Fees</span>
             </div>
           </div>
@@ -625,7 +625,7 @@ export default function ContractsPage() {
                   onClick={() => setActiveTab(tab.key)}
                   className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
                     isActive
-                      ? 'border-[#4F46E5] text-[#4F46E5]'
+                      ? 'border-[#2563EB] text-[#2563EB]'
                       : 'border-transparent text-[#9CA3AF] hover:text-[#374151]'
                   }`}
                 >

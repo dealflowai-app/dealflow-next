@@ -254,11 +254,11 @@ export default function SettingsPage() {
                 onClick={() => setActiveSection(s.key)}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
                   isActive
-                    ? 'bg-[#EEF2FF] text-[#4F46E5] font-medium'
+                    ? 'bg-[#EFF6FF] text-[#2563EB] font-medium'
                     : 'text-[#6B7280] hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#4F46E5]' : 'text-gray-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#2563EB]' : 'text-gray-400'}`} />
                 {s.label}
               </button>
             )
@@ -301,7 +301,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.firstName}
                       onChange={e => setProfile(p => ({ ...p, firstName: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -309,7 +309,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.lastName}
                       onChange={e => setProfile(p => ({ ...p, lastName: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -317,7 +317,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.company}
                       onChange={e => setProfile(p => ({ ...p, company: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -325,7 +325,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.email}
                       onChange={e => setProfile(p => ({ ...p, email: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -333,7 +333,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.phone}
                       onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -341,7 +341,7 @@ export default function SettingsPage() {
                     <select
                       value={profile.timezone}
                       onChange={e => setProfile(p => ({ ...p, timezone: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     >
                       <option value="America/New_York">Eastern (ET)</option>
                       <option value="America/Chicago">Central (CT)</option>
@@ -356,17 +356,17 @@ export default function SettingsPage() {
                   <label className="block text-xs font-medium text-gray-600 mb-1.5">Markets Active In</label>
                   <div className="flex items-center gap-2 flex-wrap">
                     {profile.markets.map((m, i) => (
-                      <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5] text-xs font-medium border border-indigo-100">
+                      <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#EFF6FF] text-[#2563EB] text-xs font-medium border border-blue-100">
                         {m}
                         <button
                           onClick={() => setProfile(p => ({ ...p, markets: p.markets.filter((_, idx) => idx !== i) }))}
-                          className="hover:text-[#3730A3]"
+                          className="hover:text-[#1E40AF]"
                         >
                           <X className="w-3 h-3" />
                         </button>
                       </span>
                     ))}
-                    <button className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-dashed border-gray-300 text-gray-500 text-xs hover:border-[#4F46E5] hover:text-[#4F46E5] transition-colors">
+                    <button className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-dashed border-gray-300 text-gray-500 text-xs hover:border-[#2563EB] hover:text-[#2563EB] transition-colors">
                       <Plus className="w-3 h-3" />
                       Add Market
                     </button>
@@ -383,7 +383,7 @@ export default function SettingsPage() {
                     <select
                       value={profile.companyType}
                       onChange={e => setProfile(p => ({ ...p, companyType: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     >
                       <option>Solo Wholesaler</option>
                       <option>Small Team</option>
@@ -396,7 +396,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.yearsInBusiness}
                       onChange={e => setProfile(p => ({ ...p, yearsInBusiness: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -404,7 +404,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.dealsPerMonth}
                       onChange={e => setProfile(p => ({ ...p, dealsPerMonth: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
@@ -412,13 +412,13 @@ export default function SettingsPage() {
                     <input
                       value={profile.website}
                       onChange={e => setProfile(p => ({ ...p, website: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                 </div>
               </div>
 
-              <button onClick={showSaved} className="px-5 py-2.5 bg-[#4F46E5] text-white text-sm font-medium rounded-md hover:bg-[#4338CA] transition-colors">
+              <button onClick={showSaved} className="px-5 py-2.5 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save Changes'}
               </button>
             </div>
@@ -454,11 +454,11 @@ export default function SettingsPage() {
                   <div
                     key={i}
                     className={`bg-white rounded-lg border-2 p-5 relative ${
-                      plan.current ? 'border-[#4F46E5]' : 'border-[#E5E7EB]'
+                      plan.current ? 'border-[#2563EB]' : 'border-[#E5E7EB]'
                     }`}
                   >
                     {plan.current && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#4F46E5] text-white">
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#2563EB] text-white">
                         Current Plan
                       </span>
                     )}
@@ -486,7 +486,7 @@ export default function SettingsPage() {
                     {plan.current ? (
                       <button className="w-full py-2 rounded-lg bg-gray-100 text-gray-500 text-sm font-medium cursor-default">Current Plan</button>
                     ) : plan.name === 'Enterprise' ? (
-                      <button className="w-full py-2 rounded-md bg-[#4F46E5] text-white text-sm font-medium hover:bg-[#4338CA] transition-colors">Contact Sales</button>
+                      <button className="w-full py-2 rounded-md bg-[#2563EB] text-white text-sm font-medium hover:bg-[#1D4ED8] transition-colors">Contact Sales</button>
                     ) : (
                       <button className="w-full py-2 rounded-md bg-white border border-[#D1D5DB] text-[#374151] text-sm font-medium hover:bg-gray-50 transition-colors">Downgrade</button>
                     )}
@@ -541,7 +541,7 @@ export default function SettingsPage() {
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">{row.status}</span>
                         </td>
                         <td className="px-6 py-3">
-                          <button className="text-xs text-[#4F46E5] hover:text-[#4338CA] flex items-center gap-1">
+                          <button className="text-xs text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1">
                             <Download className="w-3 h-3" />
                             Invoice
                           </button>
@@ -564,7 +564,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={() => setShowInviteForm(!showInviteForm)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#4F46E5] text-white text-sm font-medium rounded-md hover:bg-[#4338CA] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   Invite Team Member
@@ -573,34 +573,34 @@ export default function SettingsPage() {
 
               {/* Invite form */}
               {showInviteForm && (
-                <div className="bg-[#EEF2FF] border border-indigo-200 rounded-lg p-5 mb-6">
-                  <h4 className="text-sm font-semibold text-[#312E81] mb-3">Invite a new team member</h4>
+                <div className="bg-[#EFF6FF] border border-blue-200 rounded-lg p-5 mb-6">
+                  <h4 className="text-sm font-semibold text-[#1E3A8A] mb-3">Invite a new team member</h4>
                   <div className="flex items-end gap-3">
                     <div className="flex-1">
-                      <label className="block text-xs font-medium text-[#3730A3] mb-1">Email Address</label>
+                      <label className="block text-xs font-medium text-[#1E40AF] mb-1">Email Address</label>
                       <input
                         value={inviteEmail}
                         onChange={e => setInviteEmail(e.target.value)}
                         placeholder="colleague@company.com"
-                        className="w-full px-3 py-2 rounded-md border border-indigo-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+                        className="w-full px-3 py-2 rounded-md border border-blue-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                       />
                     </div>
                     <div className="w-40">
-                      <label className="block text-xs font-medium text-[#3730A3] mb-1">Role</label>
+                      <label className="block text-xs font-medium text-[#1E40AF] mb-1">Role</label>
                       <select
                         value={inviteRole}
                         onChange={e => setInviteRole(e.target.value)}
-                        className="w-full px-3 py-2 rounded-md border border-indigo-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+                        className="w-full px-3 py-2 rounded-md border border-blue-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                       >
                         <option>Admin</option>
                         <option>Manager</option>
                         <option>Member</option>
                       </select>
                     </div>
-                    <button className="px-5 py-2 bg-[#4F46E5] text-white text-sm font-medium rounded-md hover:bg-[#4338CA] transition-colors whitespace-nowrap">
+                    <button className="px-5 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors whitespace-nowrap">
                       Send Invite
                     </button>
-                    <button onClick={() => setShowInviteForm(false)} className="px-3 py-2 text-[#4F46E5] hover:text-[#4338CA]">
+                    <button onClick={() => setShowInviteForm(false)} className="px-3 py-2 text-[#2563EB] hover:text-[#1D4ED8]">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -635,7 +635,7 @@ export default function SettingsPage() {
                         <td className="px-6 py-3">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                             m.role === 'Admin' ? 'bg-purple-100 text-purple-700' :
-                            m.role === 'Manager' ? 'bg-[#EEF2FF] text-[#4F46E5]' :
+                            m.role === 'Manager' ? 'bg-[#EFF6FF] text-[#2563EB]' :
                             'bg-gray-100 text-gray-700'
                           }`}>{m.role}</span>
                         </td>
@@ -648,7 +648,7 @@ export default function SettingsPage() {
                         <td className="px-6 py-3 text-gray-500">{m.date}</td>
                         <td className="px-6 py-3">
                           <div className="flex items-center gap-2">
-                            <button className="text-xs text-[#4F46E5] hover:text-[#4338CA]">Edit Role</button>
+                            <button className="text-xs text-[#2563EB] hover:text-[#1D4ED8]">Edit Role</button>
                             {m.role !== 'Admin' && (
                               <button className="text-xs text-red-500 hover:text-red-700">Remove</button>
                             )}
@@ -688,7 +688,7 @@ export default function SettingsPage() {
                               <span className="text-[10px] text-gray-400 w-10 text-right">In-App</span>
                               <button
                                 onClick={() => toggleNotification(ci, ii)}
-                                className={`w-9 h-5 rounded-full transition-colors relative ${item.on ? 'bg-[#4F46E5]' : 'bg-gray-200'}`}
+                                className={`w-9 h-5 rounded-full transition-colors relative ${item.on ? 'bg-[#2563EB]' : 'bg-gray-200'}`}
                               >
                                 <div className={`w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all ${item.on ? 'right-[3px]' : 'left-[3px]'}`} />
                               </button>
@@ -696,14 +696,14 @@ export default function SettingsPage() {
                             {/* Email */}
                             <div className="flex items-center gap-1.5">
                               <span className="text-[10px] text-gray-400 w-8 text-right">Email</span>
-                              <button className={`w-9 h-5 rounded-full transition-colors relative ${item.on ? 'bg-[#4F46E5]' : 'bg-gray-200'}`}>
+                              <button className={`w-9 h-5 rounded-full transition-colors relative ${item.on ? 'bg-[#2563EB]' : 'bg-gray-200'}`}>
                                 <div className={`w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all ${item.on ? 'right-[3px]' : 'left-[3px]'}`} />
                               </button>
                             </div>
                             {/* SMS */}
                             <div className="flex items-center gap-1.5">
                               <span className="text-[10px] text-gray-400 w-6 text-right">SMS</span>
-                              <button className={`w-9 h-5 rounded-full transition-colors relative ${item.sms ? 'bg-[#4F46E5]' : 'bg-gray-200'}`}>
+                              <button className={`w-9 h-5 rounded-full transition-colors relative ${item.sms ? 'bg-[#2563EB]' : 'bg-gray-200'}`}>
                                 <div className={`w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all ${item.sms ? 'right-[3px]' : 'left-[3px]'}`} />
                               </button>
                             </div>
@@ -715,7 +715,7 @@ export default function SettingsPage() {
                 ))}
               </div>
 
-              <button onClick={showSaved} className="mt-6 px-5 py-2.5 bg-[#4F46E5] text-white text-sm font-medium rounded-md hover:bg-[#4338CA] transition-colors">
+              <button onClick={showSaved} className="mt-6 px-5 py-2.5 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save Notification Preferences'}
               </button>
             </div>
@@ -744,7 +744,7 @@ export default function SettingsPage() {
                     <h4 className="text-sm font-semibold text-[#111827] mb-0.5">{int.name}</h4>
                     <p className="text-xs text-[#9CA3AF] mb-4">{int.desc}</p>
                     <div className="flex gap-2">
-                      <button className="text-xs text-[#4F46E5] hover:text-[#4338CA] font-medium">Manage</button>
+                      <button className="text-xs text-[#2563EB] hover:text-[#1D4ED8] font-medium">Manage</button>
                       <button className="text-xs text-gray-500 hover:text-red-600 font-medium">Disconnect</button>
                     </div>
                   </div>
@@ -763,7 +763,7 @@ export default function SettingsPage() {
                     </div>
                     <h4 className="text-sm font-semibold text-[#111827] mb-0.5">{int.name}</h4>
                     <p className="text-xs text-[#9CA3AF] mb-4">{int.desc}</p>
-                    <button className="px-4 py-1.5 rounded-md border border-[#4F46E5] text-[#4F46E5] text-xs font-medium hover:bg-[#EEF2FF] transition-colors">
+                    <button className="px-4 py-1.5 rounded-md border border-[#2563EB] text-[#2563EB] text-xs font-medium hover:bg-[#EFF6FF] transition-colors">
                       Connect
                     </button>
                   </div>
@@ -802,21 +802,21 @@ export default function SettingsPage() {
                     <label className="block text-xs font-medium text-gray-600 mb-1.5">Company Name for Calls</label>
                     <input
                       defaultValue="RiverPoint Capital"
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1.5">Caller ID Name</label>
                     <input
                       defaultValue="RiverPoint Capital"
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1.5">Call-back Number</label>
                     <input
                       defaultValue="(214) 555-0187"
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                     />
                   </div>
                 </div>
@@ -832,12 +832,12 @@ export default function SettingsPage() {
                       onClick={() => setSelectedVoice(v.name)}
                       className={`p-3 rounded-lg border-2 text-center transition-all ${
                         selectedVoice === v.name
-                          ? 'border-[#4F46E5] bg-[#EEF2FF]'
+                          ? 'border-[#2563EB] bg-[#EFF6FF]'
                           : 'border-[#E5E7EB] hover:border-gray-300'
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${
-                        selectedVoice === v.name ? 'bg-[#4F46E5]' : 'bg-gray-200'
+                        selectedVoice === v.name ? 'bg-[#2563EB]' : 'bg-gray-200'
                       }`}>
                         <Play className={`w-4 h-4 ${selectedVoice === v.name ? 'text-white' : 'text-gray-500'}`} />
                       </div>
@@ -868,7 +868,7 @@ export default function SettingsPage() {
                       step={15}
                       value={callDuration}
                       onChange={e => setCallDuration(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#4F46E5]"
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
                     />
                     <div className="flex justify-between text-[10px] text-gray-400 mt-1">
                       <span>30 sec</span>
@@ -883,7 +883,7 @@ export default function SettingsPage() {
                       <select
                         value={retryAttempts}
                         onChange={e => setRetryAttempts(e.target.value)}
-                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                       >
                         <option>1</option>
                         <option>2</option>
@@ -895,7 +895,7 @@ export default function SettingsPage() {
                       <select
                         value={callStart}
                         onChange={e => setCallStart(e.target.value)}
-                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                       >
                         {['8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', '10:00 AM'].map(t => <option key={t}>{t}</option>)}
                       </select>
@@ -905,7 +905,7 @@ export default function SettingsPage() {
                       <select
                         value={callEnd}
                         onChange={e => setCallEnd(e.target.value)}
-                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                       >
                         {['5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '8:00 PM'].map(t => <option key={t}>{t}</option>)}
                       </select>
@@ -921,7 +921,7 @@ export default function SettingsPage() {
                           key={day}
                           onClick={() => setCallDays(d => ({ ...d, [day]: !d[day as keyof typeof d] }))}
                           className={`w-11 h-11 rounded-lg text-xs font-medium transition-all ${
-                            active ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            active ? 'bg-[#2563EB] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                           }`}
                         >
                           {day}
@@ -939,7 +939,7 @@ export default function SettingsPage() {
                         <p className="text-[10px] text-gray-500">Required for TCPA compliance</p>
                       </div>
                     </div>
-                    <div className="w-9 h-5 rounded-full bg-[#4F46E5] relative cursor-not-allowed">
+                    <div className="w-9 h-5 rounded-full bg-[#2563EB] relative cursor-not-allowed">
                       <div className="w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] right-[3px]" />
                     </div>
                   </div>
@@ -957,12 +957,12 @@ export default function SettingsPage() {
                 <textarea
                   defaultValue={aiScript}
                   rows={10}
-                  className="w-full px-4 py-3 rounded-md border border-[#E5E7EB] text-sm text-[#374151] font-mono leading-relaxed bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] focus:bg-white resize-none"
+                  className="w-full px-4 py-3 rounded-md border border-[#E5E7EB] text-sm text-[#374151] font-mono leading-relaxed bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] focus:bg-white resize-none"
                 />
                 <p className="text-[10px] text-gray-500 mt-2">Changes to the script will apply to all future campaigns.</p>
               </div>
 
-              <button onClick={showSaved} className="px-5 py-2.5 bg-[#4F46E5] text-white text-sm font-medium rounded-md hover:bg-[#4338CA] transition-colors">
+              <button onClick={showSaved} className="px-5 py-2.5 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save AI Settings'}
               </button>
             </div>
@@ -1003,7 +1003,7 @@ export default function SettingsPage() {
                   <select
                     value={dataRetention}
                     onChange={e => setDataRetention(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5]"
+                    className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
                   >
                     <option>30 days</option>
                     <option>90 days</option>
@@ -1059,7 +1059,7 @@ export default function SettingsPage() {
                     'TCPA Compliance Policy',
                     'Data Processing Agreement',
                   ].map((link, i) => (
-                    <button key={i} className="flex items-center gap-2 text-sm text-[#4F46E5] hover:text-[#4338CA] transition-colors">
+                    <button key={i} className="flex items-center gap-2 text-sm text-[#2563EB] hover:text-[#1D4ED8] transition-colors">
                       <ExternalLink className="w-3.5 h-3.5" />
                       {link}
                     </button>
