@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useToast } from '@/components/toast'
 import {
   Search,
@@ -27,6 +28,8 @@ import {
   DollarSign,
   CheckCircle2,
   ArrowRight,
+  Loader2,
+  Check,
 } from 'lucide-react'
 
 /* ═══════════════════════════════════════════════
@@ -244,6 +247,11 @@ function Sparkline({ data, color = '#2563EB' }: { data: number[]; color?: string
    ═══════════════════════════════════════════════ */
 function ResultsState({ onBack }: { onBack: () => void }) {
   const toast = useToast()
+  const [savedDealId, setSavedDealId] = useState<string | null>(null)
+  const [matchCount, setMatchCount] = useState<number | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [matching, setMatching] = useState(false)
+
   /* Waterfall data for flip */
   const arv = 245000
   const contract = 142000
@@ -252,10 +260,72 @@ function ResultsState({ onBack }: { onBack: () => void }) {
   const assignment = 25000
   const buyerProfit = 35800
 
+  async function saveDeal(): Promise<string | null> {
+    if (savedDealId) return savedDealId
+    setSaving(true)
+    try {
+      const res = await fetch('/api/deals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: '1847 Oak Street',
+          city: 'Dallas',
+          state: 'TX',
+          zip: '75216',
+          propertyType: 'SFR',
+          askingPrice: 142000,
+          arv: 245000,
+          repairCost: 38000,
+          beds: 3,
+          baths: 2,
+          sqft: 1750,
+          yearBuilt: 1978,
+          assignFee: 25000,
+          status: 'ACTIVE',
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to save deal')
+      const data = await res.json()
+      setSavedDealId(data.id)
+      toast('Deal saved')
+      return data.id
+    } catch {
+      toast('Failed to save deal')
+      return null
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function matchBuyers() {
+    setMatching(true)
+    try {
+      const dealId = await saveDeal()
+      if (!dealId) return
+      const res = await fetch(`/api/deals/${dealId}/match`, {
+        method: 'POST',
+      })
+      if (!res.ok) throw new Error('Matching failed')
+      const data = await res.json()
+      setMatchCount(data.matches?.length ?? 0)
+      toast(`Matched to ${data.matches?.length ?? 0} buyers`)
+    } catch {
+      toast('Failed to match buyers')
+    } finally {
+      setMatching(false)
+    }
+  }
+
+  function handleBack() {
+    setSavedDealId(null)
+    setMatchCount(null)
+    onBack()
+  }
+
   return (
     <div className="animate-fadeInUp">
       {/* Back */}
-      <button onClick={onBack} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 mb-4 bg-transparent border-0 cursor-pointer transition-colors">
+      <button onClick={handleBack} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 mb-4 bg-transparent border-0 cursor-pointer transition-colors">
         <ArrowLeft className="w-4 h-4" /> New Analysis
       </button>
 
@@ -548,21 +618,40 @@ function ResultsState({ onBack }: { onBack: () => void }) {
 
       {/* Action bar */}
       <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-3.5 flex items-center gap-2.5 flex-wrap">
-        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon...')} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Store className="w-4 h-4" /> List on Marketplace
         </button>
-        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
-          <Users className="w-4 h-4" /> Match to 34 Buyers
+        <button
+          onClick={matchBuyers}
+          disabled={matching}
+          className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {matching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
+          {matchCount !== null ? `Matched ${matchCount} Buyers` : 'Match to Buyers'}
         </button>
-        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon...')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <FileSignature className="w-4 h-4" /> Generate Contract
         </button>
-        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon...')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Download className="w-4 h-4" /> Export as PDF
         </button>
-        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors ml-auto">
-          <Bookmark className="w-4 h-4" /> Save to Dashboard
-        </button>
+        {savedDealId ? (
+          <Link
+            href={`/deals/${savedDealId}`}
+            className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-md px-4 py-2.5 text-[0.82rem] font-medium no-underline hover:bg-emerald-100 transition-colors ml-auto"
+          >
+            <Check className="w-4 h-4" /> View Deal <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        ) : (
+          <button
+            onClick={saveDeal}
+            disabled={saving}
+            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors ml-auto disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bookmark className="w-4 h-4" />}
+            Save as Deal
+          </button>
+        )}
       </div>
     </div>
   )

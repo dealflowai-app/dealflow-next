@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { checkDaisyChain } from '@/lib/daisy-chain'
 import type { PropertyType, DealStatus } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 
 export async function GET() {
   try {
@@ -13,6 +15,9 @@ export async function GET() {
       include: {
         matches: {
           select: { id: true, matchScore: true },
+        },
+        offers: {
+          select: { id: true, status: true, amount: true },
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -47,6 +52,42 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Run daisy chain detection
+    const daisyChain = await checkDaisyChain(
+      {
+        address: body.address as string,
+        city: body.city as string,
+        state: body.state as string,
+        zip: body.zip as string,
+        profileId: profile.id,
+      },
+      prisma as never,
+    )
+
+    // If same wholesaler has existing deal and user hasn't forced, return warning
+    const sameWholesalerDeals = daisyChain.existingDeals.filter((d) => d.isSameWholesaler)
+    if (sameWholesalerDeals.length > 0 && body.force !== true) {
+      return NextResponse.json({
+        warning: daisyChain.warning,
+        existingDealId: sameWholesalerDeals[0].id,
+        existingDealStatus: sameWholesalerDeals[0].status,
+        requiresForce: true,
+      }, { status: 409 })
+    }
+
+    // Build analysisData with daisy chain flag if detected
+    let analysisData: Prisma.InputJsonValue | undefined
+    if (daisyChain.isDuplicate && (daisyChain.confidence === 'exact' || daisyChain.confidence === 'high')) {
+      analysisData = {
+        daisyChainFlag: true,
+        daisyChainDetails: {
+          confidence: daisyChain.confidence,
+          matchCount: daisyChain.existingDeals.filter((d) => !d.isSameWholesaler).length,
+          detectedAt: new Date().toISOString(),
+        },
+      }
+    }
+
     const deal = await prisma.deal.create({
       data: {
         profileId: profile.id,
@@ -66,11 +107,15 @@ export async function POST(req: NextRequest) {
         arv: body.arv != null ? Number(body.arv) : null,
         repairCost: body.repairCost != null ? Number(body.repairCost) : null,
         notes: (body.notes as string) || null,
-        status: 'ACTIVE' as DealStatus,
+        status: ((body.status as string) || 'ACTIVE') as DealStatus,
+        ...(analysisData ? { analysisData } : {}),
       },
     })
 
-    return NextResponse.json({ deal }, { status: 201 })
+    return NextResponse.json({
+      deal,
+      ...(daisyChain.warning ? { daisyChainWarning: daisyChain.warning } : {}),
+    }, { status: 201 })
   } catch (err) {
     console.error('POST /api/deals error:', err)
     return NextResponse.json(

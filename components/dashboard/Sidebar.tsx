@@ -12,6 +12,7 @@ import {
   Users,
   PhoneOutgoing,
   Calculator,
+  FolderOpen,
   FileSignature,
   Sparkles,
   Settings,
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
   { label: 'Buyer List', href: '/crm', icon: Users },
   { label: 'Outreach', href: '/outreach', icon: PhoneOutgoing },
   { label: 'Analyze Deal', href: '/analyzer', icon: Calculator },
+  { label: 'My Deals', href: '/deals', icon: FolderOpen },
   { label: 'Contracts', href: '/contracts', icon: FileSignature },
   { label: 'Ask AI', href: '/gpt', icon: Sparkles },
 ]

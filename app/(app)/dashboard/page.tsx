@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   TrendingUp,
@@ -10,13 +10,29 @@ import {
   UserPlus,
   Search,
   PhoneOutgoing,
+  DollarSign,
+  Handshake,
+  Send,
+  CheckCircle,
+  XCircle,
+  ChevronRight,
+  BarChart3,
 } from 'lucide-react'
+import { useToast } from '@/components/toast'
+
+/* ══════════════════════════════════════════════
+   TYPES
+   ══════════════════════════════════════════════ */
 
 type KpiData = {
   activeDeals: number
   closedDeals: number
   buyerCount: number
   aiCalls: number
+  pendingOffers: number
+  totalSpread: number
+  matchesSent: number
+  dealsThisMonth: number
 }
 
 type ActivityItem = {
@@ -26,7 +42,38 @@ type ActivityItem = {
   createdAt: string
 }
 
-/* ── Revenue chart data (last 6 months) ── */
+type RecentDeal = {
+  id: string
+  address: string
+  city: string
+  state: string
+  askingPrice: number
+  status: string
+  createdAt: string
+  offers: { id: string; status: string }[]
+  matches: { id: string }[]
+}
+
+type TopMatch = {
+  id: string
+  matchScore: number
+  dealId: string
+  deal: { address: string; city: string; state: string; askingPrice: number }
+  buyer: { id: string; firstName: string | null; lastName: string | null; entityName: string | null }
+}
+
+type PendingOffer = {
+  id: string
+  amount: number
+  status: string
+  createdAt: string
+  dealId: string
+  deal: { address: string; city: string; state: string; askingPrice: number }
+  buyer: { id: string; firstName: string | null; lastName: string | null; entityName: string | null }
+}
+
+/* ── Static data ── */
+
 const revenueData = [
   { month: 'Oct', value: 18500 },
   { month: 'Nov', value: 24500 },
@@ -36,12 +83,13 @@ const revenueData = [
   { month: 'Mar', value: 42000 },
 ]
 
-/* ── Campaigns ── */
 const campaigns = [
   { name: 'Phoenix Cash Buyers - Cold Call', status: 'running', calls: 342, responseRate: 18.4 },
   { name: 'Dallas Absentee Owners', status: 'running', calls: 198, responseRate: 12.7 },
   { name: 'Tampa Investor Reactivation', status: 'paused', calls: 87, responseRate: 22.1 },
 ]
+
+/* ── Helpers ── */
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -52,6 +100,33 @@ function timeAgo(dateStr: string) {
   if (hrs < 24) return `${hrs} hr${hrs > 1 ? 's' : ''} ago`
   const days = Math.floor(hrs / 24)
   return `${days} day${days > 1 ? 's' : ''} ago`
+}
+
+function buyerName(b: { firstName: string | null; lastName: string | null; entityName: string | null }) {
+  if (b.firstName || b.lastName) return [b.firstName, b.lastName].filter(Boolean).join(' ')
+  return b.entityName || 'Unknown Buyer'
+}
+
+function fmtMoney(n: number) {
+  return '$' + n.toLocaleString()
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  DRAFT: '#9CA3AF',
+  ACTIVE: '#2563EB',
+  UNDER_OFFER: '#d97706',
+  CLOSED: '#16a34a',
+  CANCELLED: '#ef4444',
+  EXPIRED: '#6b7280',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Draft',
+  ACTIVE: 'Active',
+  UNDER_OFFER: 'Under Offer',
+  CLOSED: 'Closed',
+  CANCELLED: 'Cancelled',
+  EXPIRED: 'Expired',
 }
 
 /* ── Quick actions ── */
@@ -159,28 +234,138 @@ const dotColors: Record<string, string> = {
   contract: '#7c3aed',
   call: '#d97706',
   analysis: '#e11d48',
+  offer: '#d97706',
+  deal: '#2563EB',
 }
+
+/* ══════════════════════════════════════════════
+   DEAL PIPELINE BAR
+   ══════════════════════════════════════════════ */
+
+function DealPipelineBar({ pipeline, router }: { pipeline: Record<string, number>; router: ReturnType<typeof useRouter> }) {
+  const statuses = ['DRAFT', 'ACTIVE', 'UNDER_OFFER', 'CLOSED', 'CANCELLED', 'EXPIRED']
+  const total = statuses.reduce((s, st) => s + (pipeline[st] || 0), 0)
+
+  if (total === 0) {
+    return (
+      <div style={{ textAlign: 'center', padding: '16px 0', fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)' }}>
+        No deals yet. <span style={{ color: '#2563EB', cursor: 'pointer' }} onClick={() => router.push('/deals/new')}>Create your first deal</span>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {/* Bar */}
+      <div style={{ display: 'flex', height: 28, borderRadius: 8, overflow: 'hidden', marginBottom: 10 }}>
+        {statuses.map(st => {
+          const count = pipeline[st] || 0
+          if (count === 0) return null
+          const pct = (count / total) * 100
+          return (
+            <div
+              key={st}
+              onClick={() => router.push(`/deals?status=${st}`)}
+              title={`${STATUS_LABELS[st]}: ${count}`}
+              style={{
+                width: `${pct}%`,
+                minWidth: count > 0 ? 24 : 0,
+                background: STATUS_COLORS[st],
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'opacity 0.15s ease',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+            >
+              {pct >= 12 && (
+                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#fff' }}>{count}</span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      {/* Legend */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px' }}>
+        {statuses.map(st => {
+          const count = pipeline[st] || 0
+          if (count === 0) return null
+          return (
+            <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: 'var(--body-text, #4B5563)' }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: STATUS_COLORS[st], flexShrink: 0 }} />
+              {STATUS_LABELS[st]} ({count})
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════
+   MAIN PAGE
+   ══════════════════════════════════════════════ */
 
 export default function DashboardPage() {
   const router = useRouter()
+  const showToast = useToast()
   const [kpiData, setKpiData] = useState<KpiData | null>(null)
   const [activity, setActivity] = useState<ActivityItem[]>([])
+  const [recentDeals, setRecentDeals] = useState<RecentDeal[]>([])
+  const [topMatches, setTopMatches] = useState<TopMatch[]>([])
+  const [pendingOffers, setPendingOffers] = useState<PendingOffer[]>([])
+  const [dealPipeline, setDealPipeline] = useState<Record<string, number>>({})
+  const [offerActionLoading, setOfferActionLoading] = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetchDashboard = useCallback(() => {
     fetch('/api/dashboard')
       .then(r => r.json())
       .then(data => {
         if (data.kpis) setKpiData(data.kpis)
         if (data.recentActivity) setActivity(data.recentActivity)
+        if (data.recentDeals) setRecentDeals(data.recentDeals)
+        if (data.topMatches) setTopMatches(data.topMatches)
+        if (data.pendingOffersList) setPendingOffers(data.pendingOffersList)
+        if (data.dealPipeline) setDealPipeline(data.dealPipeline)
       })
       .catch(() => {})
   }, [])
 
+  useEffect(() => { fetchDashboard() }, [fetchDashboard])
+
+  /* ── Offer actions ── */
+  async function handleOfferAction(offerId: string, action: 'ACCEPTED' | 'REJECTED') {
+    setOfferActionLoading(offerId)
+    try {
+      const res = await fetch(`/api/offers/${offerId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: action }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        showToast(data.error || 'Action failed')
+        return
+      }
+      showToast(action === 'ACCEPTED' ? 'Offer accepted!' : 'Offer rejected')
+      fetchDashboard()
+    } catch {
+      showToast('Network error')
+    } finally {
+      setOfferActionLoading(null)
+    }
+  }
+
+  /* ── KPI cards config ── */
   const kpis = [
     { label: 'Active Deals', value: kpiData ? kpiData.activeDeals.toLocaleString() : '—', color: '#2563EB' },
-    { label: 'Buyers in CRM', value: kpiData ? kpiData.buyerCount.toLocaleString() : '—', color: '#16a34a' },
-    { label: 'AI Calls', value: kpiData ? kpiData.aiCalls.toLocaleString() : '—', color: '#7c3aed' },
-    { label: 'Deals Closed', value: kpiData ? kpiData.closedDeals.toLocaleString() : '—', color: '#d97706' },
+    { label: 'Pending Offers', value: kpiData ? kpiData.pendingOffers.toLocaleString() : '—', color: '#d97706' },
+    { label: 'Total Spread', value: kpiData ? fmtMoney(kpiData.totalSpread) : '—', color: '#16a34a' },
+    { label: 'Deals Closed', value: kpiData ? kpiData.closedDeals.toLocaleString() : '—', color: '#7c3aed' },
+    { label: 'Buyers in CRM', value: kpiData ? kpiData.buyerCount.toLocaleString() : '—', color: '#0891b2' },
+    { label: 'Deals This Month', value: kpiData ? kpiData.dealsThisMonth.toLocaleString() : '—', color: '#e11d48' },
   ]
 
   return (
@@ -205,8 +390,8 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="dash-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
+      {/* KPI Cards — 6 cards in a 3x2 grid on desktop */}
+      <div className="dash-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 20 }}>
         {kpis.map(k => (
           <div
             key={k.label}
@@ -221,7 +406,7 @@ export default function DashboardPage() {
             <div
               style={{
                 fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '2rem',
+                fontSize: '1.8rem',
                 fontWeight: 400,
                 color: 'var(--navy-heading, #0B1224)',
                 letterSpacing: '-0.04em',
@@ -234,8 +419,250 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Deal Pipeline Bar */}
+      <div style={{ ...cardStyle, marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={sectionLabel as React.CSSProperties}>Deal Pipeline</div>
+          <button
+            onClick={() => router.push('/deals')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.72rem',
+              color: '#2563EB',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              fontFamily: 'inherit',
+            }}
+          >
+            View all <ChevronRight style={{ width: 12, height: 12 }} />
+          </button>
+        </div>
+        <DealPipelineBar pipeline={dealPipeline} router={router} />
+      </div>
+
+      {/* Two-column: Recent Deals + Pending Offers */}
+      <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
+        {/* Recent Deals */}
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={sectionLabel as React.CSSProperties}>Recent Deals</div>
+            <button
+              onClick={() => router.push('/deals')}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: '0.72rem', color: '#2563EB', fontWeight: 500,
+                display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit',
+              }}
+            >
+              View all <ChevronRight style={{ width: 12, height: 12 }} />
+            </button>
+          </div>
+          {recentDeals.length === 0 ? (
+            <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
+              No deals yet.
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {recentDeals.map((deal, i) => {
+                const activeOffers = deal.offers.filter(o => o.status === 'PENDING' || o.status === 'COUNTERED').length
+                return (
+                  <div
+                    key={deal.id}
+                    onClick={() => router.push(`/deals/${deal.id}`)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 0',
+                      borderBottom: i < recentDeals.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
+                      cursor: 'pointer',
+                    }}
+                    className="dash-deal-row"
+                  >
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {deal.address}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
+                        {deal.city}, {deal.state} · {fmtMoney(deal.askingPrice)}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 12 }}>
+                      {activeOffers > 0 && (
+                        <span style={{ fontSize: '0.66rem', fontWeight: 600, color: '#d97706', background: 'rgba(217,119,6,0.08)', padding: '2px 7px', borderRadius: 10 }}>
+                          {activeOffers} offer{activeOffers > 1 ? 's' : ''}
+                        </span>
+                      )}
+                      <span style={{
+                        fontSize: '0.66rem',
+                        fontWeight: 600,
+                        color: STATUS_COLORS[deal.status] || '#6b7280',
+                        background: `${STATUS_COLORS[deal.status] || '#6b7280'}14`,
+                        padding: '2px 8px',
+                        borderRadius: 10,
+                      }}>
+                        {STATUS_LABELS[deal.status] || deal.status}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Pending Offers */}
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={sectionLabel as React.CSSProperties}>Pending Offers</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <DollarSign style={{ width: 12, height: 12, color: '#d97706' }} />
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#d97706' }}>
+                {kpiData?.pendingOffers || 0} pending
+              </span>
+            </div>
+          </div>
+          {pendingOffers.length === 0 ? (
+            <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
+              No pending offers.
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {pendingOffers.map((offer, i) => {
+                const pctOfAsking = offer.deal.askingPrice > 0
+                  ? Math.round((offer.amount / offer.deal.askingPrice) * 100)
+                  : null
+                const isLoading = offerActionLoading === offer.id
+                return (
+                  <div
+                    key={offer.id}
+                    style={{
+                      padding: '10px 0',
+                      borderBottom: i < pendingOffers.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {fmtMoney(offer.amount)}
+                          {pctOfAsking && (
+                            <span style={{ fontSize: '0.7rem', color: 'var(--muted-text, #9CA3AF)', fontWeight: 400, marginLeft: 6 }}>
+                              ({pctOfAsking}% of ask)
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
+                          {buyerName(offer.buyer)} · {offer.deal.address}, {offer.deal.city}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, flexShrink: 0, marginLeft: 8 }}>
+                        <button
+                          onClick={() => handleOfferAction(offer.id, 'ACCEPTED')}
+                          disabled={isLoading}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 3,
+                            padding: '4px 10px', borderRadius: 6,
+                            border: '1px solid #16a34a', background: '#16a34a', color: '#fff',
+                            fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer',
+                            opacity: isLoading ? 0.6 : 1, fontFamily: 'inherit',
+                          }}
+                        >
+                          <CheckCircle style={{ width: 11, height: 11 }} />
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => handleOfferAction(offer.id, 'REJECTED')}
+                          disabled={isLoading}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 3,
+                            padding: '4px 10px', borderRadius: 6,
+                            border: '1px solid #ef4444', background: 'transparent', color: '#ef4444',
+                            fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer',
+                            opacity: isLoading ? 0.6 : 1, fontFamily: 'inherit',
+                          }}
+                        >
+                          <XCircle style={{ width: 11, height: 11 }} />
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)' }}>
+                      {timeAgo(offer.createdAt)}
+                      {offer.status === 'COUNTERED' && (
+                        <span style={{ marginLeft: 6, color: '#2563EB', fontWeight: 600 }}>COUNTERED</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Top Matches Section */}
+      {topMatches.length > 0 && (
+        <div style={{ ...cardStyle, marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={sectionLabel as React.CSSProperties}>Top Buyer Matches</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Handshake style={{ width: 12, height: 12, color: '#16a34a' }} />
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#16a34a' }}>
+                {kpiData?.matchesSent || 0} sent (30d)
+              </span>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
+            {topMatches.map(match => (
+              <div
+                key={match.id}
+                style={{
+                  border: '1px solid var(--border-light, #F0F0F0)',
+                  borderRadius: 10,
+                  padding: '14px 16px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{
+                    fontSize: '0.7rem', fontWeight: 700,
+                    color: match.matchScore >= 80 ? '#16a34a' : match.matchScore >= 60 ? '#d97706' : '#6b7280',
+                    background: match.matchScore >= 80 ? 'rgba(22,163,74,0.08)' : match.matchScore >= 60 ? 'rgba(217,119,6,0.08)' : 'rgba(107,114,128,0.08)',
+                    padding: '2px 8px', borderRadius: 10,
+                  }}>
+                    {match.matchScore}% match
+                  </span>
+                  <BarChart3 style={{ width: 12, height: 12, color: 'var(--muted-text, #9CA3AF)' }} />
+                </div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {buyerName(match.buyer)}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {match.deal.address}, {match.deal.city}
+                </div>
+                <button
+                  onClick={() => router.push(`/deals/${match.dealId}`)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4, width: '100%', justifyContent: 'center',
+                    padding: '6px 12px', borderRadius: 6,
+                    border: '1px solid #2563EB', background: 'transparent', color: '#2563EB',
+                    fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  <Send style={{ width: 11, height: 11 }} />
+                  View Deal
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Middle row: Revenue + Campaigns */}
-      <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 14, marginBottom: 20 }}>
+      <div className="dash-mid2" style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 14, marginBottom: 20 }}>
         {/* Revenue chart */}
         <div style={cardStyle}>
           <RevenueChart />
@@ -379,9 +806,11 @@ export default function DashboardPage() {
         .dash-card { transition: box-shadow 0.2s ease; }
         .dash-card:hover { box-shadow: rgba(5,14,36,0.04) 0px 2px 8px; }
         .dash-action:hover { background: var(--warm-gray, rgba(5,14,36,0.02)) !important; border-color: var(--border-med, #E5E7EB) !important; }
+        .dash-deal-row:hover { background: rgba(5,14,36,0.02); }
         @media (max-width: 1000px) {
           .dash-kpi { grid-template-columns: repeat(2, 1fr) !important; }
           .dash-mid { grid-template-columns: 1fr !important; }
+          .dash-mid2 { grid-template-columns: 1fr !important; }
           .dash-bot { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 600px) {
