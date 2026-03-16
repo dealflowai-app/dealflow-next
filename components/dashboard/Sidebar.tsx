@@ -6,14 +6,14 @@ import { usePathname, useRouter } from 'next/navigation'
 import { type Profile } from '@prisma/client'
 import {
   LayoutDashboard,
-  Users,
+  MessagesSquare,
   Store,
-  Radar,
-  Contact,
+  UserSearch,
+  Users,
   PhoneOutgoing,
-  BarChart3,
+  Calculator,
   FileSignature,
-  Bot,
+  Sparkles,
   Settings,
   LogOut,
   ChevronLeft,
@@ -30,14 +30,14 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Community', href: '/community', icon: Users },
+  { label: 'Feed', href: '/community', icon: MessagesSquare },
   { label: 'Marketplace', href: '/marketplace', icon: Store },
-  { label: 'Discovery', href: '/buyers', icon: Radar },
-  { label: 'Buyer CRM', href: '/crm', icon: Contact },
-  { label: 'AI Outreach', href: '/outreach', icon: PhoneOutgoing },
-  { label: 'Property Analyzer', href: '/analyzer', icon: BarChart3 },
+  { label: 'Find Buyers', href: '/buyers', icon: UserSearch },
+  { label: 'Buyer List', href: '/crm', icon: Users },
+  { label: 'Outreach', href: '/outreach', icon: PhoneOutgoing },
+  { label: 'Analyze Deal', href: '/analyzer', icon: Calculator },
   { label: 'Contracts', href: '/contracts', icon: FileSignature },
-  { label: 'DealFlow GPT', href: '/gpt', icon: Bot },
+  { label: 'Ask AI', href: '/gpt', icon: Sparkles },
 ]
 
 export default function Sidebar({ profile }: { profile: Profile }) {

@@ -59,7 +59,7 @@ import type { OwnerProfile } from '@/lib/types/owner-intelligence'
 import { estimateEquity, type EquityEstimate } from '@/lib/discovery/owner-intelligence'
 import type { EquityData, DistressSignals, UnifiedPropertyDetail } from '@/lib/discovery/unified-types'
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
 /* ═══════════════════════════════════════════════
    HELPERS
@@ -978,7 +978,7 @@ export default function DiscoveryPage() {
         zip: property.zipCode,
         status: 'ACTIVE',
         source: 'discovery',
-        notes: `Imported from Discovery - ${property.addressLine1}, ${property.city}, ${property.state}`,
+        notes: `Imported from Find Buyers - ${property.addressLine1}, ${property.city}, ${property.state}`,
       }
 
       await createBuyer(body)

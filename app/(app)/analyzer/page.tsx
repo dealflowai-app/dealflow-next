@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useToast } from '@/components/toast'
 import {
   Search,
   ChevronDown,
@@ -242,6 +243,7 @@ function Sparkline({ data, color = '#2563EB' }: { data: number[]; color?: string
    RESULTS STATE
    ═══════════════════════════════════════════════ */
 function ResultsState({ onBack }: { onBack: () => void }) {
+  const toast = useToast()
   /* Waterfall data for flip */
   const arv = 245000
   const contract = 142000
@@ -546,19 +548,19 @@ function ResultsState({ onBack }: { onBack: () => void }) {
 
       {/* Action bar */}
       <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-3.5 flex items-center gap-2.5 flex-wrap">
-        <button className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Store className="w-4 h-4" /> List on Marketplace
         </button>
-        <button className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Users className="w-4 h-4" /> Match to 34 Buyers
         </button>
-        <button className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <FileSignature className="w-4 h-4" /> Generate Contract
         </button>
-        <button className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Download className="w-4 h-4" /> Export as PDF
         </button>
-        <button className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors ml-auto">
+        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors ml-auto">
           <Bookmark className="w-4 h-4" /> Save to Dashboard
         </button>
       </div>
@@ -577,7 +579,7 @@ export default function PropertyAnalyzerPage() {
       {/* Header */}
       <div className="mb-5">
         <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">
-          Property Analyzer
+          Analyze Deal
         </h1>
         <p className="text-sm text-[#9CA3AF]">
           Instant ARV, comps, and deal scoring for any property.

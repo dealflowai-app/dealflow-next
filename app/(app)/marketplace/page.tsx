@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useToast } from '@/components/toast'
 import {
   Store,
   ClipboardList,
@@ -244,12 +245,14 @@ function DealListingsSection() {
    BUYER BOARD SECTION
    ═══════════════════════════════════════════════ */
 function BuyerBoardSection() {
+  const toast = useToast()
+
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <p className="text-[0.82rem] text-[#374151]">Active buy box criteria posted by wholesalers for their verified buyers.</p>
-        <button className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Plus className="w-4 h-4" />
           Post Buy Box
         </button>
@@ -307,7 +310,7 @@ function BuyerBoardSection() {
             </div>
 
             {/* CTA */}
-            <button className="w-full py-2 rounded-md text-[0.8rem] font-medium cursor-pointer transition-colors bg-white text-[#374151] border border-[#D1D5DB] hover:bg-[#F9FAFB]">
+            <button onClick={() => toast('Coming soon')} className="w-full py-2 rounded-md text-[0.8rem] font-medium cursor-pointer transition-colors bg-white text-[#374151] border border-[#D1D5DB] hover:bg-[#F9FAFB]">
               Contact
             </button>
           </div>
@@ -331,12 +334,14 @@ function statusStyle(status: string) {
 }
 
 function MyListingsSection() {
+  const toast = useToast()
+
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <p className="text-[0.82rem] text-[#374151]">Manage your deals and buy box posts.</p>
-        <button className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+        <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Plus className="w-4 h-4" />
           List New Deal
         </button>
@@ -396,18 +401,21 @@ function MyListingsSection() {
                   <div className="flex items-center justify-end gap-1">
                     <button
                       title="Edit"
+                      onClick={() => toast('Coming soon')}
                       className="p-1.5 rounded-md text-[#9CA3AF] hover:text-[#2563EB] hover:bg-[#EFF6FF] transition-colors cursor-pointer bg-transparent border-0"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       title="Pause"
+                      onClick={() => toast('Coming soon')}
                       className="p-1.5 rounded-md text-[#9CA3AF] hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer bg-transparent border-0"
                     >
                       <Pause className="w-3.5 h-3.5" />
                     </button>
                     <button
                       title="Remove"
+                      onClick={() => toast('Coming soon')}
                       className="p-1.5 rounded-md text-[#9CA3AF] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer bg-transparent border-0"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

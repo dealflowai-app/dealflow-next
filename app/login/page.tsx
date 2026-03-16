@@ -13,6 +13,24 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState('')
+  const [resetSent, setResetSent] = useState(false)
+
+  async function handleForgotPassword() {
+    if (!email) {
+      setError('Enter your email above, then click "Forgot password?"')
+      return
+    }
+    setError('')
+    const supabase = createClient()
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    })
+    if (resetError) {
+      setError(resetError.message)
+    } else {
+      setResetSent(true)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -28,8 +46,8 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
-    router.refresh()
+    // Full page navigation ensures middleware picks up the new session cookie
+    window.location.href = '/dashboard'
   }
 
   return (
@@ -172,9 +190,13 @@ export default function LoginPage() {
                 <label style={{ fontSize: '0.76rem', fontWeight: 600, color: 'var(--navy-heading, #0B1224)', letterSpacing: '0.01em' }}>
                   Password
                 </label>
-                <Link href="#" style={{ fontSize: '0.74rem', color: 'var(--blue-600, #2563EB)', textDecoration: 'none', fontWeight: 500 }}>
-                  Forgot password?
-                </Link>
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  style={{ fontSize: '0.74rem', color: 'var(--blue-600, #2563EB)', textDecoration: 'none', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  {resetSent ? 'Reset link sent!' : 'Forgot password?'}
+                </button>
               </div>
               <div style={{ position: 'relative' }}>
                 <input

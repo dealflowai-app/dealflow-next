@@ -825,7 +825,7 @@ export default function AIOutreachPage() {
       <div className="flex items-start justify-between mb-5">
         <div>
           <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">
-            AI Outreach
+            Outreach
           </h1>
           <p className="text-sm text-[#9CA3AF]">
             Launch AI-powered campaigns to qualify and engage your buyers.

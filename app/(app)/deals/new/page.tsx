@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 
 type FormData = {
   address: string
@@ -14,9 +13,13 @@ type FormData = {
   beds: string
   baths: string
   sqft: string
+  year_built: string
+  condition: string
   arv: string
   asking_price: string
   repair_estimate: string
+  assign_fee: string
+  close_by_date: string
   description: string
 }
 
@@ -25,22 +28,35 @@ const initialForm: FormData = {
   city: '',
   state: '',
   zip: '',
-  property_type: 'single_family',
+  property_type: 'SFR',
   beds: '',
   baths: '',
   sqft: '',
+  year_built: '',
+  condition: '',
   arv: '',
   asking_price: '',
   repair_estimate: '',
+  assign_fee: '',
+  close_by_date: '',
   description: '',
 }
 
 const propertyTypes = [
-  { value: 'single_family', label: 'Single Family' },
-  { value: 'multi_family', label: 'Multi-Family' },
-  { value: 'condo', label: 'Condo / Townhouse' },
-  { value: 'land', label: 'Land / Lot' },
-  { value: 'commercial', label: 'Commercial' },
+  { value: 'SFR', label: 'Single Family' },
+  { value: 'MULTI_FAMILY', label: 'Multi-Family' },
+  { value: 'CONDO', label: 'Condo / Townhouse' },
+  { value: 'LAND', label: 'Land / Lot' },
+  { value: 'COMMERCIAL', label: 'Commercial' },
+  { value: 'MOBILE_HOME', label: 'Mobile Home' },
+]
+
+const conditions = [
+  { value: '', label: 'Select condition' },
+  { value: 'distressed', label: 'Distressed' },
+  { value: 'fair', label: 'Fair' },
+  { value: 'good', label: 'Good' },
+  { value: 'excellent', label: 'Excellent' },
 ]
 
 const states = [
@@ -90,35 +106,46 @@ export default function NewDealPage() {
     return Number(digits).toLocaleString()
   }
 
+  function parseMoney(value: string): number | null {
+    const digits = value.replace(/\D/g, '')
+    return digits ? parseInt(digits) : null
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
 
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
-
       const payload = {
-        user_id: user.id,
         address: form.address,
         city: form.city,
         state: form.state,
         zip: form.zip,
-        property_type: form.property_type,
+        propertyType: form.property_type,
         beds: form.beds ? parseInt(form.beds) : null,
         baths: form.baths ? parseFloat(form.baths) : null,
         sqft: form.sqft ? parseInt(form.sqft.replace(/,/g, '')) : null,
-        arv: form.arv ? parseInt(form.arv.replace(/,/g, '')) : null,
-        asking_price: form.asking_price ? parseInt(form.asking_price.replace(/,/g, '')) : null,
-        repair_estimate: form.repair_estimate ? parseInt(form.repair_estimate.replace(/,/g, '')) : null,
-        description: form.description || null,
-        status: 'active',
+        yearBuilt: form.year_built ? parseInt(form.year_built) : null,
+        condition: form.condition || null,
+        askingPrice: parseMoney(form.asking_price),
+        assignFee: parseMoney(form.assign_fee),
+        closeByDate: form.close_by_date || null,
+        arv: parseMoney(form.arv),
+        repairCost: parseMoney(form.repair_estimate),
+        notes: form.description || null,
       }
 
-      const { error: dbError } = await supabase.from('deals').insert(payload)
-      if (dbError) throw new Error(dbError.message)
+      const res = await fetch('/api/deals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Something went wrong')
+      }
 
       router.push('/deals')
     } catch (err: unknown) {
@@ -210,18 +237,30 @@ export default function NewDealPage() {
             Property Details
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <Field label="Property Type" required>
-              <select
-                required
-                value={form.property_type}
-                onChange={e => set('property_type', e.target.value)}
-                style={{ ...inputStyle, cursor: 'pointer' }}
-                className="deal-input"
-              >
-                {propertyTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
-            </Field>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }} className="deal-details-grid">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} className="deal-details-grid">
+              <Field label="Property Type" required>
+                <select
+                  required
+                  value={form.property_type}
+                  onChange={e => set('property_type', e.target.value)}
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  className="deal-input"
+                >
+                  {propertyTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+              </Field>
+              <Field label="Condition">
+                <select
+                  value={form.condition}
+                  onChange={e => set('condition', e.target.value)}
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  className="deal-input"
+                >
+                  {conditions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </select>
+              </Field>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }} className="deal-specs-grid">
               <Field label="Bedrooms">
                 <input
                   type="number"
@@ -257,6 +296,16 @@ export default function NewDealPage() {
                   className="deal-input"
                 />
               </Field>
+              <Field label="Year Built">
+                <input
+                  type="text"
+                  value={form.year_built}
+                  onChange={e => set('year_built', e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  placeholder="1985"
+                  style={inputStyle}
+                  className="deal-input"
+                />
+              </Field>
             </div>
           </div>
         </div>
@@ -266,7 +315,7 @@ export default function NewDealPage() {
           <div style={{ fontSize: '0.68rem', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: 18 }}>
             Financials
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }} className="deal-financials-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }} className="deal-financials-grid">
             <Field label="Asking Price" required>
               <div style={{ position: 'relative' }}>
                 <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '0.875rem' }}>$</span>
@@ -306,6 +355,30 @@ export default function NewDealPage() {
                   className="deal-input"
                 />
               </div>
+            </Field>
+            <Field label="Assignment Fee">
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '0.875rem' }}>$</span>
+                <input
+                  type="text"
+                  value={form.assign_fee}
+                  onChange={e => set('assign_fee', formatMoney(e.target.value))}
+                  placeholder="10,000"
+                  style={{ ...inputStyle, paddingLeft: 24 }}
+                  className="deal-input"
+                />
+              </div>
+            </Field>
+          </div>
+          <div style={{ marginTop: 14 }}>
+            <Field label="Close By Date">
+              <input
+                type="date"
+                value={form.close_by_date}
+                onChange={e => set('close_by_date', e.target.value)}
+                style={inputStyle}
+                className="deal-input"
+              />
             </Field>
           </div>
         </div>
@@ -396,7 +469,7 @@ export default function NewDealPage() {
           flex-shrink: 0;
         }
         @media (max-width: 640px) {
-          .deal-location-grid, .deal-details-grid, .deal-financials-grid {
+          .deal-location-grid, .deal-details-grid, .deal-specs-grid, .deal-financials-grid {
             grid-template-columns: 1fr !important;
           }
         }

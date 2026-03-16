@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   TrendingUp,
-  TrendingDown,
   Play,
   Pause,
   Upload,
@@ -12,13 +12,19 @@ import {
   PhoneOutgoing,
 } from 'lucide-react'
 
-/* ── KPI data ── */
-const kpis = [
-  { label: 'Active Deals', value: '12', change: '+18%', up: true, color: '#2563EB' },
-  { label: 'Buyers in CRM', value: '847', change: '+6.2%', up: true, color: '#16a34a' },
-  { label: 'AI Calls This Month', value: '1,243', change: '+24%', up: true, color: '#7c3aed' },
-  { label: 'Deals Closed', value: '3', change: '-1', up: false, color: '#d97706' },
-]
+type KpiData = {
+  activeDeals: number
+  closedDeals: number
+  buyerCount: number
+  aiCalls: number
+}
+
+type ActivityItem = {
+  id: string
+  type: string
+  title: string
+  createdAt: string
+}
 
 /* ── Revenue chart data (last 6 months) ── */
 const revenueData = [
@@ -37,22 +43,23 @@ const campaigns = [
   { name: 'Tampa Investor Reactivation', status: 'paused', calls: 87, responseRate: 22.1 },
 ]
 
-/* ── Activity feed ── */
-const activities = [
-  { time: '2 min ago', text: 'New buyer added: Marcus T., Phoenix, AZ', type: 'buyer' },
-  { time: '18 min ago', text: 'Deal matched: 1847 Oak St to 3 buyers', type: 'match' },
-  { time: '1 hr ago', text: 'Contract signed: 2201 Elm Ave for $24,500 assignment fee', type: 'contract' },
-  { time: '2 hrs ago', text: 'AI call completed: Spoke with David R. (Interested)', type: 'call' },
-  { time: '3 hrs ago', text: 'Property analyzed: 940 Birch Dr, Deal Score 78/100', type: 'analysis' },
-  { time: '5 hrs ago', text: 'New buyer added: Sarah K., Dallas, TX', type: 'buyer' },
-]
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs} hr${hrs > 1 ? 's' : ''} ago`
+  const days = Math.floor(hrs / 24)
+  return `${days} day${days > 1 ? 's' : ''} ago`
+}
 
 /* ── Quick actions ── */
 const quickActions = [
-  { label: 'New AI Campaign', icon: PhoneOutgoing, color: '#2563EB' },
-  { label: 'Upload Deal', icon: Upload, color: '#16a34a' },
-  { label: 'Add Buyer', icon: UserPlus, color: '#7c3aed' },
-  { label: 'Run Analysis', icon: Search, color: '#d97706' },
+  { label: 'New AI Campaign', icon: PhoneOutgoing, color: '#2563EB', href: '/outreach' },
+  { label: 'Upload Deal', icon: Upload, color: '#16a34a', href: '/deals/new' },
+  { label: 'Add Buyer', icon: UserPlus, color: '#7c3aed', href: '/crm' },
+  { label: 'Run Analysis', icon: Search, color: '#d97706', href: '/analyzer' },
 ]
 
 /* ── Card wrapper ── */
@@ -155,6 +162,27 @@ const dotColors: Record<string, string> = {
 }
 
 export default function DashboardPage() {
+  const router = useRouter()
+  const [kpiData, setKpiData] = useState<KpiData | null>(null)
+  const [activity, setActivity] = useState<ActivityItem[]>([])
+
+  useEffect(() => {
+    fetch('/api/dashboard')
+      .then(r => r.json())
+      .then(data => {
+        if (data.kpis) setKpiData(data.kpis)
+        if (data.recentActivity) setActivity(data.recentActivity)
+      })
+      .catch(() => {})
+  }, [])
+
+  const kpis = [
+    { label: 'Active Deals', value: kpiData ? kpiData.activeDeals.toLocaleString() : '—', color: '#2563EB' },
+    { label: 'Buyers in CRM', value: kpiData ? kpiData.buyerCount.toLocaleString() : '—', color: '#16a34a' },
+    { label: 'AI Calls', value: kpiData ? kpiData.aiCalls.toLocaleString() : '—', color: '#7c3aed' },
+    { label: 'Deals Closed', value: kpiData ? kpiData.closedDeals.toLocaleString() : '—', color: '#d97706' },
+  ]
+
   return (
     <div style={{ padding: '32px 36px', maxWidth: 1200 }}>
       {/* Header */}
@@ -189,13 +217,7 @@ export default function DashboardPage() {
             }}
             className="dash-card"
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)' }}>{k.label}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: '0.72rem', fontWeight: 500, color: k.up ? '#16a34a' : '#ef4444' }}>
-                {k.up ? <TrendingUp style={{ width: 12, height: 12 }} /> : <TrendingDown style={{ width: 12, height: 12 }} />}
-                {k.change}
-              </div>
-            </div>
+            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10 }}>{k.label}</div>
             <div
               style={{
                 fontFamily: "'DM Serif Display', Georgia, serif",
@@ -266,31 +288,23 @@ export default function DashboardPage() {
       <div className="dash-bot" style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 14 }}>
         {/* Activity feed */}
         <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={{ marginBottom: 14 }}>
             <div style={sectionLabel as React.CSSProperties}>Recent Activity</div>
-            <button
-              style={{
-                fontSize: '0.75rem',
-                color: 'var(--muted-text, #9CA3AF)',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'color 0.15s ease',
-              }}
-            >
-              View all
-            </button>
           </div>
           <div>
-            {activities.map((a, i) => (
+            {activity.length === 0 ? (
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
+                No recent activity yet.
+              </p>
+            ) : activity.map((a, i) => (
               <div
-                key={i}
+                key={a.id}
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: 10,
                   padding: '9px 0',
-                  borderBottom: i < activities.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
+                  borderBottom: i < activity.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
                 }}
               >
                 <span
@@ -305,9 +319,9 @@ export default function DashboardPage() {
                   }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '0.82rem', color: 'var(--navy-heading, #0B1224)', lineHeight: 1.45, margin: 0 }}>{a.text}</p>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--navy-heading, #0B1224)', lineHeight: 1.45, margin: 0 }}>{a.title}</p>
                 </div>
-                <span style={{ fontSize: '0.7rem', color: 'var(--muted-text, #9CA3AF)', whiteSpace: 'nowrap', flexShrink: 0 }}>{a.time}</span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--muted-text, #9CA3AF)', whiteSpace: 'nowrap', flexShrink: 0 }}>{timeAgo(a.createdAt)}</span>
               </div>
             ))}
           </div>
@@ -323,6 +337,7 @@ export default function DashboardPage() {
                 <button
                   key={a.label}
                   className="dash-action"
+                  onClick={() => router.push(a.href)}
                   style={{
                     display: 'flex',
                     flexDirection: 'column',

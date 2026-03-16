@@ -1518,7 +1518,7 @@ export default function BuyerCrmPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Buyer CRM</h1>
+          <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Buyer List</h1>
           <p className="text-sm text-[#9CA3AF]">Manage your cash buyer relationships and pipeline.</p>
         </div>
         <div className="flex items-center gap-2">

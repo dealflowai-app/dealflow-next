@@ -29,10 +29,10 @@ import {
 
 /* ── Connected data sources ── */
 const dataSources = [
-  { label: 'Buyer CRM', icon: Contact, count: 847, connected: true },
+  { label: 'Buyer List', icon: Contact, count: 847, connected: true },
   { label: 'Active Deals', icon: BarChart3, count: 12, connected: true },
-  { label: 'AI Campaigns', icon: PhoneOutgoing, count: 6, connected: true },
-  { label: 'Discovery Data', icon: Radar, count: '14.2k', connected: true },
+  { label: 'Campaigns', icon: PhoneOutgoing, count: 6, connected: true },
+  { label: 'Find Buyers Data', icon: Radar, count: '14.2k', connected: true },
   { label: 'Marketplace', icon: Store, count: 48, connected: true },
   { label: 'Contracts', icon: FileSignature, count: 7, connected: true },
 ]
@@ -47,7 +47,7 @@ const accountStats = [
 
 /* ── Recent activity for context ── */
 const recentActivity = [
-  { text: 'Marcus T. added to CRM', time: '2 min ago' },
+  { text: 'Marcus T. added to Buyer List', time: '2 min ago' },
   { text: '1847 Oak St matched to 3 buyers', time: '18 min ago' },
   { text: 'Contract signed: 2201 Elm Ave', time: '1 hr ago' },
   { text: 'AI call with David R. (Interested)', time: '2 hrs ago' },
@@ -57,7 +57,7 @@ const recentActivity = [
 /* ── Quick actions ── */
 const quickActions = [
   { label: 'Analyze a property', prompt: 'Analyze 1423 Sunset Blvd, Phoenix, AZ 85042' },
-  { label: 'Find matching buyers', prompt: 'Which buyers in my CRM match the deal at 1847 Oak St?' },
+  { label: 'Find matching buyers', prompt: 'Which buyers in my Buyer List match the deal at 1847 Oak St?' },
   { label: 'Campaign performance', prompt: 'How is my Phoenix Cash Buyers campaign performing?' },
   { label: 'Deal strategy help', prompt: 'What\'s the best negotiation strategy for a distressed seller?' },
 ]
@@ -84,13 +84,13 @@ const initialMessages: Message[] = [
   {
     id: 1,
     role: 'user',
-    content: 'Which buyers in my CRM would be the best match for the property at 1847 Oak St, Phoenix?',
+    content: 'Which buyers in my Buyer List would be the best match for the property at 1847 Oak St, Phoenix?',
     timestamp: '10:32 AM',
   },
   {
     id: 2,
     role: 'assistant',
-    content: `Great question! I've cross-referenced **1847 Oak St** (3BR/2BA SFR, ARV $285k, asking $189k) against your CRM and found **3 strong matches**:
+    content: `Great question! I've cross-referenced **1847 Oak St** (3BR/2BA SFR, ARV $285k, asking $189k) against your Buyer List and found **3 strong matches**:
 
 **1. Marcus Thompson** (Score: 94/100)
 - Buy box: Phoenix SFR, $150k-$300k, 3+ BR
@@ -129,7 +129,7 @@ Would you like me to send deal sheets to any of these buyers, or draft a persona
 > "Hey Marcus, I just locked up a property at 1847 Oak St in Phoenix. 3BR/2BA SFR, ARV around $285k, and I can assign it at $189k. Based on your buy box, this looks like a solid fit. Want me to send over the full breakdown? I can get you the comps and deal analysis within the hour."
 
 **For David Rodriguez:**
-> "David, great chatting with you earlier! I wanted to circle back with something that just came across my desk. 1847 Oak St, Phoenix. 3BR/2BA, ARV ~$285k, asking $189k. At that price point, you're looking at potential 30%+ ROI on a flip. Should I send over the Property Analyzer report?"
+> "David, great chatting with you earlier! I wanted to circle back with something that just came across my desk. 1847 Oak St, Phoenix. 3BR/2BA, ARV ~$285k, asking $189k. At that price point, you're looking at potential 30%+ ROI on a flip. Should I send over the Analyze Deal report?"
 
 ---
 
@@ -186,7 +186,7 @@ export default function DealFlowGPTPage() {
       const aiMsg: Message = {
         id: messages.length + 2,
         role: 'assistant',
-        content: `I understand you're asking about "${input.trim().slice(0, 60)}${input.trim().length > 60 ? '...' : ''}". Let me pull the relevant data from your account.\n\nBased on your current pipeline, CRM data, and market conditions, here's what I recommend:\n\n1. **Review your active deals**: You have 12 deals in progress across Phoenix, Dallas, and Tampa\n2. **Check your highest-scoring buyers**: 23 buyers in your CRM match this criteria\n3. **Consider market timing**: Phoenix inventory is down 8% this month, which creates urgency\n\nWould you like me to dive deeper into any of these areas?`,
+        content: `I understand you're asking about "${input.trim().slice(0, 60)}${input.trim().length > 60 ? '...' : ''}". Let me pull the relevant data from your account.\n\nBased on your current pipeline, Buyer List data, and market conditions, here's what I recommend:\n\n1. **Review your active deals**: You have 12 deals in progress across Phoenix, Dallas, and Tampa\n2. **Check your highest-scoring buyers**: 23 buyers in your Buyer List match this criteria\n3. **Consider market timing**: Phoenix inventory is down 8% this month, which creates urgency\n\nWould you like me to dive deeper into any of these areas?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       }
       setMessages(prev => [...prev, aiMsg])
@@ -241,8 +241,11 @@ export default function DealFlowGPTPage() {
               <Bot className="w-5 h-5 text-[#6B7280]" />
             </div>
             <div>
-              <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)]">
-                DealFlow GPT
+              <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] flex items-center gap-2.5">
+                Ask AI
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.62rem] font-semibold tracking-wide uppercase" style={{ background: 'rgba(217,119,6,0.1)', color: '#d97706', lineHeight: 1.6 }}>
+                  Demo Mode
+                </span>
               </h1>
               <p className="text-sm text-[#9CA3AF]">AI assistant with full account context</p>
             </div>
@@ -278,7 +281,7 @@ export default function DealFlowGPTPage() {
                 How can I help your deals today?
               </h2>
               <p className="text-[#9CA3AF] max-w-md mx-auto">
-                I have access to your CRM, deals, campaigns, and market data. Ask me anything about your business.
+                I have access to your Buyer List, deals, campaigns, and market data. Ask me anything about your business.
               </p>
             </div>
           )}
@@ -416,7 +419,7 @@ export default function DealFlowGPTPage() {
                 <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] animate-pulse" style={{ animationDelay: '300ms' }} />
                 <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] animate-pulse" style={{ animationDelay: '600ms' }} />
               </div>
-              <span className="text-[10px] text-[#9CA3AF]">DealFlow GPT is ready</span>
+              <span className="text-[10px] text-[#9CA3AF]">Ask AI is ready</span>
             </div>
           )}
 
@@ -449,7 +452,7 @@ export default function DealFlowGPTPage() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask DealFlow GPT anything about your deals, buyers, campaigns..."
+                placeholder="Ask AI anything about your deals, buyers, campaigns..."
                 rows={1}
                 className="w-full resize-none rounded-xl border border-[#E5E7EB] px-4 py-3 pr-12 text-sm text-[#374151] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                 style={{ minHeight: '44px', maxHeight: '120px' }}
@@ -471,7 +474,7 @@ export default function DealFlowGPTPage() {
             </button>
           </div>
           <p className="text-[10px] text-[#9CA3AF] mt-2 text-center">
-            DealFlow GPT has access to your account data. Responses are AI-generated and should be verified.
+            Demo Mode — responses are simulated. Live AI integration coming soon.
           </p>
         </div>
       </div>
@@ -564,7 +567,7 @@ export default function DealFlowGPTPage() {
                 <span className="text-xs font-medium text-[#9CA3AF]">Powered by AI</span>
               </div>
               <p className="text-[11px] text-[#9CA3AF] leading-relaxed">
-                DealFlow GPT analyzes your CRM, deals, campaigns, and market data in real-time to provide personalized recommendations and automate your workflow.
+                Ask AI analyzes your Buyer List, deals, campaigns, and market data in real-time to provide personalized recommendations and automate your workflow.
               </p>
               <div className="flex items-center gap-3 mt-3">
                 <div className="flex items-center gap-1">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useToast } from '@/components/toast'
 import {
   Heart,
   MessageCircle,
@@ -70,7 +71,7 @@ const feedPosts = [
     initials: 'AW',
     color: 'from-amber-500 to-orange-600',
     time: '8 hours ago',
-    text: 'Closed a $32k assignment fee on a duplex in Dallas. Found the buyer through Discovery in under 20 minutes. Shoutout to the DFW Wholesalers group for the comps help!',
+    text: 'Closed a $32k assignment fee on a duplex in Dallas. Found the buyer through Find Buyers in under 20 minutes. Shoutout to the DFW Wholesalers group for the comps help!',
     likes: 134,
     comments: 31,
     liked: false,
@@ -117,7 +118,7 @@ const groups = [
 const newsItems = [
   {
     id: 1,
-    title: 'New: AI Outreach now supports email campaigns',
+    title: 'New: Outreach now supports email campaigns',
     date: 'Mar 12, 2026',
     source: 'DealFlow AI',
     preview: 'You can now create AI-powered email sequences alongside voice and SMS campaigns. Set up drip campaigns with personalized messaging based on buyer profiles.',
@@ -145,10 +146,10 @@ const newsItems = [
   },
   {
     id: 5,
-    title: 'DealFlow GPT now available in beta',
+    title: 'Ask AI now available in beta',
     date: 'Mar 6, 2026',
     source: 'DealFlow AI',
-    preview: 'Our AI assistant can now access your CRM, deals, and campaign data to help with deal analysis, buyer recommendations, and strategy coaching. Available to Pro and Enterprise users.',
+    preview: 'Our AI assistant can now access your Buyer List, deals, and campaign data to help with deal analysis, buyer recommendations, and strategy coaching. Available to Pro and Enterprise users.',
   },
 ]
 
@@ -239,6 +240,7 @@ function Avatar({ initials, size = 36 }: { initials: string; color?: string; siz
    FEED SECTION
    ═══════════════════════════════════════════════ */
 function FeedSection() {
+  const toast = useToast()
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set(feedPosts.filter(p => p.liked).map(p => p.id)))
 
   function toggleLike(id: number) {
@@ -265,10 +267,10 @@ function FeedSection() {
               className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[0.84rem] text-[#374151] placeholder-[#9CA3AF] outline-none focus:border-[#A5B4FC] focus:bg-white transition-colors"
             />
           </div>
-          <button className="flex items-center gap-1.5 text-[#9CA3AF] hover:text-[#6B7280] cursor-pointer bg-transparent border-0 transition-colors">
+          <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 text-[#9CA3AF] hover:text-[#6B7280] cursor-pointer bg-transparent border-0 transition-colors">
             <ImageIcon className="w-4 h-4" />
           </button>
-          <button className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.8rem] font-medium cursor-pointer transition-colors flex items-center gap-1.5">
+          <button onClick={() => toast('Coming soon')} className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.8rem] font-medium cursor-pointer transition-colors flex items-center gap-1.5">
             <Send className="w-3.5 h-3.5" />
             Post
           </button>
@@ -311,7 +313,7 @@ function FeedSection() {
                   <Heart className="w-4 h-4" fill={isLiked ? 'currentColor' : 'none'} />
                   {likeCount}
                 </button>
-                <button className="flex items-center gap-1.5 text-[0.78rem] text-[#9CA3AF] hover:text-[#2563EB] cursor-pointer bg-transparent border-0 transition-colors">
+                <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 text-[0.78rem] text-[#9CA3AF] hover:text-[#2563EB] cursor-pointer bg-transparent border-0 transition-colors">
                   <MessageCircle className="w-4 h-4" />
                   {post.comments}
                 </button>
@@ -434,6 +436,7 @@ function NewsSection() {
    INBOX SECTION
    ═══════════════════════════════════════════════ */
 function InboxSection() {
+  const toast = useToast()
   const [activeConvo, setActiveConvo] = useState(conversations[0].id)
   const active = conversations.find(c => c.id === activeConvo) ?? conversations[0]
 
@@ -518,7 +521,7 @@ function InboxSection() {
               placeholder="Type a message..."
               className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[0.82rem] text-[#374151] placeholder-[#9CA3AF] outline-none focus:border-[#A5B4FC] focus:bg-white transition-colors"
             />
-            <button className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md p-2.5 cursor-pointer transition-colors flex items-center justify-center">
+            <button onClick={() => toast('Coming soon')} className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md p-2.5 cursor-pointer transition-colors flex items-center justify-center">
               <Send className="w-4 h-4" />
             </button>
           </div>
@@ -541,7 +544,7 @@ export default function CommunityPage() {
         <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
           className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] tracking-[-0.022em] mb-1"
         >
-          Community
+          Feed
         </h1>
         <p className="text-[0.86rem] text-[var(--body-text,#4B5563)]">
           Connect with wholesalers, share strategies, and stay updated.

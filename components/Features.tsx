@@ -91,7 +91,7 @@ const steps = [
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
       </svg>
     ),
-    title: 'DealFlow GPT',
+    title: 'Ask AI',
     desc: 'An AI assistant with full context on your CRM, deals, campaigns, and market data. Ask for deal analysis, buyer recommendations, or strategy coaching. It sees everything your platform sees.',
     badge: 'Intelligence layer',
     Visual: VisualGPT,
@@ -477,7 +477,7 @@ function VisualClose() {
   )
 }
 
-/* ── Visual 6: DealFlow GPT ──────────────────────────────── */
+/* ── Visual 6: Ask AI ──────────────────────────────── */
 function VisualGPT() {
   const messages = [
     { from: 'user', text: 'I just got a lead on 4217 Elm St. Should I pursue it or pass?' },
@@ -486,13 +486,13 @@ function VisualGPT() {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-text)', marginBottom: 16 }}>
-        DealFlow GPT · Full account context
+        Ask AI · Full account context
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {messages.map((m, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <div style={{ fontSize: '0.67rem', fontWeight: 700, color: m.from === 'ai' ? 'var(--blue-600)' : 'var(--body-text)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              {m.from === 'ai' ? 'DealFlow GPT' : 'You'}
+              {m.from === 'ai' ? 'Ask AI' : 'You'}
             </div>
             <div style={{ background: m.from === 'ai' ? 'var(--blue-50)' : 'var(--warm-gray)', border: `1px solid ${m.from === 'ai' ? 'var(--blue-100)' : 'var(--border-light)'}`, borderRadius: 10, padding: '10px 14px', fontSize: '0.82rem', color: 'var(--navy-heading)', lineHeight: 1.6 }}>
               {m.text}

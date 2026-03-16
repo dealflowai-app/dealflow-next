@@ -135,9 +135,6 @@ export async function PATCH(
       data.enrichedAt = new Date()
     }
 
-    // Log for debugging
-    console.log('PATCH data:', JSON.stringify(data, null, 2))
-
     const buyer = await prisma.cashBuyer.update({
       where: { id },
       data: data as never,
