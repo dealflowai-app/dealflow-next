@@ -32,7 +32,7 @@ export async function GET(
         },
         tags: {
           include: {
-            tag: { select: { name: true, label: true, color: true, type: true } },
+            tag: { select: { id: true, name: true, label: true, color: true, type: true } },
           },
         },
       },

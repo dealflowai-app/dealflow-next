@@ -28,6 +28,28 @@
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --shadow: 0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
   --shadow-lg: 0 16px 48px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05);
+
+  /* Light Eden theme tokens (marketing pages only) */
+  --dark: rgb(5, 14, 36);
+  --dark-mid: rgb(9, 22, 50);
+  --navy-heading: rgb(8, 18, 42);
+  --cream: rgb(249, 247, 244);
+  --warm-gray: rgb(245, 243, 240);
+  --heading-light: rgb(244, 242, 240);
+  --body-light: rgb(244, 242, 240);
+  --muted-light: rgba(255, 255, 255, 0.72);
+  --dim-light: rgba(255, 255, 255, 0.5);
+  --body-text: rgba(5, 14, 36, 0.65);
+  --muted-text: rgba(5, 14, 36, 0.45);
+  --border-light: rgba(5, 14, 36, 0.08);
+  --border-med: rgba(5, 14, 36, 0.12);
+  --accent: #2563EB;
+  --accent-light: #3B82F6;
+  --accent-bright: #60A5FA;
+  --accent-bg: rgba(37, 99, 235, 0.06);
+  --accent-border: rgba(37, 99, 235, 0.15);
+  --green-bg: rgba(22, 163, 74, 0.08);
+  --shadow-brand: 5, 14, 36;
 }
 
 /* ─── RESET ──────────────────────────────────────────────── */
@@ -106,6 +128,137 @@ body {
   animation: fadeInUp 0.3s ease-out;
 }
 
+/* ─── CRM TRANSITIONS ───────────────────────────────────── */
+
+/* Table rows: subtle lift + shadow on hover */
+.crm-row {
+  transition: background-color 0.15s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.crm-row:hover {
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+}
+.crm-row:active {
+  transform: scale(0.995);
+}
+
+/* Pipeline cards: lift on hover */
+.crm-card {
+  transition: background-color 0.15s ease, box-shadow 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.crm-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+.crm-card:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.1s;
+}
+
+/* Buttons: press-down effect */
+.crm-btn {
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+}
+.crm-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* Badge/chip hover */
+.crm-chip {
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.crm-chip:hover {
+  transform: scale(1.04);
+}
+
+/* Tab underline slide */
+.crm-tab {
+  position: relative;
+  transition: color 0.2s ease;
+}
+.crm-tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: #2563eb;
+  transform: scaleX(0);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.crm-tab[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Modal entrance */
+@keyframes modalOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalContentIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.crm-modal-overlay {
+  animation: modalOverlayIn 0.2s ease-out;
+}
+.crm-modal-content {
+  animation: modalContentIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tooltip / popover */
+@keyframes popIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.crm-tooltip {
+  animation: fadeInUp 0.15s ease-out;
+}
+
+/* Map dot pulse on hover */
+.crm-map-dot {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.crm-map-dot:hover {
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* View toggle pill slide */
+.crm-view-btn {
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Score badge pop */
+@keyframes scorePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.crm-score-pop {
+  animation: scorePop 0.3s ease;
+}
+
+/* Dropdown menu */
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.crm-dropdown {
+  animation: dropdownIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Stagger children entrance */
+.crm-stagger > * {
+  animation: fadeInUp 0.3s ease-out both;
+}
+.crm-stagger > *:nth-child(1) { animation-delay: 0s; }
+.crm-stagger > *:nth-child(2) { animation-delay: 0.04s; }
+.crm-stagger > *:nth-child(3) { animation-delay: 0.08s; }
+.crm-stagger > *:nth-child(4) { animation-delay: 0.12s; }
+.crm-stagger > *:nth-child(5) { animation-delay: 0.16s; }
+.crm-stagger > *:nth-child(6) { animation-delay: 0.2s; }
+
 /* ─── PULSE GLOW (outreach running campaigns) ── */
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.08); }
@@ -153,16 +306,34 @@ body {
   animation: pulsePin 2s infinite;
 }
 
+/* ─── EDEN HERO ANIMATIONS ──────────────────────────────── */
+@keyframes fadeInHero {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fadeSlideRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes riseUpHero {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ─── REVEAL ─────────────────────────────────────────────── */
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
+  transform: translateY(36px);
+  transition: opacity 1.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reveal.in {
   opacity: 1;
   transform: translateY(0);
 }
+.reveal-d1 { transition-delay: 0.12s; }
+.reveal-d2 { transition-delay: 0.24s; }
+.reveal-d3 { transition-delay: 0.36s; }
 
 /* ─── STEP PROGRESS FILL ─────────────────────────────────── */
 .step-prog-fill {

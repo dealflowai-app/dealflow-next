@@ -69,8 +69,8 @@ function InputState({ onAnalyze }: { onAnalyze: () => void }) {
         <div className="w-14 h-14 rounded-2xl bg-[#F3F4F6] flex items-center justify-center mx-auto mb-4">
           <BarChart3 className="w-7 h-7 text-[#6B7280]" />
         </div>
-        <h1
-          className="text-2xl font-semibold text-[#111827] mb-2"
+        <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
+          className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-2"
         >
           Analyze Any Deal in Seconds
         </h1>
@@ -262,7 +262,7 @@ function ResultsState({ onBack }: { onBack: () => void }) {
         <div className="flex items-start justify-between">
           <div>
             <h2
-              className="text-2xl font-semibold text-[#111827] mb-1"
+              className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1"
             >
               1847 Oak Street
             </h2>
@@ -573,10 +573,10 @@ export default function PropertyAnalyzerPage() {
   const [showResults, setShowResults] = useState(false)
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#FAFAFA]">
+    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)]">
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-2xl font-semibold text-[#111827] mb-1">
+        <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">
           Property Analyzer
         </h1>
         <p className="text-sm text-[#9CA3AF]">

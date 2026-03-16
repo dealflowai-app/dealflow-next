@@ -430,11 +430,11 @@ export default function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<Tab>('deals')
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#FAFAFA] min-h-screen">
+    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)] ">
       {/* Header */}
       <div className="mb-5">
-        <h1
-          className="text-2xl font-semibold text-[#111827] mb-1"
+        <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
+          className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1"
         >
           Marketplace
         </h1>

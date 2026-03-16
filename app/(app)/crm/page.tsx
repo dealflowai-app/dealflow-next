@@ -415,8 +415,8 @@ function AddBuyerModal({ onClose, onCreated }: { onClose: () => void; onCreated:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <form onSubmit={handleSubmit} className="relative bg-white rounded-xl shadow-xl p-6 w-[520px] max-h-[90vh] overflow-y-auto">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
+      <form onSubmit={handleSubmit} className="relative bg-white rounded-xl shadow-xl p-6 w-[520px] max-h-[90vh] overflow-y-auto crm-modal-content">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Buyer</h3>
         {err && <div className="text-red-600 text-sm mb-3">{err}</div>}
 
@@ -611,8 +611,8 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-xl p-6 w-[580px] max-h-[85vh] overflow-y-auto">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
+      <div className="relative bg-white rounded-xl shadow-xl p-6 w-[580px] max-h-[85vh] overflow-y-auto crm-modal-content">
         <h3 className="text-lg font-semibold text-gray-900 mb-1">Import Buyers (CSV)</h3>
         <div className="flex items-center gap-3 mb-4">
           <p className="text-xs text-gray-400">Upload a CSV or paste data below.</p>
@@ -708,7 +708,7 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
 interface DuplicateGroup {
   buyerIds: string[]
   buyers: Array<{ id: string; firstName?: string; lastName?: string; entityName?: string; buyerScore: number }>
-  reasons: string[]
+  reason: string
   confidence: 'high' | 'medium' | 'low'
 }
 
@@ -762,8 +762,8 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-xl p-6 w-[560px] max-h-[85vh] overflow-y-auto">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
+      <div className="relative bg-white rounded-xl shadow-xl p-6 w-[560px] max-h-[85vh] overflow-y-auto crm-modal-content">
         <h3 className="text-lg font-semibold text-gray-900 mb-1">Duplicate Detection</h3>
         {summary && (
           <div className="flex gap-3 text-xs text-gray-500 mb-4">
@@ -824,7 +824,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
                 <span className={`text-[0.64rem] font-medium px-1.5 py-0.5 rounded-full border ${confBadge(g.confidence)}`}>
                   {g.confidence}
                 </span>
-                <span className="text-xs text-gray-400">{g.reasons.join(', ')}</span>
+                <span className="text-xs text-gray-400">{g.reason}</span>
               </div>
               <div className="space-y-1 mb-2">
                 {g.buyers.map((b) => (
@@ -925,7 +925,7 @@ function RowMenu({ isOpen, onToggle, onClose, actions }: {
         <>
           <div className="fixed inset-0 z-[100]" onClick={onClose} />
           <div
-            className="fixed z-[101] bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px]"
+            className="fixed z-[101] bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px] crm-dropdown"
             style={{ top: pos.top, left: pos.left }}
           >
             {actions.map((a) => (
@@ -1118,7 +1118,7 @@ function ListView({
               return (
                 <tr
                   key={b.id}
-                  className={`${i < buyers.length - 1 ? 'border-b border-[#F3F4F6]' : ''} bg-white hover:bg-[#F9FAFB] transition-colors cursor-pointer`}
+                  className={`${i < buyers.length - 1 ? 'border-b border-[#F3F4F6]' : ''} bg-white hover:bg-[#F9FAFB] cursor-pointer crm-row`}
                   onDoubleClick={() => onOpenDetail(b.id)}
                 >
                   <td className="px-3 py-3">
@@ -1167,7 +1167,7 @@ function ListView({
                       {(b.tags || []).slice(0, 3).map((bt) => (
                         <span
                           key={bt.id}
-                          className="text-[0.62rem] font-medium px-1.5 py-0.5 rounded-full border"
+                          className="text-[0.62rem] font-medium px-1.5 py-0.5 rounded-full border crm-chip"
                           style={{
                             color: bt.tag.color,
                             borderColor: bt.tag.color + '40',
@@ -1274,7 +1274,7 @@ function PipelineView({
                     <button
                       key={b.id}
                       onClick={() => onOpenDetail(b.id)}
-                      className="w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-left cursor-pointer hover:bg-[#F9FAFB] shadow-none transition-colors group"
+                      className="w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-left cursor-pointer hover:bg-[#F9FAFB] shadow-none group crm-card"
                     >
                       <div className="flex items-center gap-2 mb-1.5">
                         <div className="w-6 h-6 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
@@ -1344,9 +1344,9 @@ function MapView({
         return (
           <div key={b.id} className="absolute cursor-pointer group" style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: 'translate(-50%, -50%)' }}
             onMouseEnter={() => setHoverBuyer(b.id)} onMouseLeave={() => setHoverBuyer(null)}>
-            <div className="w-3 h-3 rounded-full border-2 border-white/60 group-hover:scale-150 transition-transform" style={{ background: scoreDot(grade) }} />
+            <div className="w-3 h-3 rounded-full border-2 border-white/60 group-hover:scale-150 crm-map-dot" style={{ background: scoreDot(grade) }} />
             {hoverBuyer === b.id && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#12141a] border border-gray-700 rounded-lg px-3 py-2.5 shadow-xl z-10 min-w-[180px]">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#12141a] border border-gray-700 rounded-lg px-3 py-2.5 shadow-xl z-10 min-w-[180px] crm-tooltip">
                 <div className="flex items-center gap-2 mb-1.5">
                   <div className="w-6 h-6 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
                     <span className="text-[0.46rem] font-medium text-[#6B7280]">{buyerInitials(b)}</span>
@@ -1512,13 +1512,13 @@ export default function BuyerCrmPage() {
   const handleOpenDetail = useCallback((id: string) => router.push(`/crm/${id}`), [router])
 
   return (
-    <div className="p-8 max-w-[1400px] bg-[#FAFAFA]">
+    <div className="p-8 max-w-[1400px] bg-[var(--cream,#FAF9F6)]">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="text-2xl font-semibold text-[#111827] mb-1">Buyer CRM</h1>
+          <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Buyer CRM</h1>
           <p className="text-sm text-[#9CA3AF]">Manage your cash buyer relationships and pipeline.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -1535,21 +1535,21 @@ export default function BuyerCrmPage() {
           </button>
           <button
             onClick={() => setShowDuplicatesModal(true)}
-            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
           >
             <Copy className="w-4 h-4" />
             Check Duplicates
           </button>
           <button
             onClick={() => setShowImportModal(true)}
-            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
           >
             <Upload className="w-4 h-4" />
             Import CSV
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
           >
             <UserPlus className="w-4 h-4" />
             Add Buyer
@@ -1603,7 +1603,7 @@ export default function BuyerCrmPage() {
             <button
               key={v.key}
               onClick={() => setView(v.key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium border-0 cursor-pointer transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium border-0 cursor-pointer crm-view-btn ${
                 view === v.key ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-400 hover:text-gray-600'
               }`}
             >

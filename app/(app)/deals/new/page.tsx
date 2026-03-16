@@ -66,7 +66,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 7,
   padding: '9px 12px',
   fontSize: '0.875rem',
-  color: '#111827',
+  color: 'var(--navy-heading, #0B1224)',
   background: '#ffffff',
   fontFamily: 'inherit',
   outline: 'none',
@@ -138,7 +138,7 @@ export default function NewDealPage() {
       </Link>
 
       <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.45rem', fontWeight: 500, color: '#111827', letterSpacing: '-0.025em', marginBottom: 6 }}>
+        <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.45rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.025em', marginBottom: 6 }}>
           Submit a Deal
         </h1>
         <p style={{ fontSize: '0.85rem', color: '#9ca3af' }}>

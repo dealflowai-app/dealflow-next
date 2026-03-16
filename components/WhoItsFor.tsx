@@ -4,25 +4,26 @@ export default function WhoItsFor() {
   return (
     <div
       id="who"
-      style={{ padding: '96px 40px' }}
+      style={{ padding: '96px 40px', background: 'var(--white)' }}
     >
       <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-        <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 14 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 14 }}>
           Who it&apos;s for
         </div>
         <h2
           style={{
-            fontFamily: 'inherit',
+            fontFamily: "'DM Serif Display', Georgia, serif",
             fontSize: 'clamp(1.9rem, 3vw, 2.8rem)',
-            fontWeight: 600,
+            fontWeight: 400,
             lineHeight: 1.1,
             letterSpacing: '-0.022em',
-            color: 'var(--gray-900)',
+            color: 'var(--navy-heading)',
+            textTransform: 'capitalize',
           }}
         >
-          Built for wholesalers who <span style={{ color: 'var(--blue-600)' }}>close</span>
+          Built for wholesalers who <span style={{ color: 'var(--accent)' }}>close</span>
         </h2>
-        <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', lineHeight: 1.7, marginTop: 14, maxWidth: 520 }}>
+        <p style={{ fontSize: '0.97rem', color: 'var(--body-text)', lineHeight: 1.7, marginTop: 14, maxWidth: 520 }}>
           Stop juggling spreadsheets, dialers, and CRMs. One platform to find buyers, run AI outreach, and close deals faster.
         </p>
 
@@ -55,23 +56,23 @@ function CheckList({ items }: { items: string[] }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {items.map((item, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.87rem', color: 'var(--gray-700)' }}>
+        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13.5, color: 'var(--body-text)' }}>
           <div
             style={{
-              width: 18,
-              height: 18,
+              width: 20,
+              height: 20,
               borderRadius: '50%',
-              background: 'var(--blue-600)',
-              color: 'white',
+              background: 'var(--accent-bg)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 9,
               flexShrink: 0,
               marginTop: 1,
             }}
           >
-            ✓
+            <svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 4.5L3.5 7.5L9.5 1" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
           {item}
         </div>
@@ -85,18 +86,18 @@ function WhoLeft() {
     <div>
       <div
         style={{
-          fontFamily: 'inherit',
-          fontSize: '1.85rem',
-          fontWeight: 600,
+          fontFamily: "'DM Serif Display', Georgia, serif",
+          fontSize: 28,
+          fontWeight: 400,
           letterSpacing: '-0.022em',
-          color: 'var(--gray-900)',
+          color: 'var(--navy-heading)',
           marginBottom: 14,
           lineHeight: 1.2,
         }}
       >
         Close more deals.<br />Work less hours.
       </div>
-      <p style={{ color: 'var(--gray-500)', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 24 }}>
+      <p style={{ color: 'var(--body-text)', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 24 }}>
         Your business lives and dies on finding the right buyer before your contract deadline.
         DealFlow AI automates the part that kills most wholesalers: the disposition.
       </p>
@@ -118,13 +119,13 @@ function WhoVisual() {
   return (
     <div
       style={{
-        background: 'var(--gray-50)',
-        border: '1px solid var(--gray-200)',
-        borderRadius: 14,
+        background: 'var(--warm-gray)',
+        border: '1px solid var(--border-light)',
+        borderRadius: 16,
         padding: 26,
       }}
     >
-      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 16 }}>
+      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-text)', marginBottom: 16 }}>
         Before DealFlow AI
       </div>
       {[
@@ -132,13 +133,13 @@ function WhoVisual() {
         'Mass blasting 500 irrelevant contacts',
         'Deadline passes, earnest money lost',
       ].map((text, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: '0.84rem', color: 'var(--gray-700)', marginBottom: 8 }}>
-          <span style={{ color: 'var(--red)', fontSize: 13 }}>✕</span>
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13.5, color: 'var(--body-text)', marginBottom: 8 }}>
+          <span style={{ color: '#dc2626', fontSize: 13 }}>✕</span>
           {text}
         </div>
       ))}
-      <div style={{ height: 1, background: 'var(--gray-200)', margin: '16px 0' }} />
-      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 16 }}>
+      <div style={{ height: 1, background: 'var(--border-light)', margin: '16px 0' }} />
+      <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent)', marginBottom: 16 }}>
         After DealFlow AI
       </div>
       {[
@@ -146,8 +147,8 @@ function WhoVisual() {
         'Only matched buyers see your deal',
         'Qualified offer received within 72 hours',
       ].map((text, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: '0.84rem', color: 'var(--gray-700)', marginBottom: 8 }}>
-          <span style={{ color: 'var(--green)', fontSize: 13 }}>✓</span>
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13.5, color: 'var(--body-text)', marginBottom: 8 }}>
+          <span style={{ color: '#16a34a', fontSize: 13 }}>✓</span>
           {text}
         </div>
       ))}

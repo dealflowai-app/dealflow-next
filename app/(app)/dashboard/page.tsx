@@ -6,20 +6,18 @@ import {
   TrendingDown,
   Play,
   Pause,
-  Plus,
   Upload,
   UserPlus,
   Search,
   PhoneOutgoing,
-  ArrowUpRight,
 } from 'lucide-react'
 
 /* ── KPI data ── */
 const kpis = [
-  { label: 'Active Deals', value: '12', change: '+18%', up: true, accent: 'border-l-blue-500' },
-  { label: 'Buyers in CRM', value: '847', change: '+6.2%', up: true, accent: 'border-l-emerald-500' },
-  { label: 'AI Calls This Month', value: '1,243', change: '+24%', up: true, accent: 'border-l-violet-500' },
-  { label: 'Deals Closed', value: '3', change: '-1', up: false, accent: 'border-l-amber-500' },
+  { label: 'Active Deals', value: '12', change: '+18%', up: true, color: '#2563EB' },
+  { label: 'Buyers in CRM', value: '847', change: '+6.2%', up: true, color: '#16a34a' },
+  { label: 'AI Calls This Month', value: '1,243', change: '+24%', up: true, color: '#7c3aed' },
+  { label: 'Deals Closed', value: '3', change: '-1', up: false, color: '#d97706' },
 ]
 
 /* ── Revenue chart data (last 6 months) ── */
@@ -51,11 +49,28 @@ const activities = [
 
 /* ── Quick actions ── */
 const quickActions = [
-  { label: 'New AI Campaign', icon: PhoneOutgoing, color: 'bg-blue-500' },
-  { label: 'Upload Deal', icon: Upload, color: 'bg-emerald-500' },
-  { label: 'Add Buyer', icon: UserPlus, color: 'bg-violet-500' },
-  { label: 'Run Analysis', icon: Search, color: 'bg-amber-500' },
+  { label: 'New AI Campaign', icon: PhoneOutgoing, color: '#2563EB' },
+  { label: 'Upload Deal', icon: Upload, color: '#16a34a' },
+  { label: 'Add Buyer', icon: UserPlus, color: '#7c3aed' },
+  { label: 'Run Analysis', icon: Search, color: '#d97706' },
 ]
+
+/* ── Card wrapper ── */
+const cardStyle: React.CSSProperties = {
+  background: 'var(--white, #ffffff)',
+  border: '1px solid var(--border-light, #F0F0F0)',
+  borderRadius: 14,
+  padding: '20px 22px',
+}
+
+const sectionLabel: React.CSSProperties = {
+  fontSize: '0.68rem',
+  fontWeight: 700,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: 'var(--accent, #2563EB)',
+  marginBottom: 14,
+}
 
 /* ── Revenue chart SVG builder ── */
 function RevenueChart() {
@@ -79,32 +94,38 @@ function RevenueChart() {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between mb-4">
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-1">Revenue (6 mo)</div>
+          <div style={sectionLabel}>Revenue (6 mo)</div>
           <div
-            className="text-[1.65rem] font-medium text-gray-900 tracking-tight leading-none"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{
+              fontFamily: "'DM Serif Display', Georgia, serif",
+              fontSize: '1.6rem',
+              fontWeight: 400,
+              color: 'var(--navy-heading, #0B1224)',
+              letterSpacing: '-0.03em',
+              lineHeight: 1,
+            }}
           >
             ${total.toLocaleString()}
           </div>
         </div>
-        <div className="flex items-center gap-1 text-emerald-600 text-[0.75rem] font-medium">
-          <TrendingUp className="w-3.5 h-3.5" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16a34a', fontSize: '0.75rem', fontWeight: 500 }}>
+          <TrendingUp style={{ width: 14, height: 14 }} />
           +32% vs prior
         </div>
       </div>
-      <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ height: 160 }}>
+      <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 160 }}>
         <defs>
           <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+            <stop offset="0%" stopColor="#2563EB" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#2563EB" stopOpacity="0" />
           </linearGradient>
         </defs>
         <path d={areaPath} fill="url(#areaGrad)" />
-        <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={linePath} fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
         {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#fff" stroke="#3b82f6" strokeWidth="2" />
+          <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#fff" stroke="#2563EB" strokeWidth="2" />
         ))}
         {revenueData.map((d, i) => (
           <text
@@ -112,8 +133,9 @@ function RevenueChart() {
             x={padL + i * stepX}
             y={h - 6}
             textAnchor="middle"
-            fill="#9ca3af"
+            fill="var(--muted-text, #9CA3AF)"
             fontSize="11"
+            fontFamily="inherit"
           >
             {d.month}
           </text>
@@ -124,52 +146,65 @@ function RevenueChart() {
 }
 
 /* ── Activity type indicator dot ── */
-function activityDot(type: string) {
-  const colors: Record<string, string> = {
-    buyer: 'bg-blue-400',
-    match: 'bg-emerald-400',
-    contract: 'bg-violet-400',
-    call: 'bg-amber-400',
-    analysis: 'bg-rose-400',
-  }
-  return <span className={`inline-block w-1.5 h-1.5 rounded-full ${colors[type] ?? 'bg-gray-300'} mt-[5px] flex-shrink-0`} />
+const dotColors: Record<string, string> = {
+  buyer: '#2563EB',
+  match: '#16a34a',
+  contract: '#7c3aed',
+  call: '#d97706',
+  analysis: '#e11d48',
 }
 
 export default function DashboardPage() {
-  const [activeTab] = useState('Dashboard')
-
   return (
-    <div className="p-8 max-w-[1200px]">
+    <div style={{ padding: '32px 36px', maxWidth: 1200 }}>
       {/* Header */}
-      <div className="mb-7">
+      <div style={{ marginBottom: 28 }}>
         <h1
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-          className="text-[1.45rem] font-medium text-gray-900 tracking-[-0.025em] mb-1"
+          style={{
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: '1.5rem',
+            fontWeight: 400,
+            color: 'var(--navy-heading, #0B1224)',
+            letterSpacing: '-0.022em',
+            marginBottom: 4,
+            lineHeight: 1.15,
+          }}
         >
           Dashboard
         </h1>
-        <p className="text-[0.84rem] text-gray-400">
+        <p style={{ fontSize: '0.86rem', color: 'var(--body-text, #4B5563)', lineHeight: 1.5 }}>
           Your deals, pipeline, and AI outreach at a glance.
         </p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6 dash-kpi">
+      <div className="dash-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
         {kpis.map(k => (
           <div
             key={k.label}
-            className={`bg-white border border-gray-200 rounded-xl px-5 py-4 hover:shadow-sm transition-shadow border-l-[3px] ${k.accent}`}
+            style={{
+              ...cardStyle,
+              borderLeft: `3px solid ${k.color}`,
+              padding: '18px 20px',
+            }}
+            className="dash-card"
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide">{k.label}</div>
-              <div className={`flex items-center gap-0.5 text-[0.72rem] font-medium ${k.up ? 'text-emerald-600' : 'text-red-500'}`}>
-                {k.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)' }}>{k.label}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: '0.72rem', fontWeight: 500, color: k.up ? '#16a34a' : '#ef4444' }}>
+                {k.up ? <TrendingUp style={{ width: 12, height: 12 }} /> : <TrendingDown style={{ width: 12, height: 12 }} />}
                 {k.change}
               </div>
             </div>
             <div
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              className="text-[2rem] font-normal text-gray-900 tracking-[-0.04em] leading-none"
+              style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontSize: '2rem',
+                fontWeight: 400,
+                color: 'var(--navy-heading, #0B1224)',
+                letterSpacing: '-0.04em',
+                lineHeight: 1,
+              }}
             >
               {k.value}
             </div>
@@ -178,32 +213,46 @@ export default function DashboardPage() {
       </div>
 
       {/* Middle row: Revenue + Campaigns */}
-      <div className="grid grid-cols-5 gap-4 mb-6 dash-mid">
+      <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 14, marginBottom: 20 }}>
         {/* Revenue chart */}
-        <div className="col-span-3 bg-white border border-gray-200 rounded-xl px-5 py-5">
+        <div style={cardStyle}>
           <RevenueChart />
         </div>
 
         {/* Active campaigns */}
-        <div className="col-span-2 bg-white border border-gray-200 rounded-xl px-5 py-5">
-          <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-4">Active Campaigns</div>
-          <div className="space-y-3">
+        <div style={cardStyle}>
+          <div style={sectionLabel}>Active Campaigns</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {campaigns.map(c => (
-              <div key={c.name} className="border border-gray-100 rounded-lg px-3.5 py-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[0.8rem] text-gray-800 font-medium truncate mr-2">{c.name}</span>
+              <div
+                key={c.name}
+                style={{
+                  border: '1px solid var(--border-light, #F0F0F0)',
+                  borderRadius: 10,
+                  padding: '12px 14px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--navy-heading, #0B1224)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 8 }}>{c.name}</span>
                   <span
-                    className={`flex items-center gap-1 text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${
-                      c.status === 'running'
-                        ? 'text-emerald-700 bg-emerald-50'
-                        : 'text-gray-500 bg-gray-100'
-                    }`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontSize: '0.66rem',
+                      fontWeight: 600,
+                      padding: '2px 8px',
+                      borderRadius: 20,
+                      flexShrink: 0,
+                      color: c.status === 'running' ? '#16a34a' : 'var(--muted-text, #9CA3AF)',
+                      background: c.status === 'running' ? 'rgba(22,163,74,0.08)' : 'rgba(5,14,36,0.04)',
+                    }}
                   >
-                    {c.status === 'running' ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
+                    {c.status === 'running' ? <Play style={{ width: 10, height: 10 }} /> : <Pause style={{ width: 10, height: 10 }} />}
                     {c.status === 'running' ? 'Running' : 'Paused'}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-[0.74rem] text-gray-500">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '0.74rem', color: 'var(--body-text, #4B5563)' }}>
                   <span>{c.calls} calls</span>
                   <span>{c.responseRate}% response</span>
                 </div>
@@ -214,48 +263,94 @@ export default function DashboardPage() {
       </div>
 
       {/* Bottom row: Activity + Quick Actions */}
-      <div className="grid grid-cols-5 gap-4 dash-bot">
+      <div className="dash-bot" style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 14 }}>
         {/* Activity feed */}
-        <div className="col-span-3 bg-white border border-gray-200 rounded-xl px-5 py-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide">Recent Activity</div>
-            <button className="text-[0.75rem] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer bg-transparent border-0">
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={sectionLabel as React.CSSProperties}>Recent Activity</div>
+            <button
+              style={{
+                fontSize: '0.75rem',
+                color: 'var(--muted-text, #9CA3AF)',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'color 0.15s ease',
+              }}
+            >
               View all
             </button>
           </div>
-          <div className="space-y-0">
+          <div>
             {activities.map((a, i) => (
               <div
                 key={i}
-                className={`flex items-start gap-2.5 py-2.5 ${
-                  i < activities.length - 1 ? 'border-b border-gray-50' : ''
-                }`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 10,
+                  padding: '9px 0',
+                  borderBottom: i < activities.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
+                }}
               >
-                {activityDot(a.type)}
-                <div className="flex-1 min-w-0">
-                  <p className="text-[0.8rem] text-gray-700 leading-snug">{a.text}</p>
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: dotColors[a.type] ?? '#d1d5db',
+                    marginTop: 5,
+                    flexShrink: 0,
+                  }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--navy-heading, #0B1224)', lineHeight: 1.45, margin: 0 }}>{a.text}</p>
                 </div>
-                <span className="text-[0.7rem] text-gray-400 whitespace-nowrap flex-shrink-0">{a.time}</span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--muted-text, #9CA3AF)', whiteSpace: 'nowrap', flexShrink: 0 }}>{a.time}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Quick actions */}
-        <div className="col-span-2 bg-white border border-gray-200 rounded-xl px-5 py-5">
-          <div className="text-[0.7rem] text-gray-400 uppercase tracking-wide mb-4">Quick Actions</div>
-          <div className="grid grid-cols-2 gap-3">
+        <div style={cardStyle}>
+          <div style={sectionLabel as React.CSSProperties}>Quick Actions</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {quickActions.map(a => {
               const Icon = a.icon
               return (
                 <button
                   key={a.label}
-                  className="flex flex-col items-center gap-2.5 py-5 px-3 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 hover:border-gray-200 transition-all cursor-pointer group"
+                  className="dash-action"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '20px 12px',
+                    borderRadius: 12,
+                    border: '1px solid var(--border-light, #F0F0F0)',
+                    background: 'var(--white, #ffffff)',
+                    cursor: 'pointer',
+                    transition: 'background 0.15s ease, border-color 0.15s ease',
+                    fontFamily: 'inherit',
+                  }}
                 >
-                  <div className={`w-9 h-9 rounded-lg ${a.color} flex items-center justify-center`}>
-                    <Icon className="w-4 h-4 text-white" />
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      background: a.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon style={{ width: 16, height: 16, color: 'white' }} />
                   </div>
-                  <span className="text-[0.76rem] text-gray-600 font-medium text-center leading-tight group-hover:text-gray-800">
+                  <span style={{ fontSize: '0.76rem', color: 'var(--body-text, #4B5563)', fontWeight: 500, textAlign: 'center', lineHeight: 1.3 }}>
                     {a.label}
                   </span>
                 </button>
@@ -266,12 +361,13 @@ export default function DashboardPage() {
       </div>
 
       <style>{`
+        .dash-card { transition: box-shadow 0.2s ease; }
+        .dash-card:hover { box-shadow: rgba(5,14,36,0.04) 0px 2px 8px; }
+        .dash-action:hover { background: var(--warm-gray, rgba(5,14,36,0.02)) !important; border-color: var(--border-med, #E5E7EB) !important; }
         @media (max-width: 1000px) {
           .dash-kpi { grid-template-columns: repeat(2, 1fr) !important; }
           .dash-mid { grid-template-columns: 1fr !important; }
-          .dash-mid > * { grid-column: span 1 !important; }
           .dash-bot { grid-template-columns: 1fr !important; }
-          .dash-bot > * { grid-column: span 1 !important; }
         }
         @media (max-width: 600px) {
           .dash-kpi { grid-template-columns: 1fr !important; }

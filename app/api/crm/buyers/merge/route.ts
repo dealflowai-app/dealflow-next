@@ -262,7 +262,7 @@ export async function POST(req: NextRequest) {
         },
         tags: {
           include: {
-            tag: { select: { name: true, label: true, color: true, type: true } },
+            tag: { select: { id: true, name: true, label: true, color: true, type: true } },
           },
         },
       },

@@ -236,7 +236,7 @@ function ContractDetail({ contractId, onBack }: { contractId: number; onBack: ()
       <div className="bg-white border border-[#E5E7EB] rounded-lg px-6 py-5 mb-5 animate-fadeInUp">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-semibold text-[#111827]">
+            <h2 className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)]">
               {c.address}
             </h2>
             <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${contractTypeBadge(c.type)}`}>{c.type}</span>
@@ -351,7 +351,7 @@ function ContractDetail({ contractId, onBack }: { contractId: number; onBack: ()
           </div>
         </div>
         {/* Mock document */}
-        <div className="bg-[#FAFAFA] p-6 flex justify-center">
+        <div className="bg-[var(--cream,#FAF9F6)] p-6 flex justify-center">
           <div className="bg-white border border-[#E5E7EB] rounded-lg w-full max-w-[560px] px-10 py-8">
             <div className="text-center mb-6">
               <h3 className="text-[1.05rem] font-bold text-[#111827] uppercase tracking-wide">Assignment of Contract Agreement</h3>
@@ -569,16 +569,16 @@ export default function ContractsPage() {
   const showDetail = detailContractId !== null
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#FAFAFA] min-h-screen">
+    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)] ">
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1
-            className="text-2xl font-semibold text-[#111827] mb-1"
+          <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
+            className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1"
           >
             Contracts
           </h1>
-          <p className="text-[0.84rem] text-[#9CA3AF]">
+          <p className="text-[0.86rem] text-[var(--body-text,#4B5563)]">
             Generate, sign, and track assignment contracts.
           </p>
         </div>

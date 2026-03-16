@@ -31,7 +31,7 @@ const columns = [
 
 export default function Footer() {
   return (
-    <footer style={{ borderTop: '1px solid var(--gray-100)', background: 'var(--white)' }}>
+    <footer style={{ borderTop: '1px solid var(--border-light)', background: 'var(--white)' }}>
       {/* Main grid */}
       <div
         className="footer-grid"
@@ -55,7 +55,7 @@ export default function Footer() {
               fontFamily: 'inherit',
               fontWeight: 500,
               fontSize: '0.97rem',
-              color: 'var(--gray-900)',
+              color: 'var(--navy-heading)',
               textDecoration: 'none',
               marginBottom: 14,
             }}
@@ -63,10 +63,10 @@ export default function Footer() {
             <Image src="/Logo.png" alt="DealFlow AI logo" width={30} height={30} style={{ objectFit: 'contain' }} />
             DealFlow AI
           </Link>
-          <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', lineHeight: 1.65, maxWidth: 220, marginTop: 12 }}>
+          <p style={{ fontSize: 13, color: 'var(--body-text)', lineHeight: 1.65, maxWidth: 220, marginTop: 12 }}>
             Real estate deals, closed on autopilot. AI-powered sourcing, analysis, and outreach for serious investors.
           </p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: 28 }} suppressHydrationWarning>
+          <p style={{ fontSize: 11, color: 'var(--muted-text)', marginTop: 28 }} suppressHydrationWarning>
             © {new Date().getFullYear()} DealFlow AI
           </p>
         </div>
@@ -76,11 +76,11 @@ export default function Footer() {
           <div key={col.heading}>
             <p
               style={{
-                fontSize: '0.72rem',
-                fontWeight: 600,
-                letterSpacing: '0.08em',
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 1,
                 textTransform: 'uppercase',
-                color: 'var(--gray-400)',
+                color: 'var(--muted-text)',
                 marginBottom: 16,
               }}
             >
@@ -92,13 +92,13 @@ export default function Footer() {
                   key={link.label}
                   href={link.href}
                   style={{
-                    fontSize: '0.87rem',
-                    color: 'var(--gray-600)',
+                    fontSize: 13,
+                    color: 'var(--body-text)',
                     textDecoration: 'none',
                     transition: 'color 0.15s',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--gray-900)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--gray-600)' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-heading)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--body-text)' }}
                 >
                   {link.label}
                 </Link>
@@ -112,7 +112,7 @@ export default function Footer() {
       <div
         className="footer-bottom"
         style={{
-          borderTop: '1px solid var(--gray-100)',
+          borderTop: '1px solid var(--border-light)',
           padding: '18px 40px',
           maxWidth: 1160,
           margin: '0 auto',
@@ -123,7 +123,7 @@ export default function Footer() {
           gap: 12,
         }}
       >
-        <span style={{ fontSize: '0.76rem', color: 'var(--gray-400)' }}>
+        <span style={{ fontSize: 11, color: 'var(--muted-text)' }}>
           Built for real estate professionals
         </span>
         <div style={{ display: 'flex', gap: 20 }}>
@@ -135,9 +135,9 @@ export default function Footer() {
             <Link
               key={l.label}
               href={l.href}
-              style={{ fontSize: '0.76rem', color: 'var(--gray-400)', textDecoration: 'none', transition: 'color 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'var(--gray-700)' }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'var(--gray-400)' }}
+              style={{ fontSize: 11, color: 'var(--muted-text)', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--navy-heading)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted-text)' }}
             >
               {l.label}
             </Link>

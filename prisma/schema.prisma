@@ -136,14 +136,83 @@ model Profile {
   updatedAt DateTime @updatedAt
 
   // Relations
-  savedMarkets    SavedMarket[]
-  campaigns       Campaign[]
-  deals           Deal[]
-  buyers          CashBuyer[]
-  scoringConfig   ScoringConfig?
-  tags            Tag[]
+  savedMarkets         SavedMarket[]
+  campaigns            Campaign[]
+  deals                Deal[]
+  buyers               CashBuyer[]
+  scoringConfig        ScoringConfig?
+  tags                 Tag[]
+  discoveryProperties  DiscoveryProperty[]
+  contactReveals       ContactReveal[]
 
   @@map("profiles")
+}
+
+// ─── DISCOVERY CACHE (RentCast) ─────────────────────────────────────────────
+
+model DiscoveryProperty {
+  id            String   @id @default(uuid())
+  userId        String?
+  rentcastId    String?  @unique
+  addressLine1  String
+  city          String
+  state         String   // 2-letter code
+  zipCode       String?
+  county        String?
+  latitude      Float?
+  longitude     Float?
+  propertyType  String?  // Single Family, Multi Family, Condo, Townhouse, Land, Commercial
+  bedrooms      Int?
+  bathrooms     Float?
+  sqft          Int?
+  lotSize       Int?
+  yearBuilt     Int?
+  assessedValue Int?
+  taxAmount     Float?   // annual taxes
+  lastSaleDate  DateTime? @db.Date
+  lastSalePrice Int?
+  ownerName     String?
+  ownerOccupied Boolean?
+  features      Json?    // raw features from RentCast
+  rawResponse   Json?    // full RentCast response for future use
+  searchCity    String?  // the city that was searched (cache lookup key)
+  searchZip     String?  // the zip that was searched (cache lookup key)
+  cachedAt      DateTime @default(now())
+  expiresAt     DateTime @default(dbgenerated("now() + interval '7 days'"))
+
+  profile Profile? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([searchCity])
+  @@index([searchZip])
+  @@index([expiresAt])
+  @@index([userId])
+  @@map("discovery_properties")
+}
+
+// ─── CONTACT REVEALS (skip trace cache) ────────────────────────────────────
+
+model ContactReveal {
+  id              String   @id @default(uuid())
+  userId          String
+  ownerName       String
+  propertyAddress String
+  city            String
+  state           String
+  phones          Json?    // [{number, type, score}]
+  emails          Json?    // [{address, type, score}]
+  mailingAddress  Json?    // {line1, city, state, zip} or null
+  confidence      Int?
+  provider        String?
+  cachedAt        DateTime @default(now())
+  expiresAt       DateTime @default(dbgenerated("now() + interval '30 days'"))
+
+  profile Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerName, propertyAddress])
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([cachedAt])
+  @@map("contact_reveals")
 }
 
 // ─── SCORING CONFIGURATION (per-user) ──────────────────────────────────────

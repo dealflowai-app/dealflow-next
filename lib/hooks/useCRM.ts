@@ -46,7 +46,8 @@ export interface ApiBuyer {
   tags?: Array<{
     id: string
     autoApplied: boolean
-    tag: { name: string; label: string; color: string; type: string }
+    tagId: string
+    tag: { id: string; name: string; label: string; color: string; type: string }
   }>
   campaignCalls?: unknown[]
   dealMatches?: unknown[]

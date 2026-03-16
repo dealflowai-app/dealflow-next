@@ -24,6 +24,7 @@ const config: Config = {
       fontFamily: {
         geist: ['Geist', 'system-ui', 'sans-serif'],
         bricolage: ['Bricolage Grotesque', 'sans-serif'],
+        'dm-serif': ['"DM Serif Display"', 'Georgia', 'serif'],
       },
       boxShadow: {
         'sm-custom': '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',

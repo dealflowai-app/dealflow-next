@@ -31,6 +31,7 @@ export default function AboutContent() {
           maxWidth: 960,
           margin: '0 auto',
           textAlign: 'center',
+          background: 'var(--cream)',
         }}
         className="about-hero-wrap"
       >
@@ -39,11 +40,11 @@ export default function AboutContent() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 7,
-            fontSize: '0.7rem',
+            fontSize: 11,
             fontWeight: 700,
-            letterSpacing: '0.1em',
+            letterSpacing: 1.5,
             textTransform: 'uppercase',
-            color: 'var(--blue-600)',
+            color: 'var(--accent)',
             marginBottom: 22,
           }}
         >
@@ -56,13 +57,14 @@ export default function AboutContent() {
 
         <h1
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'DM Serif Display', Georgia, serif",
             fontSize: 'clamp(2.2rem, 4.5vw, 3.2rem)',
-            fontWeight: 800,
+            fontWeight: 400,
             letterSpacing: '-0.04em',
-            color: 'var(--gray-900)',
+            color: 'var(--navy-heading)',
             lineHeight: 1.1,
             marginBottom: 22,
+            textTransform: 'capitalize',
           }}
         >
           We lost a deal.<br />Then we built the fix.
@@ -71,7 +73,7 @@ export default function AboutContent() {
         <p
           style={{
             fontSize: '1.05rem',
-            color: 'var(--gray-500)',
+            color: 'var(--body-text)',
             lineHeight: 1.75,
             maxWidth: 960,
             margin: '0 auto',
@@ -83,7 +85,7 @@ export default function AboutContent() {
       </div>
 
       {/* Divider */}
-      <div style={{ height: 1, background: 'var(--gray-100)', maxWidth: 1100, margin: '0 auto' }} />
+      <div style={{ height: 1, background: 'var(--border-light)', maxWidth: 1100, margin: '0 auto' }} />
 
       {/* VULNERABILITY HOOK */}
       <div
@@ -93,14 +95,16 @@ export default function AboutContent() {
           margin: '0 auto',
           padding: '80px 40px',
           textAlign: 'center',
+          borderTop: '1px solid var(--border-light)',
+          paddingTop: 28,
         }}
       >
         <span
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
-            fontSize: '5rem',
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 52,
             lineHeight: 0.6,
-            color: 'var(--blue-200)',
+            color: 'rgba(5,14,36,0.08)',
             marginBottom: 24,
             display: 'block',
           }}
@@ -109,10 +113,11 @@ export default function AboutContent() {
         </span>
         <p
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
-            fontSize: 'clamp(1.25rem, 2.5vw, 1.65rem)',
-            fontWeight: 600,
-            color: 'var(--gray-900)',
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: 'clamp(1.1rem, 2vw, 1.45rem)',
+            fontStyle: 'italic',
+            fontWeight: 400,
+            color: 'var(--navy-heading)',
             lineHeight: 1.45,
             letterSpacing: '-0.02em',
             marginBottom: 20,
@@ -122,13 +127,13 @@ export default function AboutContent() {
           fell through and I lost $14,000 in assignment fees. Not because the deal was bad, but
           because finding the right buyer was a full-time job I didn&apos;t have time for.
         </p>
-        <p style={{ fontSize: '0.82rem', color: 'var(--gray-400)', fontWeight: 500 }}>
+        <p style={{ fontSize: '0.82rem', color: 'var(--muted-text)', fontWeight: 500 }}>
           Founder, DealFlow AI
         </p>
       </div>
 
       {/* Divider */}
-      <div style={{ height: 1, background: 'var(--gray-100)', maxWidth: 1100, margin: '0 auto' }} />
+      <div style={{ height: 1, background: 'var(--border-light)', maxWidth: 1100, margin: '0 auto' }} />
 
       {/* ABOUT BODY */}
       <div
@@ -143,35 +148,35 @@ export default function AboutContent() {
             gridTemplateColumns: '200px 1fr',
             gap: 52,
             padding: '60px 0',
-            borderTop: '1px solid var(--gray-100)',
+            borderTop: '1px solid var(--border-light)',
           }}
         >
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', paddingTop: 5, lineHeight: 1.4 }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-text)', paddingTop: 5, lineHeight: 1.4 }}>
             The problem
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--gray-900)', marginBottom: 16, lineHeight: 1.25 }}>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.4rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.25 }}>
               Disposition is broken. And everyone just accepts it.
             </h2>
-            <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.82, marginBottom: 14 }}>
+            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 14 }}>
               The wholesale real estate industry moves at a pace that manual processes can&apos;t keep up
               with. You have days, sometimes hours, to find a qualified buyer before your contract expires.
               Yet the tools available were built for agents, not wholesalers.
             </p>
-            <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.82, marginBottom: 14 }}>
+            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 14 }}>
               Cold calling lists of 500 people who may or may not still be buying. Mass blasting deals to
               everyone in a generic CRM. Following up manually while juggling five other contracts.{' '}
-              <strong style={{ color: 'var(--gray-700)', fontWeight: 600 }}>This is how deals die.</strong>
+              <strong style={{ color: 'var(--navy-heading)', fontWeight: 600 }}>This is how deals die.</strong>
             </p>
             <div
               style={{
-                background: 'var(--blue-50)',
-                borderLeft: '3px solid var(--blue-600)',
+                background: 'var(--accent-bg)',
+                borderLeft: '3px solid var(--accent)',
                 borderRadius: '0 8px 8px 0',
                 padding: '14px 18px',
                 margin: '20px 0',
                 fontSize: '0.93rem',
-                color: 'var(--gray-700)',
+                color: 'var(--body-text)',
                 lineHeight: 1.7,
               }}
             >
@@ -189,27 +194,27 @@ export default function AboutContent() {
             gridTemplateColumns: '200px 1fr',
             gap: 52,
             padding: '60px 0',
-            borderTop: '1px solid var(--gray-100)',
+            borderTop: '1px solid var(--border-light)',
           }}
         >
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', paddingTop: 5, lineHeight: 1.4 }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-text)', paddingTop: 5, lineHeight: 1.4 }}>
             Why we built this
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--gray-900)', marginBottom: 16, lineHeight: 1.25 }}>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.4rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.25 }}>
               From the grind to the algorithm
             </h2>
-            <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.82, marginBottom: 14 }}>
+            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 14 }}>
               After losing that deal, we started documenting exactly what a perfect disposition process
               would look like if time and resources weren&apos;t a constraint. What if you had a team that
               could call 200 buyers overnight? What if every buyer in your database was automatically
               profiled by what they actually want to buy?
             </p>
-            <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.82, marginBottom: 14 }}>
+            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 14 }}>
               We spent months talking to wholesalers across the country. The same story came up every time: too many deals lost not because of bad sourcing, but because of a broken system on the back end.
             </p>
-            <p style={{ fontSize: '0.95rem', color: 'var(--gray-500)', lineHeight: 1.82, marginBottom: 0 }}>
-              <strong style={{ color: 'var(--gray-700)', fontWeight: 600 }}>So we built the system.</strong>{' '}
+            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 0 }}>
+              <strong style={{ color: 'var(--navy-heading)', fontWeight: 600 }}>So we built the system.</strong>{' '}
               One that works the moment you activate it, handles the part of wholesaling that nobody wants
               to do manually, and gets smarter the more you use it.
             </p>
@@ -224,14 +229,14 @@ export default function AboutContent() {
             gridTemplateColumns: '200px 1fr',
             gap: 52,
             padding: '60px 0',
-            borderTop: '1px solid var(--gray-100)',
+            borderTop: '1px solid var(--border-light)',
           }}
         >
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', paddingTop: 5, lineHeight: 1.4 }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-text)', paddingTop: 5, lineHeight: 1.4 }}>
             What we believe
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--gray-900)', marginBottom: 16, lineHeight: 1.25 }}>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.4rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.25 }}>
               Three things we won&apos;t compromise on
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 4 }}>
@@ -255,8 +260,8 @@ export default function AboutContent() {
                 <div
                   key={i}
                   style={{
-                    background: 'var(--gray-50)',
-                    border: '1px solid var(--gray-100)',
+                    background: 'var(--warm-gray)',
+                    border: '1px solid var(--border-light)',
                     borderRadius: 10,
                     padding: '18px 20px',
                     display: 'flex',
@@ -266,7 +271,7 @@ export default function AboutContent() {
                 >
                   <span
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'DM Serif Display', Georgia, serif",
                       fontSize: '0.7rem',
                       fontWeight: 800,
                       color: 'var(--blue-600)',
@@ -281,8 +286,8 @@ export default function AboutContent() {
                   >
                     {belief.num}
                   </span>
-                  <div style={{ fontSize: '0.9rem', color: 'var(--gray-700)', lineHeight: 1.65 }}>
-                    <strong style={{ color: 'var(--gray-900)', fontWeight: 600, display: 'block', marginBottom: 3 }}>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--body-text)', lineHeight: 1.65 }}>
+                    <strong style={{ color: 'var(--navy-heading)', fontWeight: 600, display: 'block', marginBottom: 3 }}>
                       {belief.title}
                     </strong>
                     {belief.body}
@@ -301,20 +306,20 @@ export default function AboutContent() {
             gridTemplateColumns: '200px 1fr',
             gap: 52,
             padding: '60px 0',
-            borderTop: '1px solid var(--gray-100)',
+            borderTop: '1px solid var(--border-light)',
           }}
         >
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-400)', paddingTop: 5, lineHeight: 1.4 }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-text)', paddingTop: 5, lineHeight: 1.4 }}>
             The founder
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--gray-900)', marginBottom: 16, lineHeight: 1.25 }}>
+            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.4rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.25 }}>
               Built by one person who actually does this
             </h2>
             <div
               style={{
-                background: 'var(--gray-50)',
-                border: '1px solid var(--gray-200)',
+                background: 'var(--warm-gray)',
+                border: '1px solid var(--border-light)',
                 borderRadius: 14,
                 padding: 28,
                 marginTop: 4,
@@ -332,7 +337,7 @@ export default function AboutContent() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'DM Serif Display', Georgia, serif",
                   fontWeight: 800,
                   fontSize: '1.1rem',
                   color: 'white',
@@ -342,18 +347,18 @@ export default function AboutContent() {
                 D
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'var(--gray-900)', letterSpacing: '-0.02em', marginBottom: 2 }}>
+                <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 700, fontSize: '1rem', color: 'var(--navy-heading)', letterSpacing: '-0.02em', marginBottom: 2 }}>
                   Founder, DealFlow AI
                 </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--blue-600)', fontWeight: 600, marginBottom: 12 }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 600, marginBottom: 12 }}>
                   Builder · Wholesaler · Operator
                 </div>
-                <p style={{ fontSize: '0.88rem', color: 'var(--gray-500)', lineHeight: 1.72, marginBottom: 14 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--body-text)', lineHeight: 1.72, marginBottom: 14 }}>
                   Active real estate wholesaler who got tired of the manual grind and started building.
                   Not a software company that discovered real estate. A real estate operator who learned
                   to build software. That distinction matters in every product decision we make.
                 </p>
-                <p style={{ fontSize: '0.88rem', color: 'var(--gray-500)', lineHeight: 1.72, marginBottom: 14 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--body-text)', lineHeight: 1.72, marginBottom: 14 }}>
                   I personally respond to every message. If you&apos;re a wholesaler or a cash buyer and
                   want to talk before the product launches, reach out. These conversations shape
                   everything we build.
@@ -393,9 +398,9 @@ export default function AboutContent() {
       <div
         className="reveal"
         style={{
-          borderTop: '1px solid var(--gray-100)',
-          borderBottom: '1px solid var(--gray-100)',
-          background: 'var(--gray-50)',
+          borderTop: '1px solid var(--border-light)',
+          borderBottom: '1px solid var(--border-light)',
+          background: 'var(--warm-gray)',
         }}
       >
         <div
@@ -418,15 +423,15 @@ export default function AboutContent() {
               style={{
                 padding: '40px 24px',
                 textAlign: 'center',
-                borderRight: i < arr.length - 1 ? '1px solid var(--gray-200)' : 'none',
+                borderRight: i < arr.length - 1 ? '1px solid var(--border-light)' : 'none',
               }}
             >
               <div
                 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'DM Serif Display', Georgia, serif",
                   fontSize: '2rem',
-                  fontWeight: 800,
-                  color: stat.blue ? 'var(--blue-600)' : 'var(--gray-900)',
+                  fontWeight: 400,
+                  color: stat.blue ? 'var(--accent)' : 'var(--navy-heading)',
                   letterSpacing: '-0.04em',
                   lineHeight: 1,
                   marginBottom: 5,
@@ -434,7 +439,7 @@ export default function AboutContent() {
               >
                 {stat.num}
               </div>
-              <div style={{ fontSize: '0.76rem', color: 'var(--gray-400)', fontWeight: 500 }}>
+              <div style={{ fontSize: '0.76rem', color: 'var(--muted-text)', fontWeight: 500 }}>
                 {stat.label}
               </div>
             </div>
@@ -447,37 +452,37 @@ export default function AboutContent() {
         style={{
           padding: '88px 56px',
           textAlign: 'center',
-          background: 'var(--gray-50)',
-          borderTop: '1px solid var(--gray-100)',
+          background: 'var(--cream)',
+          borderTop: '1px solid var(--border-light)',
         }}
         className="about-cta-wrap"
       >
         <h2
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'DM Serif Display', Georgia, serif",
             fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-            fontWeight: 800,
+            fontWeight: 400,
             letterSpacing: '-0.04em',
-            color: 'var(--gray-900)',
+            color: 'var(--navy-heading)',
             lineHeight: 1.15,
             marginBottom: 12,
           }}
         >
           If any of this resonates, you&apos;re who this is for.
         </h2>
-        <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', marginBottom: 28 }}>
+        <p style={{ fontSize: '0.97rem', color: 'var(--body-text)', marginBottom: 28 }}>
           Join the waitlist. No credit card, no commitment. Just early access and founding member
           pricing locked in forever.
         </p>
         <Link
           href="/#cta"
           style={{
-            background: 'var(--blue-600)',
+            background: 'var(--accent)',
             color: 'white',
             padding: '12px 26px',
-            borderRadius: 8,
+            borderRadius: 10,
             border: 'none',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'DM Serif Display', Georgia, serif",
             fontWeight: 700,
             fontSize: '0.92rem',
             cursor: 'pointer',
@@ -490,7 +495,7 @@ export default function AboutContent() {
         >
           Join the waitlist →
         </Link>
-        <p style={{ fontSize: '0.76rem', color: 'var(--gray-400)', marginTop: 12 }}>
+        <p style={{ fontSize: '0.76rem', color: 'var(--muted-text)', marginTop: 12 }}>
           Or email us directly at hello@dealflow.ai. We actually respond.
         </p>
       </div>

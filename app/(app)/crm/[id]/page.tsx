@@ -59,7 +59,7 @@ interface BuyerDetail {
   assignedTo: string | null
   createdAt: string
   updatedAt: string
-  tags?: Array<{ id: string; autoApplied: boolean; tag: { name: string; label: string; color: string; type: string } }>
+  tags?: Array<{ id: string; autoApplied: boolean; tagId: string; tag: { id: string; name: string; label: string; color: string; type: string } }>
   campaignCalls?: Array<{
     id: string; outcome: string | null; durationSecs: number | null; aiSummary: string | null
     transcript: string | null; createdAt: string; campaign?: { name: string }
@@ -334,7 +334,8 @@ function TabBar({ active, onChange }: { active: TabName; onChange: (t: TabName) 
         <button
           key={t}
           onClick={() => onChange(t)}
-          className={`px-4 py-2.5 text-[0.82rem] font-medium border-b-2 -mb-px bg-transparent cursor-pointer transition-colors ${active === t ? 'border-[#2563EB] text-[#2563EB]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+          data-active={active === t}
+          className={`px-4 py-2.5 text-[0.82rem] font-medium border-b-2 -mb-px bg-transparent cursor-pointer crm-tab ${active === t ? 'border-[#2563EB] text-[#2563EB]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
         >
           {t}
         </button>
@@ -505,7 +506,7 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
             <button
               key={m.value}
               onClick={() => handleMotivationChange(motivation === m.value ? '' : m.value)}
-              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-md text-[0.74rem] font-medium border cursor-pointer transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-md text-[0.74rem] font-medium border cursor-pointer crm-btn ${
                 motivation === m.value
                   ? motivationStyle(m.value) + ' border-current'
                   : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -519,7 +520,7 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
       </div>
 
       {dirty && (
-        <button onClick={save} disabled={saving} className="w-full text-[0.78rem] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-md py-2.5 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 font-medium">
+        <button onClick={save} disabled={saving} className="w-full text-[0.78rem] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-md py-2.5 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 font-medium crm-btn">
           {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
           {saving ? 'Saving...' : 'Save Score & Motivation'}
         </button>
@@ -1075,11 +1076,11 @@ function TagsCard({ buyer, onRefetch }: { buyer: BuyerDetail; onRefetch: () => v
       ) : (
         <div className="flex flex-wrap gap-1.5 mb-3">
           {buyer.tags.map(bt => (
-            <span key={bt.id} className="text-[0.72rem] font-medium px-2 py-1 rounded-full border flex items-center gap-1"
+            <span key={bt.id} className="text-[0.72rem] font-medium px-2 py-1 rounded-full border flex items-center gap-1 crm-chip"
               style={{ color: bt.tag.color, borderColor: bt.tag.color + '40', backgroundColor: bt.tag.color + '10' }}>
               {bt.tag.label}
               <button
-                onClick={() => removeTag(bt.id)}
+                onClick={() => removeTag(bt.tagId)}
                 disabled={removing === bt.id}
                 className="hover:opacity-70 bg-transparent border-0 cursor-pointer p-0 leading-none"
                 style={{ color: bt.tag.color }}
@@ -1090,7 +1091,7 @@ function TagsCard({ buyer, onRefetch }: { buyer: BuyerDetail; onRefetch: () => v
           ))}
         </div>
       )}
-      <button onClick={runAutoTags} className="w-full text-[0.74rem] text-gray-600 hover:bg-gray-50 bg-transparent border border-gray-200 rounded-md py-1.5 cursor-pointer flex items-center justify-center gap-1">
+      <button onClick={runAutoTags} className="w-full text-[0.74rem] text-gray-600 hover:bg-gray-50 bg-transparent border border-gray-200 rounded-md py-1.5 cursor-pointer flex items-center justify-center gap-1 crm-btn">
         <Tag className="w-3 h-3" /> Run Auto-Tags
       </button>
     </div>
@@ -1286,7 +1287,7 @@ export default function BuyerDetailPage() {
   const grade = scoreGrade(buyer.buyerScore)
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
+    <div className="p-6 max-w-[1200px] mx-auto animate-fadeIn">
       {/* Back Button */}
       <button onClick={() => router.push('/crm')} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 bg-transparent border-0 cursor-pointer mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to CRM
@@ -1296,14 +1297,14 @@ export default function BuyerDetailPage() {
       <div className="mb-6">
         <div className="flex items-start justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}>
               {buyerName(buyer)}
             </h1>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {buyer.entityType && (
                 <span className="text-[0.72rem] text-gray-500 bg-gray-100 rounded-full px-2.5 py-0.5">{buyer.entityType}</span>
               )}
-              <span className={`text-[0.72rem] font-bold px-2.5 py-0.5 rounded-full border ${scoreColor(grade)}`}>
+              <span className={`text-[0.72rem] font-bold px-2.5 py-0.5 rounded-full border crm-chip ${scoreColor(grade)}`}>
                 {grade} ({buyer.buyerScore})
               </span>
               <span className={`text-[0.72rem] font-medium px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${motivationStyle(buyer.motivation)}`}>
@@ -1322,7 +1323,7 @@ export default function BuyerDetailPage() {
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {(buyer.tags || []).map(bt => (
-              <span key={bt.id} className="text-[0.72rem] font-medium px-2.5 py-1 rounded-full border"
+              <span key={bt.id} className="text-[0.72rem] font-medium px-2.5 py-1 rounded-full border crm-chip"
                 style={{ color: bt.tag.color, borderColor: bt.tag.color + '40', backgroundColor: bt.tag.color + '10' }}>
                 {bt.tag.label}
               </span>
@@ -1349,7 +1350,7 @@ export default function BuyerDetailPage() {
         </div>
 
         {/* Right Column (1/3) */}
-        <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
+        <div className="w-full lg:w-80 flex-shrink-0 space-y-4 crm-stagger">
           <ScoreMotivationCard buyerId={buyerId} currentScore={buyer.buyerScore} currentMotivation={buyer.motivation} onUpdated={fetchBuyer} />
           <TagsCard buyer={buyer} onRefetch={fetchBuyer} />
 

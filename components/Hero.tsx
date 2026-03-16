@@ -42,131 +42,136 @@ export default function Hero() {
   }
 
   return (
-    <div className="hero-outer">
-      {/* Background image + overlay */}
-      <div className="hero-bg" />
-      <div className="hero-overlay" />
+    <>
+      <div className="hero-outer">
+        {/* Background image + overlay */}
+        <div className="hero-bg" />
+        <div className="hero-overlay" />
 
-      {/* Content */}
-      <div className="hero-content">
-        {/* Eyebrow */}
-        <div className="hero-eyebrow">
-          <span className="eyebrow-dot" />
-          Early access open now
-        </div>
+        {/* Content */}
+        <div className="hero-content">
+          {/* Eyebrow */}
+          <div className="hero-eyebrow" style={{ opacity: 0, animation: 'fadeInHero 1s 0.2s cubic-bezier(0.16,1,0.3,1) forwards' }}>
+            <span className="eyebrow-dot" />
+            Early access open now
+          </div>
 
-        {/* Headline */}
-        <h1 className="hero-h1">
-          Automating Real Estate{' '}
-          <span className="hero-h1-accent">Wholesaling</span>
-        </h1>
+          {/* Headline */}
+          <h1 className="hero-h1" style={{ opacity: 0, animation: 'fadeInHero 1.6s 0.3s cubic-bezier(0.16,1,0.3,1) forwards' }}>
+            Automating Real Estate Wholesaling
+          </h1>
 
-        {/* Subtext */}
-        <p className="hero-sub">
-          Let our AI do the heavy lifting. DealFlow AI analyzes thousands of off-market data points to beat your competitors and hand you the highest margin deals instantly.
-        </p>
+          {/* Subtext */}
+          <p className="hero-sub" style={{ opacity: 0, animation: 'fadeSlideRight 1.2s 0.55s cubic-bezier(0.16,1,0.3,1) forwards' }}>
+            Let our AI do the heavy lifting. DealFlow AI analyzes thousands of off-market data points to beat your competitors and hand you the highest margin deals instantly.
+          </p>
 
-        {/* City search box */}
-        <div className="hero-search-wrap">
-          <div className="hero-search-box">
-            <svg className="hero-search-map-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-              <line x1="9" y1="3" x2="9" y2="18"/>
-              <line x1="15" y1="6" x2="15" y2="21"/>
-            </svg>
-            <input
-              type="text"
-              placeholder="Enter city to find cash buyers and off-market deals"
-              value={city}
-              onChange={e => setCity(e.target.value)}
-              className="hero-search-input"
-            />
-            <button className="hero-search-btn" aria-label="Search">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          {/* City search box */}
+          <div className="hero-search-wrap" style={{ opacity: 0, animation: 'riseUpHero 1.2s 0.7s cubic-bezier(0.16,1,0.3,1) forwards' }}>
+            <div className="hero-search-box">
+              <svg className="hero-search-map-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+                <line x1="9" y1="3" x2="9" y2="18"/>
+                <line x1="15" y1="6" x2="15" y2="21"/>
               </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Join Waitlist */}
-        {!showWaitlist && step !== 'done' && (
-          <button
-            className="hero-waitlist-btn"
-            onClick={() => setShowWaitlist(true)}
-          >
-            Join the waitlist
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
-        )}
-
-        {/* Waitlist form */}
-        {showWaitlist && step === 'email' && (
-          <div className="hero-waitlist-form-wrap">
-            <form onSubmit={handleEmailSubmit} className="hero-waitlist-form">
               <input
-                type="email"
-                placeholder="Enter your email"
-                required
-                value={heroEmail}
-                onChange={e => setHeroEmail(e.target.value)}
-                className="hero-email-input"
+                type="text"
+                placeholder="Enter city to find cash buyers and off-market deals"
+                value={city}
+                onChange={e => setCity(e.target.value)}
+                className="hero-search-input"
               />
-              <button type="submit" className="hero-email-submit">
-                Get early access
+              <button className="hero-search-btn" aria-label="Search">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
               </button>
-            </form>
-            {heroError && <p className="hero-error">{heroError}</p>}
-          </div>
-        )}
-
-        {showWaitlist && step === 'role' && (
-          <div className="hero-role-step">
-            <p className="role-eyebrow">One quick question</p>
-            <p className="role-question">What best describes you?</p>
-            <div className="role-list">
-              {roles.map(r => (
-                <button
-                  key={r.value}
-                  onClick={() => handleRolePick(r.value)}
-                  disabled={heroLoading}
-                  className="hero-role-btn"
-                >
-                  <span suppressHydrationWarning>{r.icon}</span>
-                  {r.label}
-                  {heroLoading
-                    ? <span className="hero-spinner" style={{ marginLeft: 'auto' }} />
-                    : (
-                      <svg style={{ marginLeft: 'auto', opacity: 0.4 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                      </svg>
-                    )}
-                </button>
-              ))}
             </div>
           </div>
-        )}
 
-        {step === 'done' && (
-          <div className="hero-success">
-            <div className="hero-success-check">✓</div>
-            <span>You&apos;re on the list. We&apos;ll be in touch soon.</span>
-          </div>
-        )}
+          {/* Join Waitlist */}
+          {!showWaitlist && step !== 'done' && (
+            <button
+              className="hero-waitlist-btn"
+              onClick={() => setShowWaitlist(true)}
+              style={{ opacity: 0, animation: 'fadeInHero 1s 0.9s cubic-bezier(0.16,1,0.3,1) forwards' }}
+            >
+              Join the waitlist
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          )}
 
-        {/* Trust stats */}
-        <div className="hero-trust">
+          {/* Waitlist form */}
+          {showWaitlist && step === 'email' && (
+            <div className="hero-waitlist-form-wrap">
+              <form onSubmit={handleEmailSubmit} className="hero-waitlist-form">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  required
+                  value={heroEmail}
+                  onChange={e => setHeroEmail(e.target.value)}
+                  className="hero-email-input"
+                />
+                <button type="submit" className="hero-email-submit">
+                  Get early access
+                </button>
+              </form>
+              {heroError && <p className="hero-error">{heroError}</p>}
+            </div>
+          )}
+
+          {showWaitlist && step === 'role' && (
+            <div className="hero-role-step">
+              <p className="role-eyebrow">One quick question</p>
+              <p className="role-question">What best describes you?</p>
+              <div className="role-list">
+                {roles.map(r => (
+                  <button
+                    key={r.value}
+                    onClick={() => handleRolePick(r.value)}
+                    disabled={heroLoading}
+                    className="hero-role-btn"
+                  >
+                    <span suppressHydrationWarning>{r.icon}</span>
+                    {r.label}
+                    {heroLoading
+                      ? <span className="hero-spinner" style={{ marginLeft: 'auto' }} />
+                      : (
+                        <svg style={{ marginLeft: 'auto', opacity: 0.4 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 'done' && (
+            <div className="hero-success">
+              <div className="hero-success-check">✓</div>
+              <span>You&apos;re on the list. We&apos;ll be in touch soon.</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Stats bar - separate section on white bg */}
+      <div className="hero-stats-bar reveal">
+        <div className="hero-stats-inner">
           {[
             { num: '$15B+', label: 'Annual wholesale market' },
             { num: '2M+', label: 'Off-market deals / yr' },
             { num: '72 hrs', label: 'Avg. time to first offer' },
+            { num: '0', label: 'Manual cold calls needed' },
           ].map((item, i) => (
-            <div key={i} className="hero-trust-item">
-              <div className="hero-trust-num">{item.num}</div>
-              <div className="hero-trust-label">{item.label}</div>
+            <div key={i} className="hero-stat-item">
+              <div className="hero-stat-num">{item.num}</div>
+              <div className="hero-stat-label">{item.label}</div>
             </div>
           ))}
         </div>
@@ -194,7 +199,7 @@ export default function Hero() {
         .hero-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(to bottom, rgba(5,10,20,0.55) 0%, rgba(5,10,20,0.42) 50%, rgba(5,10,20,0.60) 100%);
+          background: linear-gradient(180deg, rgba(5,14,36,0.55) 0%, rgba(5,14,36,0.75) 50%, rgba(5,14,36,0.92) 100%);
           z-index: 1;
         }
 
@@ -202,7 +207,7 @@ export default function Hero() {
           position: relative;
           z-index: 2;
           text-align: center;
-          padding: 120px 40px 80px;
+          padding: 150px 40px 100px;
           max-width: 760px;
           margin: 0 auto;
           width: 100%;
@@ -212,11 +217,11 @@ export default function Hero() {
           display: inline-flex;
           align-items: center;
           gap: 7px;
-          font-size: 0.72rem;
+          font-size: 11px;
           font-weight: 600;
-          letter-spacing: 0.08em;
+          letter-spacing: 1.5px;
           text-transform: uppercase;
-          color: #bfdbfe;
+          color: rgba(255,255,255,0.8);
           margin-bottom: 20px;
         }
 
@@ -229,29 +234,22 @@ export default function Hero() {
         }
 
         .hero-h1 {
-          font-size: clamp(2.2rem, 4.5vw, 3.8rem);
-          font-weight: 700;
-          line-height: 1.1;
-          letter-spacing: -0.025em;
+          font-family: 'DM Serif Display', Georgia, serif;
+          font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+          font-weight: 400;
+          line-height: 1.08;
+          letter-spacing: -1.5px;
           color: #ffffff;
           margin-bottom: 20px;
-        }
-
-        .hero-h1-accent {
-          color: #ffffff
+          text-transform: capitalize;
         }
 
         .hero-sub {
-          font-size: 1rem;
+          font-size: 16px;
           color: rgba(255,255,255,0.72);
           line-height: 1.7;
-          max-width: 540px;
+          max-width: 530px;
           margin: 0 auto 36px;
-          background: rgba(5,10,20,0.08);
-          backdrop-filter: blur(3px);
-          -webkit-backdrop-filter: blur(3px);
-          border-radius: 10px;
-          padding: 12px 18px;
           font-weight: 400;
         }
 
@@ -269,9 +267,9 @@ export default function Hero() {
           background: rgba(255,255,255,0.97);
           border-radius: 14px;
           padding: 6px 6px 6px 16px;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+          box-shadow: 0 8px 40px rgba(0,0,0,0.25);
           width: 100%;
-          max-width: 560px;
+          max-width: 540px;
         }
 
         .hero-search-map-icon {
@@ -286,16 +284,16 @@ export default function Hero() {
           background: transparent;
           font-family: inherit;
           font-size: 0.92rem;
-          color: #111827;
+          color: var(--navy-heading);
           min-width: 0;
         }
 
         .hero-search-input::placeholder {
-          color: #9ca3af;
+          color: var(--muted-text);
         }
 
         .hero-search-btn {
-          background: #1e3a5f;
+          background: var(--dark);
           color: white;
           border: none;
           border-radius: 10px;
@@ -310,7 +308,7 @@ export default function Hero() {
         }
 
         .hero-search-btn:hover {
-          background: #2563EB;
+          background: var(--accent);
         }
 
         /* Waitlist button */
@@ -319,10 +317,10 @@ export default function Hero() {
           align-items: center;
           gap: 8px;
           background: transparent;
-          color: rgba(255,255,255,0.8);
-          border: 1px solid rgba(255,255,255,0.3);
+          color: rgba(255,255,255,0.72);
+          border: 1px solid rgba(255,255,255,0.2);
           border-radius: 10px;
-          padding: 11px 22px;
+          padding: 10px 20px;
           font-family: inherit;
           font-size: 0.9rem;
           font-weight: 500;
@@ -332,8 +330,8 @@ export default function Hero() {
         }
 
         .hero-waitlist-btn:hover {
-          background: rgba(255,255,255,0.1);
-          border-color: rgba(255,255,255,0.5);
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.4);
           color: white;
         }
 
@@ -364,13 +362,13 @@ export default function Hero() {
           background: transparent;
           font-family: inherit;
           font-size: 0.9rem;
-          color: #111827;
+          color: var(--navy-heading);
           padding: 10px 14px;
           min-width: 0;
         }
 
         .hero-email-submit {
-          background: #111827;
+          background: var(--dark);
           color: white;
           border: none;
           border-radius: 9px;
@@ -385,7 +383,7 @@ export default function Hero() {
         }
 
         .hero-email-submit:hover {
-          background: #374151;
+          background: var(--accent);
         }
 
         .hero-error {
@@ -406,7 +404,7 @@ export default function Hero() {
           font-weight: 700;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #bfdbfe;
+          color: rgba(255,255,255,0.8);
           margin-bottom: 8px;
         }
 
@@ -434,7 +432,7 @@ export default function Hero() {
           font-family: inherit;
           font-size: 0.9rem;
           font-weight: 500;
-          color: #1f2937;
+          color: var(--navy-heading);
           cursor: pointer;
           text-align: left;
           transition: all 0.15s;
@@ -476,34 +474,38 @@ export default function Hero() {
           flex-shrink: 0;
         }
 
-        /* Trust row */
-        .hero-trust {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 40px;
-          flex-wrap: wrap;
-          margin-top: 20px;
-          padding-top: 32px;
-          border-top: 1px solid rgba(255,255,255,0.12);
+        /* Stats bar */
+        .hero-stats-bar {
+          padding: 56px 40px;
+          background: var(--white);
+          border-bottom: 1px solid var(--border-light);
         }
 
-        .hero-trust-item {
+        .hero-stats-inner {
+          max-width: 1160px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+        }
+
+        .hero-stat-item {
           text-align: center;
         }
 
-        .hero-trust-num {
-          font-size: 1.4rem;
-          font-weight: 800;
-          color: white;
+        .hero-stat-num {
+          font-family: 'DM Serif Display', Georgia, serif;
+          font-size: 42px;
+          font-weight: 400;
+          color: var(--navy-heading);
           letter-spacing: -0.03em;
           line-height: 1;
         }
 
-        .hero-trust-label {
-          font-size: 0.72rem;
-          color: rgba(255,255,255,0.5);
-          margin-top: 3px;
+        .hero-stat-label {
+          font-size: 12.5px;
+          color: var(--muted-text);
+          margin-top: 6px;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -523,9 +525,13 @@ export default function Hero() {
 
         @media (max-width: 640px) {
           .hero-content {
-            padding: 100px 16px 60px;
+            padding: 120px 16px 80px;
           }
-          .hero-trust {
+          .hero-stats-bar {
+            padding: 40px 20px;
+          }
+          .hero-stats-inner {
+            grid-template-columns: repeat(2, 1fr);
             gap: 24px;
           }
           .hero-search-box {
@@ -533,6 +539,6 @@ export default function Hero() {
           }
         }
       `}</style>
-    </div>
+    </>
   )
 }

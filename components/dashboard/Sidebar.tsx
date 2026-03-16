@@ -66,14 +66,22 @@ export default function Sidebar({ profile }: { profile: Profile }) {
 
   return (
     <aside
-      className="flex-shrink-0 h-screen bg-white border-r border-gray-100 flex flex-col relative"
+      className="flex-shrink-0 h-screen flex flex-col relative"
       style={{
         width: collapsed ? 68 : 240,
         transition: 'width 0.2s ease',
+        background: 'var(--white, #ffffff)',
+        borderRight: '1px solid var(--border-light, #F0F0F0)',
       }}
     >
-      {/* Logo - matches landing Nav exactly */}
-      <div className="h-[62px] flex items-center px-4 border-b border-gray-100">
+      {/* Logo */}
+      <div
+        className="flex items-center px-4"
+        style={{
+          height: 58,
+          borderBottom: '1px solid var(--border-light, #F0F0F0)',
+        }}
+      >
         <Link href="/dashboard" className="flex items-center no-underline" style={{ gap: 9 }}>
           <Image
             src="/Logo.png"
@@ -87,8 +95,8 @@ export default function Sidebar({ profile }: { profile: Profile }) {
               <span
                 style={{
                   fontWeight: 500,
-                  fontSize: '0.97rem',
-                  color: 'var(--gray-900)',
+                  fontSize: '0.95rem',
+                  color: 'var(--navy-heading, #0B1224)',
                   letterSpacing: '-0.01em',
                   whiteSpace: 'nowrap',
                 }}
@@ -99,15 +107,15 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  fontSize: '0.68rem',
+                  fontSize: '0.62rem',
                   fontWeight: 600,
                   letterSpacing: '0.04em',
                   textTransform: 'uppercase',
-                  color: 'var(--blue-600)',
-                  background: 'var(--blue-50)',
-                  border: '1px solid var(--blue-100)',
+                  color: 'var(--blue-600, #2563EB)',
+                  background: 'var(--blue-50, #EFF6FF)',
+                  border: '1px solid var(--blue-100, #DBEAFE)',
                   borderRadius: 20,
-                  padding: '2px 8px',
+                  padding: '2px 7px',
                   lineHeight: 1,
                   whiteSpace: 'nowrap',
                 }}
@@ -122,26 +130,42 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute bg-white border border-gray-200 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+        className="absolute flex items-center justify-center cursor-pointer"
         style={{
-          top: 72,
+          top: 68,
           right: -12,
           width: 24,
           height: 24,
           zIndex: 10,
+          background: 'var(--white, #ffffff)',
+          border: '1px solid var(--border-light, #F0F0F0)',
+          borderRadius: '50%',
+          transition: 'background 0.15s ease',
         }}
         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
-          <ChevronRight className="w-3 h-3 text-gray-500" />
+          <ChevronRight style={{ width: 12, height: 12, color: 'var(--muted-text, #9CA3AF)' }} />
         ) : (
-          <ChevronLeft className="w-3 h-3 text-gray-500" />
+          <ChevronLeft style={{ width: 12, height: 12, color: 'var(--muted-text, #9CA3AF)' }} />
         )}
       </button>
 
       {/* Nav */}
-      <nav className="flex-1 px-2.5 py-3 overflow-y-auto">
-        <div className="space-y-px">
+      <nav className="flex-1 overflow-y-auto" style={{ padding: '14px 10px' }}>
+        {!collapsed && (
+          <p style={{
+            fontSize: '0.62rem',
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--muted-text, #9CA3AF)',
+            margin: '0 0 6px 12px',
+          }}>
+            Menu
+          </p>
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {navItems.map(item => {
             const Icon = item.icon
             const isActive =
@@ -154,20 +178,34 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                 key={item.href}
                 href={item.href}
                 title={collapsed ? item.label : undefined}
-                className={`
-                  flex items-center gap-2.5 py-[8px] rounded-md text-[0.82rem]
-                  transition-colors duration-100 no-underline
-                  ${collapsed ? 'justify-center px-0' : 'px-2.5'}
-                  ${isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'}
-                `}
+                className={`sidebar-link${isActive ? ' sidebar-link-active' : ''}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: collapsed ? '9px 0' : '9px 12px',
+                  borderRadius: 10,
+                  fontSize: '0.82rem',
+                  fontWeight: isActive ? 500 : 400,
+                  fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif",
+                  letterSpacing: '-0.005em',
+                  textDecoration: 'none',
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  color: isActive ? 'var(--blue-600, #2563EB)' : 'var(--body-text, #4B5563)',
+                  background: isActive ? 'var(--blue-50, #EFF6FF)' : 'transparent',
+                  transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+                  position: 'relative',
+                }}
               >
                 <Icon
-                  className={`flex-shrink-0 ${
-                    isActive ? 'text-blue-600' : 'text-gray-400'
-                  }`}
-                  style={{ width: 16, height: 16 }}
+                  className="flex-shrink-0"
+                  style={{
+                    width: 17,
+                    height: 17,
+                    strokeWidth: isActive ? 2 : 1.7,
+                    color: isActive ? 'var(--blue-600, #2563EB)' : 'var(--muted-text, #9CA3AF)',
+                    transition: 'color 0.18s ease',
+                  }}
                 />
                 {!collapsed && item.label}
               </Link>
@@ -177,51 +215,128 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       </nav>
 
       {/* Settings + User */}
-      <div className="px-2.5 pb-3 pt-2 border-t border-gray-100">
+      <div style={{ padding: '8px 10px 14px', borderTop: '1px solid var(--border-light, #F0F0F0)' }}>
         {/* Settings link */}
         <Link
           href="/settings"
           title={collapsed ? 'Settings' : undefined}
-          className={`
-            flex items-center gap-2.5 py-[8px] rounded-md text-[0.82rem]
-            transition-colors duration-100 no-underline mb-2
-            ${collapsed ? 'justify-center px-0' : 'px-2.5'}
-            ${pathname.startsWith('/settings')
-              ? 'bg-blue-50 text-blue-700'
-              : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'}
-          `}
+          className={`sidebar-link${pathname.startsWith('/settings') ? ' sidebar-link-active' : ''}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: collapsed ? '9px 0' : '9px 12px',
+            borderRadius: 10,
+            fontSize: '0.82rem',
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif",
+            letterSpacing: '-0.005em',
+            fontWeight: pathname.startsWith('/settings') ? 500 : 400,
+            textDecoration: 'none',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            marginBottom: 8,
+            color: pathname.startsWith('/settings') ? 'var(--blue-600, #2563EB)' : 'var(--body-text, #4B5563)',
+            background: pathname.startsWith('/settings') ? 'var(--blue-50, #EFF6FF)' : 'transparent',
+            transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
         >
           <Settings
-            className={`flex-shrink-0 ${
-              pathname.startsWith('/settings') ? 'text-blue-600' : 'text-gray-400'
-            }`}
-            style={{ width: 16, height: 16 }}
+            className="flex-shrink-0"
+            style={{
+              width: 17,
+              height: 17,
+              strokeWidth: pathname.startsWith('/settings') ? 2 : 1.7,
+              color: pathname.startsWith('/settings') ? 'var(--blue-600, #2563EB)' : 'var(--muted-text, #9CA3AF)',
+              transition: 'color 0.18s ease',
+            }}
           />
           {!collapsed && 'Settings'}
         </Link>
 
         {/* User */}
-        <div className={`flex items-center gap-2.5 px-2.5 py-2 rounded-md ${collapsed ? 'justify-center px-0' : ''}`}>
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
-            <span className="text-[0.6rem] font-medium text-white">{initials}</span>
+        <div
+          className="sidebar-user"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: collapsed ? '9px 0' : '9px 12px',
+            borderRadius: 10,
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            transition: 'background 0.15s ease',
+          }}
+        >
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: '0 1px 3px rgba(37, 99, 235, 0.25)',
+            }}
+          >
+            <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'white', letterSpacing: '0.02em' }}>{initials}</span>
           </div>
           {!collapsed && (
             <>
-              <div className="flex-1 min-w-0">
-                <p className="text-[0.78rem] text-gray-700 truncate leading-tight">{displayName}</p>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{
+                  fontSize: '0.78rem',
+                  fontWeight: 500,
+                  fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif",
+                  color: 'var(--navy-heading, #0B1224)',
+                  margin: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  lineHeight: 1.3,
+                }}>{displayName}</p>
               </div>
               <button
                 onClick={handleSignOut}
                 disabled={signingOut}
-                className="cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+                className="sidebar-signout"
                 title="Sign out"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  opacity: 0.4,
+                  padding: 4,
+                  borderRadius: 6,
+                  display: 'flex',
+                  transition: 'all 0.18s ease',
+                }}
               >
-                <LogOut className="w-3.5 h-3.5 text-gray-400" />
+                <LogOut style={{ width: 14, height: 14, color: 'var(--body-text, #4B5563)' }} />
               </button>
             </>
           )}
         </div>
       </div>
+
+      <style>{`
+        .sidebar-link:hover:not(.sidebar-link-active) {
+          background: rgba(5, 14, 36, 0.04) !important;
+          color: var(--navy-heading, #0B1224) !important;
+        }
+        .sidebar-link:hover:not(.sidebar-link-active) svg {
+          color: var(--body-text, #4B5563) !important;
+        }
+        .sidebar-link-active {
+          box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
+        }
+        .sidebar-user:hover {
+          background: rgba(5, 14, 36, 0.03);
+        }
+        .sidebar-signout:hover {
+          opacity: 1 !important;
+          background: rgba(5, 14, 36, 0.05) !important;
+        }
+      `}</style>
     </aside>
   )
 }

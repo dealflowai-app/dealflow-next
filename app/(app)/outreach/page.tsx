@@ -369,7 +369,7 @@ function CampaignDetail({ onBack, onShowTranscript }: { onBack: () => void; onSh
       </button>
 
       <div className="flex items-center gap-3 mb-5">
-        <h2 className="text-2xl font-semibold text-[#111827]">
+        <h2 className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)]">
           {c.name}
         </h2>
         <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${statusBadge(c.status)}`}>
@@ -657,7 +657,7 @@ function NewCampaignModal({ onClose }: { onClose: () => void }) {
       <div className="relative bg-white rounded-lg border border-[#E5E7EB] w-[600px] max-h-[80vh] overflow-y-auto outreach-modal">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#F3F4F6] flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-[#111827]">
+          <h2 className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)]">
             New Campaign
           </h2>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer border-0 transition-colors">
@@ -820,11 +820,11 @@ export default function AIOutreachPage() {
   const [showNewCampaign, setShowNewCampaign] = useState(false)
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#FAFAFA] min-h-screen">
+    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)] ">
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="text-2xl font-semibold text-[#111827] mb-1">
+          <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">
             AI Outreach
           </h1>
           <p className="text-sm text-[#9CA3AF]">

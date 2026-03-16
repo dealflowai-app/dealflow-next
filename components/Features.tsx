@@ -145,20 +145,20 @@ function VisualFindBuyers() {
 
       {/* Records list */}
       <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--gray-400)', marginBottom: 2 }}>
+        <div style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted-text)', marginBottom: 2 }}>
           Recent deed records
         </div>
         {records.map((r, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, border: '1px solid var(--gray-100)', borderRadius: 10, padding: '10px 14px', background: 'var(--white)' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, border: '1px solid var(--border-light)', borderRadius: 10, padding: '10px 14px', background: 'var(--white)' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--blue-600)', flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--gray-900)' }}>{r.name}</span>
+                <span style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--navy-heading)' }}>{r.name}</span>
                 <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--green)', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4, padding: '1px 5px' }}>Cash</span>
               </div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--gray-400)', marginTop: 2 }}>{r.loc} · {r.type} · {r.date}</div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--muted-text)', marginTop: 2 }}>{r.loc} · {r.type} · {r.date}</div>
             </div>
-            <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--gray-700)', letterSpacing: '-0.02em' }}>{r.amount}</div>
+            <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--navy-heading)', letterSpacing: '-0.02em' }}>{r.amount}</div>
           </div>
         ))}
       </div>
@@ -255,9 +255,9 @@ function VisualAiCaller() {
       </div>
 
       {/* Transcript */}
-      <div style={{ borderBottom: '1px solid var(--gray-100)' }}>
-        <div style={{ padding: '8px 18px', borderBottom: '1px solid var(--gray-100)' }}>
-          <span style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--gray-400)' }}>
+      <div style={{ borderBottom: '1px solid var(--border-light)' }}>
+        <div style={{ padding: '8px 18px', borderBottom: '1px solid var(--border-light)' }}>
+          <span style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted-text)' }}>
             Live transcript
           </span>
         </div>
@@ -287,9 +287,9 @@ function VisualAiCaller() {
                   <span style={{ fontSize: '0.67rem', fontWeight: 700, color: isAi ? 'var(--blue-600)' : '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                     {isAi ? 'Agent' : 'David K.'}
                   </span>
-                  <span style={{ fontSize: '0.65rem', color: 'var(--gray-400)' }}>{line.ts}</span>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--muted-text)' }}>{line.ts}</span>
                 </div>
-                <div style={{ fontSize: '0.84rem', color: 'var(--gray-700)', lineHeight: 1.6, paddingLeft: 12 }}>
+                <div style={{ fontSize: '0.84rem', color: 'var(--navy-heading)', lineHeight: 1.6, paddingLeft: 12 }}>
                   {line.text}
                 </div>
               </div>
@@ -299,15 +299,15 @@ function VisualAiCaller() {
       </div>
 
       {/* Footer stats */}
-      <div style={{ padding: '11px 18px', background: 'var(--gray-50)', display: 'flex', gap: 20, alignItems: 'center' }}>
+      <div style={{ padding: '11px 18px', background: 'var(--warm-gray)', display: 'flex', gap: 20, alignItems: 'center' }}>
         {[
           { val: '48', label: 'calls active', color: 'var(--blue-600)' },
           { val: '31', label: 'qualified', color: 'var(--green)' },
-          { val: '9', label: 'not buying', color: 'var(--gray-400)' },
+          { val: '9', label: 'not buying', color: 'var(--muted-text)' },
         ].map((s) => (
           <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ fontFamily: 'inherit', fontWeight: 800, fontSize: '1rem', color: s.color, letterSpacing: '-0.02em', lineHeight: 1 }}>{s.val}</span>
-            <span style={{ fontSize: '0.72rem', color: 'var(--gray-400)' }}>{s.label}</span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--muted-text)' }}>{s.label}</span>
           </div>
         ))}
       </div>
@@ -320,39 +320,39 @@ function VisualOrganize() {
   const buyers = [
     { initials: 'MT', bg: 'linear-gradient(135deg,#1D4ED8,#2563EB)', name: 'Marcus T.', market: 'Atlanta, GA · SFR Flip', score: 94, tag: 'High-Confidence', tagColor: '#16a34a', tagBg: '#f0fdf4', tagBorder: '#bbf7d0' },
     { initials: 'LW', bg: 'linear-gradient(135deg,#0ea5e9,#2563EB)', name: 'Lisa W.', market: 'Charlotte, NC · Multi-fam', score: 87, tag: 'Active', tagColor: 'var(--blue-600)', tagBg: 'var(--blue-50)', tagBorder: 'var(--blue-100)' },
-    { initials: 'RP', bg: 'linear-gradient(135deg,#6366f1,#2563EB)', name: 'Rachel P.', market: 'Tampa, FL · SFR Hold', score: 72, tag: 'Dormant', tagColor: 'var(--gray-500)', tagBg: 'var(--gray-50)', tagBorder: 'var(--gray-200)' },
+    { initials: 'RP', bg: 'linear-gradient(135deg,#6366f1,#2563EB)', name: 'Rachel P.', market: 'Tampa, FL · SFR Hold', score: 72, tag: 'Dormant', tagColor: 'var(--body-text)', tagBg: 'var(--warm-gray)', tagBorder: 'var(--border-med)' },
   ]
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)' }}>
+        <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-text)' }}>
           Buyer pipeline · auto-updated
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
           {['All', 'Active', 'High-Conf.'].map((f, i) => (
-            <span key={f} style={{ fontSize: '0.62rem', fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: i === 0 ? 'var(--blue-50)' : 'transparent', color: i === 0 ? 'var(--blue-600)' : 'var(--gray-400)', border: `1px solid ${i === 0 ? 'var(--blue-100)' : 'var(--gray-200)'}` }}>{f}</span>
+            <span key={f} style={{ fontSize: '0.62rem', fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: i === 0 ? 'var(--blue-50)' : 'transparent', color: i === 0 ? 'var(--blue-600)' : 'var(--muted-text)', border: `1px solid ${i === 0 ? 'var(--blue-100)' : 'var(--border-med)'}` }}>{f}</span>
           ))}
         </div>
       </div>
       {buyers.map((b, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, border: '1px solid var(--gray-100)', borderRadius: 10, padding: '11px 14px', marginBottom: 8, background: 'var(--white)' }}>
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, border: '1px solid var(--border-light)', borderRadius: 10, padding: '11px 14px', marginBottom: 8, background: 'var(--white)' }}>
           <div style={{ width: 34, height: 34, borderRadius: '50%', background: b.bg, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.68rem', fontWeight: 800, flexShrink: 0 }}>{b.initials}</div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <span style={{ fontWeight: 600, fontSize: '0.84rem', color: 'var(--gray-900)' }}>{b.name}</span>
+              <span style={{ fontWeight: 600, fontSize: '0.84rem', color: 'var(--navy-heading)' }}>{b.name}</span>
               <span style={{ fontSize: '0.58rem', fontWeight: 600, color: b.tagColor, background: b.tagBg, border: `1px solid ${b.tagBorder}`, borderRadius: 4, padding: '1px 6px' }}>{b.tag}</span>
             </div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: 2 }}>{b.market}</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--muted-text)', marginTop: 2 }}>{b.market}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
             <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--blue-600)', letterSpacing: '-0.02em' }}>{b.score}%</div>
-            <div style={{ width: 40, height: 4, background: 'var(--gray-100)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: 40, height: 4, background: 'var(--border-light)', borderRadius: 2, overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${b.score}%`, background: 'var(--blue-600)', borderRadius: 2 }} />
             </div>
           </div>
         </div>
       ))}
-      <div style={{ marginTop: 4, background: 'var(--gray-50)', borderRadius: 10, padding: '10px 14px', fontSize: '0.77rem', color: 'var(--gray-500)' }}>
+      <div style={{ marginTop: 4, background: 'var(--warm-gray)', borderRadius: 10, padding: '10px 14px', fontSize: '0.77rem', color: 'var(--body-text)' }}>
         <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>247 buyers</span> scored and segmented automatically from call data
       </div>
     </div>
@@ -380,39 +380,39 @@ function VisualMatch() {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 16 }}>
+      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-text)', marginBottom: 16 }}>
         4217 Elm St, Atlanta GA · Deal analysis
       </div>
       <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
         {[
-          { label: 'ARV', val: '$168K', color: 'var(--gray-900)' },
+          { label: 'ARV', val: '$168K', color: 'var(--navy-heading)' },
           { label: 'Spread', val: '$47K', color: 'var(--green)' },
           { label: 'Deal Score', val: '87/100', color: 'var(--blue-600)' },
         ].map((s) => (
-          <div key={s.label} style={{ flex: 1, background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: '10px 8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.6rem', color: 'var(--gray-400)', marginBottom: 4 }}>{s.label}</div>
+          <div key={s.label} style={{ flex: 1, background: 'var(--warm-gray)', border: '1px solid var(--border-light)', borderRadius: 10, padding: '10px 8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.6rem', color: 'var(--muted-text)', marginBottom: 4 }}>{s.label}</div>
             <div style={{ fontWeight: 700, fontSize: '1rem', color: s.color, letterSpacing: '-0.02em' }}>{s.val}</div>
           </div>
         ))}
       </div>
-      <div style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--gray-400)', marginBottom: 12 }}>
+      <div style={{ fontSize: '0.67rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--muted-text)', marginBottom: 12 }}>
         Top matched buyers
       </div>
       {buyers.map((b, i) => (
         <div key={i} style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
             <div>
-              <span style={{ fontWeight: 600, fontSize: '0.84rem', color: 'var(--gray-900)' }}>{b.name}</span>
-              <span style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginLeft: 8 }}>{b.tags}</span>
+              <span style={{ fontWeight: 600, fontSize: '0.84rem', color: 'var(--navy-heading)' }}>{b.name}</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--muted-text)', marginLeft: 8 }}>{b.tags}</span>
             </div>
             <span style={{ fontWeight: 700, fontSize: '0.92rem', color: colors[i], letterSpacing: '-0.02em' }}>{scores[i]}%</span>
           </div>
-          <div style={{ height: 5, background: 'var(--gray-100)', borderRadius: 4, overflow: 'hidden' }}>
+          <div style={{ height: 5, background: 'var(--border-light)', borderRadius: 4, overflow: 'hidden' }}>
             <div style={{ height: '100%', background: colors[i], borderRadius: 4, width: `${scores[i]}%`, transition: 'width 0.9s cubic-bezier(0.16,1,0.3,1)' }} />
           </div>
         </div>
       ))}
-      <div style={{ fontSize: '0.73rem', color: 'var(--gray-400)', borderTop: '1px solid var(--gray-100)', paddingTop: 10, marginTop: 2 }}>
+      <div style={{ fontSize: '0.73rem', color: 'var(--muted-text)', borderTop: '1px solid var(--border-light)', paddingTop: 10, marginTop: 2 }}>
         244 buyers filtered out · Top 3 contacted automatically
       </div>
     </div>
@@ -430,35 +430,35 @@ function VisualClose() {
   ]
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 20 }}>
+      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-text)', marginBottom: 20 }}>
         1840 Birch Dr, Marietta GA · Transaction
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 20 }}>
         {stages.map((s, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', flex: i < stages.length - 1 ? 1 : 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-              <div style={{ width: 26, height: 26, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.64rem', background: s.done ? 'var(--blue-600)' : s.active ? 'var(--white)' : 'var(--gray-100)', border: s.active ? '2px solid var(--blue-600)' : 'none', color: s.done ? 'white' : s.active ? 'var(--blue-600)' : 'var(--gray-400)', fontWeight: 700, flexShrink: 0 }}>
+              <div style={{ width: 26, height: 26, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.64rem', background: s.done ? 'var(--blue-600)' : s.active ? 'var(--white)' : 'var(--border-light)', border: s.active ? '2px solid var(--blue-600)' : 'none', color: s.done ? 'white' : s.active ? 'var(--blue-600)' : 'var(--muted-text)', fontWeight: 700, flexShrink: 0 }}>
                 {s.done ? '✓' : i + 1}
               </div>
-              <div style={{ fontSize: '0.56rem', color: s.done || s.active ? 'var(--gray-700)' : 'var(--gray-400)', fontWeight: s.active ? 600 : 400, whiteSpace: 'nowrap' }}>{s.label}</div>
+              <div style={{ fontSize: '0.56rem', color: s.done || s.active ? 'var(--navy-heading)' : 'var(--muted-text)', fontWeight: s.active ? 600 : 400, whiteSpace: 'nowrap' }}>{s.label}</div>
             </div>
             {i < stages.length - 1 && (
-              <div style={{ flex: 1, height: 2, background: s.done ? 'var(--blue-600)' : 'var(--gray-200)', marginBottom: 20, marginLeft: 4, marginRight: 4 }} />
+              <div style={{ flex: 1, height: 2, background: s.done ? 'var(--blue-600)' : 'var(--border-med)', marginBottom: 20, marginLeft: 4, marginRight: 4 }} />
             )}
           </div>
         ))}
       </div>
-      <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-100)', borderRadius: 10, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ background: 'var(--warm-gray)', border: '1px solid var(--border-light)', borderRadius: 10, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
         <div>
-          <div style={{ fontSize: '0.6rem', color: 'var(--gray-400)', marginBottom: 2 }}>Fee</div>
+          <div style={{ fontSize: '0.6rem', color: 'var(--muted-text)', marginBottom: 2 }}>Fee</div>
           <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--green)', letterSpacing: '-0.02em' }}>+$12,800</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.6rem', color: 'var(--gray-400)', marginBottom: 2 }}>Days</div>
-          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--gray-900)' }}>9</div>
+          <div style={{ fontSize: '0.6rem', color: 'var(--muted-text)', marginBottom: 2 }}>Days</div>
+          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--navy-heading)' }}>9</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.6rem', color: 'var(--gray-400)', marginBottom: 2 }}>E-sign</div>
+          <div style={{ fontSize: '0.6rem', color: 'var(--muted-text)', marginBottom: 2 }}>E-sign</div>
           <div style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--blue-600)' }}>Complete ✓</div>
         </div>
       </div>
@@ -485,16 +485,16 @@ function VisualGPT() {
   ]
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gray-400)', marginBottom: 16 }}>
+      <div style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-text)', marginBottom: 16 }}>
         DealFlow GPT · Full account context
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {messages.map((m, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <div style={{ fontSize: '0.67rem', fontWeight: 700, color: m.from === 'ai' ? 'var(--blue-600)' : 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <div style={{ fontSize: '0.67rem', fontWeight: 700, color: m.from === 'ai' ? 'var(--blue-600)' : 'var(--body-text)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               {m.from === 'ai' ? 'DealFlow GPT' : 'You'}
             </div>
-            <div style={{ background: m.from === 'ai' ? 'var(--blue-50)' : 'var(--gray-50)', border: `1px solid ${m.from === 'ai' ? 'var(--blue-100)' : 'var(--gray-100)'}`, borderRadius: 10, padding: '10px 14px', fontSize: '0.82rem', color: 'var(--gray-700)', lineHeight: 1.6 }}>
+            <div style={{ background: m.from === 'ai' ? 'var(--blue-50)' : 'var(--warm-gray)', border: `1px solid ${m.from === 'ai' ? 'var(--blue-100)' : 'var(--border-light)'}`, borderRadius: 10, padding: '10px 14px', fontSize: '0.82rem', color: 'var(--navy-heading)', lineHeight: 1.6 }}>
               {m.text}
             </div>
           </div>
@@ -521,20 +521,20 @@ export default function Features() {
       id="how"
       style={{
         padding: '96px 40px',
-        background: 'var(--white)',
-        borderTop: '1px solid var(--gray-100)',
+        background: 'var(--cream)',
+        borderTop: 'none',
       }}
     >
       <div style={{ maxWidth: 1160, margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--blue-600)', marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 14 }}>
             How it works
           </div>
-          <h2 style={{ fontFamily: 'inherit', fontSize: 'clamp(1.9rem, 3vw, 2.8rem)', fontWeight: 600, lineHeight: 1.1, letterSpacing: '-0.022em', color: 'var(--gray-900)', marginBottom: 14 }}>
-            From county records to <span style={{ color: 'var(--blue-600)' }}>signed contracts.</span>
+          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(1.9rem, 3vw, 2.8rem)', fontWeight: 400, lineHeight: 1.1, letterSpacing: '-0.022em', color: 'var(--navy-heading)', marginBottom: 14, textTransform: 'capitalize' }}>
+            From county records to <span style={{ color: 'var(--accent)' }}>signed contracts.</span>
           </h2>
-          <p style={{ fontSize: '0.97rem', color: 'var(--gray-500)', lineHeight: 1.7, maxWidth: 520, margin: '0 auto' }}>
+          <p style={{ fontSize: '0.97rem', color: 'var(--body-text)', lineHeight: 1.7, maxWidth: 520, margin: '0 auto' }}>
             Six steps. One connected system. Every engine feeds the next so nothing falls through the cracks.
           </p>
         </div>
@@ -552,13 +552,13 @@ export default function Features() {
                 gap: 7,
                 padding: '9px 14px',
                 borderRadius: 10,
-                border: active === i ? '1px solid var(--blue-200)' : '1px solid var(--gray-200)',
-                background: active === i ? 'var(--blue-50)' : 'var(--white)',
+                border: active === i ? '1px solid var(--accent)' : '1px solid var(--border-med)',
+                background: active === i ? 'var(--accent-bg)' : 'var(--white)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
-                fontSize: '0.82rem',
+                fontSize: '12.5px',
                 fontWeight: active === i ? 600 : 500,
-                color: active === i ? 'var(--blue-600)' : 'var(--gray-500)',
+                color: active === i ? 'var(--accent)' : 'var(--body-text)',
                 transition: 'all 0.15s',
                 whiteSpace: 'nowrap',
               }}
@@ -581,10 +581,10 @@ export default function Features() {
                 {steps[active].badge}
               </span>
             </div>
-            <h3 style={{ fontFamily: 'inherit', fontSize: '1.5rem', fontWeight: 600, color: 'var(--gray-900)', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 14 }}>
+            <h3 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 28, fontWeight: 400, color: 'var(--navy-heading)', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 14 }}>
               {steps[active].title}
             </h3>
-            <p style={{ fontSize: '0.92rem', color: 'var(--gray-500)', lineHeight: 1.7 }}>
+            <p style={{ fontSize: '0.92rem', color: 'var(--body-text)', lineHeight: 1.7 }}>
               {steps[active].desc}
             </p>
 
@@ -598,7 +598,7 @@ export default function Features() {
                     width: active === i ? 24 : 8,
                     height: 8,
                     borderRadius: 4,
-                    background: active === i ? 'var(--blue-600)' : i < active ? 'var(--blue-300)' : 'var(--gray-200)',
+                    background: active === i ? 'var(--accent)' : i < active ? 'var(--accent-bright)' : 'var(--border-med)',
                     border: 'none',
                     cursor: 'pointer',
                     padding: 0,
@@ -610,7 +610,7 @@ export default function Features() {
           </div>
 
           {/* Right: visual */}
-          <div style={{ background: 'var(--white)', border: '1px solid var(--gray-200)', borderRadius: 18, overflow: 'hidden', boxShadow: 'var(--shadow)', minHeight: 280 }}>
+          <div style={{ background: 'var(--white)', border: '1px solid var(--border-light)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(5,14,36,0.06), 0 0 0 1px rgba(5,14,36,0.06)', minHeight: 280 }}>
             <div className="vis-screen-active" key={active}>
               <ActiveVisual />
             </div>

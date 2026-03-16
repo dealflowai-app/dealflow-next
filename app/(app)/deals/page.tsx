@@ -6,12 +6,12 @@ export default function DealsPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-            className="text-[1.45rem] font-medium text-gray-900 tracking-[-0.025em] mb-1"
+            style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
+            className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] tracking-[-0.022em] mb-1"
           >
             My Deals
           </h1>
-          <p className="text-[0.85rem] text-gray-400">Manage and track submitted properties.</p>
+          <p className="text-[0.86rem] text-[var(--body-text,#4B5563)]">Manage and track submitted properties.</p>
         </div>
         <Link
           href="/deals/new"
@@ -34,7 +34,7 @@ export default function DealsPage() {
 
         {/* Empty */}
         <div className="py-16 px-6 text-center">
-          <div className="text-[0.84rem] text-gray-400 mb-5 max-w-[340px] mx-auto">
+          <div className="text-[0.86rem] text-[var(--body-text,#4B5563)] mb-5 max-w-[340px] mx-auto">
             No deals yet. Submit a property and the AI will start finding matched cash buyers.
           </div>
           <Link

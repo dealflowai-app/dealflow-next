@@ -238,10 +238,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-0px)] overflow-hidden bg-[#FAFAFA]">
+    <div className="flex h-[calc(100vh-0px)] overflow-hidden bg-[var(--cream,#FAF9F6)]">
       {/* ── Settings side nav ── */}
       <div className="w-[220px] bg-white border-r border-gray-200 flex flex-col py-6 flex-shrink-0">
-        <h2 className="px-5 text-2xl font-semibold text-[#111827] mb-5">
+        <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="px-5 text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-5">
           Settings
         </h2>
         <nav className="flex-1 px-3 space-y-0.5">
@@ -272,7 +272,7 @@ export default function SettingsPage() {
           {/* ════════════ PROFILE ════════════ */}
           {activeSection === 'profile' && (
             <div>
-              <h2 className="text-2xl font-semibold text-[#111827] mb-1">Profile</h2>
+              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Profile</h2>
               <p className="text-sm text-[#9CA3AF] mb-6">Manage your personal and business information.</p>
 
               {/* Avatar */}
@@ -427,7 +427,7 @@ export default function SettingsPage() {
           {/* ════════════ BILLING & PLAN ════════════ */}
           {activeSection === 'billing' && (
             <div>
-              <h2 className="text-2xl font-semibold text-[#111827] mb-1">Billing & Plan</h2>
+              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Billing & Plan</h2>
               <p className="text-sm text-[#9CA3AF] mb-6">Manage your subscription, payment methods, and view invoices.</p>
 
               {/* Current plan card */}
@@ -464,7 +464,7 @@ export default function SettingsPage() {
                     )}
                     <h4 className="text-lg font-semibold text-[#111827] mb-1">{plan.name}</h4>
                     <p className="mb-4">
-                      <span className="text-2xl font-semibold text-[#111827]">{plan.price}</span>
+                      <span className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)]">{plan.price}</span>
                       <span className="text-sm text-gray-500">{plan.period}</span>
                     </p>
                     <div className="space-y-2 text-sm mb-5">
@@ -559,7 +559,7 @@ export default function SettingsPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-semibold text-[#111827] mb-1">Team</h2>
+                  <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Team</h2>
                   <p className="text-sm text-[#9CA3AF]">Manage team members and permissions.</p>
                 </div>
                 <button
@@ -669,7 +669,7 @@ export default function SettingsPage() {
           {/* ════════════ NOTIFICATIONS ════════════ */}
           {activeSection === 'notifications' && (
             <div>
-              <h2 className="text-2xl font-semibold text-[#111827] mb-1">Notifications</h2>
+              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Notifications</h2>
               <p className="text-sm text-[#9CA3AF] mb-6">Choose what you want to be notified about and how.</p>
 
               <div className="space-y-6">
@@ -724,7 +724,7 @@ export default function SettingsPage() {
           {/* ════════════ INTEGRATIONS ════════════ */}
           {activeSection === 'integrations' && (
             <div>
-              <h2 className="text-2xl font-semibold text-[#111827] mb-1">Integrations</h2>
+              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Integrations</h2>
               <p className="text-sm text-[#9CA3AF] mb-6">Connect your favorite tools and services.</p>
 
               {/* Connected */}
@@ -791,7 +791,7 @@ export default function SettingsPage() {
           {/* ════════════ AI SETTINGS ════════════ */}
           {activeSection === 'ai' && (
             <div>
-              <h2 className="text-2xl font-semibold text-[#111827] mb-1">AI Settings</h2>
+              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">AI Settings</h2>
               <p className="text-sm text-[#9CA3AF] mb-6">Configure how the AI voice agent behaves on calls.</p>
 
               {/* Company Identity */}
@@ -971,7 +971,7 @@ export default function SettingsPage() {
           {/* ════════════ DATA & PRIVACY ════════════ */}
           {activeSection === 'privacy' && (
             <div>
-              <h2 className="text-2xl font-semibold text-[#111827] mb-1">Data & Privacy</h2>
+              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Data & Privacy</h2>
               <p className="text-sm text-[#9CA3AF] mb-6">Manage your data, exports, and privacy settings.</p>
 
               {/* Export Data */}

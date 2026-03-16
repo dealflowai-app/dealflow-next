@@ -535,15 +535,15 @@ export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState<Tab>('feed')
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#FAFAFA] min-h-screen">
+    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)] ">
       {/* Header */}
       <div className="mb-6">
-        <h1
-          className="text-2xl font-semibold text-[#111827] tracking-[-0.025em] mb-1"
+        <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
+          className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] tracking-[-0.022em] mb-1"
         >
           Community
         </h1>
-        <p className="text-[0.84rem] text-[#9CA3AF]">
+        <p className="text-[0.86rem] text-[var(--body-text,#4B5563)]">
           Connect with wholesalers, share strategies, and stay updated.
         </p>
       </div>

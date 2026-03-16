@@ -241,7 +241,7 @@ export default function DealFlowGPTPage() {
               <Bot className="w-5 h-5 text-[#6B7280]" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-[#111827]">
+              <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)]">
                 DealFlow GPT
               </h1>
               <p className="text-sm text-[#9CA3AF]">AI assistant with full account context</p>
@@ -267,14 +267,14 @@ export default function DealFlowGPTPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-[#FAFAFA]">
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-[var(--cream,#FAF9F6)]">
           {/* Welcome banner (only show if no messages) */}
           {messages.length === 0 && (
             <div className="text-center py-16">
               <div className="w-16 h-16 rounded-2xl bg-[#F3F4F6] flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-8 h-8 text-[#6B7280]" />
               </div>
-              <h2 className="text-2xl font-semibold text-[#111827] mb-2">
+              <h2 className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-2">
                 How can I help your deals today?
               </h2>
               <p className="text-[#9CA3AF] max-w-md mx-auto">
@@ -425,7 +425,7 @@ export default function DealFlowGPTPage() {
 
         {/* Suggested prompts */}
         {messages.length <= 4 && (
-          <div className="px-6 py-3 bg-[#FAFAFA] border-t border-[#E5E7EB]">
+          <div className="px-6 py-3 bg-[var(--cream,#FAF9F6)] border-t border-[#E5E7EB]">
             <div className="flex flex-wrap gap-2">
               {suggestedPrompts.map((prompt, i) => (
                 <button
