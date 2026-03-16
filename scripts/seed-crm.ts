@@ -11,7 +11,7 @@
  */
 
 import 'dotenv/config'
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 
@@ -560,12 +560,12 @@ async function main() {
       data: {
         contractId,
         version,
-        filledData: filledData ?? undefined,
+        filledData: (filledData as Prisma.InputJsonValue) ?? undefined,
         documentUrl: docUrl ?? undefined,
         changeType,
         changeSummary: summary,
         changedFields: fields,
-        previousValues: Object.keys(prev).length > 0 ? prev : undefined,
+        previousValues: Object.keys(prev).length > 0 ? (prev as Prisma.InputJsonValue) : undefined,
         changedBy: profile.id,
       },
     })
