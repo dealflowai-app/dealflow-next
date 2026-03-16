@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { logActivity } from '@/lib/activity'
 import type { DealStatus } from '@prisma/client'
+import { Validator, sanitizeString, sanitizeHtml } from '@/lib/validation'
+import { parseBody } from '@/lib/api-utils'
+import { sendEmail } from '@/lib/email'
+import { formatOfferEmail } from '@/lib/emails'
 
 export async function GET(
   req: NextRequest,
@@ -73,22 +77,21 @@ export async function POST(
 
     const { id: dealId } = await params
 
-    let body: Record<string, unknown>
-    try {
-      body = await req.json()
-    } catch {
-      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
-    }
+    const { body, error: parseError } = await parseBody(req)
+    if (!body) return NextResponse.json({ error: parseError }, { status: 400 })
 
     const buyerId = body.buyerId as string | undefined
     const amount = body.amount != null ? Number(body.amount) : NaN
 
-    if (!buyerId || isNaN(amount) || amount <= 0) {
-      return NextResponse.json(
-        { error: 'buyerId and a positive amount are required' },
-        { status: 400 },
-      )
-    }
+    // ── Validate inputs ──
+    const v = new Validator()
+    v.require('buyerId', buyerId, 'Buyer ID')
+    v.require('amount', body.amount, 'Amount')
+    if (body.amount !== undefined) v.positiveInt('amount', body.amount, 'Amount')
+    if (body.amount !== undefined) v.intRange('amount', body.amount, 1, 100_000_000, 'Amount')
+    if (body.terms !== undefined) v.string('terms', body.terms, { maxLength: 1000, label: 'Terms' })
+    if (body.message !== undefined) v.string('message', body.message, { maxLength: 2000, label: 'Message' })
+    if (!v.isValid()) return v.toResponse()
 
     // Verify deal ownership
     const deal = await prisma.deal.findFirst({
@@ -117,11 +120,11 @@ export async function POST(
     const offer = await prisma.offer.create({
       data: {
         dealId,
-        buyerId,
+        buyerId: buyerId!,
         amount,
         closeDate: body.closeDate ? new Date(body.closeDate as string) : null,
-        terms: (body.terms as string) || null,
-        message: (body.message as string) || null,
+        terms: body.terms ? sanitizeString(body.terms as string) : null,
+        message: body.message ? sanitizeHtml(body.message as string) : null,
       },
       include: {
         buyer: {
@@ -146,12 +149,43 @@ export async function POST(
     // Log activity
     const buyerDisplay = [offer.buyer.firstName, offer.buyer.lastName].filter(Boolean).join(' ') || offer.buyer.entityName || 'Unknown'
     logActivity({
-      buyerId,
+      buyerId: buyerId!,
       profileId: profile.id,
       type: 'offer_received',
       title: `Offer of $${amount.toLocaleString()} on ${deal.address}`,
       metadata: { dealId, offerId: offer.id, amount },
     })
+
+    // Email notification to wholesaler (fire-and-forget)
+    if (profile.email) {
+      const wholesalerName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Wholesaler'
+      const buyer = await prisma.cashBuyer.findUnique({
+        where: { id: buyerId },
+        select: { firstName: true, lastName: true, entityName: true, email: true },
+      })
+      const buyerName = [buyer?.firstName, buyer?.lastName].filter(Boolean).join(' ') || buyer?.entityName || 'Unknown Buyer'
+
+      const { subject, html, text } = formatOfferEmail({
+        wholesalerName,
+        buyerName,
+        buyerEmail: buyer?.email || '',
+        propertyAddress: deal.address,
+        city: deal.city,
+        state: deal.state,
+        askingPrice: deal.askingPrice,
+        offerAmount: amount,
+        arv: deal.arv,
+        message: body.message ? sanitizeHtml(body.message as string) : null,
+        dealId,
+      })
+      sendEmail({
+        to: { email: profile.email, name: wholesalerName },
+        subject,
+        html,
+        text,
+        categories: ['deals', 'offer-received'],
+      }).catch((err) => console.error('Offer notification email failed:', err))
+    }
 
     return NextResponse.json({ offer }, { status: 201 })
   } catch (err) {

@@ -16,6 +16,8 @@ import {
   Handshake,
   DollarSign,
   AlertCircle,
+  Store,
+  FileSignature,
 } from 'lucide-react'
 
 /* ═══════════════════════════════════════════════
@@ -117,6 +119,8 @@ function RowMenu({
   onRunMatch,
   onChangeStatus,
   onDelete,
+  onListMarketplace,
+  onGenerateContract,
 }: {
   deal: Deal
   isOpen: boolean
@@ -125,6 +129,8 @@ function RowMenu({
   onRunMatch: () => void
   onChangeStatus: (status: string) => void
   onDelete: () => void
+  onListMarketplace: () => void
+  onGenerateContract: () => void
 }) {
   const btnRef = useRef<HTMLButtonElement>(null)
   const [pos, setPos] = useState({ top: 0, left: 0 })
@@ -158,6 +164,18 @@ function RowMenu({
               className="w-full flex items-center gap-2 px-3 py-2 text-[0.78rem] text-gray-600 hover:bg-gray-50 bg-transparent border-0 cursor-pointer transition-colors text-left"
             >
               <Users className="w-3.5 h-3.5 text-gray-400" /> Run Matching
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onListMarketplace(); onClose() }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-[0.78rem] text-gray-600 hover:bg-gray-50 bg-transparent border-0 cursor-pointer transition-colors text-left"
+            >
+              <Store className="w-3.5 h-3.5 text-gray-400" /> List on Marketplace
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onGenerateContract(); onClose() }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-[0.78rem] text-gray-600 hover:bg-gray-50 bg-transparent border-0 cursor-pointer transition-colors text-left"
+            >
+              <FileSignature className="w-3.5 h-3.5 text-gray-400" /> Generate Contract
             </button>
             {transitions.length > 0 && (
               <div className="border-t border-gray-100 my-0.5" />
@@ -341,6 +359,50 @@ export default function DealsPage() {
       toast('Failed to delete deal')
     }
     setConfirmDelete(null)
+  }
+
+  async function listOnMarketplace(dealId: string) {
+    const deal = deals.find((d) => d.id === dealId)
+    if (!deal) return
+    try {
+      const res = await fetch('/api/marketplace/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId,
+          headline: `${deal.address} — ${deal.city}, ${deal.state}`,
+          description: `${deal.propertyType}${deal.arv ? `. ARV $${deal.arv.toLocaleString()}` : ''}. Asking $${deal.askingPrice.toLocaleString()}.`,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to list')
+      }
+      toast('Listed on Marketplace')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to list on Marketplace')
+    }
+  }
+
+  async function generateContract(dealId: string) {
+    try {
+      const res = await fetch('/api/contracts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId,
+          manualBuyer: {},
+          generatePdf: true,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to generate contract')
+      }
+      toast('Contract generated')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to generate contract')
+    }
   }
 
   /* ── KPI cards data ── */
@@ -579,6 +641,8 @@ export default function DealsPage() {
                       onRunMatch={() => runMatching(deal.id)}
                       onChangeStatus={(s) => changeStatus(deal.id, s)}
                       onDelete={() => setConfirmDelete(deal.id)}
+                      onListMarketplace={() => listOnMarketplace(deal.id)}
+                      onGenerateContract={() => generateContract(deal.id)}
                     />
                   </div>
                 </div>

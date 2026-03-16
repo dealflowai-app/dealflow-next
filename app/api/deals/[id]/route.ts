@@ -75,11 +75,22 @@ export async function GET(
       : []
     const matchScoreMap = new Map(offerMatches.map((m) => [m.buyerId, m.matchScore]))
 
+    // Look up contracts linked to offers
+    const offerIds = deal.offers.map((o) => o.id)
+    const offerContracts = offerIds.length > 0
+      ? await prisma.contract.findMany({
+          where: { offerId: { in: offerIds } },
+          select: { id: true, offerId: true },
+        })
+      : []
+    const contractByOffer = new Map(offerContracts.map((c) => [c.offerId, c.id]))
+
     const enrichedDeal = {
       ...deal,
       offers: deal.offers.map((o) => ({
         ...o,
         matchScore: matchScoreMap.get(o.buyerId) ?? null,
+        contractId: contractByOffer.get(o.id) ?? null,
       })),
     }
 

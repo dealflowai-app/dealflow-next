@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
     const sortOrder = (params.get('sortOrder') || 'desc') as 'asc' | 'desc'
 
     const archived = params.get('archived') === 'true'
+    const cursor = params.get('cursor') || ''
 
     const where: Prisma.CashBuyerWhereInput = {
       profileId: profile.id,
@@ -79,16 +80,42 @@ export async function GET(req: NextRequest) {
     const [buyers, total, statusCounts] = await Promise.all([
       prisma.cashBuyer.findMany({
         where,
-        include: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          entityName: true,
+          phone: true,
+          email: true,
+          status: true,
+          buyerScore: true,
+          primaryPropertyType: true,
+          strategy: true,
+          motivation: true,
+          buyerType: true,
+          preferredMarkets: true,
+          minPrice: true,
+          maxPrice: true,
+          closeSpeedDays: true,
+          proofOfFundsVerified: true,
+          cashPurchaseCount: true,
+          lastContactedAt: true,
+          followUpDate: true,
+          source: true,
+          createdAt: true,
+          updatedAt: true,
           tags: {
-            include: {
+            select: {
+              autoApplied: true,
               tag: { select: { id: true, name: true, label: true, color: true, type: true } },
             },
           },
+          _count: { select: { dealMatches: true, offers: true } },
         },
         orderBy: { [orderField]: sortOrder },
-        skip: (page - 1) * limit,
-        take: limit,
+        ...(cursor
+          ? { skip: 1, cursor: { id: cursor }, take: limit }
+          : { skip: (page - 1) * limit, take: limit }),
       }),
       prisma.cashBuyer.count({ where }),
       prisma.cashBuyer.groupBy({
@@ -106,9 +133,10 @@ export async function GET(req: NextRequest) {
       {} as Record<string, number>,
     )
 
+    const nextCursor = buyers.length === limit ? buyers[buyers.length - 1].id : null
     return NextResponse.json({
       buyers,
-      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit), nextCursor },
       stats,
     })
   } catch (err) {

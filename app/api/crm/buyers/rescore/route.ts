@@ -11,6 +11,7 @@ import {
   type MatchForScoring,
   type OfferForScoring,
 } from '@/lib/scoring'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const BATCH_SIZE = 50
 
@@ -30,6 +31,10 @@ export async function POST() {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Rate limit: 1 rescore per 5 minutes
+    const rl = rateLimit(`rescore:${profile.id}`, 1, 300_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     // Load user's scoring config once
     const dbConfig = await prisma.scoringConfig.findUnique({

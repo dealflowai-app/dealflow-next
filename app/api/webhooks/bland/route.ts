@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 import crypto from 'crypto'
 
 const BLAND_WEBHOOK_SECRET = process.env.BLAND_WEBHOOK_SECRET
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
           else if (transcript.toLowerCase().includes('voicemail')) outcome = 'VOICEMAIL'
           else outcome = 'NO_ANSWER'
         } catch (err) {
-          console.error('AI extraction error:', err)
+          logger.warn('AI extraction failed for call', { route: '/api/webhooks/bland', callId: call_id, error: err instanceof Error ? err.message : String(err) })
           outcome = 'NO_ANSWER'
         }
       }
@@ -134,7 +135,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error('Bland webhook error:', error)
+    logger.error('Bland webhook processing failed', { route: '/api/webhooks/bland', error: error instanceof Error ? error.message : String(error) })
     // Always return 200 to Bland so they don't retry
     return NextResponse.json({ ok: true })
   }

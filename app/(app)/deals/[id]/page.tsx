@@ -8,7 +8,7 @@ import {
   ArrowLeft, Users, DollarSign, BarChart3, Clock, Send,
   ChevronDown, Loader2, Home, BedDouble, Bath, Ruler,
   Calendar, MapPin, FileText, Pencil, X, Check, TrendingUp,
-  Megaphone, CheckCircle2, AlertTriangle,
+  Megaphone, CheckCircle2, AlertTriangle, Store, FileSignature,
 } from 'lucide-react'
 
 /* ═══════════════════════════════════════════════
@@ -58,6 +58,7 @@ interface DealOffer {
   createdAt: string
   updatedAt: string
   matchScore?: number | null
+  contractId?: string | null
   buyer: { id: string; firstName: string | null; lastName: string | null; entityName: string | null; phone?: string | null; email?: string | null }
 }
 
@@ -247,6 +248,12 @@ export default function DealDetailPage() {
   const [blastMinScore, setBlastMinScore] = useState(60)
   const blastRef = useRef<HTMLDivElement>(null)
 
+  // ── Marketplace / Contract state ─────────────
+  const [listingLoading, setListingLoading] = useState(false)
+  const [listingCreated, setListingCreated] = useState(false)
+  const [contractLoading, setContractLoading] = useState(false)
+  const [contractCreated, setContractCreated] = useState(false)
+
   // Pick up daisy chain flash from sessionStorage (set during deal creation)
   useEffect(() => {
     try {
@@ -352,6 +359,62 @@ export default function DealDetailPage() {
       toast(`Status updated to ${displayStatus(newStatus)}`)
     } catch {
       toast('Failed to update status')
+    }
+  }
+
+  // ── List on Marketplace ──────────────────────
+
+  const listOnMarketplace = async () => {
+    if (!deal) return
+    setListingLoading(true)
+    try {
+      const res = await fetch('/api/marketplace/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId: deal.id,
+          headline: `${deal.address} — ${deal.city}, ${deal.state}`,
+          description: `${typeLabels[deal.propertyType] || deal.propertyType}${deal.beds ? `, ${deal.beds}bd` : ''}${deal.baths ? `/${deal.baths}ba` : ''}${deal.sqft ? `, ${deal.sqft.toLocaleString()} sqft` : ''}${deal.arv ? `. ARV ${fmtCurrency(deal.arv)}` : ''}.`,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to list')
+      }
+      setListingCreated(true)
+      toast('Listed on Marketplace')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to list on Marketplace')
+    } finally {
+      setListingLoading(false)
+    }
+  }
+
+  // ── Generate Contract ──────────────────────────
+
+  const generateContractForDeal = async () => {
+    if (!deal) return
+    setContractLoading(true)
+    try {
+      const res = await fetch('/api/contracts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId: deal.id,
+          manualBuyer: {},
+          generatePdf: true,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to generate contract')
+      }
+      setContractCreated(true)
+      toast('Contract generated')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to generate contract')
+    } finally {
+      setContractLoading(false)
     }
   }
 
@@ -655,6 +718,32 @@ export default function DealDetailPage() {
               </button>
             </div>
           )}
+
+          <button
+            onClick={listingCreated ? undefined : listOnMarketplace}
+            disabled={listingLoading || listingCreated}
+            className={`flex items-center gap-1.5 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
+              listingCreated
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : 'bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] disabled:opacity-60'
+            }`}
+          >
+            {listingLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : listingCreated ? <Check className="w-4 h-4" /> : <Store className="w-4 h-4" />}
+            {listingCreated ? 'Listed' : 'List on Marketplace'}
+          </button>
+
+          <button
+            onClick={contractCreated ? undefined : generateContractForDeal}
+            disabled={contractLoading || contractCreated}
+            className={`flex items-center gap-1.5 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
+              contractCreated
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : 'bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] disabled:opacity-60'
+            }`}
+          >
+            {contractLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : contractCreated ? <Check className="w-4 h-4" /> : <FileSignature className="w-4 h-4" />}
+            {contractCreated ? 'Contract Created' : 'Generate Contract'}
+          </button>
 
           {/* Status dropdown */}
           {allowedTransitions.length > 0 && (
@@ -1363,6 +1452,18 @@ export default function DealDetailPage() {
                               Cancel
                             </button>
                           </div>
+                        </div>
+                      )}
+
+                      {/* View Contract link for accepted offers */}
+                      {offer.status === 'ACCEPTED' && offer.contractId && (
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                          <Link
+                            href="/contracts"
+                            className="inline-flex items-center gap-1.5 text-[0.78rem] font-medium text-[#2563EB] hover:text-[#1D4ED8] no-underline transition-colors"
+                          >
+                            <FileSignature className="w-3.5 h-3.5" /> View Contract
+                          </Link>
                         </div>
                       )}
 

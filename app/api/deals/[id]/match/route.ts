@@ -11,6 +11,9 @@ import {
   type ConditionPreference,
   type BuyerStatus,
 } from '@/lib/matching'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { timeQuery } from '@/lib/query-timer'
+import { logger } from '@/lib/logger'
 
 // Fields selected from CashBuyer — only what BuyerForMatching needs
 const BUYER_SELECT = {
@@ -43,6 +46,10 @@ export async function POST(
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
 
+    // Rate limit: 10 match runs per minute
+    const rl = rateLimit(`match:${profile.id}`, 10, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
+
     const { id } = await params
 
     // Parse optional body params
@@ -56,6 +63,9 @@ export async function POST(
       // No body is fine — use defaults
     }
 
+    if (minScore < 0 || minScore > 100) minScore = 20
+    if (limit < 1 || limit > 500) limit = 50
+
     // Fetch deal and verify ownership
     const deal = await prisma.deal.findFirst({
       where: { id, profileId: profile.id },
@@ -64,15 +74,23 @@ export async function POST(
       return NextResponse.json({ error: 'Deal not found' }, { status: 404 })
     }
 
-    // Fetch eligible buyers — only fields needed for matching
-    const buyers = await prisma.cashBuyer.findMany({
+    // Pre-filter: narrow candidates before full scoring
+    // Only fetch buyers whose buy box might overlap with this deal
+    const priceThreshold = Math.round(deal.askingPrice * 0.8)
+    const buyers = await timeQuery('Match.buyerFetch', () => prisma.cashBuyer.findMany({
       where: {
         profileId: profile.id,
         isOptedOut: false,
         status: { not: 'DO_NOT_CALL' },
+        OR: [
+          // Buyers with no max price set (open to anything)
+          { maxPrice: null },
+          // Buyers whose budget is within range of the asking price
+          { maxPrice: { gte: priceThreshold } },
+        ],
       },
       select: BUYER_SELECT,
-    })
+    }))
 
     // Map to matching engine types
     const dealInput: DealForMatching = {
@@ -109,7 +127,7 @@ export async function POST(
     }))
 
     // Run the matching engine
-    const results = rankBuyersForDeal(dealInput, buyerInputs, undefined, { minScore, limit })
+    const results = await timeQuery('Match.scoring', () => Promise.resolve(rankBuyersForDeal(dealInput, buyerInputs, undefined, { minScore, limit })))
 
     // Persist results in a transaction: delete old matches, create new ones
     await prisma.$transaction([
@@ -168,7 +186,7 @@ export async function POST(
       matched: results.length,
     })
   } catch (err) {
-    console.error('POST /api/deals/[id]/match error:', err)
+    logger.error('POST /api/deals/[id]/match failed', { route: '/api/deals/[id]/match', method: 'POST', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to run matching', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -220,7 +238,7 @@ export async function GET(
 
     return NextResponse.json({ matches })
   } catch (err) {
-    console.error('GET /api/deals/[id]/match error:', err)
+    logger.error('GET /api/deals/[id]/match failed', { route: '/api/deals/[id]/match', method: 'GET', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to fetch matches', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

@@ -105,6 +105,26 @@ enum FundingSource {
   LINE_OF_CREDIT
 }
 
+enum ContractStatus {
+  DRAFT
+  SENT
+  EXECUTED
+  VOIDED
+}
+
+enum ListingStatus {
+  ACTIVE
+  PAUSED
+  SOLD
+  EXPIRED
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
 enum ConditionPreference {
   TURNKEY
   LIGHT_REHAB
@@ -144,6 +164,10 @@ model Profile {
   tags                 Tag[]
   discoveryProperties  DiscoveryProperty[]
   contactReveals       ContactReveal[]
+  contracts            Contract[]
+  marketplaceListings  MarketplaceListing[]
+  buyerBoardPosts      BuyerBoardPost[]
+  buyerBoardContacts   BuyerBoardContact[]
 
   @@map("profiles")
 }
@@ -342,18 +366,21 @@ model CashBuyer {
   closeSpeedDays      Int?          // how fast they can close
   proofOfFundsVerified Boolean     @default(false)
 
-  savedMarket   SavedMarket?   @relation(fields: [savedMarketId], references: [id])
-  profile       Profile?       @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  campaignCalls  CampaignCall[]
-  dealMatches    DealMatch[]
-  offers         Offer[]
-  activityEvents ActivityEvent[]
-  tags           BuyerTag[]
+  savedMarket      SavedMarket?   @relation(fields: [savedMarketId], references: [id])
+  profile          Profile?       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  campaignCalls    CampaignCall[]
+  dealMatches      DealMatch[]
+  offers           Offer[]
+  activityEvents   ActivityEvent[]
+  tags             BuyerTag[]
+  buyerBoardPosts  BuyerBoardPost[]
 
   @@index([savedMarketId])
   @@index([profileId])
   @@index([status])
   @@index([buyerScore])
+  @@index([profileId, isOptedOut])
+  @@index([profileId, isOptedOut, status])
   @@map("cash_buyers")
 }
 
@@ -546,12 +573,16 @@ model Deal {
   updatedAt     DateTime     @updatedAt
   closedAt      DateTime?
 
-  profile    Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile    Profile              @relation(fields: [profileId], references: [id], onDelete: Cascade)
   matches    DealMatch[]
   offers     Offer[]
+  contracts  Contract[]
+  listings   MarketplaceListing[]
 
   @@index([profileId])
   @@index([status])
+  @@index([profileId, status])
+  @@index([profileId, createdAt(sort: Desc)])
   @@map("deals")
 }
 
@@ -579,6 +610,7 @@ model DealMatch {
   @@unique([dealId, buyerId])
   @@index([dealId])
   @@index([buyerId])
+  @@index([dealId, matchScore(sort: Desc)])
   @@map("deal_matches")
 }
 
@@ -599,10 +631,196 @@ model Offer {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  deal  Deal      @relation(fields: [dealId], references: [id])
-  buyer CashBuyer @relation(fields: [buyerId], references: [id])
+  deal     Deal       @relation(fields: [dealId], references: [id])
+  buyer    CashBuyer  @relation(fields: [buyerId], references: [id])
+  contract Contract?
 
   @@index([dealId])
   @@index([buyerId])
+  @@index([dealId, status])
   @@map("offers")
+}
+
+// ─── CONTRACTS ──────────────────────────────────────────────────────────────
+
+model Contract {
+  id            String         @id @default(cuid())
+  profileId     String
+  dealId        String
+  offerId       String?        @unique
+  templateName  String         // e.g. "Texas Assignment of Contract"
+  status        ContractStatus @default(DRAFT)
+  filledData    Json?          // merged template data (seller, buyer, terms, etc.)
+  documentUrl   String?        // generated PDF URL
+  currentVersion Int           @default(1)
+  sellerSignedAt DateTime?
+  buyerSignedAt  DateTime?
+  voidedAt       DateTime?
+  voidReason     String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  profile  Profile            @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  deal     Deal               @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  offer    Offer?             @relation(fields: [offerId], references: [id])
+  versions ContractVersion[]
+
+  @@index([profileId])
+  @@index([dealId])
+  @@index([profileId, status])
+  @@index([profileId, createdAt(sort: Desc)])
+  @@map("contracts")
+}
+
+model ContractVersion {
+  id             String   @id @default(cuid())
+  contractId     String
+  version        Int
+  filledData     Json?
+  documentUrl    String?
+  changeType     String   // "created" | "fields_updated" | "status_changed" | "template_changed" | "restored"
+  changeSummary  String?  // human-readable summary
+  changedFields  String[] // list of field keys that changed
+  previousValues Json?    // snapshot of previous values for changed fields
+  changedBy      String   // profileId of who made the change
+  createdAt      DateTime @default(now())
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@unique([contractId, version])
+  @@index([contractId])
+  @@map("contract_versions")
+}
+
+// ─── MARKETPLACE ────────────────────────────────────────────────────────────
+
+model MarketplaceListing {
+  id            String        @id @default(cuid())
+  profileId     String
+  dealId        String
+  status        ListingStatus @default(ACTIVE)
+
+  // Denormalized deal snapshot
+  address       String
+  city          String
+  state         String
+  zip           String
+  propertyType  PropertyType  @default(SFR)
+  askingPrice   Int
+  assignFee     Int?
+  arv           Int?
+  repairCost    Int?
+  flipProfit    Int?
+  rentalCashFlow Int?
+  beds          Int?
+  baths         Float?
+  sqft          Int?
+  yearBuilt     Int?
+  condition     String?
+  confidenceScore Int?
+
+  // Geocoded coordinates
+  latitude      Float?
+  longitude     Float?
+
+  // Listing metadata
+  headline      String?
+  description   String?
+  photoUrls     String[]      @default([])
+  viewCount     Int           @default(0)
+  inquiryCount  Int           @default(0)
+  featuredUntil DateTime?
+  publishedAt   DateTime?
+  soldAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  profile   Profile              @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  deal      Deal                 @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  inquiries MarketplaceInquiry[]
+
+  @@index([profileId])
+  @@index([dealId])
+  @@index([status])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([profileId, status])
+  @@map("marketplace_listings")
+}
+
+model MarketplaceInquiry {
+  id          String        @id @default(cuid())
+  listingId   String
+  buyerName   String
+  buyerEmail  String?
+  buyerPhone  String?
+  message     String?
+  status      InquiryStatus @default(NEW)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  listing MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([status])
+  @@map("marketplace_inquiries")
+}
+
+// ─── BUYER BOARD ────────────────────────────────────────────────────────────
+
+model BuyerBoardPost {
+  id             String   @id @default(cuid())
+  profileId      String
+
+  // Buyer info (anonymized)
+  displayName    String
+  buyerType      String?
+
+  // Buy box criteria
+  propertyTypes  String[]
+  markets        String[]
+  strategy       String?
+  minPrice       Int?
+  maxPrice       Int?
+  closeSpeedDays Int?
+  proofOfFunds   Boolean  @default(false)
+
+  // Post details
+  description    String?
+  status         String   @default("ACTIVE")
+
+  // Optional link to actual CRM buyer (private)
+  buyerId        String?
+
+  // Engagement
+  viewCount      Int      @default(0)
+  contactCount   Int      @default(0)
+
+  expiresAt      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  profile  Profile            @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  buyer    CashBuyer?         @relation(fields: [buyerId], references: [id])
+  contacts BuyerBoardContact[]
+
+  @@index([profileId])
+  @@index([status])
+  @@index([markets])
+  @@map("buyer_board_posts")
+}
+
+model BuyerBoardContact {
+  id        String   @id @default(cuid())
+  postId    String
+  profileId String
+  message   String?
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
+
+  post    BuyerBoardPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  profile Profile        @relation(fields: [profileId], references: [id])
+
+  @@unique([postId, profileId])
+  @@index([postId])
+  @@map("buyer_board_contacts")
 }

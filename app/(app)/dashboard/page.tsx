@@ -17,6 +17,10 @@ import {
   XCircle,
   ChevronRight,
   BarChart3,
+  FileSignature,
+  Store,
+  Eye,
+  MessageSquare,
 } from 'lucide-react'
 import { useToast } from '@/components/toast'
 
@@ -33,6 +37,15 @@ type KpiData = {
   totalSpread: number
   matchesSent: number
   dealsThisMonth: number
+  contractsDraft: number
+  contractsPending: number
+  contractsExecuted: number
+  contractsExecutedThisMonth: number
+  contractsVoided: number
+  totalFeesCollected: number
+  activeListings: number
+  totalListingViews: number
+  newInquiries: number
 }
 
 type ActivityItem = {
@@ -70,6 +83,23 @@ type PendingOffer = {
   dealId: string
   deal: { address: string; city: string; state: string; askingPrice: number }
   buyer: { id: string; firstName: string | null; lastName: string | null; entityName: string | null }
+}
+
+type RecentContract = {
+  id: string
+  templateName: string
+  status: string
+  createdAt: string
+  deal: { address: string; city: string; state: string }
+  offer: { amount: number; buyer: { firstName: string | null; lastName: string | null; entityName: string | null } } | null
+}
+
+type RecentInquiry = {
+  id: string
+  buyerName: string
+  message: string | null
+  createdAt: string
+  listing: { address: string; city: string; state: string }
 }
 
 /* ── Static data ── */
@@ -127,6 +157,13 @@ const STATUS_LABELS: Record<string, string> = {
   CLOSED: 'Closed',
   CANCELLED: 'Cancelled',
   EXPIRED: 'Expired',
+}
+
+const CONTRACT_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  DRAFT: { bg: 'rgba(156,163,175,0.1)', text: '#6b7280' },
+  SENT: { bg: 'rgba(37,99,235,0.08)', text: '#2563eb' },
+  EXECUTED: { bg: 'rgba(22,163,74,0.08)', text: '#16a34a' },
+  VOIDED: { bg: 'rgba(239,68,68,0.08)', text: '#ef4444' },
 }
 
 /* ── Quick actions ── */
@@ -305,6 +342,86 @@ function DealPipelineBar({ pipeline, router }: { pipeline: Record<string, number
 }
 
 /* ══════════════════════════════════════════════
+   CONTRACT PIPELINE BAR
+   ══════════════════════════════════════════════ */
+
+const CONTRACT_PIPELINE_COLORS: Record<string, string> = {
+  DRAFT: '#9CA3AF',
+  SENT: '#2563EB',
+  EXECUTED: '#16a34a',
+  VOIDED: '#ef4444',
+}
+
+const CONTRACT_PIPELINE_LABELS: Record<string, string> = {
+  DRAFT: 'Draft',
+  SENT: 'Sent',
+  EXECUTED: 'Executed',
+  VOIDED: 'Voided',
+}
+
+function ContractPipelineBar({ pipeline, router }: { pipeline: Record<string, number>; router: ReturnType<typeof useRouter> }) {
+  const statuses = ['DRAFT', 'SENT', 'EXECUTED', 'VOIDED']
+  const total = statuses.reduce((s, st) => s + (pipeline[st] || 0), 0)
+
+  if (total === 0) {
+    return (
+      <div style={{ textAlign: 'center', padding: '16px 0', fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)' }}>
+        No contracts yet. <span style={{ color: '#2563EB', cursor: 'pointer' }} onClick={() => router.push('/contracts')}>Create your first contract</span>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {/* Bar */}
+      <div style={{ display: 'flex', height: 28, borderRadius: 8, overflow: 'hidden', marginBottom: 10 }}>
+        {statuses.map(st => {
+          const count = pipeline[st] || 0
+          if (count === 0) return null
+          const pct = (count / total) * 100
+          return (
+            <div
+              key={st}
+              onClick={() => router.push('/contracts')}
+              title={`${CONTRACT_PIPELINE_LABELS[st]}: ${count}`}
+              style={{
+                width: `${pct}%`,
+                minWidth: count > 0 ? 24 : 0,
+                background: CONTRACT_PIPELINE_COLORS[st],
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'opacity 0.15s ease',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+            >
+              {pct >= 12 && (
+                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#fff' }}>{count}</span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      {/* Legend */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px' }}>
+        {statuses.map(st => {
+          const count = pipeline[st] || 0
+          if (count === 0) return null
+          return (
+            <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: 'var(--body-text, #4B5563)' }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: CONTRACT_PIPELINE_COLORS[st], flexShrink: 0 }} />
+              {CONTRACT_PIPELINE_LABELS[st]} ({count})
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════
    MAIN PAGE
    ══════════════════════════════════════════════ */
 
@@ -318,6 +435,9 @@ export default function DashboardPage() {
   const [pendingOffers, setPendingOffers] = useState<PendingOffer[]>([])
   const [dealPipeline, setDealPipeline] = useState<Record<string, number>>({})
   const [offerActionLoading, setOfferActionLoading] = useState<string | null>(null)
+  const [recentContracts, setRecentContracts] = useState<RecentContract[]>([])
+  const [recentInquiries, setRecentInquiries] = useState<RecentInquiry[]>([])
+  const [contractPipeline, setContractPipeline] = useState<Record<string, number>>({})
 
   const fetchDashboard = useCallback(() => {
     fetch('/api/dashboard')
@@ -329,6 +449,9 @@ export default function DashboardPage() {
         if (data.topMatches) setTopMatches(data.topMatches)
         if (data.pendingOffersList) setPendingOffers(data.pendingOffersList)
         if (data.dealPipeline) setDealPipeline(data.dealPipeline)
+        if (data.recentContracts) setRecentContracts(data.recentContracts)
+        if (data.recentInquiries) setRecentInquiries(data.recentInquiries)
+        if (data.contractPipeline) setContractPipeline(data.contractPipeline)
       })
       .catch(() => {})
   }, [])
@@ -442,6 +565,257 @@ export default function DashboardPage() {
           </button>
         </div>
         <DealPipelineBar pipeline={dealPipeline} router={router} />
+      </div>
+
+      {/* Contract Pipeline Bar */}
+      <div style={{ ...cardStyle, marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={sectionLabel as React.CSSProperties}>Contract Pipeline</div>
+          <button
+            onClick={() => router.push('/contracts')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.72rem',
+              color: '#2563EB',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              fontFamily: 'inherit',
+            }}
+          >
+            View all <ChevronRight style={{ width: 12, height: 12 }} />
+          </button>
+        </div>
+        <ContractPipelineBar pipeline={contractPipeline} router={router} />
+      </div>
+
+      {/* Contract & Marketplace KPI Cards */}
+      <div className="dash-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
+        <div style={{ ...cardStyle, borderLeft: `3px solid ${kpiData && (kpiData.contractsDraft + kpiData.contractsPending) > 0 ? '#d97706' : '#9CA3AF'}`, padding: '18px 20px' }} className="dash-card">
+          <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <FileSignature style={{ width: 12, height: 12 }} /> Contracts Pending
+          </div>
+          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+            {kpiData ? (kpiData.contractsDraft + kpiData.contractsPending) : '—'}
+          </div>
+          {kpiData && (
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
+              {kpiData.contractsDraft} draft{kpiData.contractsDraft !== 1 ? 's' : ''}, {kpiData.contractsPending} awaiting signature
+            </div>
+          )}
+        </div>
+        <div style={{ ...cardStyle, borderLeft: '3px solid #16a34a', padding: '18px 20px' }} className="dash-card">
+          <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <CheckCircle style={{ width: 12, height: 12 }} /> Contracts Executed
+          </div>
+          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+            {kpiData ? kpiData.contractsExecutedThisMonth : '—'}
+          </div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
+            {kpiData ? `${kpiData.contractsExecuted} all time` : '—'}
+            {kpiData && kpiData.totalFeesCollected > 0 && ` · ${fmtMoney(kpiData.totalFeesCollected)} fees`}
+          </div>
+        </div>
+        <div style={{ ...cardStyle, borderLeft: '3px solid #2563EB', padding: '18px 20px' }} className="dash-card">
+          <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Store style={{ width: 12, height: 12 }} /> Active Listings
+          </div>
+          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+            {kpiData ? kpiData.activeListings : '—'}
+          </div>
+          {kpiData && (
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Eye style={{ width: 10, height: 10 }} /> {kpiData.totalListingViews.toLocaleString()} total views
+            </div>
+          )}
+        </div>
+        <div style={{ ...cardStyle, borderLeft: `3px solid ${kpiData && kpiData.newInquiries > 0 ? '#2563EB' : '#9CA3AF'}`, padding: '18px 20px', position: 'relative' }} className="dash-card">
+          <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <MessageSquare style={{ width: 12, height: 12 }} /> New Inquiries
+          </div>
+          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+            {kpiData ? kpiData.newInquiries : '—'}
+          </div>
+          {kpiData && kpiData.newInquiries > 0 && (
+            <span style={{ position: 'absolute', top: 14, right: 14, width: 8, height: 8, borderRadius: '50%', background: '#2563EB' }} />
+          )}
+        </div>
+      </div>
+
+      {/* Contract Status + Marketplace Activity */}
+      <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
+        {/* Contracts Status */}
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ ...sectionLabel as React.CSSProperties, display: 'flex', alignItems: 'center', gap: 6 }}>
+              Contracts
+              {kpiData && kpiData.contractsPending > 0 && (
+                <span style={{ fontSize: '0.6rem', fontWeight: 600, color: '#d97706', background: 'rgba(217,119,6,0.08)', padding: '2px 7px', borderRadius: 10 }}>
+                  action needed
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => router.push('/contracts')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
+            >
+              View all <ChevronRight style={{ width: 12, height: 12 }} />
+            </button>
+          </div>
+          {recentContracts.length === 0 ? (
+            <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
+              No contracts yet. <span style={{ color: '#2563EB', cursor: 'pointer' }} onClick={() => router.push('/contracts')}>Create your first contract</span>
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {recentContracts.map((c, i) => {
+                const sc = CONTRACT_STATUS_COLORS[c.status] || CONTRACT_STATUS_COLORS.DRAFT
+                const contractBuyer = c.offer?.buyer
+                  ? ([c.offer.buyer.firstName, c.offer.buyer.lastName].filter(Boolean).join(' ') || c.offer.buyer.entityName || 'Manual Entry')
+                  : 'Manual Entry'
+                const typeLabel = c.templateName.toLowerCase().includes('double close') ? 'Double Close'
+                  : c.templateName.toLowerCase().includes('jv') ? 'JV' : 'Assignment'
+                return (
+                  <div
+                    key={c.id}
+                    onClick={() => router.push('/contracts')}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 0',
+                      borderBottom: i < recentContracts.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
+                      cursor: 'pointer',
+                    }}
+                    className="dash-deal-row"
+                  >
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {c.deal.address}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
+                        {contractBuyer} · {c.deal.city}, {c.deal.state}
+                        {c.offer?.amount ? ` · ${fmtMoney(c.offer.amount)}` : ''}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, marginLeft: 12 }}>
+                      <span style={{
+                        fontSize: '0.62rem', fontWeight: 600,
+                        color: '#6b7280', background: 'rgba(107,114,128,0.08)',
+                        padding: '2px 6px', borderRadius: 10,
+                      }}>
+                        {typeLabel}
+                      </span>
+                      <span style={{
+                        fontSize: '0.66rem', fontWeight: 600,
+                        color: sc.text, background: sc.bg,
+                        padding: '2px 8px', borderRadius: 10,
+                      }}>
+                        {c.status}
+                      </span>
+                      <span style={{ fontSize: '0.66rem', color: 'var(--muted-text, #9CA3AF)' }}>
+                        {timeAgo(c.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Marketplace Activity */}
+        <div style={cardStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={sectionLabel as React.CSSProperties}>Marketplace</div>
+            <button
+              onClick={() => router.push('/marketplace')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
+            >
+              View all <ChevronRight style={{ width: 12, height: 12 }} />
+            </button>
+          </div>
+          {kpiData && kpiData.activeListings > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12, padding: '10px 14px', background: 'rgba(37,99,235,0.04)', borderRadius: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Store style={{ width: 13, height: 13, color: '#2563EB' }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--navy-heading, #0B1224)' }}>{kpiData.activeListings}</span>
+                <span style={{ fontSize: '0.76rem', color: 'var(--muted-text, #9CA3AF)' }}>active listing{kpiData.activeListings !== 1 ? 's' : ''}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Eye style={{ width: 13, height: 13, color: '#6b7280' }} />
+                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--navy-heading, #0B1224)' }}>{kpiData.totalListingViews.toLocaleString()}</span>
+                <span style={{ fontSize: '0.76rem', color: 'var(--muted-text, #9CA3AF)' }}>views</span>
+              </div>
+            </div>
+          )}
+          {recentInquiries.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {recentInquiries.map((inq, i) => (
+                <div
+                  key={inq.id}
+                  style={{
+                    padding: '10px 0',
+                    borderBottom: i < recentInquiries.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)' }}>
+                        {inq.buyerName}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {inq.listing.address}, {inq.listing.city}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => router.push('/marketplace')}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 3,
+                        padding: '4px 10px', borderRadius: 6,
+                        border: '1px solid #2563EB', background: 'transparent', color: '#2563EB',
+                        fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                        flexShrink: 0, marginLeft: 8,
+                      }}
+                    >
+                      Respond
+                    </button>
+                  </div>
+                  {inq.message && (
+                    <div style={{ fontSize: '0.74rem', color: 'var(--body-text, #4B5563)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '90%' }}>
+                      {inq.message}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 4 }}>
+                    {timeAgo(inq.createdAt)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : kpiData && kpiData.activeListings === 0 ? (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10 }}>
+                No marketplace listings yet.
+              </p>
+              <button
+                onClick={() => router.push('/marketplace')}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  padding: '8px 16px', borderRadius: 8,
+                  border: '1px solid #2563EB', background: 'transparent', color: '#2563EB',
+                  fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                <Store style={{ width: 13, height: 13 }} /> List your first deal
+              </button>
+            </div>
+          ) : (
+            <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
+              No new inquiries.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Two-column: Recent Deals + Pending Offers */}

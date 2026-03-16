@@ -8,6 +8,7 @@ import {
   type BuyerForTagging,
 } from '@/lib/tags'
 import type { CallForScoring, MatchForScoring, OfferForScoring } from '@/lib/scoring'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const BATCH_SIZE = 50
 
@@ -28,6 +29,10 @@ export async function POST() {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Rate limit: 1 auto-tag run per 5 minutes
+    const rl = rateLimit(`autotag:${profile.id}`, 1, 300_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     // Step 1: Upsert all auto-tag definitions as Tag records
     const tagMap = new Map<string, string>() // tagName -> tagId

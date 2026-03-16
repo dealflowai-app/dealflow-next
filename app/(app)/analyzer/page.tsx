@@ -251,6 +251,10 @@ function ResultsState({ onBack }: { onBack: () => void }) {
   const [matchCount, setMatchCount] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [matching, setMatching] = useState(false)
+  const [listingCreated, setListingCreated] = useState(false)
+  const [listingLoading, setListingLoading] = useState(false)
+  const [contractCreated, setContractCreated] = useState(false)
+  const [contractLoading, setContractLoading] = useState(false)
 
   /* Waterfall data for flip */
   const arv = 245000
@@ -316,9 +320,65 @@ function ResultsState({ onBack }: { onBack: () => void }) {
     }
   }
 
+  async function listOnMarketplace() {
+    setListingLoading(true)
+    try {
+      const dealId = await saveDeal()
+      if (!dealId) return
+      const res = await fetch('/api/marketplace/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId,
+          headline: '1847 Oak Street — Dallas, TX',
+          description: 'SFR flip opportunity. 3bd/2ba, 1,750 sqft. ARV $245K. Strong comps in area.',
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to list')
+      }
+      setListingCreated(true)
+      toast('Listed on Marketplace')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to list on Marketplace')
+    } finally {
+      setListingLoading(false)
+    }
+  }
+
+  async function generateContract() {
+    setContractLoading(true)
+    try {
+      const dealId = await saveDeal()
+      if (!dealId) return
+      const res = await fetch('/api/contracts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId,
+          manualBuyer: {},
+          generatePdf: true,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to generate contract')
+      }
+      setContractCreated(true)
+      toast('Contract generated')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to generate contract')
+    } finally {
+      setContractLoading(false)
+    }
+  }
+
   function handleBack() {
     setSavedDealId(null)
     setMatchCount(null)
+    setListingCreated(false)
+    setContractCreated(false)
     onBack()
   }
 
@@ -618,8 +678,17 @@ function ResultsState({ onBack }: { onBack: () => void }) {
 
       {/* Action bar */}
       <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-3.5 flex items-center gap-2.5 flex-wrap">
-        <button onClick={() => toast('Coming soon...')} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
-          <Store className="w-4 h-4" /> List on Marketplace
+        <button
+          onClick={listingCreated ? undefined : listOnMarketplace}
+          disabled={listingLoading || listingCreated}
+          className={`flex items-center gap-1.5 border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
+            listingCreated
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white disabled:opacity-60'
+          }`}
+        >
+          {listingLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : listingCreated ? <Check className="w-4 h-4" /> : <Store className="w-4 h-4" />}
+          {listingCreated ? 'Listed' : 'List on Marketplace'}
         </button>
         <button
           onClick={matchBuyers}
@@ -629,8 +698,17 @@ function ResultsState({ onBack }: { onBack: () => void }) {
           {matching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
           {matchCount !== null ? `Matched ${matchCount} Buyers` : 'Match to Buyers'}
         </button>
-        <button onClick={() => toast('Coming soon...')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
-          <FileSignature className="w-4 h-4" /> Generate Contract
+        <button
+          onClick={contractCreated ? undefined : generateContract}
+          disabled={contractLoading || contractCreated}
+          className={`flex items-center gap-1.5 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
+            contractCreated
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : 'bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] disabled:opacity-60'
+          }`}
+        >
+          {contractLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : contractCreated ? <Check className="w-4 h-4" /> : <FileSignature className="w-4 h-4" />}
+          {contractCreated ? 'Contract Created' : 'Generate Contract'}
         </button>
         <button onClick={() => toast('Coming soon...')} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors">
           <Download className="w-4 h-4" /> Export as PDF

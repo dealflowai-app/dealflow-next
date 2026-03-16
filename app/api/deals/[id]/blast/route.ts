@@ -8,6 +8,10 @@ import {
   type BuyerForOutreach,
   type OutreachChannel,
 } from '@/lib/deal-outreach'
+import { Validator } from '@/lib/validation'
+import { parseBody } from '@/lib/api-utils'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
 export async function POST(
   req: NextRequest,
@@ -19,17 +23,27 @@ export async function POST(
 
     const { id: dealId } = await params
 
-    let body: Record<string, unknown>
-    try {
-      body = await req.json()
-    } catch {
-      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
-    }
+    // Rate limit: 5 blasts per minute
+    const rl = rateLimit(`blast:${profile.id}`, 5, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
+
+    const { body, error: parseError } = await parseBody(req)
+    if (!body) return NextResponse.json({ error: parseError }, { status: 400 })
 
     const channels = (body.channels as OutreachChannel[] | undefined) || ['sms', 'email']
     const allMatches = body.allMatches === true
     const minScore = typeof body.minScore === 'number' ? body.minScore : 60
     const buyerIds = Array.isArray(body.buyerIds) ? (body.buyerIds as string[]) : []
+
+    // ── Validate inputs ──
+    const VALID_CHANNELS = ['sms', 'email']
+    const v = new Validator()
+    if (buyerIds.length > 500) v.custom('buyerIds', false, 'Maximum 500 buyer IDs per blast')
+    for (const ch of channels) {
+      v.enumValue('channels', ch, VALID_CHANNELS, 'Channel')
+    }
+    if (body.minScore !== undefined) v.intRange('minScore', body.minScore, 0, 100, 'Min score')
+    if (!v.isValid()) return v.toResponse()
 
     if (!allMatches && buyerIds.length === 0) {
       return NextResponse.json(
@@ -164,7 +178,7 @@ export async function POST(
       ...(errors.length > 0 ? { errors } : {}),
     })
   } catch (err) {
-    console.error('POST /api/deals/[id]/blast error:', err)
+    logger.error('POST /api/deals/[id]/blast failed', { route: '/api/deals/[id]/blast', method: 'POST', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to send outreach', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
