@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import MapGL, { Marker, Popup, NavigationControl, type MapRef } from 'react-map-gl/mapbox'
+import MapGL, { Marker, Popup, NavigationControl, Source, Layer, type MapRef } from 'react-map-gl/mapbox'
+import type { CircleLayer, SymbolLayer } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useToast } from '@/components/toast'
 import {
@@ -53,6 +54,7 @@ import {
   Upload,
   ShieldCheck,
   Info,
+  Maximize2,
 } from 'lucide-react'
 
 /* ═══════════════════════════════════════════════
@@ -230,10 +232,10 @@ function mapPinColor(type: string): string {
   switch (type) {
     case 'SFR': return '#2563EB'
     case 'MULTI_FAMILY': return '#7C3AED'
-    case 'LAND': return '#F59E0B'
+    case 'LAND': return '#D97706'
     case 'COMMERCIAL': return '#0D9488'
     case 'CONDO': return '#EC4899'
-    case 'MOBILE_HOME': return '#F97316'
+    case 'MOBILE_HOME': return '#6B7280'
     default: return '#6B7280'
   }
 }
@@ -332,10 +334,70 @@ function ListingSkeleton() {
 const MAP_PIN_LEGEND = [
   { label: 'SFR', color: '#2563EB' },
   { label: 'Multi-Family', color: '#7C3AED' },
-  { label: 'Land', color: '#F59E0B' },
+  { label: 'Land', color: '#D97706' },
   { label: 'Commercial', color: '#0D9488' },
   { label: 'Condo', color: '#EC4899' },
+  { label: 'Mobile Home', color: '#6B7280' },
 ]
+
+// Cluster layer styles
+const clusterCircleLayer: CircleLayer = {
+  id: 'clusters',
+  type: 'circle',
+  source: 'listings',
+  filter: ['has', 'point_count'],
+  paint: {
+    'circle-color': [
+      'step', ['get', 'point_count'],
+      '#93C5FD', 5,   // light blue < 5
+      '#3B82F6', 15,  // medium blue < 15
+      '#1E40AF',      // dark navy 15+
+    ],
+    'circle-radius': [
+      'step', ['get', 'point_count'],
+      20, 5,  // 40px diameter < 5
+      25, 15, // 50px diameter < 15
+      30,     // 60px diameter 15+
+    ],
+    'circle-stroke-width': 2,
+    'circle-stroke-color': '#ffffff',
+    'circle-opacity': 0.9,
+  },
+}
+
+const clusterCountLayer: SymbolLayer = {
+  id: 'cluster-count',
+  type: 'symbol',
+  source: 'listings',
+  filter: ['has', 'point_count'],
+  layout: {
+    'text-field': '{point_count_abbreviated}',
+    'text-size': 13,
+    'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+    'text-allow-overlap': true,
+  },
+  paint: {
+    'text-color': '#ffffff',
+  },
+}
+
+// Heat zone layer (city-level density)
+const heatZoneLayer: CircleLayer = {
+  id: 'heat-zones',
+  type: 'circle',
+  source: 'listings',
+  filter: ['has', 'point_count'],
+  paint: {
+    'circle-color': 'rgba(37, 99, 235, 0.08)',
+    'circle-radius': [
+      'step', ['get', 'point_count'],
+      40, 5,
+      60, 15,
+      80,
+    ],
+    'circle-blur': 1,
+  },
+}
 
 function MarketplaceMapView({
   listings,
@@ -346,16 +408,46 @@ function MarketplaceMapView({
 }) {
   const mapRef = useRef<MapRef>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const miniCardStripRef = useRef<HTMLDivElement>(null)
   const [popupListing, setPopupListing] = useState<Listing | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [visibleCount, setVisibleCount] = useState(0)
 
   const withCoords = useMemo(
     () => listings.filter(l => l.latitude != null && l.longitude != null),
     [listings],
   )
 
+  // Build GeoJSON for the source
+  const geojsonData = useMemo(() => ({
+    type: 'FeatureCollection' as const,
+    features: withCoords.map(l => ({
+      type: 'Feature' as const,
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [l.longitude!, l.latitude!],
+      },
+      properties: {
+        id: l.id,
+        price: l.askingPrice,
+        propertyType: l.propertyType,
+        address: l.address,
+        city: l.city,
+        state: l.state,
+        color: mapPinColor(l.propertyType),
+      },
+    })),
+  }), [withCoords])
+
+  // Lookup map for listing by id
+  const listingById = useMemo(() => {
+    const lookup: Record<string, Listing> = {}
+    for (const l of withCoords) lookup[l.id] = l
+    return lookup
+  }, [withCoords])
+
   // Fit bounds when listings change
-  useEffect(() => {
+  const fitAllListings = useCallback(() => {
     const map = mapRef.current
     if (!map || withCoords.length === 0) return
 
@@ -381,6 +473,8 @@ function MarketplaceMapView({
     )
   }, [withCoords])
 
+  useEffect(() => { fitAllListings() }, [fitAllListings])
+
   // Resize observer
   useEffect(() => {
     const el = containerRef.current
@@ -389,6 +483,74 @@ function MarketplaceMapView({
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
+
+  // Track visible listings count on move
+  const updateVisibleCount = useCallback(() => {
+    const map = mapRef.current?.getMap()
+    if (!map) return
+    try {
+      const canvas = map.getCanvas()
+      const features = map.queryRenderedFeatures(
+        [[0, 0], [canvas.width, canvas.height]],
+        { layers: ['unclustered-point'] },
+      )
+      setVisibleCount(features?.length ?? withCoords.length)
+    } catch {
+      setVisibleCount(withCoords.length)
+    }
+  }, [withCoords.length])
+
+  // Handle cluster click
+  const handleMapClick = useCallback((e: mapboxgl.MapLayerMouseEvent) => {
+    const map = mapRef.current?.getMap()
+    if (!map) return
+
+    // Check for cluster click
+    const clusterFeatures = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })
+    if (clusterFeatures.length > 0) {
+      const clusterId = clusterFeatures[0].properties?.cluster_id
+      const source = map.getSource('listings') as mapboxgl.GeoJSONSource
+      if (source && clusterId != null) {
+        source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+          if (err || zoom == null) return
+          const geom = clusterFeatures[0].geometry
+          if (geom.type === 'Point') {
+            map.easeTo({
+              center: geom.coordinates as [number, number],
+              zoom: zoom + 1,
+              duration: 500,
+            })
+          }
+        })
+      }
+      return
+    }
+
+    // Check for unclustered point click
+    const pointFeatures = map.queryRenderedFeatures(e.point, { layers: ['unclustered-point'] })
+    if (pointFeatures.length > 0) {
+      const id = pointFeatures[0].properties?.id
+      const listing = id ? listingById[id] ?? null : null
+      if (listing) {
+        setPopupListing(listing)
+        // Scroll mini-card into view
+        scrollMiniCardIntoView(listing.id)
+      }
+      return
+    }
+
+    // Clicked empty space
+    setPopupListing(null)
+  }, [listingById])
+
+  const scrollMiniCardIntoView = (id: string) => {
+    const strip = miniCardStripRef.current
+    if (!strip) return
+    const card = strip.querySelector(`[data-listing-id="${id}"]`) as HTMLElement | null
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    }
+  }
 
   const handleMiniCardClick = (l: Listing) => {
     setPopupListing(l)
@@ -408,13 +570,62 @@ function MarketplaceMapView({
           mapboxAccessToken={MAPBOX_TOKEN}
           initialViewState={{ longitude: -98.5, latitude: 39.8, zoom: 4 }}
           style={{ width: '100%', height: '100%' }}
-          mapStyle="mapbox://styles/mapbox/light-v11"
+          mapStyle="mapbox://styles/mapbox/streets-v12"
           attributionControl={false}
-          onClick={() => setPopupListing(null)}
+          onClick={handleMapClick}
+          onMoveEnd={updateVisibleCount}
+          onLoad={updateVisibleCount}
+          interactiveLayerIds={['clusters', 'unclustered-point']}
+          cursor="pointer"
         >
           <NavigationControl position="top-right" showCompass={false} />
 
-          {/* Markers */}
+          {/* Listings in view counter */}
+          <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200 shadow-sm z-10">
+            <span className="text-[0.78rem] font-medium text-[#374151]">
+              {visibleCount} listing{visibleCount !== 1 ? 's' : ''} in view
+            </span>
+          </div>
+
+          {/* Fit all button */}
+          <button
+            onClick={fitAllListings}
+            className="absolute top-3 left-[170px] bg-white/95 backdrop-blur-sm rounded-lg px-2.5 py-2 border border-gray-200 shadow-sm z-10 cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+            title="Fit all listings"
+          >
+            <Maximize2 className="w-3.5 h-3.5 text-[#6B7280]" />
+            <span className="text-[0.72rem] text-[#6B7280] font-medium">Fit All</span>
+          </button>
+
+          {/* GeoJSON Source with clustering */}
+          <Source
+            id="listings"
+            type="geojson"
+            data={geojsonData}
+            cluster={true}
+            clusterMaxZoom={13}
+            clusterRadius={50}
+          >
+            {/* Heat zone background */}
+            <Layer {...heatZoneLayer} />
+            {/* Cluster circles */}
+            <Layer {...clusterCircleLayer} />
+            {/* Cluster count labels */}
+            <Layer {...clusterCountLayer} />
+            {/* Unclustered points (hidden - we use Markers for custom pins) */}
+            <Layer
+              id="unclustered-point"
+              type="circle"
+              source="listings"
+              filter={['!', ['has', 'point_count']]}
+              paint={{
+                'circle-radius': 0,
+                'circle-opacity': 0,
+              }}
+            />
+          </Source>
+
+          {/* Custom pill-shaped price markers for unclustered points */}
           {withCoords.map(l => {
             const isActive = popupListing?.id === l.id
             const isHovered = hoveredId === l.id
@@ -424,30 +635,45 @@ function MarketplaceMapView({
                 key={l.id}
                 longitude={l.longitude!}
                 latitude={l.latitude!}
-                anchor="center"
-                onClick={e => { e.originalEvent.stopPropagation(); setPopupListing(l) }}
+                anchor="bottom"
+                onClick={e => {
+                  e.originalEvent.stopPropagation()
+                  setPopupListing(l)
+                  scrollMiniCardIntoView(l.id)
+                }}
               >
                 <div
                   className="cursor-pointer transition-all duration-200"
                   style={{
-                    transform: isActive ? 'scale(1.2)' : isHovered ? 'scale(1.1)' : 'scale(1)',
+                    transform: isActive ? 'scale(1.15)' : isHovered ? 'scale(1.08)' : 'scale(1)',
+                    filter: isActive ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))' : 'drop-shadow(0 1px 3px rgba(0,0,0,0.15))',
                   }}
                   onMouseEnter={() => setHoveredId(l.id)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
+                  {/* Pill */}
                   <div
-                    className="rounded-md px-1.5 py-0.5 text-white font-semibold whitespace-nowrap"
+                    className="rounded-full px-2 py-[3px] text-white font-semibold whitespace-nowrap relative"
                     style={{
-                      fontSize: '0.62rem',
-                      lineHeight: 1.2,
+                      fontSize: '0.65rem',
+                      lineHeight: 1.3,
                       backgroundColor: isActive ? '#1D4ED8' : color,
-                      border: isActive ? '2px solid #1E40AF' : '1.5px solid rgba(0,0,0,0.15)',
-                      boxShadow: isActive
-                        ? '0 0 0 3px rgba(37,99,235,0.3), 0 2px 6px rgba(0,0,0,0.2)'
-                        : '0 1px 4px rgba(0,0,0,0.18)',
+                      border: isActive ? '2px solid #1E40AF' : '1.5px solid rgba(255,255,255,0.5)',
                     }}
                   >
                     {shortPrice(l.askingPrice)}
+                  </div>
+                  {/* Triangle pointer */}
+                  <div className="flex justify-center" style={{ marginTop: -1 }}>
+                    <div
+                      style={{
+                        width: 0,
+                        height: 0,
+                        borderLeft: '5px solid transparent',
+                        borderRight: '5px solid transparent',
+                        borderTop: `6px solid ${isActive ? '#1D4ED8' : color}`,
+                      }}
+                    />
                   </div>
                 </div>
               </Marker>
@@ -459,7 +685,7 @@ function MarketplaceMapView({
             <Popup
               longitude={popupListing.longitude}
               latitude={popupListing.latitude}
-              offset={[0, -12] as [number, number]}
+              offset={[0, -28] as [number, number]}
               closeButton={true}
               closeOnClick={false}
               onClose={() => setPopupListing(null)}
@@ -507,14 +733,14 @@ function MarketplaceMapView({
             </Popup>
           )}
 
-          {/* Legend */}
-          <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2.5 border border-gray-200 shadow-sm z-10">
-            <div className="text-[0.62rem] text-gray-400 uppercase tracking-wide mb-1.5">Property Types</div>
-            <div className="space-y-1">
+          {/* Horizontal Legend */}
+          <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200 shadow-sm z-10">
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-[0.62rem] text-gray-400 uppercase tracking-wide mr-1">Property Types</span>
               {MAP_PIN_LEGEND.map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full" style={{ background: l.color }} />
-                  <span className="text-[0.66rem] text-gray-600">{l.label}</span>
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: l.color }} />
+                  <span className="text-[0.68rem] text-gray-600">{l.label}</span>
                 </div>
               ))}
             </div>
@@ -535,13 +761,14 @@ function MarketplaceMapView({
 
       {/* Mini-card strip */}
       {withCoords.length > 0 && (
-        <div className="overflow-x-auto pb-2 mp-minicard-strip">
+        <div ref={miniCardStripRef} className="overflow-x-auto pb-2 mp-minicard-strip">
           <div className="flex gap-3" style={{ minWidth: 'max-content' }}>
             {withCoords.map(l => {
               const isActive = popupListing?.id === l.id
               return (
                 <button
                   key={l.id}
+                  data-listing-id={l.id}
                   onClick={() => handleMiniCardClick(l)}
                   onMouseEnter={() => setHoveredId(l.id)}
                   onMouseLeave={() => setHoveredId(null)}
@@ -825,7 +1052,14 @@ function DealListingsSection() {
       {showMapView && (loading ? <ListingSkeleton /> : listings.length === 0 ? (
         <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-12 text-center">
           <Map className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
-          <p className="text-[0.82rem] text-[#9CA3AF]">No listings to show on map. Try adjusting your filters.</p>
+          {(searchText || stateFilter || typeFilter || minPrice || maxPrice) ? (
+            <p className="text-[0.82rem] text-[#9CA3AF]">No listings match your filters. Try adjusting your search criteria.</p>
+          ) : (
+            <>
+              <p className="text-[0.9rem] text-[#6B7280] mb-1">No deals listed yet</p>
+              <p className="text-[0.78rem] text-[#9CA3AF]">Be the first to list a deal on the marketplace.</p>
+            </>
+          )}
         </div>
       ) : (
         <MarketplaceMapView
@@ -838,12 +1072,28 @@ function DealListingsSection() {
       {!showMapView && (loading ? <ListingSkeleton /> : displayListings.length === 0 ? (
         <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-12 text-center">
           <Store className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
-          <p className="text-[0.9rem] text-[#6B7280] mb-1">
-            {showSavedOnly ? 'No saved listings' : 'No listings found'}
-          </p>
-          <p className="text-[0.78rem] text-[#9CA3AF]">
-            {showSavedOnly ? 'Bookmark deals to save them for later.' : 'Try adjusting your filters.'}
-          </p>
+          {showSavedOnly ? (
+            <>
+              <p className="text-[0.9rem] text-[#6B7280] mb-1">No saved listings</p>
+              <p className="text-[0.78rem] text-[#9CA3AF]">Bookmark deals to save them for later.</p>
+            </>
+          ) : (searchText || stateFilter || typeFilter || minPrice || maxPrice) ? (
+            <>
+              <p className="text-[0.9rem] text-[#6B7280] mb-1">No listings found</p>
+              <p className="text-[0.78rem] text-[#9CA3AF]">Try adjusting your filters.</p>
+            </>
+          ) : (
+            <>
+              <p className="text-[0.9rem] text-[#6B7280] mb-1">No deals listed yet</p>
+              <p className="text-[0.78rem] text-[#9CA3AF] mb-3">Be the first to list a deal on the marketplace.</p>
+              <button
+                onClick={() => { /* navigate to create listing */ }}
+                className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+              >
+                <Plus className="w-4 h-4" /> List a Deal
+              </button>
+            </>
+          )}
         </div>
       ) : (
         <>
@@ -1315,11 +1565,28 @@ interface BuyerBoardContactRow {
 interface BuyerOption { id: string; firstName: string | null; lastName: string | null; entityName: string | null }
 
 const BUYER_TYPE_STYLES: Record<string, string> = {
-  'Cash Buyer': 'text-emerald-700 bg-emerald-50',
-  Flipper: 'text-blue-700 bg-blue-50',
-  Landlord: 'text-purple-700 bg-purple-50',
-  Developer: 'text-amber-700 bg-amber-50',
-  Wholesaler: 'text-pink-700 bg-pink-50',
+  individual: 'text-emerald-700 bg-emerald-50',
+  llc: 'text-blue-700 bg-blue-50',
+  trust: 'text-purple-700 bg-purple-50',
+  partnership: 'text-amber-700 bg-amber-50',
+  corporation: 'text-pink-700 bg-pink-50',
+}
+
+const BUYER_TYPE_LABELS: Record<string, string> = {
+  individual: 'Individual',
+  llc: 'LLC',
+  trust: 'Trust',
+  partnership: 'Partnership',
+  corporation: 'Corporation',
+}
+
+const STRATEGY_LABELS: Record<string, string> = {
+  fix_and_flip: 'Fix & Flip',
+  buy_and_hold: 'Buy & Hold',
+  wholesale: 'Wholesale',
+  novation: 'Novation',
+  subject_to: 'Subject To',
+  creative_finance: 'Creative Finance',
 }
 
 const PROP_TYPE_LABELS: Record<string, string> = {
@@ -1532,11 +1799,11 @@ function CreateBuyerPostModal({
             <div className="relative">
               <select value={buyerType} onChange={e => setBuyerType(e.target.value)} className={`${inputCls} appearance-none pr-8 cursor-pointer`}>
                 <option value="">Select type...</option>
-                <option value="Cash Buyer">Cash Buyer</option>
-                <option value="Flipper">Flipper</option>
-                <option value="Landlord">Landlord</option>
-                <option value="Developer">Developer</option>
-                <option value="Wholesaler">Wholesaler</option>
+                <option value="individual">Individual</option>
+                <option value="llc">LLC</option>
+                <option value="trust">Trust</option>
+                <option value="partnership">Partnership</option>
+                <option value="corporation">Corporation</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF] pointer-events-none" />
             </div>
@@ -1600,18 +1867,25 @@ function CreateBuyerPostModal({
           <div>
             <label className={labelCls}>Strategy</label>
             <div className="flex gap-2">
-              {['FLIP', 'HOLD', 'BOTH'].map(s => (
+              {([
+                ['fix_and_flip', 'Fix & Flip'],
+                ['buy_and_hold', 'Buy & Hold'],
+                ['wholesale', 'Wholesale'],
+                ['novation', 'Novation'],
+                ['subject_to', 'Subject To'],
+                ['creative_finance', 'Creative Finance'],
+              ] as const).map(([value, label]) => (
                 <button
-                  key={s}
+                  key={value}
                   type="button"
-                  onClick={() => setStrategy(strategy === s ? '' : s)}
+                  onClick={() => setStrategy(strategy === value ? '' : value)}
                   className={`flex-1 px-3 py-2 rounded-md text-[0.78rem] font-medium border cursor-pointer transition-colors ${
-                    strategy === s
+                    strategy === value
                       ? 'bg-[#2563EB] text-white border-[#2563EB]'
                       : 'bg-white text-[#374151] border-[#D1D5DB] hover:bg-[#F9FAFB]'
                   }`}
                 >
-                  {s === 'BOTH' ? 'Both' : s === 'FLIP' ? 'Flip' : 'Hold'}
+                  {label}
                 </button>
               ))}
             </div>
@@ -1929,9 +2203,12 @@ function BuyerBoardSection() {
         <div className="relative">
           <select value={strategyFilter} onChange={e => setStrategyFilter(e.target.value)} className={selectCls}>
             <option value="">Any Strategy</option>
-            <option value="FLIP">Flip</option>
-            <option value="HOLD">Hold</option>
-            <option value="BOTH">Both</option>
+            <option value="fix_and_flip">Fix &amp; Flip</option>
+            <option value="buy_and_hold">Buy &amp; Hold</option>
+            <option value="wholesale">Wholesale</option>
+            <option value="novation">Novation</option>
+            <option value="subject_to">Subject To</option>
+            <option value="creative_finance">Creative Finance</option>
           </select>
           <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF] pointer-events-none" />
         </div>
@@ -1976,20 +2253,30 @@ function BuyerBoardSection() {
       ) : posts.length === 0 ? (
         <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-12 text-center">
           <ClipboardList className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
-          <p className="text-[0.82rem] text-[#9CA3AF] mb-3">
-            {viewMode === 'mine' ? 'You haven\'t posted any buyers yet.' : 'No buyer posts match your filters.'}
-          </p>
-          {viewMode === 'mine' && (
-            <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-1.5 mx-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
-              <Plus className="w-4 h-4" /> Post Your First Buyer
-            </button>
+          {viewMode === 'mine' ? (
+            <>
+              <p className="text-[0.82rem] text-[#9CA3AF] mb-3">You haven&apos;t posted any buyers yet.</p>
+              <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-1.5 mx-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+                <Plus className="w-4 h-4" /> Post Your First Buyer
+              </button>
+            </>
+          ) : (marketSearch || typeFilter || minBudget || maxBudget || strategyFilter || pofOnly) ? (
+            <p className="text-[0.82rem] text-[#9CA3AF]">No buyer profiles match your filters. Try adjusting your criteria.</p>
+          ) : (
+            <>
+              <p className="text-[0.9rem] text-[#6B7280] mb-1">No buyer profiles posted yet</p>
+              <p className="text-[0.78rem] text-[#9CA3AF] mb-3">Share your buyers&apos; criteria to find matching deals.</p>
+              <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-1.5 mx-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+                <Plus className="w-4 h-4" /> Post a Buyer
+              </button>
+            </>
           )}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 mp-buyer-grid">
           {posts.map(p => {
             const isContacted = contactedIds.has(p.id)
-            const stratLabel = p.strategy === 'FLIP' ? 'Flip' : p.strategy === 'HOLD' ? 'Hold' : p.strategy === 'BOTH' ? 'Both' : null
+            const stratLabel = p.strategy ? (STRATEGY_LABELS[p.strategy] || p.strategy) : null
             const posterName = [p.profile.firstName, p.profile.lastInitial].filter(Boolean).join(' ') || 'Wholesaler'
 
             return (
@@ -2004,7 +2291,7 @@ function BuyerBoardSection() {
                       <div className="text-[0.82rem] font-medium text-[#111827]">{p.displayName}</div>
                       {p.buyerType && (
                         <span className={`text-[0.64rem] font-medium px-1.5 py-0.5 rounded-full ${BUYER_TYPE_STYLES[p.buyerType] || 'text-[#6B7280] bg-gray-100'}`}>
-                          {p.buyerType}
+                          {BUYER_TYPE_LABELS[p.buyerType] || p.buyerType}
                         </span>
                       )}
                     </div>
