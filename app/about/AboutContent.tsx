@@ -1,296 +1,350 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import Link from 'next/link'
+import Image from 'next/image'
 
+/* ── Tokens ─────────────────────────────────────────────── */
+const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
+const SERIF = "'DM Serif Display', Georgia, serif"
+const NAVY = '#0B1224'
+const BLUE = '#2563EB'
+const BODY = 'rgba(5, 14, 36, 0.65)'
+const MUTED = 'rgba(5, 14, 36, 0.45)'
+const BORDER = 'rgba(5, 14, 36, 0.06)'
+
+/* ── Data ───────────────────────────────────────────────── */
+const beliefs = [
+  {
+    num: '01',
+    title: 'The disposition process is broken by design',
+    body: 'AI can fix it without removing the human relationships that actually close deals. Technology should handle the volume. You handle the relationship.',
+  },
+  {
+    num: '02',
+    title: 'Cash buyers deserve better deal flow',
+    body: 'Not mass blasts. Not irrelevant properties. Precision matches that respect their time and match their actual buy box, every single time.',
+  },
+  {
+    num: '03',
+    title: 'The best software feels invisible',
+    body: "It should just make things happen. Not create more tasks, more dashboards, or more complexity to learn. You should feel the results before you feel the tool.",
+  },
+]
+
+const stats = [
+  { target: 15, prefix: '$', suffix: 'B+', label: 'Annual wholesale market' },
+  { target: 2, prefix: '', suffix: 'M+', label: 'Off-market deals per year' },
+  { target: 72, prefix: '', suffix: ' hrs', label: 'Avg. time to first offer' },
+  { target: 50, prefix: '', suffix: '', label: 'States covered at launch' },
+]
+
+/* ── Page ───────────────────────────────────────────────── */
 export default function AboutContent() {
-  const revealRefs = useRef<(HTMLElement | null)[]>([])
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in')
-            obs.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.1 }
-    )
-    document.querySelectorAll('.reveal').forEach((el) => obs.observe(el))
-    return () => obs.disconnect()
-  }, [])
-
   return (
     <>
-      {/* HERO */}
-      <div
-        style={{
-          padding: '148px 56px 88px',
-          maxWidth: 960,
-          margin: '0 auto',
-          textAlign: 'center',
-          background: 'var(--cream)',
-        }}
-        className="about-hero-wrap"
-      >
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 7,
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: 1.5,
-            textTransform: 'uppercase',
-            color: 'var(--accent)',
-            marginBottom: 22,
-          }}
-        >
-          <span
-            className="eyebrow-dot"
-            style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }}
-          />
-          Our story
+      <main style={{ paddingTop: 62 }}>
+
+        {/* ── Hero ────────────────────────────────────────── */}
+        <div style={{
+          background: 'white',
+          backgroundImage: 'radial-gradient(600px circle at 80% 20%, rgba(37,99,235,0.03), transparent)',
+        }}>
+          <div className="about-hero reveal" style={{
+            maxWidth: 800, margin: '0 auto', padding: '80px 40px 80px',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              fontSize: 11, fontWeight: 700, letterSpacing: 1.5,
+              textTransform: 'uppercase', color: BLUE, marginBottom: 22, fontFamily: F,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: BLUE, display: 'inline-block' }} />
+              Our story
+            </div>
+            <h1 style={{
+              fontFamily: SERIF,
+              fontSize: 'clamp(2.2rem, 4.5vw, 3.2rem)',
+              fontWeight: 400, letterSpacing: '-0.04em',
+              color: NAVY, lineHeight: 1.1, marginBottom: 22,
+            }}>
+              We Lost A Deal.<br />Then We Built The Fix.
+            </h1>
+            <p style={{
+              fontSize: '1.1rem', fontFamily: F, fontWeight: 400,
+              color: 'rgba(5, 14, 36, 0.55)', lineHeight: 1.8,
+              maxWidth: 640, margin: '0 auto',
+            }}>
+              DealFlow AI didn&apos;t start with a pitch deck. It started with a missed assignment fee and
+              the frustration of knowing the deal was there. The system just wasn&apos;t.
+            </p>
+          </div>
         </div>
 
-        <h1
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: 'clamp(2.2rem, 4.5vw, 3.2rem)',
-            fontWeight: 400,
-            letterSpacing: '-0.04em',
-            color: 'var(--navy-heading)',
-            lineHeight: 1.1,
-            marginBottom: 22,
-            textTransform: 'capitalize',
-          }}
-        >
-          We lost a deal.<br />Then we built the fix.
-        </h1>
+        {/* Divider */}
+        <div style={{ height: 1, background: BORDER, maxWidth: 900, margin: '0 auto' }} />
 
-        <p
-          style={{
-            fontSize: '1.05rem',
-            color: 'var(--body-text)',
-            lineHeight: 1.75,
-            maxWidth: 960,
-            margin: '0 auto',
-          }}
-        >
-          DealFlow AI didn&apos;t start with a pitch deck. It started with a missed assignment fee and
-          the frustration of knowing the deal was there. The system just wasn&apos;t.
-        </p>
-      </div>
-
-      {/* Divider */}
-      <div style={{ height: 1, background: 'var(--border-light)', maxWidth: 1100, margin: '0 auto' }} />
-
-      {/* VULNERABILITY HOOK */}
-      <div
-        className="story-hook reveal"
-        style={{
-          maxWidth: 960,
-          margin: '0 auto',
-          padding: '80px 40px',
+        {/* ── Quote ───────────────────────────────────────── */}
+        <div className="reveal" style={{
+          maxWidth: 800, margin: '0 auto', padding: '80px 40px',
           textAlign: 'center',
-          borderTop: '1px solid var(--border-light)',
-          paddingTop: 28,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: 52,
-            lineHeight: 0.6,
-            color: 'rgba(5,14,36,0.08)',
-            marginBottom: 24,
-            display: 'block',
-          }}
-        >
-          &ldquo;
-        </span>
-        <p
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: 'clamp(1.1rem, 2vw, 1.45rem)',
-            fontStyle: 'italic',
-            fontWeight: 400,
-            color: 'var(--navy-heading)',
-            lineHeight: 1.45,
-            letterSpacing: '-0.02em',
-            marginBottom: 20,
-          }}
-        >
-          I had the contract. I had the property. I just didn&apos;t have a buyer in time. The deal
-          fell through and I lost $14,000 in assignment fees. Not because the deal was bad, but
-          because finding the right buyer was a full-time job I didn&apos;t have time for.
-        </p>
-        <p style={{ fontSize: '0.82rem', color: 'var(--muted-text)', fontWeight: 500 }}>
-          Founder, DealFlow AI
-        </p>
-      </div>
+        }}>
+          <span style={{
+            fontFamily: SERIF, fontSize: 48, lineHeight: 0.6,
+            color: 'rgba(37,99,235,0.12)', marginBottom: 24, display: 'block',
+          }}>
+            &ldquo;
+          </span>
+          <p style={{
+            fontFamily: SERIF,
+            fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)',
+            fontStyle: 'italic', fontWeight: 400, color: NAVY,
+            lineHeight: 1.7, letterSpacing: '-0.02em',
+            maxWidth: 800, margin: '0 auto 20px',
+          }}>
+            I had the contract. I had the property. I just didn&apos;t have a buyer in time. The deal
+            fell through and I lost $14,000 in assignment fees. Not because the deal was bad, but
+            because finding the right buyer was a full-time job I didn&apos;t have time for.
+          </p>
+          <p style={{ fontSize: 14, fontFamily: F, fontWeight: 500, color: 'rgba(5,14,36,0.4)' }}>
+            Founder, DealFlow AI
+          </p>
+        </div>
 
-      {/* Divider */}
-      <div style={{ height: 1, background: 'var(--border-light)', maxWidth: 1100, margin: '0 auto' }} />
+        {/* Divider */}
+        <div style={{ height: 1, background: BORDER, maxWidth: 900, margin: '0 auto' }} />
 
-      {/* ABOUT BODY */}
-      <div
-        className="about-body-wrap"
-        style={{ maxWidth: 1100, margin: '0 auto', padding: '0 56px 80px' }}
-      >
-        {/* Block 1: The problem */}
-        <div
-          className="about-block-grid reveal"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '200px 1fr',
-            gap: 52,
-            padding: '60px 0',
-            borderTop: '1px solid var(--border-light)',
-          }}
-        >
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-text)', paddingTop: 5, lineHeight: 1.4 }}>
-            The problem
+        {/* ── Body sections ───────────────────────────────── */}
+        <div className="about-body" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 40px 80px' }}>
+
+          {/* ── The Problem ─────────────────────────────── */}
+          <div className="about-block reveal" style={{
+            display: 'grid', gridTemplateColumns: '180px 1fr',
+            gap: 48, padding: '60px 0',
+          }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: BLUE, fontFamily: F,
+              paddingTop: 5, position: 'sticky' as const, top: 100, alignSelf: 'start',
+            }}>
+              The problem
+            </div>
+            <div style={{ maxWidth: 640 }}>
+              <h2 style={{
+                fontFamily: SERIF, fontSize: '1.5rem', fontWeight: 400,
+                letterSpacing: '-0.03em', color: NAVY, marginBottom: 16, lineHeight: 1.25,
+              }}>
+                Disposition is broken. And everyone just accepts it.
+              </h2>
+              <p style={{ fontSize: 15, fontFamily: F, fontWeight: 400, color: BODY, lineHeight: 1.85, marginBottom: 20 }}>
+                The wholesale real estate industry moves at a pace that manual processes can&apos;t keep up
+                with. You have days, sometimes hours, to find a qualified buyer before your contract expires.
+                Yet the tools available were built for agents, not wholesalers.
+              </p>
+              <p style={{ fontSize: 15, fontFamily: F, fontWeight: 400, color: BODY, lineHeight: 1.85, marginBottom: 20 }}>
+                Cold calling lists of 500 people who may or may not still be buying. Mass blasting deals to
+                everyone in a generic CRM. Following up manually while juggling five other contracts.{' '}
+                <strong style={{ color: NAVY, fontWeight: 600 }}>This is how deals die.</strong>
+              </p>
+              <div style={{
+                borderLeft: `3px solid ${BLUE}`,
+                padding: '16px 0 16px 24px', margin: '20px 0',
+              }}>
+                <p style={{ fontSize: 15, fontFamily: F, fontWeight: 400, color: 'rgba(5,14,36,0.55)', lineHeight: 1.7, fontStyle: 'italic', margin: 0 }}>
+                  The average wholesaler spends over 60% of their time on disposition: the part after
+                  finding a deal. That&apos;s the problem we&apos;re solving.
+                </p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.4rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.25 }}>
-              Disposition is broken. And everyone just accepts it.
-            </h2>
-            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 14 }}>
-              The wholesale real estate industry moves at a pace that manual processes can&apos;t keep up
-              with. You have days, sometimes hours, to find a qualified buyer before your contract expires.
-              Yet the tools available were built for agents, not wholesalers.
-            </p>
-            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 14 }}>
-              Cold calling lists of 500 people who may or may not still be buying. Mass blasting deals to
-              everyone in a generic CRM. Following up manually while juggling five other contracts.{' '}
-              <strong style={{ color: 'var(--navy-heading)', fontWeight: 600 }}>This is how deals die.</strong>
-            </p>
-            <div
-              style={{
-                background: 'var(--accent-bg)',
-                borderLeft: '3px solid var(--accent)',
-                borderRadius: '0 8px 8px 0',
-                padding: '14px 18px',
-                margin: '20px 0',
-                fontSize: '0.93rem',
-                color: 'var(--body-text)',
-                lineHeight: 1.7,
-              }}
-            >
-              The average wholesaler spends over 60% of their time on disposition: the part after
-              finding a deal. That&apos;s the problem we&apos;re solving.
+
+          {/* Divider */}
+          <div style={{ height: 1, background: BORDER }} />
+
+          {/* ── Why We Built This ───────────────────────── */}
+          <div className="about-block reveal" style={{
+            display: 'grid', gridTemplateColumns: '180px 1fr',
+            gap: 48, padding: '60px 0',
+          }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: BLUE, fontFamily: F,
+              paddingTop: 5, position: 'sticky' as const, top: 100, alignSelf: 'start',
+            }}>
+              Why we built this
+            </div>
+            <div style={{ maxWidth: 640 }}>
+              <h2 style={{
+                fontFamily: SERIF, fontSize: '1.5rem', fontWeight: 400,
+                letterSpacing: '-0.03em', color: NAVY, marginBottom: 16, lineHeight: 1.25,
+              }}>
+                From the grind to the algorithm
+              </h2>
+              <p style={{ fontSize: 15, fontFamily: F, fontWeight: 400, color: BODY, lineHeight: 1.85, marginBottom: '1.5rem' }}>
+                After losing that deal, we started documenting exactly what a perfect disposition process
+                would look like if time and resources weren&apos;t a constraint. What if you had a team that
+                could call 200 buyers overnight? What if every buyer in your database was automatically
+                profiled by what they actually want to buy?
+              </p>
+              <p style={{ fontSize: 15, fontFamily: F, fontWeight: 400, color: BODY, lineHeight: 1.85, marginBottom: '1.5rem' }}>
+                We spent months talking to wholesalers across the country. The same story came up every time: too many deals lost not because of bad sourcing, but because of a broken system on the back end.
+              </p>
+              <p style={{ fontSize: 15, fontFamily: F, fontWeight: 400, color: BODY, lineHeight: 1.85, marginBottom: 0 }}>
+                <strong style={{ color: NAVY, fontWeight: 600, fontSize: 16 }}>So we built the system.</strong>{' '}
+                One that works the moment you activate it, handles the part of wholesaling that nobody wants
+                to do manually, and gets smarter the more you use it.
+              </p>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: 1, background: BORDER }} />
+
+          {/* ── What We Believe ─────────────────────────── */}
+          <div className="about-block reveal" style={{
+            display: 'grid', gridTemplateColumns: '180px 1fr',
+            gap: 48, padding: '60px 0',
+          }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: BLUE, fontFamily: F,
+              paddingTop: 5, position: 'sticky' as const, top: 100, alignSelf: 'start',
+            }}>
+              What we believe
+            </div>
+            <div style={{ maxWidth: 640 }}>
+              <h2 style={{
+                fontFamily: SERIF, fontSize: '1.5rem', fontWeight: 400,
+                letterSpacing: '-0.03em', color: NAVY, marginBottom: 16, lineHeight: 1.25,
+              }}>
+                Three things we won&apos;t compromise on
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {beliefs.map((b, i) => (
+                  <div key={i} className="belief-card" style={{
+                    background: 'white', border: `1px solid ${BORDER}`,
+                    borderRadius: 16, padding: '24px 28px',
+                    display: 'flex', gap: 16, alignItems: 'flex-start',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}>
+                    <div style={{
+                      width: 28, height: 28, borderRadius: '50%',
+                      background: BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      <span style={{ fontFamily: F, fontWeight: 700, fontSize: 12, color: 'white' }}>{b.num}</span>
+                    </div>
+                    <div>
+                      <p style={{ fontFamily: F, fontWeight: 600, fontSize: 15, color: NAVY, marginBottom: 4 }}>
+                        {b.title}
+                      </p>
+                      <p style={{ fontFamily: F, fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.55)', lineHeight: 1.7, margin: 0 }}>
+                        {b.body}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: 1, background: BORDER }} />
+
+          {/* ── The Founder ─────────────────────────────── */}
+          <div className="about-block reveal" style={{
+            display: 'grid', gridTemplateColumns: '180px 1fr',
+            gap: 48, padding: '60px 0',
+          }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: BLUE, fontFamily: F,
+              paddingTop: 5, position: 'sticky' as const, top: 100, alignSelf: 'start',
+            }}>
+              The founder
+            </div>
+            <div style={{ maxWidth: 640 }}>
+              <h2 style={{
+                fontFamily: SERIF, fontSize: '1.5rem', fontWeight: 400,
+                letterSpacing: '-0.03em', color: NAVY, marginBottom: 16, lineHeight: 1.25,
+              }}>
+                Built by one person who actually does this
+              </h2>
+              <div style={{
+                background: 'white', border: `1px solid ${BORDER}`,
+                borderRadius: 16, padding: 32,
+              }}>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 20 }}>
+                  <div style={{
+                    width: 64, height: 64, borderRadius: '50%',
+                    background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: '2px solid rgba(37,99,235,0.3)',
+                    flexShrink: 0,
+                  }}>
+                    <span style={{ fontFamily: F, fontWeight: 700, fontSize: 20, color: 'white', letterSpacing: '0.02em' }}>JH</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: F, fontWeight: 600, fontSize: 16, color: NAVY, margin: 0 }}>Founder, DealFlow AI</p>
+                    <p style={{ fontFamily: F, fontWeight: 500, fontSize: 13, color: BLUE, margin: '2px 0 0' }}>Builder, Wholesaler, Operator</p>
+                  </div>
+                </div>
+                <p style={{ fontSize: 15, fontFamily: F, fontWeight: 400, color: BODY, lineHeight: 1.8, marginBottom: 14 }}>
+                  Active real estate wholesaler who got tired of the manual grind and started building.
+                  Not a software company that discovered real estate. A real estate operator who learned
+                  to build software. That distinction matters in every product decision we make.
+                </p>
+                <p style={{ fontSize: 15, fontFamily: F, fontWeight: 400, color: BODY, lineHeight: 1.8, marginBottom: 20, fontStyle: 'italic' }}>
+                  I personally respond to every message. If you&apos;re a wholesaler or a cash buyer and
+                  want to talk before the product launches, reach out. These conversations shape
+                  everything we build.
+                </p>
+                <a
+                  href="mailto:hello@dealflowai.app"
+                  className="about-email-btn"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                    border: `1px solid ${BLUE}`, borderRadius: 10,
+                    padding: '8px 20px', fontFamily: F, fontWeight: 500, fontSize: 14,
+                    color: BLUE, textDecoration: 'none', transition: 'all 0.2s ease',
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                  hello@dealflowai.app
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Block 2: Why we built this */}
-        <div
-          className="about-block-grid reveal"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '200px 1fr',
-            gap: 52,
-            padding: '60px 0',
-            borderTop: '1px solid var(--border-light)',
-          }}
-        >
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-text)', paddingTop: 5, lineHeight: 1.4 }}>
-            Why we built this
-          </div>
-          <div>
-            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.4rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.25 }}>
-              From the grind to the algorithm
-            </h2>
-            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 14 }}>
-              After losing that deal, we started documenting exactly what a perfect disposition process
-              would look like if time and resources weren&apos;t a constraint. What if you had a team that
-              could call 200 buyers overnight? What if every buyer in your database was automatically
-              profiled by what they actually want to buy?
-            </p>
-            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 14 }}>
-              We spent months talking to wholesalers across the country. The same story came up every time: too many deals lost not because of bad sourcing, but because of a broken system on the back end.
-            </p>
-            <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.82, marginBottom: 0 }}>
-              <strong style={{ color: 'var(--navy-heading)', fontWeight: 600 }}>So we built the system.</strong>{' '}
-              One that works the moment you activate it, handles the part of wholesaling that nobody wants
-              to do manually, and gets smarter the more you use it.
-            </p>
-          </div>
-        </div>
-
-        {/* Block 3: What we believe */}
-        <div
-          className="about-block-grid reveal"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '200px 1fr',
-            gap: 52,
-            padding: '60px 0',
-            borderTop: '1px solid var(--border-light)',
-          }}
-        >
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-text)', paddingTop: 5, lineHeight: 1.4 }}>
-            What we believe
-          </div>
-          <div>
-            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.4rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.25 }}>
-              Three things we won&apos;t compromise on
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 4 }}>
-              {[
-                {
-                  num: '01',
-                  title: 'The disposition process is broken by design',
-                  body: 'AI can fix it without removing the human relationships that actually close deals. Technology should handle the volume. You handle the relationship.',
-                },
-                {
-                  num: '02',
-                  title: 'Cash buyers deserve better deal flow',
-                  body: "Not mass blasts. Not irrelevant properties. Precision matches that respect their time and match their actual buy box, every single time.",
-                },
-                {
-                  num: '03',
-                  title: 'The best software feels invisible',
-                  body: 'It should just make things happen. Not create more tasks, more dashboards, or more complexity to learn. You should feel the results before you feel the tool.',
-                },
-              ].map((belief, i) => (
-                <div
-                  key={i}
-                  style={{
-                    background: 'var(--warm-gray)',
-                    border: '1px solid var(--border-light)',
-                    borderRadius: 10,
-                    padding: '18px 20px',
-                    display: 'flex',
-                    gap: 14,
-                    alignItems: 'flex-start',
-                  }}
-                >
-                  <span
+        {/* ── Stats ───────────────────────────────────────── */}
+        <div className="reveal" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 40px 80px' }}>
+          <div style={{
+            background: 'rgba(5,14,36,0.02)', borderRadius: 16,
+            border: `1px solid ${BORDER}`, overflow: 'hidden',
+          }}>
+            <div className="stats-grid" style={{
+              display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+            }}>
+              {stats.map((stat, i, arr) => (
+                <div key={i} style={{
+                  padding: '40px 24px', textAlign: 'center',
+                  borderRight: i < arr.length - 1 ? `1px solid ${BORDER}` : 'none',
+                }}>
+                  <div
+                    data-counter=""
+                    data-target={stat.target}
+                    data-prefix={stat.prefix}
+                    data-suffix={stat.suffix}
                     style={{
-                      fontFamily: "'DM Serif Display', Georgia, serif",
-                      fontSize: '0.7rem',
-                      fontWeight: 800,
-                      color: 'var(--blue-600)',
-                      background: 'var(--blue-50)',
-                      border: '1px solid var(--blue-100)',
-                      borderRadius: 6,
-                      padding: '3px 8px',
-                      flexShrink: 0,
-                      marginTop: 1,
-                      letterSpacing: '0.04em',
+                      fontFamily: F, fontSize: '2.5rem', fontWeight: 800,
+                      color: NAVY, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 6,
                     }}
                   >
-                    {belief.num}
-                  </span>
-                  <div style={{ fontSize: '0.9rem', color: 'var(--body-text)', lineHeight: 1.65 }}>
-                    <strong style={{ color: 'var(--navy-heading)', fontWeight: 600, display: 'block', marginBottom: 3 }}>
-                      {belief.title}
-                    </strong>
-                    {belief.body}
+                    {stat.prefix}{stat.target}{stat.suffix}
+                  </div>
+                  <div style={{ fontSize: 13, fontFamily: F, fontWeight: 400, color: MUTED }}>
+                    {stat.label}
                   </div>
                 </div>
               ))}
@@ -298,216 +352,75 @@ export default function AboutContent() {
           </div>
         </div>
 
-        {/* Block 4: The founder */}
-        <div
-          className="about-block-grid reveal"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '200px 1fr',
-            gap: 52,
-            padding: '60px 0',
-            borderTop: '1px solid var(--border-light)',
-          }}
-        >
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted-text)', paddingTop: 5, lineHeight: 1.4 }}>
-            The founder
+        {/* ── CTA ─────────────────────────────────────────── */}
+        <div style={{
+          position: 'relative', padding: '80px 40px',
+          background: NAVY, overflow: 'hidden',
+        }}>
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.03, pointerEvents: 'none' }}>
+            <Image src="/Logo.png" alt="" width={240} height={240} style={{ objectFit: 'contain' }} />
           </div>
-          <div>
-            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.4rem', fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.25 }}>
-              Built by one person who actually does this
+          <div className="reveal" style={{
+            position: 'relative', zIndex: 2,
+            maxWidth: 580, margin: '0 auto', textAlign: 'center',
+          }}>
+            <h2 style={{
+              fontFamily: SERIF,
+              fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
+              fontWeight: 400, letterSpacing: '-0.022em',
+              color: 'white', lineHeight: 1.15, marginBottom: 14,
+            }}>
+              If any of this resonates, you&apos;re who this is for.
             </h2>
-            <div
+            <p style={{
+              fontSize: '1rem', fontFamily: F, fontWeight: 400,
+              color: 'rgba(255,255,255,0.65)', lineHeight: 1.7,
+              maxWidth: 400, margin: '0 auto 28px',
+            }}>
+              Join thousands of wholesalers closing more deals with less work.
+            </p>
+            <a
+              href="/signup"
               style={{
-                background: 'var(--warm-gray)',
-                border: '1px solid var(--border-light)',
-                borderRadius: 14,
-                padding: 28,
-                marginTop: 4,
-                display: 'flex',
-                gap: 22,
-                alignItems: 'flex-start',
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: BLUE, color: 'white', fontFamily: F, fontWeight: 500,
+                fontSize: '0.88rem', padding: '12px 28px', borderRadius: 10,
+                border: 'none', textDecoration: 'none', cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
+                boxShadow: '0 4px 20px rgba(37, 99, 235, 0.35)',
               }}
             >
-              <div
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--blue-600), #60A5FA)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontFamily: "'DM Serif Display', Georgia, serif",
-                  fontWeight: 800,
-                  fontSize: '1.1rem',
-                  color: 'white',
-                  flexShrink: 0,
-                }}
-              >
-                D
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 700, fontSize: '1rem', color: 'var(--navy-heading)', letterSpacing: '-0.02em', marginBottom: 2 }}>
-                  Founder, DealFlow AI
-                </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 600, marginBottom: 12 }}>
-                  Builder · Wholesaler · Operator
-                </div>
-                <p style={{ fontSize: '0.88rem', color: 'var(--body-text)', lineHeight: 1.72, marginBottom: 14 }}>
-                  Active real estate wholesaler who got tired of the manual grind and started building.
-                  Not a software company that discovered real estate. A real estate operator who learned
-                  to build software. That distinction matters in every product decision we make.
-                </p>
-                <p style={{ fontSize: '0.88rem', color: 'var(--body-text)', lineHeight: 1.72, marginBottom: 14 }}>
-                  I personally respond to every message. If you&apos;re a wholesaler or a cash buyer and
-                  want to talk before the product launches, reach out. These conversations shape
-                  everything we build.
-                </p>
-                <a
-                  href="mailto:hello@dealflow.ai"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    color: 'var(--blue-600)',
-                    textDecoration: 'none',
-                    border: '1px solid var(--blue-200)',
-                    background: 'var(--blue-50)',
-                    borderRadius: 7,
-                    padding: '6px 12px',
-                    transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--blue-100)' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--blue-50)' }}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
-                  hello@dealflow.ai
-                </a>
-              </div>
-            </div>
+              Get started free
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+            <p style={{
+              fontSize: '0.82rem', fontFamily: F,
+              color: 'rgba(255,255,255,0.5)', marginTop: 14,
+            }}>
+              Or email us directly at hello@dealflowai.app. We actually respond.
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* STATS */}
-      <div
-        className="reveal"
-        style={{
-          borderTop: '1px solid var(--border-light)',
-          borderBottom: '1px solid var(--border-light)',
-          background: 'var(--warm-gray)',
-        }}
-      >
-        <div
-          className="stats-inner-grid"
-          style={{
-            maxWidth: 760,
-            margin: '0 auto',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-          }}
-        >
-          {[
-            { num: '$15B+', blue: true, label: 'Annual wholesale market' },
-            { num: '2M+', blue: false, label: 'Off-market deals per year' },
-            { num: '72 hrs', blue: false, label: 'Avg. time to first offer' },
-            { num: '50', blue: true, label: 'States covered at launch' },
-          ].map((stat, i, arr) => (
-            <div
-              key={i}
-              style={{
-                padding: '40px 24px',
-                textAlign: 'center',
-                borderRight: i < arr.length - 1 ? '1px solid var(--border-light)' : 'none',
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "'DM Serif Display', Georgia, serif",
-                  fontSize: '2rem',
-                  fontWeight: 400,
-                  color: stat.blue ? 'var(--accent)' : 'var(--navy-heading)',
-                  letterSpacing: '-0.04em',
-                  lineHeight: 1,
-                  marginBottom: 5,
-                }}
-              >
-                {stat.num}
-              </div>
-              <div style={{ fontSize: '0.76rem', color: 'var(--muted-text)', fontWeight: 500 }}>
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CTA */}
-      <div
-        style={{
-          padding: '88px 56px',
-          textAlign: 'center',
-          background: 'var(--cream)',
-          borderTop: '1px solid var(--border-light)',
-        }}
-        className="about-cta-wrap"
-      >
-        <h2
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-            fontWeight: 400,
-            letterSpacing: '-0.04em',
-            color: 'var(--navy-heading)',
-            lineHeight: 1.15,
-            marginBottom: 12,
-          }}
-        >
-          If any of this resonates, you&apos;re who this is for.
-        </h2>
-        <p style={{ fontSize: '0.97rem', color: 'var(--body-text)', marginBottom: 28 }}>
-          Join the waitlist. No credit card, no commitment. Just early access and founding member
-          pricing locked in forever.
-        </p>
-        <Link
-          href="/#cta"
-          style={{
-            background: 'var(--accent)',
-            color: 'white',
-            padding: '12px 26px',
-            borderRadius: 10,
-            border: 'none',
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontWeight: 700,
-            fontSize: '0.92rem',
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-            letterSpacing: '-0.01em',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-          }}
-        >
-          Join the waitlist →
-        </Link>
-        <p style={{ fontSize: '0.76rem', color: 'var(--muted-text)', marginTop: 12 }}>
-          Or email us directly at hello@dealflow.ai. We actually respond.
-        </p>
-      </div>
+      </main>
 
       <style>{`
+        .belief-card:hover {
+          border-color: rgba(37,99,235,0.15) !important;
+          box-shadow: 0 4px 12px rgba(5,14,36,0.04) !important;
+        }
+        .about-email-btn:hover {
+          background: ${BLUE} !important;
+          color: white !important;
+        }
         @media (max-width: 860px) {
-          .about-hero-wrap { padding: 120px 20px 64px !important; }
-          .story-hook { padding: 60px 20px !important; }
-          .about-body-wrap { padding: 0 20px 64px !important; }
-          .about-block-grid { grid-template-columns: 1fr !important; gap: 10px !important; padding: 40px 0 !important; }
-          .stats-inner-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .about-cta-wrap { padding: 64px 20px !important; }
+          .about-hero { padding: 60px 20px 60px !important; }
+          .about-body { padding: 0 20px 64px !important; }
+          .about-block { grid-template-columns: 1fr !important; gap: 10px !important; padding: 40px 0 !important; }
+          .about-block > div:first-child { position: static !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
       `}</style>
     </>

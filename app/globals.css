@@ -571,7 +571,7 @@ body {
 }
 @keyframes demoWav {
   0%, 100% { height: 4px; }
-  50% { height: 12px; }
+  50% { height: 16px; }
 }
 @media (max-width: 640px) {
   .demo-step-indicator { display: none !important; }

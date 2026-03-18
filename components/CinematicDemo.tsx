@@ -14,41 +14,33 @@ const MT = 'rgba(5,14,36,0.45)'
 
 const SCENES = [
   { dur: 7000, label: 'Find Buyers', nav: 3 },
-  { dur: 5500, label: 'Buyer CRM', nav: 4 },
+  { dur: 7000, label: 'Dashboard', nav: 0 },
   { dur: 9500, label: 'AI Outreach', nav: 5 },
+  { dur: 8000, label: 'Marketplace', nav: 2 },
   { dur: 7500, label: 'Analyze Deal', nav: 6 },
-  { dur: 6000, label: 'Ask AI', nav: 9 },
-  { dur: 5000, label: 'Close Deal', nav: 8 },
+  { dur: 6000, label: 'Close Deal', nav: 8 },
 ]
-const STEP_LABELS = ['Find Buyers', 'AI Outreach', 'Analyze Deal', 'Ask AI', 'Close Deal']
-const SCENE_TO_STEP = [0, 0, 1, 2, 3, 4]
+const STEP_LABELS = ['Find Buyers', 'Dashboard', 'AI Outreach', 'Marketplace', 'Analyze Deal', 'Close Deal']
+const SCENE_TO_STEP = [0, 1, 2, 3, 4, 5]
 const MOBILE_IDX = [0, 2, 5]
 
 /* Cursor keyframes per scene */
-/* Cursor keyframes per scene — x,y relative to 800x480 viewport (sidebar=120px) */
 const CK: { t: number; x: number; y: number }[][] = [
-  /* S0 Find Buyers: search bar → search btn → buyer card → add to CRM */
-  [{ t: 0, x: 550, y: 250 }, { t: 400, x: 280, y: 55 }, { t: 2500, x: 455, y: 55 }, { t: 4200, x: 300, y: 165 }, { t: 5600, x: 465, y: 172 }],
-  /* S1 Buyer CRM: checkbox rows → send outreach → dropdown */
-  [{ t: 0, x: 400, y: 100 }, { t: 800, x: 148, y: 230 }, { t: 1800, x: 148, y: 262 }, { t: 2300, x: 148, y: 294 }, { t: 3500, x: 280, y: 198 }, { t: 4200, x: 280, y: 225 }],
-  /* S2 AI Outreach: watches campaign auto-run */
-  [{ t: 0, x: 500, y: 130 }],
-  /* S3 Analyze Deal: address input → analyze btn → save deal */
-  [{ t: 0, x: 500, y: 240 }, { t: 500, x: 300, y: 55 }, { t: 2800, x: 455, y: 55 }, { t: 6800, x: 460, y: 420 }],
-  /* S4 Ask AI: chat input → send btn → action btn */
-  [{ t: 0, x: 500, y: 400 }, { t: 500, x: 430, y: 445 }, { t: 2500, x: 630, y: 445 }, { t: 5500, x: 320, y: 380 }],
-  /* S5 Contract: send for signature btn */
-  [{ t: 0, x: 400, y: 220 }, { t: 800, x: 380, y: 380 }],
+  /* S0 Find Buyers */ [{ t: 0, x: 550, y: 250 }, { t: 400, x: 280, y: 55 }, { t: 2600, x: 455, y: 55 }, { t: 4200, x: 300, y: 165 }, { t: 5600, x: 465, y: 172 }],
+  /* S1 Dashboard */ [{ t: 0, x: 450, y: 240 }, { t: 3800, x: 230, y: 110 }, { t: 5000, x: 350, y: 290 }],
+  /* S2 AI Outreach */ [{ t: 0, x: 500, y: 130 }],
+  /* S3 Marketplace */ [{ t: 0, x: 500, y: 200 }, { t: 1600, x: 260, y: 200 }, { t: 3800, x: 560, y: 340 }, { t: 5200, x: 570, y: 400 }],
+  /* S4 Analyze Deal */ [{ t: 0, x: 500, y: 240 }, { t: 400, x: 300, y: 55 }, { t: 2600, x: 455, y: 55 }, { t: 6600, x: 460, y: 420 }],
+  /* S5 Close Deal */ [{ t: 0, x: 400, y: 220 }, { t: 600, x: 380, y: 380 }],
 ]
 const CL: number[][] = [
-  [800, 2800, 5000, 6200],
-  [1500, 2200, 2600, 4000, 4500],
+  [2800, 5800],
   [],
-  [1000, 3500, 7500],
-  [1000, 2700, 5800],
-  [1500],
+  [],
+  [1800, 4000, 5400],
+  [2800, 6800],
+  [800],
 ]
-
 
 /* ── Helpers ────────────────────────────────────────────── */
 function tv(text: string, start: number, t: number, spd = 80) {
@@ -69,6 +61,14 @@ function isClicking(clicks: number[], t: number) {
 function isPressing(clicks: number[], t: number) {
   return clicks.some(c => t >= c && t < c + 100)
 }
+function easeOutExpo(x: number): number {
+  return x >= 1 ? 1 : 1 - Math.pow(2, -10 * x)
+}
+function countUp(target: number, start: number, t: number, dur = 800): number {
+  if (t < start) return 0
+  const p = Math.min((t - start) / dur, 1)
+  return Math.round(target * easeOutExpo(p))
+}
 
 const Caret = () => <span style={{ display: 'inline-block', width: 1, height: '1em', background: NAVY, marginLeft: 1, animation: 'cursorBlink 0.8s infinite', verticalAlign: 'text-bottom' }} />
 
@@ -87,43 +87,39 @@ function DemoCursor({ x, y, clicking, pressing }: { x: number; y: number; clicki
       position: 'absolute', left: x, top: y, zIndex: 50, pointerEvents: 'none',
       willChange: 'transform, left, top',
       transform: pressing ? 'scale(0.85)' : 'scale(1)',
-      transition: 'left 0.3s cubic-bezier(0.22,0.61,0.36,1), top 0.3s cubic-bezier(0.22,0.61,0.36,1), transform 0.1s ease',
+      transition: 'left 0.5s cubic-bezier(0.4, 0, 0.2, 1), top 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s ease',
     }}>
       <svg width="11" height="14" viewBox="0 0 16 20" fill="none">
         <path d="M0.5 0.5L0.5 16.5L4.5 12.5L8 19.5L10.5 18.5L7 11.5L12.5 11.5L0.5 0.5Z" fill="white" stroke="black" strokeWidth="1" />
       </svg>
-      {clicking && <div style={{ position: 'absolute', top: -8, left: -8, width: 28, height: 28, borderRadius: '50%', border: '1.5px solid rgba(37,99,235,0.3)', animation: 'clickRipple 0.4s ease-out forwards' }} />}
+      {clicking && <div style={{ position: 'absolute', top: -10, left: -10, width: 32, height: 32, borderRadius: '50%', border: '1.5px solid rgba(37,99,235,0.2)', animation: 'clickRipple 0.5s ease-out forwards' }} />}
     </div>
   )
 }
 
 /* ── Sidebar ────────────────────────────────────────────── */
-/* Icons match Lucide React icons used in the real sidebar (viewBox 0 0 24 24) */
 const SW = 1.7
 const SIDEBAR_NAV: { label: string; icon: React.ReactNode }[] = [
-  /* LayoutDashboard */ { label: 'Dashboard', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" /></svg> },
-  /* MessagesSquare */ { label: 'Feed', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M14 9a2 2 0 01-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 012 2z" /><path d="M18 9h2a2 2 0 012 2v11l-4-4h-6a2 2 0 01-2-2v-1" /></svg> },
-  /* Store */ { label: 'Marketplace', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l2-4h16l2 4" /><path d="M2 7v13a1 1 0 001 1h18a1 1 0 001-1V7" /><path d="M9 21V11h6v10" /></svg> },
-  /* UserSearch */ { label: 'Find Buyers', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><circle cx="10" cy="7" r="4" /><path d="M10.3 15H7a4 4 0 00-4 4v2" /><circle cx="17" cy="17" r="3" /><path d="m21 21-1.9-1.9" /></svg> },
-  /* Users */ { label: 'Buyer List', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg> },
-  /* PhoneOutgoing */ { label: 'Outreach', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><polyline points="22 8 22 2 16 2" /><line x1="16" y1="8" x2="22" y2="2" /><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z" /></svg> },
-  /* Calculator */ { label: 'Analyze Deal', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="16" y1="14" x2="16" y2="18" /><line x1="8" y1="10" x2="8" y2="10.01" /><line x1="12" y1="10" x2="12" y2="10.01" /><line x1="16" y1="10" x2="16" y2="10.01" /><line x1="8" y1="14" x2="8" y2="14.01" /><line x1="12" y1="14" x2="12" y2="14.01" /><line x1="8" y1="18" x2="8" y2="18.01" /><line x1="12" y1="18" x2="12" y2="18.01" /></svg> },
-  /* FolderOpen */ { label: 'My Deals', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M6 14l1.45-2.9A2 2 0 019.24 10H20a2 2 0 011.94 2.5l-1.55 6a2 2 0 01-1.93 1.5H4a2 2 0 01-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 011.66.9l.82 1.2a2 2 0 001.66.9H20a2 2 0 012 2v2" /></svg> },
-  /* FileSignature */ { label: 'Contracts', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M20 19.5v.5a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2h8.5L18 5.5" /><polyline points="14 2 14 8 20 8" /><path d="M11.378 15.626a1 1 0 11-3 1.002c-.561-1.68 1.03-5.397 1.03-5.397" /></svg> },
-  /* Sparkles */ { label: 'Ask AI', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M9.937 15.5A2 2 0 008.5 14.063l-6.135-1.582a.5.5 0 010-.962L8.5 9.936A2 2 0 009.937 8.5l1.582-6.135a.5.5 0 01.963 0L14.063 8.5A2 2 0 0015.5 9.937l6.135 1.581a.5.5 0 010 .964L15.5 14.063a2 2 0 00-1.437 1.437l-1.582 6.135a.5.5 0 01-.963 0z" /><path d="M20 3v4" /><path d="M22 5h-4" /></svg> },
+  { label: 'Dashboard', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" /></svg> },
+  { label: 'Feed', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M14 9a2 2 0 01-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 012 2z" /><path d="M18 9h2a2 2 0 012 2v11l-4-4h-6a2 2 0 01-2-2v-1" /></svg> },
+  { label: 'Marketplace', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l2-4h16l2 4" /><path d="M2 7v13a1 1 0 001 1h18a1 1 0 001-1V7" /><path d="M9 21V11h6v10" /></svg> },
+  { label: 'Find Buyers', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><circle cx="10" cy="7" r="4" /><path d="M10.3 15H7a4 4 0 00-4 4v2" /><circle cx="17" cy="17" r="3" /><path d="m21 21-1.9-1.9" /></svg> },
+  { label: 'Buyer List', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg> },
+  { label: 'Outreach', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><polyline points="22 8 22 2 16 2" /><line x1="16" y1="8" x2="22" y2="2" /><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z" /></svg> },
+  { label: 'Analyze Deal', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="16" y1="14" x2="16" y2="18" /><line x1="8" y1="10" x2="8" y2="10.01" /><line x1="12" y1="10" x2="12" y2="10.01" /><line x1="16" y1="10" x2="16" y2="10.01" /><line x1="8" y1="14" x2="8" y2="14.01" /><line x1="12" y1="14" x2="12" y2="14.01" /><line x1="8" y1="18" x2="8" y2="18.01" /><line x1="12" y1="18" x2="12" y2="18.01" /></svg> },
+  { label: 'My Deals', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M6 14l1.45-2.9A2 2 0 019.24 10H20a2 2 0 011.94 2.5l-1.55 6a2 2 0 01-1.93 1.5H4a2 2 0 01-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 011.66.9l.82 1.2a2 2 0 001.66.9H20a2 2 0 012 2v2" /></svg> },
+  { label: 'Contracts', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M20 19.5v.5a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2h8.5L18 5.5" /><polyline points="14 2 14 8 20 8" /><path d="M11.378 15.626a1 1 0 11-3 1.002c-.561-1.68 1.03-5.397 1.03-5.397" /></svg> },
+  { label: 'Ask AI', icon: <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M9.937 15.5A2 2 0 008.5 14.063l-6.135-1.582a.5.5 0 010-.962L8.5 9.936A2 2 0 009.937 8.5l1.582-6.135a.5.5 0 01.963 0L14.063 8.5A2 2 0 0015.5 9.937l6.135 1.581a.5.5 0 010 .964L15.5 14.063a2 2 0 00-1.437 1.437l-1.582 6.135a.5.5 0 01-.963 0z" /><path d="M20 3v4" /><path d="M22 5h-4" /></svg> },
 ]
 
 function DemoSidebar({ activeIdx }: { activeIdx: number }) {
   return (
     <div style={{ width: 120, background: 'white', borderRight: `1px solid ${BD}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-      {/* Logo */}
       <div style={{ padding: '10px 10px 6px', display: 'flex', alignItems: 'center', gap: 6 }}>
         <img src="/Logo.png" alt="" width={24} height={24} style={{ borderRadius: 6, flexShrink: 0 }} />
         <span style={{ fontSize: 9, fontWeight: 700, color: NAVY, fontFamily: F, letterSpacing: '-0.01em', lineHeight: 1 }}>DealFlow AI</span>
       </div>
-      {/* Menu label */}
       <div style={{ padding: '6px 12px 4px', fontSize: 7.5, fontWeight: 600, color: 'rgba(5,14,36,0.28)', fontFamily: F, letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>Menu</div>
-      {/* Nav items */}
       <div style={{ flex: 1, padding: '0 5px', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {SIDEBAR_NAV.map((item, i) => {
           const active = i === activeIdx
@@ -141,14 +137,12 @@ function DemoSidebar({ activeIdx }: { activeIdx: number }) {
           )
         })}
       </div>
-      {/* Settings */}
       <div style={{ padding: '4px 5px', borderTop: `1px solid ${BD}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '5px 7px', borderRadius: 6, color: 'rgba(5,14,36,0.45)' }}>
           <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={SW} strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
           <span style={{ fontSize: 9.5, fontWeight: 500, fontFamily: F }}>Settings</span>
         </div>
       </div>
-      {/* User */}
       <div style={{ padding: '4px 8px 8px', display: 'flex', alignItems: 'center', gap: 6 }}>
         <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(37,99,235,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <span style={{ fontSize: 7.5, fontWeight: 600, color: BLUE, fontFamily: F }}>AR</span>
@@ -159,31 +153,131 @@ function DemoSidebar({ activeIdx }: { activeIdx: number }) {
   )
 }
 
+/* ── CityMap (shared) ──────────────────────────────────── */
+function CityMap({ pins, hoverPin, label }: {
+  pins: { x: string; y: string; color: string; label: string; delay: number }[];
+  hoverPin: number;
+  label: string;
+}) {
+  return (
+    <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', background: '#F2EFE9' }}>
+      <svg viewBox="0 0 300 480" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
+        {/* Building blocks */}
+        <rect x="10" y="10" width="55" height="65" rx="2" fill="#E8E5DD" />
+        <rect x="10" y="85" width="55" height="55" rx="2" fill="#DDDAD2" />
+        <rect x="10" y="150" width="55" height="50" rx="2" fill="#E5E2DA" />
+        <rect x="10" y="210" width="55" height="60" rx="2" fill="#E3E0D8" />
+        <rect x="10" y="280" width="55" height="55" rx="2" fill="#E8E5DD" />
+        <rect x="10" y="345" width="55" height="50" rx="2" fill="#DDDAD2" />
+        <rect x="10" y="405" width="55" height="65" rx="2" fill="#E5E2DA" />
+        <rect x="78" y="10" width="60" height="65" rx="2" fill="#DDDAD2" />
+        <rect x="78" y="85" width="60" height="55" rx="2" fill="#E5E2DA" />
+        <rect x="78" y="150" width="60" height="50" rx="2" fill="#D8DFE8" />
+        <rect x="78" y="210" width="60" height="60" rx="2" fill="#E8E5DD" />
+        <rect x="78" y="280" width="60" height="55" rx="2" fill="#E3E0D8" />
+        <rect x="78" y="345" width="60" height="50" rx="2" fill="#E8E5DD" />
+        <rect x="78" y="405" width="60" height="65" rx="2" fill="#DDDAD2" />
+        <rect x="152" y="10" width="65" height="65" rx="2" fill="#E5E2DA" />
+        <rect x="152" y="85" width="65" height="55" rx="2" fill="#E3E0D8" />
+        <rect x="152" y="150" width="65" height="50" rx="2" fill="#E8E5DD" />
+        <rect x="152" y="210" width="65" height="60" rx="2" fill="#DDDAD2" />
+        <rect x="152" y="280" width="65" height="55" rx="2" fill="#E5E2DA" />
+        <rect x="152" y="345" width="65" height="50" rx="2" fill="#E3E0D8" />
+        <rect x="230" y="10" width="60" height="65" rx="2" fill="#E3E0D8" />
+        <rect x="230" y="85" width="60" height="55" rx="2" fill="#E8E5DD" />
+        <rect x="230" y="150" width="60" height="50" rx="2" fill="#DDDAD2" />
+        <rect x="230" y="210" width="60" height="60" rx="2" fill="#E5E2DA" />
+        {/* Major roads */}
+        <rect x="0" y="78" width="300" height="3" fill="white" />
+        <rect x="0" y="202" width="300" height="3" fill="white" />
+        <rect x="0" y="338" width="300" height="3" fill="white" />
+        <rect x="68" y="0" width="3" height="480" fill="white" />
+        <rect x="145" y="0" width="3" height="480" fill="white" />
+        <rect x="224" y="0" width="3" height="480" fill="white" />
+        {/* Minor roads */}
+        <rect x="0" y="142" width="300" height="1.5" fill="rgba(255,255,255,0.55)" />
+        <rect x="0" y="272" width="300" height="1.5" fill="rgba(255,255,255,0.55)" />
+        <rect x="0" y="398" width="300" height="1.5" fill="rgba(255,255,255,0.55)" />
+        <rect x="0" y="42" width="300" height="1.5" fill="rgba(255,255,255,0.55)" />
+        <rect x="0" y="440" width="300" height="1.5" fill="rgba(255,255,255,0.55)" />
+        <rect x="35" y="0" width="1.5" height="480" fill="rgba(255,255,255,0.55)" />
+        <rect x="110" y="0" width="1.5" height="480" fill="rgba(255,255,255,0.55)" />
+        <rect x="185" y="0" width="1.5" height="480" fill="rgba(255,255,255,0.55)" />
+        <rect x="260" y="0" width="1.5" height="480" fill="rgba(255,255,255,0.55)" />
+        {/* Road labels */}
+        <text x="12" y="75" fontSize="5.5" fill="rgba(0,0,0,0.18)" fontFamily={F}>Peachtree St NE</text>
+        <text x="12" y="199" fontSize="5.5" fill="rgba(0,0,0,0.18)" fontFamily={F}>Oak Blvd</text>
+        <text x="12" y="335" fontSize="5.5" fill="rgba(0,0,0,0.18)" fontFamily={F}>Elm Ave</text>
+      </svg>
+      {/* Pins */}
+      {pins.map((p, i) => (
+        <div key={i} style={{
+          position: 'absolute', left: p.x, top: p.y,
+          transform: `translate(-50%, -50%) ${hoverPin === i ? 'scale(1.3)' : 'scale(1)'}`,
+          animation: `fadeIn 0.3s ease ${p.delay}ms both`,
+          transition: 'transform 0.3s ease',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, zIndex: 5,
+        }}>
+          <div style={{
+            width: 14, height: 14, borderRadius: '50%', background: p.color,
+            border: '2.5px solid white', boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {p.label && <span style={{ fontSize: 7, fontWeight: 700, color: 'white', fontFamily: F }}>{p.label}</span>}
+          </div>
+        </div>
+      ))}
+      {/* Zoom controls */}
+      <div style={{ position: 'absolute', right: 8, top: 8, display: 'flex', flexDirection: 'column', gap: 1, background: 'white', borderRadius: 6, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
+        <div style={{ width: 26, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: MT, fontFamily: F, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>+</div>
+        <div style={{ width: 26, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: MT, fontFamily: F }}>-</div>
+      </div>
+      {/* Location badge */}
+      <div style={{ position: 'absolute', left: 8, top: 8, background: 'white', borderRadius: 6, padding: '4px 8px', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, fontFamily: F, color: NAVY, fontWeight: 500 }}>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+        {label}
+      </div>
+      {/* Legend */}
+      <div style={{ position: 'absolute', left: 8, bottom: 8, background: 'white', borderRadius: 6, padding: '5px 8px', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 8, fontSize: 8.5, fontFamily: F, color: MT }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: BLUE }} />Cash Buyers</span>
+      </div>
+    </div>
+  )
+}
+
 /* ── Scene 0: Find Buyers ───────────────────────────────── */
 function S0({ t }: { t: number }) {
   const q = 'Atlanta, GA'
-  const typed = tv(q, 800, t, 55)
-  const typeDone = td(q, 800, t, 55)
-  const focused = t >= 800 && t < 2800
+  const typed = tv(q, 800, t, 70)
+  const typeDone = td(q, 800, t, 70)
+  const focused = t >= 800 && !typeDone
   const btnPressed = t >= 2800 && t < 2900
   const searching = t >= 3000 && t < 3300
   const hasResults = t >= 3300
   const showPins = t >= 3900
-  const hoverIdx = t >= 4500 && t < 6500 ? 0 : -1
-  const showDetail = t >= 5000 && t < 6200
-  const addClicked = t >= 6200
-  const showToast = t >= 6200 && t < 7700
+  const hoverIdx = t >= 4500 && t < 6200 ? 0 : -1
+  const showDetail = t >= 5000 && t < 5800
+  const addClicked = t >= 5800
+  const showToast = t >= 5800 && t < 6800
   const activeFilter = t >= 2800 ? 2 : 0
 
   const buyers = [
-    { name: 'Marcus Thompson', init: 'MT', county: 'Fulton County, GA', detail: 'Cash  ·  SFR  ·  3 days ago  ·  4 properties', price: '$127,000', score: 92 },
-    { name: 'Lisa Wang', init: 'LW', county: 'DeKalb County, GA', detail: 'Cash  ·  Multi-fam  ·  5 days ago  ·  7 properties', price: '$215,000', score: 85 },
-    { name: 'Rachel Patel', init: 'RP', county: 'Cobb County, GA', detail: 'Cash  ·  SFR  ·  8 days ago  ·  2 properties', price: '$98,500', score: 78 },
+    { name: 'Marcus Thompson', init: 'MT', county: 'Fulton County, GA', detail: 'Cash  -  SFR  -  3 days ago  -  4 properties', price: '$127,000', score: 92 },
+    { name: 'Lisa Wang', init: 'LW', county: 'DeKalb County, GA', detail: 'Cash  -  Multi-fam  -  5 days ago  -  7 properties', price: '$215,000', score: 85 },
+    { name: 'Rachel Patel', init: 'RP', county: 'Cobb County, GA', detail: 'Cash  -  SFR  -  8 days ago  -  2 properties', price: '$98,500', score: 78 },
+    { name: 'James Rivera', init: 'JR', county: 'Gwinnett County, GA', detail: 'Cash  -  Commercial  -  10d ago  -  5 properties', price: '$340,000', score: 74 },
+  ]
+
+  const mapPins = [
+    { x: '28%', y: '28%', color: BLUE, label: '1', delay: 0 },
+    { x: '58%', y: '52%', color: BLUE, label: '2', delay: 150 },
+    { x: '72%', y: '22%', color: BLUE, label: '3', delay: 300 },
+    { x: '40%', y: '70%', color: BLUE, label: '', delay: 400 },
+    { x: '82%', y: '55%', color: BLUE, label: '', delay: 500 },
   ]
 
   return (
     <div style={{ height: '100%', display: 'flex', position: 'relative' }}>
-      {/* Left panel */}
       <div style={{ width: '55%', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden', borderRight: `1px solid ${BD}` }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
@@ -198,17 +292,15 @@ function S0({ t }: { t: number }) {
             <span style={{ fontSize: 9, padding: '3px 8px', borderRadius: 5, fontFamily: F, background: 'white', color: MT, border: `1px solid ${BD}`, fontWeight: 500 }}>Export</span>
           </div>
         </div>
-        {/* Search row */}
         <div style={{ display: 'flex', gap: 6 }}>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, background: 'white', borderRadius: 8, padding: '7px 10px', border: focused ? `2px solid ${BLUE}` : `1px solid ${BD}`, boxShadow: focused ? '0 0 0 3px rgba(37,99,235,0.08)' : 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.25)" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
             <span style={{ fontSize: 12, fontFamily: F, color: typed ? NAVY : 'rgba(5,14,36,0.3)', lineHeight: 1 }}>
-              {typed || 'Search city or zip code...'}{t >= 1000 && !typeDone && <Caret />}
+              {typed || 'Search city or zip code...'}{t >= 800 && !typeDone && <Caret />}
             </span>
           </div>
           <button style={{ background: btnPressed ? '#1d4ed8' : BLUE, color: 'white', border: 'none', borderRadius: 8, padding: '0 14px', fontSize: 11, fontWeight: 600, fontFamily: F, cursor: 'default', transform: btnPressed ? 'scale(0.97)' : 'scale(1)', transition: 'background 0.1s, transform 0.1s', whiteSpace: 'nowrap' }}>Search</button>
         </div>
-        {/* Filter pills */}
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
           {[
             { label: 'All', active: activeFilter === 0 },
@@ -220,13 +312,11 @@ function S0({ t }: { t: number }) {
             <span key={p.label} style={{ fontSize: 9.5, fontWeight: 500, padding: '3px 9px', borderRadius: 5, fontFamily: F, background: p.active ? 'rgba(37,99,235,0.08)' : 'white', color: p.active ? BLUE : MT, border: p.active ? '1px solid rgba(37,99,235,0.2)' : `1px solid ${BD}`, transition: 'all 0.2s' }}>{p.label}</span>
           ))}
         </div>
-        {/* Results header */}
         <div style={{ fontSize: 10.5, fontWeight: 500, color: MT, fontFamily: F, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {searching ? (
               <>
                 <div style={{ width: 12, height: 12, border: '1.5px solid rgba(5,14,36,0.15)', borderTopColor: NAVY, borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
-                <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
                 Searching county records...
               </>
             ) : hasResults ? (
@@ -235,9 +325,8 @@ function S0({ t }: { t: number }) {
               '0 buyers found'
             )}
           </div>
-          {hasResults && <span style={{ fontSize: 9.5, color: 'rgba(5,14,36,0.3)' }}>Showing 1-3</span>}
+          {hasResults && <span style={{ fontSize: 9.5, color: 'rgba(5,14,36,0.3)' }}>Showing 1-4</span>}
         </div>
-        {/* Buyer cards */}
         {hasResults && buyers.map((b, i) => (
           <div key={b.name} style={{
             background: 'white', borderRadius: 8, border: `1px solid ${hoverIdx === i ? 'rgba(37,99,235,0.25)' : BD}`,
@@ -246,6 +335,7 @@ function S0({ t }: { t: number }) {
             transform: hoverIdx === i ? 'translateY(-1px)' : 'none',
             animation: `demoSlideUp 0.3s ease ${i * 0.15}s both`,
             transition: 'border-color 0.2s, box-shadow 0.2s, transform 0.2s',
+            ...(i === 3 ? { marginBottom: -20, overflow: 'hidden', maxHeight: 50, opacity: 0.7 } : {}),
           }}>
             <Avatar initials={b.init} size={32} />
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -268,7 +358,6 @@ function S0({ t }: { t: number }) {
                 <div style={{ fontSize: 9.5, color: BLUE, fontFamily: F, fontWeight: 500 }}>Add to CRM +</div>
               )}
             </div>
-            {/* Detail tooltip */}
             {i === 0 && showDetail && !addClicked && (
               <div style={{ position: 'absolute', right: -4, top: -48, background: 'white', borderRadius: 8, boxShadow: '0 6px 20px rgba(5,14,36,0.12)', border: `1px solid ${BD}`, padding: '7px 12px', zIndex: 5, animation: 'demoSlideUp 0.2s ease', display: 'flex', gap: 12, fontSize: 10, fontFamily: F, whiteSpace: 'nowrap' }}>
                 <div><span style={{ color: MT, fontSize: 9 }}>Score</span><div style={{ color: BLUE, fontWeight: 700 }}>{b.score}/100</div></div>
@@ -280,64 +369,13 @@ function S0({ t }: { t: number }) {
           </div>
         ))}
       </div>
-      {/* Right panel: map */}
-      <div style={{ width: '45%', background: '#eae8e0', position: 'relative', overflow: 'hidden' }}>
-        {/* Map grid lines (roads) */}
-        <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
-          {/* Major roads */}
-          <rect x="0" y="160" width="100%" height="3" fill="rgba(255,255,255,0.7)" />
-          <rect x="130" y="0" width="3" height="100%" fill="rgba(255,255,255,0.7)" />
-          {/* Minor roads */}
-          <rect x="0" y="80" width="100%" height="1.5" fill="rgba(255,255,255,0.45)" />
-          <rect x="0" y="240" width="100%" height="1.5" fill="rgba(255,255,255,0.45)" />
-          <rect x="0" y="320" width="100%" height="1.5" fill="rgba(255,255,255,0.45)" />
-          <rect x="0" y="400" width="100%" height="1.5" fill="rgba(255,255,255,0.45)" />
-          <rect x="55" y="0" width="1.5" height="100%" fill="rgba(255,255,255,0.45)" />
-          <rect x="210" y="0" width="1.5" height="100%" fill="rgba(255,255,255,0.45)" />
-          <rect x="275" y="0" width="1.5" height="100%" fill="rgba(255,255,255,0.45)" />
-          {/* Building blocks */}
-          <rect x="60" y="85" width="65" height="70" rx="2" fill="rgba(200,196,186,0.5)" />
-          <rect x="140" y="170" width="65" height="65" rx="2" fill="rgba(200,196,186,0.5)" />
-          <rect x="60" y="250" width="55" height="60" rx="2" fill="rgba(200,196,186,0.5)" />
-          <rect x="220" y="85" width="50" height="65" rx="2" fill="rgba(200,196,186,0.5)" />
-          <rect x="140" y="330" width="55" height="60" rx="2" fill="rgba(200,196,186,0.5)" />
-          <rect x="220" y="250" width="50" height="55" rx="2" fill="rgba(200,196,186,0.4)" />
-          {/* Road labels */}
-          <text x="15" y="155" fontSize="7" fill="rgba(0,0,0,0.2)" fontFamily={F}>Peachtree St</text>
-          <text x="135" y="20" fontSize="7" fill="rgba(0,0,0,0.2)" fontFamily={F} transform="rotate(90 135 20)">Elm St</text>
-        </svg>
-        {/* Map pins */}
-        {showPins && [
-          { x: '28%', y: '28%', d: 0, label: 'MT' },
-          { x: '58%', y: '52%', d: 150, label: 'LW' },
-          { x: '72%', y: '22%', d: 300, label: 'RP' },
-          { x: '40%', y: '70%', d: 400, label: '' },
-          { x: '82%', y: '55%', d: 500, label: '' },
-        ].map((p, i) => (
-          <div key={i} style={{
-            position: 'absolute', left: p.x, top: p.y, transform: `translate(-50%, -50%) ${hoverIdx === 0 && i === 0 ? 'scale(1.3)' : 'scale(1)'}`,
-            animation: `fadeIn 0.3s ease ${p.d}ms both`,
-            transition: 'transform 0.3s ease',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-          }}>
-            <div style={{ width: i < 3 ? 14 : 8, height: i < 3 ? 14 : 8, borderRadius: '50%', background: BLUE, border: '2.5px solid white', boxShadow: '0 2px 6px rgba(0,0,0,0.25)' }} />
-            {p.label && hoverIdx === 0 && i === 0 && (
-              <div style={{ background: NAVY, color: 'white', fontSize: 8, fontWeight: 600, fontFamily: F, padding: '2px 6px', borderRadius: 4, whiteSpace: 'nowrap', animation: 'demoSlideUp 0.2s ease' }}>{p.label} - $127K</div>
-            )}
-          </div>
-        ))}
-        {/* Zoom controls */}
-        <div style={{ position: 'absolute', right: 8, top: 8, display: 'flex', flexDirection: 'column', gap: 1, background: 'white', borderRadius: 6, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
-          <div style={{ width: 26, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: MT, fontFamily: F, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>+</div>
-          <div style={{ width: 26, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: MT, fontFamily: F }}>-</div>
-        </div>
-        {/* Map legend */}
-        <div style={{ position: 'absolute', left: 8, bottom: 8, background: 'white', borderRadius: 6, padding: '5px 8px', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 8, fontSize: 8.5, fontFamily: F, color: MT }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: BLUE }} />Cash Buyers</span>
-          <span>Atlanta, GA</span>
-        </div>
+      <div style={{ width: '45%', position: 'relative', overflow: 'hidden' }}>
+        {showPins ? (
+          <CityMap pins={mapPins} hoverPin={hoverIdx} label="Atlanta, GA" />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: '#F2EFE9' }} />
+        )}
       </div>
-      {/* Toast */}
       {showToast && (
         <div style={{ position: 'absolute', top: 10, right: 16, background: 'white', borderRadius: 8, boxShadow: '0 6px 20px rgba(5,14,36,0.1)', border: `1px solid ${BD}`, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 7, animation: 'demoSlideUp 0.3s ease', zIndex: 10 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M8 12l3 3 5-5" /></svg>
@@ -348,108 +386,119 @@ function S0({ t }: { t: number }) {
   )
 }
 
-/* ── Scene 1: Buyer CRM ─────────────────────────────────── */
+/* ── Scene 1: Dashboard (NEW) ──────────────────────────── */
 function S1({ t }: { t: number }) {
-  const highlight = t < 800
-  const sel1 = t >= 1500, sel2 = t >= 2200, sel3 = t >= 2600
-  const selCount = (sel1 ? 1 : 0) + (sel2 ? 1 : 0) + (sel3 ? 1 : 0)
-  const toolbar = selCount > 0
-  const dropdown = t >= 4000 && t < 5500
-  const hovering = t >= 4500
-  const activeTab = 0
-
   const kpis = [
-    { label: 'Total Buyers', val: '51', sub: '+8 this month', icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 10-16 0" /></svg> },
-    { label: 'Qualified', val: '14', sub: 'Score 80+', icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg> },
-    { label: 'New This Week', val: t >= 500 ? '4' : '3', anim: t >= 500 && t < 1000, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 8v6M23 11h-6" /></svg> },
-    { label: 'Avg Score', val: '82', sub: '+3 vs last', icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg> },
+    { label: 'Active Deals', display: String(countUp(24, 300, t)), sub: '+3 this week', startAt: 300, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" /></svg> },
+    { label: 'Qualified Buyers', display: String(countUp(189, 450, t)), sub: '+12 today', startAt: 450, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><circle cx="9" cy="7" r="4" /><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" /></svg> },
+    { label: 'Revenue MTD', display: `$${(countUp(472, 600, t) / 10).toFixed(1)}K`, sub: '+18%', startAt: 600, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg> },
+    { label: 'AI Calls Today', display: String(countUp(342, 750, t)), sub: '89% qualified', startAt: 750, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.11 2 2 0 014.11 2h3" /></svg> },
   ]
-
-  const rows = [
-    { name: 'Marcus Thompson', init: 'MT', status: 'Qualified', sColor: BLUE, score: 92, market: 'Phoenix, AZ', last: '2 min ago', phone: '(480) 555-0142', isNew: true },
-    { name: 'Lisa Wang', init: 'LW', status: 'Qualified', sColor: BLUE, score: 85, market: 'Atlanta, GA', last: '1 hr ago', phone: '(404) 555-0198' },
-    { name: 'David Kim', init: 'DK', status: 'New', sColor: BL, score: 78, market: 'Tampa, FL', last: '3 hrs ago', phone: '(813) 555-0276' },
-    { name: 'Sarah Mitchell', init: 'SM', status: 'Contacted', sColor: PURP, score: 71, market: 'Charlotte, NC', last: '1 day ago', phone: '(704) 555-0331' },
-    { name: 'James Rivera', init: 'JR', status: 'New', sColor: BL, score: 68, market: 'Orlando, FL', last: '2 days ago', phone: '(407) 555-0415' },
+  const showPipeline = t >= 2000
+  const showDealRows = t >= 2500
+  const showActivity = t >= 3000
+  const hoverKpi = t >= 3800 && t < 5000 ? 0 : -1
+  const hoverDeal = t >= 5000 ? 0 : -1
+  const pipeSegs = [
+    { label: 'New', color: NAVY, pct: 30, count: 7 },
+    { label: 'Active', color: BLUE, pct: 35, count: 8 },
+    { label: 'Closing', color: PURP, pct: 20, count: 5 },
+    { label: 'Pending', color: BL, pct: 15, count: 4 },
   ]
-  const checks = [sel1, sel2, sel3, false, false]
-
+  const deals = [
+    { addr: '5512 Peachtree Rd, Atlanta', badge: 'Active', bColor: BLUE, fee: '$14,500', init: 'JM' },
+    { addr: '816 Magnolia Way, Charlotte', badge: 'Closing', bColor: PURP, fee: '$22,000', init: 'PK' },
+  ]
+  const activities = [
+    { text: 'AI completed 48 calls', time: '2m ago', icon: <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.11 2 2 0 014.11 2h3" /></svg> },
+    { text: 'Marcus T. qualified', time: '5m ago', icon: <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg> },
+    { text: 'Contract signed', time: '1h ago', icon: <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg> },
+    { text: 'New deal matched', time: '2h ago', icon: <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M9.937 15.5A2 2 0 008.5 14.063l-6.135-1.582a.5.5 0 010-.962L8.5 9.936A2 2 0 009.937 8.5l1.582-6.135a.5.5 0 01.963 0z" /></svg> },
+  ]
   return (
     <div style={{ height: '100%', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: NAVY, fontFamily: F }}>Buyer List</div>
-          <div style={{ fontSize: 10, color: MT, fontFamily: F }}>51 contacts across 4 markets</div>
-        </div>
-        <button style={{ fontSize: 10, fontWeight: 600, color: 'white', background: BLUE, border: 'none', borderRadius: 7, padding: '5px 12px', fontFamily: F, cursor: 'default', display: 'flex', alignItems: 'center', gap: 4 }}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-          Add Buyer
-        </button>
+      <div>
+        <div style={{ fontSize: 16, fontWeight: 400, color: NAVY, fontFamily: F }}>Good morning, Alex</div>
+        <div style={{ fontSize: 10, color: MT, fontFamily: F }}>March 18, 2026</div>
       </div>
-      {/* KPIs */}
       <div style={{ display: 'flex', gap: 6 }}>
-        {kpis.map(k => (
-          <div key={k.label} style={{ flex: 1, background: 'white', borderRadius: 8, padding: '8px 10px', border: `1px solid ${BD}` }}>
+        {kpis.map((k, ki) => (
+          <div key={k.label} style={{
+            flex: 1, background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '8px 10px',
+            opacity: t >= k.startAt ? 1 : 0,
+            transform: hoverKpi === ki ? 'translateY(-1px)' : 'none',
+            boxShadow: hoverKpi === ki ? '0 4px 14px rgba(5,14,36,0.07)' : 'none',
+            transition: 'opacity 0.4s ease, transform 0.2s, box-shadow 0.2s',
+          }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
               <div style={{ width: 18, height: 18, borderRadius: 5, background: 'rgba(37,99,235,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{k.icon}</div>
               <span style={{ fontSize: 9, color: MT, fontFamily: F, fontWeight: 500 }}>{k.label}</span>
             </div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: NAVY, fontFamily: F, lineHeight: 1.1, animation: k.anim ? 'demoNumberTick 0.3s ease' : undefined }}>{k.val}</div>
-            {k.sub && <div style={{ fontSize: 8.5, color: BLUE, fontFamily: F, fontWeight: 500, marginTop: 1 }}>{k.sub}</div>}
+            <div style={{ fontSize: 16, fontWeight: 700, color: NAVY, fontFamily: F, lineHeight: 1.1 }}>{k.display}</div>
+            <div style={{ fontSize: 8.5, color: BLUE, fontFamily: F, fontWeight: 500, marginTop: 1 }}>{k.sub}</div>
           </div>
         ))}
       </div>
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${BD}` }}>
-        {['All Buyers', 'Qualified', 'New', 'Contacted'].map((tab, i) => (
-          <div key={tab} style={{ padding: '6px 12px', fontSize: 10.5, fontWeight: i === activeTab ? 600 : 400, color: i === activeTab ? BLUE : MT, fontFamily: F, borderBottom: i === activeTab ? `2px solid ${BLUE}` : '2px solid transparent', marginBottom: -1, cursor: 'default' }}>{tab} {i === 0 && <span style={{ fontSize: 9, color: 'rgba(5,14,36,0.25)', fontWeight: 400 }}>51</span>}</div>
-        ))}
-      </div>
-      {/* Selection toolbar */}
-      {toolbar && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 12px', background: 'rgba(37,99,235,0.05)', borderRadius: 8, animation: 'demoSlideUp 0.2s ease', position: 'relative' as const }}>
-          <span style={{ fontSize: 10.5, fontWeight: 600, color: BLUE, fontFamily: F }}>{selCount} selected</span>
-          <div style={{ width: 1, height: 14, background: 'rgba(37,99,235,0.15)' }} />
-          <button style={{ fontSize: 10, fontWeight: 600, color: 'white', background: BLUE, border: 'none', borderRadius: 6, padding: '4px 12px', fontFamily: F, cursor: 'default' }}>Send Outreach</button>
-          <span style={{ fontSize: 10, color: MT, fontFamily: F, cursor: 'default' }}>Add Tag</span>
-          <span style={{ fontSize: 10, color: MT, fontFamily: F, cursor: 'default' }}>Export</span>
-          {dropdown && (
-            <div style={{ position: 'absolute', top: '100%', left: 90, marginTop: 4, background: 'white', borderRadius: 8, boxShadow: '0 8px 24px rgba(5,14,36,0.12)', border: `1px solid ${BD}`, padding: '4px', zIndex: 10, animation: 'demoSlideUp 0.2s ease', minWidth: 160 }}>
-              <div style={{ padding: '7px 12px', fontSize: 11, fontWeight: 500, color: hovering ? 'white' : NAVY, background: hovering ? BLUE : 'transparent', fontFamily: F, borderRadius: 6, transition: 'all 0.15s' }}>Launch AI Campaign</div>
+      <div style={{ display: 'flex', gap: 8, flex: 1, minHeight: 0 }}>
+        <div style={{ width: '60%', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {showPipeline && (
+            <div style={{ background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '10px 12px', animation: 'demoSlideUp 0.3s ease both' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: NAVY, fontFamily: F, marginBottom: 8 }}>Deal Pipeline</div>
+              <div style={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 6 }}>
+                {pipeSegs.map(s => (
+                  <div key={s.label} style={{ width: `${s.pct}%`, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'width 0.8s ease' }}>
+                    <span style={{ fontSize: 8, color: 'white', fontFamily: F, fontWeight: 600 }}>{s.count}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                {pipeSegs.map(s => (
+                  <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 8.5, fontFamily: F, color: MT }}>
+                    <span style={{ width: 6, height: 6, borderRadius: 2, background: s.color }} />{s.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {showDealRows && deals.map((d, di) => (
+            <div key={d.addr} style={{
+              background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '9px 11px',
+              display: 'flex', alignItems: 'center', gap: 8,
+              animation: `demoSlideUp 0.3s ease ${di * 0.15}s both`,
+              borderLeft: hoverDeal === di ? `3px solid ${BLUE}` : '3px solid transparent',
+              transition: 'border-left-color 0.2s',
+            }}>
+              <Avatar initials={d.init} size={26} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: NAVY, fontFamily: F }}>{d.addr}</div>
+              </div>
+              <span style={{ fontSize: 8.5, fontWeight: 600, color: d.bColor, background: d.bColor + '12', padding: '2px 8px', borderRadius: 4, fontFamily: F }}>{d.badge}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: NAVY, fontFamily: F }}>{d.fee}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ width: '40%' }}>
+          {showActivity && (
+            <div style={{ background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '10px 12px', animation: 'demoSlidePanel 0.3s ease both', height: '100%' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: NAVY, fontFamily: F, marginBottom: 8 }}>Recent Activity</div>
+              {activities.map((a, ai) => (
+                <div key={ai} style={{
+                  display: 'flex', gap: 8, paddingBottom: 8,
+                  opacity: t >= 3000 + ai * 100 ? 1 : 0, transition: 'opacity 0.3s ease',
+                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                    <div style={{ width: 14, height: 14, borderRadius: '50%', background: 'rgba(37,99,235,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{a.icon}</div>
+                    {ai < activities.length - 1 && <div style={{ width: 1, flex: 1, background: BD, marginTop: 2 }} />}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, color: NAVY, fontFamily: F, fontWeight: 500, lineHeight: 1.3 }}>{a.text}</div>
+                    <div style={{ fontSize: 8.5, color: 'rgba(5,14,36,0.25)', fontFamily: F }}>{a.time}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
-      )}
-      {/* Table */}
-      <div style={{ flex: 1, background: 'white', borderRadius: 8, border: `1px solid ${BD}`, overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '26px 1fr 70px 42px 72px 64px 26px', padding: '6px 10px', borderBottom: `1px solid ${BD}`, fontSize: 9, color: MT, fontFamily: F, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>
-          <div /><div>Name</div><div>Status</div><div>Score</div><div>Market</div><div>Activity</div><div />
-        </div>
-        {rows.map((r, i) => (
-          <div key={r.name} style={{
-            display: 'grid', gridTemplateColumns: '26px 1fr 70px 42px 72px 64px 26px',
-            padding: '7px 10px', borderBottom: i < rows.length - 1 ? `1px solid rgba(0,0,0,0.04)` : undefined,
-            alignItems: 'center',
-            background: r.isNew && highlight ? 'rgba(37,99,235,0.03)' : i % 2 === 1 ? 'rgba(0,0,0,0.01)' : undefined,
-            animation: r.isNew && highlight ? 'demoPulse 1s ease' : undefined,
-          }}>
-            <div style={{ width: 14, height: 14, borderRadius: 4, border: checks[i] ? 'none' : '1.5px solid rgba(5,14,36,0.2)', background: checks[i] ? BLUE : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
-              {checks[i] && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"><path d="M5 13l4 4L19 7" /></svg>}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Avatar initials={r.init} size={24} />
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: NAVY, fontFamily: F, lineHeight: 1.2 }}>{r.name}</div>
-                <div style={{ fontSize: 8.5, color: 'rgba(5,14,36,0.3)', fontFamily: F }}>{r.phone}</div>
-              </div>
-            </div>
-            <span style={{ fontSize: 8.5, fontWeight: 600, color: r.sColor, background: r.sColor + '12', padding: '2px 6px', borderRadius: 4, fontFamily: F, display: 'inline-block', width: 'fit-content' }}>{r.status}</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: BLUE, fontFamily: F }}>{r.score}</span>
-            <span style={{ fontSize: 9.5, color: MT, fontFamily: F }}>{r.market}</span>
-            <span style={{ fontSize: 9, color: 'rgba(5,14,36,0.3)', fontFamily: F }}>{r.last}</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.2)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /></svg>
-          </div>
-        ))}
       </div>
     </div>
   )
@@ -458,34 +507,35 @@ function S1({ t }: { t: number }) {
 /* ── Scene 2: AI Outreach ───────────────────────────────── */
 function S2({ t }: { t: number }) {
   const contacts = [
-    { name: 'Marcus Thompson', init: 'MT', phone: '(480) 555-0142', callStart: 500, connectAt: 2000, qualAt: 5000, hasTranscript: true },
-    { name: 'Lisa Wang', init: 'LW', phone: '(404) 555-0198', callStart: 6000, connectAt: -1, noAnswerAt: 7500 },
-    { name: 'David Kim', init: 'DK', phone: '(813) 555-0276', callStart: 8500, connectAt: 9200, qualAt: 10000 },
+    { name: 'Marcus Thompson', init: 'MT', phone: '(480) 555-0142', callStart: 500, connectAt: 2000, qualAt: 6500, noAnswerAt: -1, hasTranscript: true },
+    { name: 'Lisa Wang', init: 'LW', phone: '(404) 555-0198', callStart: 7000, connectAt: -1, qualAt: -1, noAnswerAt: 8000, hasTranscript: false },
+    { name: 'David Kim', init: 'DK', phone: '(813) 555-0276', callStart: 8500, connectAt: 8800, qualAt: 9200, noAnswerAt: -1, hasTranscript: false },
   ]
   function getStatus(c: typeof contacts[0]) {
-    if (c.qualAt && t >= c.qualAt) return { text: 'Qualified', color: BLUE }
-    if (c.noAnswerAt && t >= c.noAnswerAt) return { text: 'No Answer', color: MT }
+    if (c.qualAt > 0 && t >= c.qualAt) return { text: 'Qualified', color: BLUE }
+    if (c.noAnswerAt > 0 && t >= c.noAnswerAt) return { text: 'No Answer', color: MT }
     if (c.connectAt > 0 && t >= c.connectAt) return { text: 'Connected', color: BLUE }
     if (t >= c.callStart) return { text: 'Calling...', color: BL }
     return { text: 'Queued', color: 'rgba(5,14,36,0.25)' }
   }
   function callDuration(c: typeof contacts[0]) {
     if (t < c.callStart) return ''
-    const secs = Math.floor((Math.min(t, c.qualAt || c.noAnswerAt || t) - c.callStart) / 1000)
+    const end = c.qualAt > 0 ? c.qualAt : c.noAnswerAt > 0 ? c.noAnswerAt : t
+    const secs = Math.floor((Math.min(t, end) - c.callStart) / 1000)
     return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`
   }
-  const completed = contacts.filter(c => (c.qualAt && t >= c.qualAt) || (c.noAnswerAt && t >= c.noAnswerAt)).length
-  const qualified = contacts.filter(c => c.qualAt && t >= c.qualAt).length
+  const completed = contacts.filter(c => (c.qualAt > 0 && t >= c.qualAt) || (c.noAnswerAt > 0 && t >= c.noAnswerAt)).length
+  const qualified = contacts.filter(c => c.qualAt > 0 && t >= c.qualAt).length
   const pct = (completed / 3) * 100
   const allDone = completed === 3
-  const showTranscript = t >= 3000 && t < 5000
-
+  const showTranscript = t >= 2500 && t < 6500
   const lines = [
     { sp: 'AI', text: 'Hi Marcus, this is Sarah from DealFlow Properties...' },
     { sp: 'Marcus', text: "Yeah, hey, what's up?" },
     { sp: 'AI', text: 'I wanted to reach out about some properties in your area...' },
+    { sp: 'AI', text: 'Are you looking to flip or hold?' },
+    { sp: 'Marcus', text: 'Flip. I can close in 10 to 14 days if the numbers work.' },
   ]
-
   return (
     <div style={{ height: '100%', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -499,11 +549,10 @@ function S2({ t }: { t: number }) {
           ))}
         </div>
       </div>
-      {/* Stats row */}
       <div style={{ display: 'flex', gap: 6 }}>
         {[
-          { label: 'Connected', val: `${completed - (contacts.filter(c => c.noAnswerAt && t >= c.noAnswerAt).length)}/${contacts.length}`, color: BLUE },
-          { label: 'Avg Duration', val: t >= 5000 ? '2:14' : t >= 2000 ? '1:08' : '0:00', color: NAVY },
+          { label: 'Connected', val: `${completed - (contacts.filter(c => c.noAnswerAt > 0 && t >= c.noAnswerAt).length)}/${contacts.length}`, color: BLUE },
+          { label: 'Avg Duration', val: t >= 6500 ? '2:14' : t >= 2000 ? '1:08' : '0:00', color: NAVY },
           { label: 'Qualified', val: `${qualified}`, color: BLUE },
           { label: 'Success Rate', val: qualified > 0 ? `${Math.round((qualified / Math.max(completed, 1)) * 100)}%` : '0%', color: BLUE },
         ].map(s => (
@@ -513,7 +562,6 @@ function S2({ t }: { t: number }) {
           </div>
         ))}
       </div>
-      {/* Campaign header card */}
       <div style={{ background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '10px 12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -529,7 +577,6 @@ function S2({ t }: { t: number }) {
           <div style={{ height: '100%', background: BLUE, borderRadius: 3, width: `${pct}%`, transition: 'width 0.5s ease' }} />
         </div>
       </div>
-      {/* Contact rows */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
         {contacts.map((c, i) => {
           const st = getStatus(c)
@@ -562,10 +609,10 @@ function S2({ t }: { t: number }) {
                     <span style={{ fontSize: 9, fontWeight: 600, color: BLUE, fontFamily: F }}>Live Transcript</span>
                   </div>
                   {lines.map((l, li) => {
-                    const lStart = 3000 + li * 600
-                    const lText = tv(l.text, lStart, t, 14)
+                    const lStart = 2500 + li * 550
+                    const lText = tv(l.text, lStart, t, 25)
                     if (!lText) return null
-                    return <div key={li} style={{ fontSize: 10, fontFamily: F, color: l.sp === 'AI' ? BLUE : NAVY, paddingLeft: 14 }}><span style={{ fontWeight: 600 }}>{l.sp}: </span>{lText}{!td(l.text, lStart, t, 14) && <Caret />}</div>
+                    return <div key={li} style={{ fontSize: 10, fontFamily: F, color: l.sp === 'AI' ? BLUE : NAVY, paddingLeft: 14 }}><span style={{ fontWeight: 600 }}>{l.sp}: </span>{lText}{!td(l.text, lStart, t, 25) && <Caret />}</div>
                   })}
                 </div>
               )}
@@ -583,28 +630,148 @@ function S2({ t }: { t: number }) {
   )
 }
 
-/* ── Scene 3: Analyze Deal ──────────────────────────────── */
+/* ── Scene 3: Marketplace (NEW) ─────────────────────────── */
 function S3({ t }: { t: number }) {
+  const deals = [
+    { addr: '5512 Peachtree Rd', city: 'Atlanta, GA', beds: 3, baths: 2, sqft: '1,240', type: 'SFR', strategy: 'Flip', arv: '$142K', fee: '+$14,500', user: 'Jordan M.', userInit: 'JM', time: '2h ago', tag: 'NEW', tagColor: BLUE, grad: ['#8B9DAF', '#6B7D8F'] },
+    { addr: '816 Magnolia Way', city: 'Charlotte, NC', beds: 4, baths: 3, sqft: '1,890', type: 'Multi', strategy: 'Hold', arv: '$215K', fee: '+$22,000', user: 'Priya K.', userInit: 'PK', time: '5h ago', tag: 'HOT', tagColor: '#E85D4A', grad: ['#B5A898', '#9A8B7C'] },
+    { addr: '2204 Oak St', city: 'Tampa, FL', beds: 2, baths: 1, sqft: '980', type: 'SFR', strategy: 'Flip', arv: '$98K', fee: '+$8,200', user: 'Mike T.', userInit: 'MT', time: '1d ago', tag: '', tagColor: '', grad: ['#9AABB8', '#7D929F'] },
+  ]
+  const mapPins = [
+    { x: '30%', y: '30%', color: BLUE, label: '1', delay: 500 },
+    { x: '55%', y: '55%', color: BLUE, label: '2', delay: 700 },
+    { x: '75%', y: '25%', color: '#E85D4A', label: '3', delay: 900 },
+  ]
+  const showCards = t >= 1000
+  const hoverCard = t >= 1600 && t < 7500 ? 0 : -1
+  const showDetailPanel = t >= 1800 && t < 7500
+  const showOfferForm = t >= 4000 && t < 7500
+  const offerSubmitted = t >= 5400
+  const showToast = t >= 6000 && t < 7500
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+      <div style={{ padding: '12px 14px 8px' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: NAVY, fontFamily: F }}>Marketplace</div>
+        <div style={{ fontSize: 10, color: MT, fontFamily: F }}>Browse and list off-market deals</div>
+      </div>
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <div style={{ width: '45%', padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: 6, overflow: 'hidden', borderRight: `1px solid ${BD}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'white', borderRadius: 8, padding: '6px 10px', border: `1px solid ${BD}` }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.25)" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+            <span style={{ fontSize: 11, fontFamily: F, color: NAVY }}>Atlanta, GA</span>
+          </div>
+          {showCards && deals.map((d, di) => (
+            <div key={d.addr} style={{
+              background: 'white', borderRadius: 8, border: `1px solid ${hoverCard === di ? 'rgba(37,99,235,0.25)' : BD}`,
+              padding: '8px', display: 'flex', gap: 8,
+              animation: `demoSlideUp 0.3s ease ${di * 0.2}s both`,
+              boxShadow: hoverCard === di ? '0 4px 14px rgba(5,14,36,0.07)' : 'none',
+              borderLeft: hoverCard === di ? `3px solid ${BLUE}` : '3px solid transparent',
+              transition: 'border-color 0.2s, box-shadow 0.2s, border-left-color 0.2s',
+            }}>
+              <div style={{ width: 60, height: 48, borderRadius: 6, background: `linear-gradient(135deg, ${d.grad[0]}, ${d.grad[1]})`, flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
+                {d.tag && <span style={{ position: 'absolute', top: 3, left: 3, fontSize: 6.5, fontWeight: 700, color: 'white', background: d.tagColor, padding: '1px 4px', borderRadius: 3, fontFamily: F }}>{d.tag}</span>}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: NAVY, fontFamily: F }}>{d.addr}</div>
+                <div style={{ fontSize: 9, color: MT, fontFamily: F }}>{d.beds} bd, {d.baths} ba, {d.sqft} sqft, {d.type}, {d.strategy}</div>
+                <div style={{ fontSize: 9, fontFamily: F, marginTop: 2 }}>
+                  <span style={{ color: MT }}>{d.arv}</span>{' '}
+                  <span style={{ color: BLUE, fontWeight: 600 }}>{d.fee}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 2 }}>
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: NAVY, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 5.5, color: 'white', fontWeight: 600, fontFamily: F }}>{d.userInit}</span>
+                  </div>
+                  <span style={{ fontSize: 8.5, color: MT, fontFamily: F }}>{d.user} - {d.time}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ width: '55%', position: 'relative', overflow: 'hidden' }}>
+          <CityMap pins={mapPins} hoverPin={hoverCard} label="Atlanta, GA" />
+          <div style={{ position: 'absolute', right: 8, bottom: 8, background: 'white', borderRadius: 6, padding: '4px 8px', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 8.5, fontFamily: F, color: NAVY, fontWeight: 500, zIndex: 4 }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: BLUE, animation: 'demoPulse 1.5s infinite' }} />
+            3 listings - Live
+          </div>
+          {showDetailPanel && (
+            <div style={{
+              position: 'absolute', right: 0, top: 0, bottom: 0, width: '70%',
+              background: 'white', borderLeft: `1px solid ${BD}`, padding: '12px',
+              animation: 'demoSlidePanel 0.3s ease both',
+              display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden', zIndex: 10,
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: NAVY, fontFamily: F }}>5512 Peachtree Rd</div>
+              <div style={{ fontSize: 9.5, color: MT, fontFamily: F }}>Atlanta, GA</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {[
+                  { label: 'ARV', val: '$142K' },
+                  { label: 'Fee', val: '$14,500' },
+                  { label: 'Score', val: '87/100' },
+                ].map(m => (
+                  <div key={m.label} style={{ flex: 1, background: CREAM, borderRadius: 6, padding: '6px 8px' }}>
+                    <div style={{ fontSize: 8, color: MT, fontFamily: F }}>{m.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: m.label === 'Score' ? BLUE : NAVY, fontFamily: F }}>{m.val}</div>
+                  </div>
+                ))}
+              </div>
+              {!showOfferForm ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 4 }}>
+                  <button style={{ background: BLUE, color: 'white', border: 'none', borderRadius: 7, padding: '7px 0', fontSize: 10, fontWeight: 600, fontFamily: F, cursor: 'default', width: '100%' }}>Submit Offer</button>
+                  <button style={{ background: 'white', color: NAVY, border: `1px solid ${BD}`, borderRadius: 7, padding: '7px 0', fontSize: 10, fontWeight: 500, fontFamily: F, cursor: 'default', width: '100%' }}>Contact Wholesaler</button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5, animation: 'demoSlideUp 0.2s ease' }}>
+                  {!offerSubmitted ? (
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <div style={{ flex: 1, padding: '6px 10px', borderRadius: 7, border: `1px solid ${BD}`, fontSize: 11, fontFamily: F, color: NAVY, background: 'white' }}>$85,000</div>
+                      <button style={{ background: BLUE, color: 'white', border: 'none', borderRadius: 7, padding: '6px 14px', fontSize: 10, fontWeight: 600, fontFamily: F, cursor: 'default' }}>Submit</button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M8 12l3 3 5-5" /></svg>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: BLUE, fontFamily: F }}>Offer Submitted!</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      {showToast && (
+        <div style={{ position: 'absolute', top: 10, right: 16, background: 'white', borderRadius: 8, boxShadow: '0 6px 20px rgba(5,14,36,0.1)', border: `1px solid ${BD}`, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 7, animation: 'demoSlideUp 0.3s ease', zIndex: 20 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M8 12l3 3 5-5" /></svg>
+          <span style={{ fontSize: 11, fontWeight: 500, color: NAVY, fontFamily: F }}>Offer sent to Jordan M.</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Scene 4: Analyze Deal ──────────────────────────────── */
+function S4({ t }: { t: number }) {
   const addr = '4217 Elm St, Atlanta, GA'
   const typed = tv(addr, 800, t, 30)
   const typeDone = td(addr, 800, t, 30)
-  const focused = t >= 1000 && t < 3000
-  const analyzing = t >= 3500 && t < 5500
+  const focused = t >= 500 && t < 2600
+  const analyzing = t >= 3000 && t < 5500
   const results = t >= 5500
-  const saved = t >= 7500
-
+  const saved = t >= 6800
   const steps = [
-    { label: 'Looking up property...', at: 3500 },
-    { label: 'Pulling comps...', at: 4000 },
-    { label: 'Calculating ARV...', at: 4500 },
-    { label: 'Scoring deal...', at: 5000 },
+    { label: 'Looking up property...', at: 3000 },
+    { label: 'Pulling comps...', at: 3500 },
+    { label: 'Calculating ARV...', at: 4000 },
+    { label: 'Scoring deal...', at: 4500 },
   ]
   const comps = [
     { addr: '4190 Elm St', dist: '0.1 mi', price: '$165,000', sqft: '1,480', sold: '12 days ago' },
     { addr: '4301 Oak Ave', dist: '0.3 mi', price: '$172,000', sqft: '1,520', sold: '24 days ago' },
     { addr: '4088 Elm St', dist: '0.2 mi', price: '$158,000', sqft: '1,410', sold: '31 days ago' },
   ]
-
+  const dealScore = results ? countUp(87, 5500, t, 800) : 0
+  const grade = dealScore >= 80 ? 'A' : dealScore >= 60 ? 'B' : ''
   return (
     <div style={{ height: '100%', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -617,19 +784,17 @@ function S3({ t }: { t: number }) {
           <span style={{ fontSize: 9, padding: '3px 8px', borderRadius: 5, fontFamily: F, background: 'white', color: MT, border: `1px solid ${BD}`, fontWeight: 500 }}>Export PDF</span>
         </div>
       </div>
-      {/* Input */}
       <div style={{ display: 'flex', gap: 6 }}>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, background: 'white', borderRadius: 8, padding: '7px 10px', border: focused ? `2px solid ${BLUE}` : `1px solid ${BD}`, boxShadow: focused ? '0 0 0 3px rgba(37,99,235,0.08)' : 'none', transition: 'all 0.15s' }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.25)" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
           <span style={{ fontSize: 12, fontFamily: F, color: typed ? NAVY : 'rgba(5,14,36,0.3)', lineHeight: 1 }}>
-            {typed || 'Enter property address...'}{t >= 1000 && !typeDone && <Caret />}
+            {typed || 'Enter property address...'}{t >= 500 && !typeDone && <Caret />}
           </span>
         </div>
         <button style={{ background: BLUE, color: 'white', border: 'none', borderRadius: 8, padding: '0 16px', fontSize: 11, fontWeight: 600, fontFamily: F, cursor: 'default', whiteSpace: 'nowrap' }}>
           {analyzing ? '...' : 'Analyze'}
         </button>
       </div>
-      {/* Analysis steps */}
       {analyzing && (
         <div style={{ background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 7, animation: 'demoSlideUp 0.2s ease' }}>
           {steps.map(s => {
@@ -646,10 +811,8 @@ function S3({ t }: { t: number }) {
           })}
         </div>
       )}
-      {/* Results */}
       {results && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7, animation: 'demoSlideUp 0.35s ease' }}>
-          {/* Property info bar */}
           <div style={{ background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 14 }}>
             <div style={{ width: 40, height: 30, borderRadius: 5, background: 'rgba(5,14,36,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.25)" strokeWidth="1.5" strokeLinecap="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" /><path d="M9 9v.01M9 13v.01M9 17v.01" /></svg>
@@ -663,22 +826,20 @@ function S3({ t }: { t: number }) {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 7 }}>
-            {/* Deal score */}
-            <div style={{ background: 'white', borderRadius: 8, border: `1px solid rgba(37,99,235,0.2)`, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ background: 'white', borderRadius: 8, border: '1px solid rgba(37,99,235,0.2)', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(37,99,235,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${BLUE}` }}>
-                <span style={{ fontSize: 15, fontWeight: 800, color: BLUE, fontFamily: F }}>A</span>
+                <span style={{ fontSize: 15, fontWeight: 800, color: BLUE, fontFamily: F }}>{grade}</span>
               </div>
               <div>
                 <div style={{ fontSize: 9, color: MT, fontFamily: F, fontWeight: 500 }}>Deal Score</div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: NAVY, fontFamily: F, lineHeight: 1 }}>87<span style={{ fontSize: 10, color: MT, fontWeight: 500 }}>/100</span></div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: NAVY, fontFamily: F, lineHeight: 1 }}>{dealScore}<span style={{ fontSize: 10, color: MT, fontWeight: 500 }}>/100</span></div>
               </div>
             </div>
-            {/* Metrics */}
             {[
-              { label: 'ARV', val: '$168K' },
-              { label: 'Spread', val: '38%' },
-              { label: 'Est. Profit', val: '$47K' },
-              { label: 'Max Offer', val: '$105K' },
+              { label: 'ARV', val: `$${countUp(168, 5500, t)}K` },
+              { label: 'Spread', val: `${countUp(38, 5600, t)}%` },
+              { label: 'Est. Profit', val: `$${countUp(47, 5700, t)}K` },
+              { label: 'Max Offer', val: `$${countUp(105, 5800, t)}K` },
             ].map(m => (
               <div key={m.label} style={{ flex: 1, background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '8px 10px' }}>
                 <div style={{ fontSize: 9, color: MT, fontFamily: F, fontWeight: 500 }}>{m.label}</div>
@@ -686,7 +847,6 @@ function S3({ t }: { t: number }) {
               </div>
             ))}
           </div>
-          {/* Comps table */}
           <div style={{ background: 'white', borderRadius: 8, border: `1px solid ${BD}`, padding: '8px 10px', flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontSize: 11, fontWeight: 600, color: NAVY, fontFamily: F }}>Comparable Sales</span>
@@ -696,7 +856,7 @@ function S3({ t }: { t: number }) {
               <div>Address</div><div>Sqft</div><div>Sold</div><div style={{ textAlign: 'right' }}>Price</div>
             </div>
             {comps.map((c, i) => (
-              <div key={c.addr} style={{ display: 'grid', gridTemplateColumns: '1fr 56px 56px 66px', padding: '5px 0', borderBottom: i < comps.length - 1 ? '1px solid rgba(0,0,0,0.04)' : undefined, alignItems: 'center', animation: `demoSlideUp 0.3s ease ${i * 0.1}s both` }}>
+              <div key={c.addr} style={{ display: 'grid', gridTemplateColumns: '1fr 56px 56px 66px', padding: '5px 0', borderBottom: i < comps.length - 1 ? '1px solid rgba(0,0,0,0.04)' : undefined, alignItems: 'center', animation: `demoSlidePanel 0.3s ease ${i * 0.1}s both` }}>
                 <div>
                   <div style={{ fontSize: 10.5, fontWeight: 500, color: NAVY, fontFamily: F }}>{c.addr}</div>
                   <div style={{ fontSize: 8.5, color: 'rgba(5,14,36,0.3)', fontFamily: F }}>{c.dist} away</div>
@@ -709,7 +869,7 @@ function S3({ t }: { t: number }) {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 9.5, color: MT, fontFamily: F }}>Avg comp price: <span style={{ fontWeight: 600, color: NAVY }}>$165,000</span></span>
-            <button style={{ background: saved ? 'rgba(37,99,235,0.06)' : BLUE, color: saved ? BLUE : 'white', border: saved ? `1px solid rgba(37,99,235,0.2)` : 'none', borderRadius: 8, padding: '5px 14px', fontSize: 10.5, fontWeight: 600, fontFamily: F, cursor: 'default', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 5 }}>
+            <button style={{ background: saved ? 'rgba(37,99,235,0.06)' : BLUE, color: saved ? BLUE : 'white', border: saved ? '1px solid rgba(37,99,235,0.2)' : 'none', borderRadius: 8, padding: '5px 14px', fontSize: 10.5, fontWeight: 600, fontFamily: F, cursor: 'default', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 5 }}>
               {saved && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round"><path d="M5 13l4 4L19 7" /></svg>}
               {saved ? 'Saved to Pipeline' : 'Save as Deal'}
             </button>
@@ -720,149 +880,13 @@ function S3({ t }: { t: number }) {
   )
 }
 
-/* ── Scene 4: Ask AI ────────────────────────────────────── */
-function S4({ t }: { t: number }) {
-  const q = 'Which buyers match the Elm St deal?'
-  const userMsg = tv(q, 800, t, 25)
-  const userDone = td(q, 800, t, 25)
-  const sent = t >= 2700
-  const thinking = t >= 3000 && t < 3500
-
-  const aiText = `Found 3 strong matches for 4217 Elm St:\n\nMarcus T. (92% match) - SFR buyer, Phoenix\nLisa W. (85% match) - Multi-family, Atlanta\nDavid K. (78% match) - Flip investor\n\nMarcus has verified proof of funds and closes in\n10 days. I recommend sending him the deal first.`
-  const aiVis = tv(aiText, 3500, t, 7)
-  const aiDone = td(aiText, 3500, t, 7)
-  const showAction = aiDone && t >= 5500
-  const actionClicked = t >= 5800
-  const AiAvatar = () => (
-    <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(37,99,235,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      <svg width="13" height="13" viewBox="0 0 18 18" fill="none" stroke={BLUE} strokeWidth={1.5} strokeLinecap="round"><path d="M9 2l1.2 3.6L14 7l-3.8 1.4L9 12l-1.2-3.6L4 7l3.8-1.4L9 2z" /></svg>
-    </div>
-  )
-
-  return (
-    <div style={{ height: '100%', display: 'flex', overflow: 'hidden' }}>
-      {/* Chat sidebar */}
-      <div style={{ width: 150, borderRight: `1px solid ${BD}`, display: 'flex', flexDirection: 'column', background: 'white' }}>
-        <div style={{ padding: '12px 10px 8px', borderBottom: `1px solid ${BD}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: NAVY, fontFamily: F, marginBottom: 8 }}>Ask AI</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 8px', borderRadius: 6, border: `1px solid ${BD}`, fontSize: 10, fontFamily: F, color: 'rgba(5,14,36,0.3)' }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.25)" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-            Search chats...
-          </div>
-        </div>
-        <div style={{ flex: 1, padding: '8px 6px', display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <div style={{ fontSize: 9, fontWeight: 600, color: MT, fontFamily: F, padding: '4px 6px', textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>Today</div>
-          {[
-            { label: 'Elm St Analysis', active: true },
-            { label: 'Buyer Strategy Q2', active: false },
-            { label: 'Market Update ATL', active: false },
-          ].map(c => (
-            <div key={c.label} style={{ padding: '7px 8px', borderRadius: 6, fontSize: 10.5, fontFamily: F, color: c.active ? BLUE : NAVY, fontWeight: c.active ? 600 : 400, background: c.active ? 'rgba(37,99,235,0.06)' : 'transparent', lineHeight: 1.3 }}>{c.label}</div>
-          ))}
-          <div style={{ fontSize: 9, fontWeight: 600, color: MT, fontFamily: F, padding: '8px 6px 4px', textTransform: 'uppercase' as const, letterSpacing: '0.04em' }}>Yesterday</div>
-          {['Phoenix Comps', 'Deal Scoring Help', 'Campaign Results'].map(c => (
-            <div key={c} style={{ padding: '7px 8px', borderRadius: 6, fontSize: 10.5, fontFamily: F, color: NAVY, fontWeight: 400, lineHeight: 1.3 }}>{c}</div>
-          ))}
-        </div>
-        <div style={{ padding: '8px 6px', borderTop: `1px solid ${BD}` }}>
-          <div style={{ padding: '6px 8px', borderRadius: 6, fontSize: 10, fontFamily: F, color: BLUE, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 5 }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-            New Chat
-          </div>
-        </div>
-      </div>
-      {/* Chat area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Chat header */}
-        <div style={{ padding: '10px 16px', borderBottom: `1px solid ${BD}`, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontSize: 12.5, fontWeight: 600, color: NAVY, fontFamily: F }}>Elm St Analysis</div>
-            <div style={{ fontSize: 9.5, color: MT, fontFamily: F }}>AI has full context of your deals, buyers, and campaigns</div>
-          </div>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {['Share', 'Export'].map(b => (
-              <span key={b} style={{ fontSize: 9.5, color: MT, fontFamily: F, padding: '3px 8px', border: `1px solid ${BD}`, borderRadius: 5 }}>{b}</span>
-            ))}
-          </div>
-        </div>
-        {/* Messages */}
-        <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'hidden' }}>
-          {/* Prior context: AI greeting with suggestion chips */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <AiAvatar />
-            <div>
-              <div style={{ background: 'rgba(5,14,36,0.03)', borderRadius: '2px 12px 12px 12px', padding: '10px 14px', fontSize: 11.5, color: NAVY, fontFamily: F, lineHeight: 1.6, marginBottom: 6 }}>
-                I have context on your 51 buyers, 3 active campaigns, and 4217 Elm St deal. How can I help?
-              </div>
-              {/* Suggestion chips (before user types) */}
-              {t < 1000 && (
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginLeft: 2 }}>
-                  {['Match buyers to deals', 'Campaign performance', 'Market analysis'].map(s => (
-                    <span key={s} style={{ fontSize: 9.5, padding: '4px 10px', borderRadius: 6, border: `1px solid ${BD}`, color: MT, fontFamily: F, background: 'white' }}>{s}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          {/* User message */}
-          {userMsg && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <div style={{ background: BLUE, color: 'white', borderRadius: '12px 12px 2px 12px', padding: '10px 14px', fontSize: 11.5, fontFamily: F, lineHeight: 1.5, maxWidth: '75%' }}>
-                {userMsg}{!userDone && <Caret />}
-              </div>
-            </div>
-          )}
-          {/* Thinking dots */}
-          {thinking && (
-            <div style={{ display: 'flex', gap: 8 }}>
-              <AiAvatar />
-              <div style={{ display: 'flex', gap: 4, padding: '12px 0' }}>
-                {[0, 0.2, 0.4].map(d => <div key={d} style={{ width: 6, height: 6, borderRadius: '50%', background: BLUE, opacity: 0.35, animation: `demoPulse 1s ${d}s infinite` }} />)}
-              </div>
-            </div>
-          )}
-          {/* AI response */}
-          {sent && !thinking && aiVis && (
-            <div style={{ display: 'flex', gap: 8 }}>
-              <AiAvatar />
-              <div style={{ background: 'rgba(5,14,36,0.03)', borderRadius: '2px 12px 12px 12px', padding: '10px 14px', fontSize: 11, color: NAVY, fontFamily: F, lineHeight: 1.7, whiteSpace: 'pre-wrap', maxWidth: '85%' }}>
-                {aiVis}{!aiDone && <Caret />}
-              </div>
-            </div>
-          )}
-          {/* Action button */}
-          {showAction && (
-            <div style={{ marginLeft: 36, animation: 'demoSlideUp 0.25s ease' }}>
-              <button style={{ background: actionClicked ? 'rgba(37,99,235,0.06)' : BLUE, color: actionClicked ? BLUE : 'white', border: actionClicked ? `1px solid rgba(37,99,235,0.2)` : 'none', borderRadius: 8, padding: '6px 16px', fontSize: 11, fontWeight: 600, fontFamily: F, cursor: 'default', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 5 }}>
-                {actionClicked && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round"><path d="M5 13l4 4L19 7" /></svg>}
-                {actionClicked ? 'Sent!' : 'Send Deal to Marcus'}
-              </button>
-            </div>
-          )}
-        </div>
-        {/* Input */}
-        <div style={{ padding: '10px 16px', borderTop: `1px solid ${BD}`, display: 'flex', gap: 8, alignItems: 'center', background: 'white' }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', borderRadius: 10, border: `1px solid ${BD}`, fontSize: 11.5, fontFamily: F, color: 'rgba(5,14,36,0.3)' }}>
-            <svg width="12" height="12" viewBox="0 0 18 18" fill="none" stroke="rgba(5,14,36,0.2)" strokeWidth={1.5} strokeLinecap="round"><path d="M9 2l1.2 3.6L14 7l-3.8 1.4L9 12l-1.2-3.6L4 7l3.8-1.4L9 2z" /></svg>
-            Ask anything about your deals, buyers, or market...
-          </div>
-          <button style={{ width: 34, height: 34, borderRadius: 10, background: BLUE, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'default', flexShrink: 0 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ── Scene 5: Contract + Close ──────────────────────────── */
+/* ── Scene 5: Close Deal ────────────────────────────────── */
 function S5({ t }: { t: number }) {
   const stages = ['Draft', 'Sent', 'Viewed', 'Signed']
   const stageIdx = t < 500 ? 0 : t < 1500 ? 0 : t < 2500 ? 1 : t < 3500 ? 2 : 3
   const signed = t >= 3500
-  const celebrate = t >= 4000 && t < 5000
-  const showLogo = t >= 4800
-
+  const celebrate = t >= 4000 && t < 5200
+  const showLogo = t >= 5300
   return (
     <div style={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
       {showLogo ? (
@@ -883,7 +907,6 @@ function S5({ t }: { t: number }) {
             <span style={{ fontSize: 9, padding: '3px 8px', borderRadius: 5, fontFamily: F, background: 'white', color: MT, border: `1px solid ${BD}`, fontWeight: 500 }}>All Contracts</span>
           </div>
           <div style={{ flex: 1, display: 'flex', gap: 10 }}>
-            {/* Contract document */}
             <div style={{ flex: 1, background: 'white', borderRadius: 10, border: `1px solid ${signed ? 'rgba(37,99,235,0.2)' : BD}`, padding: '14px 18px', position: 'relative' as const, animation: 'demoSlideUp 0.4s ease', transition: 'border-color 0.3s', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
@@ -892,7 +915,6 @@ function S5({ t }: { t: number }) {
                 </div>
                 <span style={{ fontSize: 8.5, fontWeight: 600, color: stageIdx >= 3 ? BLUE : BL, background: stageIdx >= 3 ? 'rgba(37,99,235,0.08)' : 'rgba(96,165,250,0.1)', padding: '2px 8px', borderRadius: 4, fontFamily: F, textTransform: 'uppercase' as const }}>{stages[stageIdx]}</span>
               </div>
-              {/* Status tracker */}
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
                 {stages.map((s, i) => (
                   <div key={s} style={{ display: 'flex', alignItems: 'center', flex: i < 3 ? 1 : undefined }}>
@@ -906,7 +928,6 @@ function S5({ t }: { t: number }) {
                   </div>
                 ))}
               </div>
-              {/* Parties */}
               <div style={{ display: 'flex', gap: 16, marginBottom: 12, padding: '10px 12px', background: CREAM, borderRadius: 7 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 8.5, color: MT, fontFamily: F, fontWeight: 500, marginBottom: 2 }}>Assignor</div>
@@ -918,7 +939,6 @@ function S5({ t }: { t: number }) {
                   <div style={{ fontSize: 11, fontWeight: 600, color: NAVY, fontFamily: F }}>Marcus Thompson</div>
                 </div>
               </div>
-              {/* Contract terms */}
               <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
                 {[
                   { label: 'Purchase Price', val: '$127,000' },
@@ -931,39 +951,35 @@ function S5({ t }: { t: number }) {
                   </div>
                 ))}
               </div>
-              {/* Signature */}
               {signed && (
-                <div style={{ borderTop: `1px solid rgba(0,0,0,0.06)`, paddingTop: 10, marginBottom: 8 }}>
+                <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 10, marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg>
                     <span style={{ fontSize: 9, color: BLUE, fontFamily: F, fontWeight: 600 }}>Signed by Marcus Thompson</span>
                   </div>
                   <svg width="120" height="24" viewBox="0 0 120 24">
-                    <path d="M5 16 Q15 2 28 14 T55 11 T85 16 Q95 6 112 14" fill="none" stroke={NAVY} strokeWidth="1.5" strokeLinecap="round" style={{ strokeDasharray: 200, strokeDashoffset: 200, animation: 'drawSignature 0.8s ease forwards' }} />
+                    <path d="M5 16 Q15 2 28 14 T55 11 T85 16 Q95 6 112 14" fill="none" stroke={NAVY} strokeWidth="1.5" strokeLinecap="round" style={{ strokeDasharray: 200, strokeDashoffset: 200, animation: 'drawSignature 1.2s ease forwards' }} />
                   </svg>
                 </div>
               )}
-              {/* Send button (pre-send) */}
               {stageIdx === 0 && (
                 <button style={{ marginTop: 'auto', width: '100%', background: BLUE, color: 'white', border: 'none', borderRadius: 8, padding: '8px', fontSize: 11, fontWeight: 600, fontFamily: F, cursor: 'default' }}>Send for Signature</button>
               )}
-              {/* Fee highlight */}
               {celebrate && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '6px 0', animation: 'demoSlideUp 0.3s ease' }}>
+                  <style>{`@keyframes scaleBounce { 0% { transform: scale(0.5); } 60% { transform: scale(1.15); } 80% { transform: scale(0.95); } 100% { transform: scale(1); } }`}</style>
                   <span style={{ fontSize: 11, fontWeight: 600, color: BLUE, fontFamily: F }}>Deal closed!</span>
-                  <span style={{ fontSize: 15, fontWeight: 800, color: BLUE, fontFamily: F }}>+$12,800</span>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: BLUE, fontFamily: F, animation: 'scaleBounce 0.6s ease-out' }}>+$12,800</span>
                 </div>
               )}
-              {/* Confetti */}
               {celebrate && (
                 <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', borderRadius: 10 }}>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <div key={i} style={{ position: 'absolute', left: `${5 + i * 8}%`, top: '10%', width: 5, height: 5, borderRadius: i % 2 === 0 ? '50%' : '1px', background: i % 3 === 0 ? BLUE : i % 3 === 1 ? BL : PURP, animation: `confettiFall 1.2s ease ${i * 0.05}s forwards`, opacity: 0.6 }} />
+                  {Array.from({ length: 14 }, (_, i) => (
+                    <div key={i} style={{ position: 'absolute', left: `${4 + i * 7}%`, top: '10%', width: 3 + (i % 5), height: 3 + (i % 5), borderRadius: i % 2 === 0 ? '50%' : '1px', background: i % 3 === 0 ? BLUE : i % 3 === 1 ? BL : PURP, animation: `confettiFall 1.2s ease ${i * 0.05}s forwards`, opacity: 0.6, transform: `rotate(${i * 25}deg)` }} />
                   ))}
                 </div>
               )}
             </div>
-            {/* Activity sidebar */}
             <div style={{ width: 160, display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div style={{ fontSize: 10.5, fontWeight: 600, color: NAVY, fontFamily: F }}>Activity</div>
               {[

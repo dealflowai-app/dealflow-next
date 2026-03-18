@@ -10,7 +10,6 @@ const SERIF = "'DM Serif Display', Georgia, serif"
 const NAVY = '#0B1224'
 const BLUE = '#2563EB'
 const BODY = 'rgba(5, 14, 36, 0.5)'
-const MUTED = 'rgba(5, 14, 36, 0.35)'
 const BORDER = '#E5E7EB'
 
 const inputStyle: React.CSSProperties = {
@@ -41,51 +40,56 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 6,
 }
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
-  const [resetSent, setResetSent] = useState(false)
-
-  async function handleForgotPassword() {
-    if (!email) {
-      setError('Enter your email above, then click "Forgot password?"')
-      return
-    }
-    setError('')
-    const supabase = createClient()
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
-    })
-    if (resetError) {
-      setError(resetError.message)
-    } else {
-      setResetSent(true)
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    const supabase = createClient()
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-
-    if (authError) {
-      setError(authError.message)
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.')
+      setLoading(false)
+      return
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
       setLoading(false)
       return
     }
 
-    window.location.href = '/dashboard'
+    const supabase = createClient()
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/onboarding`,
+      },
+    })
+
+    if (signUpError) {
+      setError(signUpError.message)
+      setLoading(false)
+      return
+    }
+
+    window.location.href = '/onboarding'
   }
+
+  const isAlreadyRegistered = error.toLowerCase().includes('already registered')
+
+  function clearError() { setError('') }
 
   return (
     <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
-      <Nav currentPage="login" />
+      <Nav currentPage="signup" />
 
       {/* Card */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px 80px' }}>
@@ -102,16 +106,18 @@ export default function LoginPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 22,
           }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <line x1="19" y1="8" x2="19" y2="14"/>
+              <line x1="22" y1="11" x2="16" y2="11"/>
             </svg>
           </div>
 
           <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15 }}>
-            Welcome back
+            Create your account
           </h1>
           <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 28, lineHeight: 1.6, fontFamily: F }}>
-            Sign in to access your deals, buyers, and platform tools.
+            Start finding buyers and closing deals today.
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -122,7 +128,7 @@ export default function LoginPage() {
                 type="email"
                 required
                 value={email}
-                onChange={e => { setEmail(e.target.value); setError('') }}
+                onChange={e => { setEmail(e.target.value); clearError() }}
                 placeholder="you@example.com"
                 suppressHydrationWarning
                 className="auth-input"
@@ -132,23 +138,14 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <label style={{ ...labelStyle, marginBottom: 0 }}>Password</label>
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  style={{ fontSize: 12, color: BLUE, fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: F }}
-                >
-                  {resetSent ? 'Reset link sent!' : 'Forgot password?'}
-                </button>
-              </div>
+              <label style={labelStyle}>Password</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPass ? 'text' : 'password'}
                   required
                   value={password}
-                  onChange={e => { setPassword(e.target.value); setError('') }}
-                  placeholder="Enter your password"
+                  onChange={e => { setPassword(e.target.value); clearError() }}
+                  placeholder="Create a password"
                   suppressHydrationWarning
                   className="auth-input"
                   style={inputWithToggle}
@@ -161,19 +158,45 @@ export default function LoginPage() {
                   <EyeIcon open={showPass} />
                 </button>
               </div>
+              <p style={{ fontSize: 12, color: 'rgba(5,14,36,0.35)', marginTop: 5, marginBottom: 0, fontFamily: F }}>
+                At least 8 characters
+              </p>
             </div>
 
-            {/* Reset sent success */}
-            {resetSent && !error && (
-              <div style={{ background: 'rgba(37,99,235,0.06)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: BLUE, lineHeight: 1.5, fontFamily: F }}>
-                Check your email for a reset link.
+            {/* Confirm Password */}
+            <div>
+              <label style={labelStyle}>Confirm password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirm ? 'text' : 'password'}
+                  required
+                  value={confirmPassword}
+                  onChange={e => { setConfirmPassword(e.target.value); clearError() }}
+                  placeholder="Confirm your password"
+                  suppressHydrationWarning
+                  className="auth-input"
+                  style={inputWithToggle}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(s => !s)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(5,14,36,0.3)', padding: 0, display: 'flex' }}
+                >
+                  <EyeIcon open={showConfirm} />
+                </button>
               </div>
-            )}
+            </div>
 
             {/* Error */}
             {error && (
               <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#EF4444', lineHeight: 1.5, fontFamily: F }}>
                 {error}
+                {isAlreadyRegistered && (
+                  <>
+                    {' '}
+                    <Link href="/login" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>Sign in instead?</Link>
+                  </>
+                )}
               </div>
             )}
 
@@ -195,15 +218,22 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <span className="auth-spinner" />
-                  Signing in...
+                  Creating account...
                 </>
-              ) : 'Sign in'}
+              ) : 'Create account'}
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(5,14,36,0.4)', marginTop: 20, fontFamily: F }}>
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>Sign up</Link>
+          <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(5,14,36,0.4)', marginTop: 16, lineHeight: 1.6, fontFamily: F }}>
+            By creating an account, you agree to our{' '}
+            <Link href="/terms" style={{ color: BLUE, textDecoration: 'none' }}>Terms of Service</Link>
+            {' '}and{' '}
+            <Link href="/privacy" style={{ color: BLUE, textDecoration: 'none' }}>Privacy Policy</Link>.
+          </p>
+
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(5,14,36,0.4)', marginTop: 16, fontFamily: F }}>
+            Already have an account?{' '}
+            <Link href="/login" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
           </p>
         </div>
       </div>

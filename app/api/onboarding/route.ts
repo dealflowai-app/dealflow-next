@@ -13,12 +13,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { firstName, lastName, phone } = await request.json()
+    const { firstName, lastName, phone, primaryMarket, experienceLevel } = await request.json()
+
+    const settings = {
+      ...(primaryMarket && { primaryMarket }),
+      ...(experienceLevel && { experienceLevel }),
+    }
 
     const profile = await prisma.profile.upsert({
       where: { userId: user.id },
-      create: { userId: user.id, email: user.email!, firstName, lastName, phone, role: 'WHOLESALER' },
-      update: { firstName, lastName, phone },
+      create: { userId: user.id, email: user.email!, firstName, lastName, phone, role: 'WHOLESALER', settings },
+      update: { firstName, lastName, phone, settings },
     })
 
     // Send welcome email (fire-and-forget)

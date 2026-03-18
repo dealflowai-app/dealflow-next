@@ -50,7 +50,7 @@ export default function CtaSection() {
         </h2>
 
         <a
-          href="/login"
+          href="/signup"
           style={{
             display: 'inline-flex',
             alignItems: 'center',

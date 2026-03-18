@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import ScrollReveal from '@/components/ScrollReveal'
 import AboutContent from './AboutContent'
 
 export const metadata: Metadata = {
@@ -11,9 +12,10 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <Nav isAbout />
+      <Nav currentPage="about" />
       <AboutContent />
       <Footer />
+      <ScrollReveal />
     </>
   )
 }

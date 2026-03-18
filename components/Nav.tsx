@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 interface NavProps {
   isAbout?: boolean
-  currentPage?: 'about' | 'pricing'
+  currentPage?: 'about' | 'pricing' | 'login' | 'signup' | 'onboarding'
 }
 
 export default function Nav({ isAbout = false, currentPage }: NavProps) {
@@ -40,14 +40,9 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
-  function scrollToCta() {
-    setMenuOpen(false)
-    const el = document.getElementById('cta')
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
-  }
-
   const hasLightHero = !!activePage
-  const showWhiteNav = isScrolled || hasLightHero
+  const showWhiteNav = isScrolled
+  const darkText = isScrolled || hasLightHero
 
   const mobileLinks = activePage
     ? [
@@ -84,11 +79,11 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           className="nav-pill"
           style={{
             width: '100%',
-            maxWidth: isScrolled ? 860 : 1160,
+            maxWidth: isScrolled ? 720 : 1160,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: isScrolled ? '8px 16px' : (hasLightHero ? '12px 20px' : '14px 24px'),
+            padding: `${isScrolled ? 7 : (hasLightHero ? 10 : 11)}px ${isScrolled ? 16 : (hasLightHero ? 20 : 24)}px`,
             borderRadius: isScrolled ? 16 : 14,
             background: showWhiteNav ? '#ffffff' : 'rgba(255,255,255,0)',
             boxShadow: isScrolled
@@ -96,8 +91,9 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
               : showWhiteNav && !isScrolled
                 ? 'rgba(5,14,36,0.06) 0px 1px 2px, rgba(5,14,36,0.04) 0px 2px 8px'
                 : 'none',
-            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'max-width 0.55s cubic-bezier(0.22, 1, 0.36, 1), padding 0.5s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease, box-shadow 0.4s ease, border-radius 0.45s ease, border-color 0.4s ease',
             pointerEvents: 'auto',
+            position: 'relative' as const,
           }}
         >
           {/* Logo */}
@@ -110,7 +106,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
               fontFamily: 'inherit',
               fontWeight: 500,
               fontSize: '1.02rem',
-              color: showWhiteNav ? 'var(--navy-heading)' : 'white',
+              color: darkText ? 'var(--navy-heading)' : 'white',
               textDecoration: 'none',
               letterSpacing: '-0.01em',
               transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -127,22 +123,22 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           </Link>
 
           {/* Center links */}
-          <div className="nav-center-links" style={{ display: 'flex', gap: 2 }}>
+          <div className="nav-center-links" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', gap: 2, marginLeft: 30 }}>
             {activePage ? (
               <>
-                <Link href="/#product-showcase" style={navLinkStyle(false, showWhiteNav)}>Platform</Link>
-                <Link href="/#who" style={navLinkStyle(false, showWhiteNav)}>Who it&apos;s for</Link>
-                <div style={{ width: 1, height: 18, background: showWhiteNav ? 'var(--border-med)' : 'rgba(255,255,255,0.2)', margin: '0 6px', alignSelf: 'center', transition: 'background 0.35s ease' }} />
-                <Link href="/pricing" style={navLinkStyle(activePage === 'pricing', showWhiteNav)}>Pricing</Link>
-                <Link href="/about" style={navLinkStyle(activePage === 'about', showWhiteNav)}>About</Link>
+                <Link href="/#product-showcase" style={navLinkStyle(false, darkText)}>Platform</Link>
+                <Link href="/#who" style={navLinkStyle(false, darkText)}>Who it&apos;s for</Link>
+                <div style={{ width: 1, height: 18, background: darkText ? 'var(--border-med)' : 'rgba(255,255,255,0.2)', margin: '0 6px', alignSelf: 'center', transition: 'background 0.35s ease' }} />
+                <Link href="/pricing" style={navLinkStyle(activePage === 'pricing', darkText)}>Pricing</Link>
+                <Link href="/about" style={navLinkStyle(activePage === 'about', darkText)}>About</Link>
               </>
             ) : (
               <>
-                <Link href="#product-showcase" style={navLinkStyle(activeSection === 'product-showcase', showWhiteNav)}>Platform</Link>
-                <Link href="#who" style={navLinkStyle(activeSection === 'who', showWhiteNav)}>Who it&apos;s for</Link>
-                <div style={{ width: 1, height: 18, background: showWhiteNav ? 'var(--border-med)' : 'rgba(255,255,255,0.2)', margin: '0 6px', alignSelf: 'center', transition: 'background 0.35s ease' }} />
-                <Link href="/pricing" style={navLinkStyle(false, showWhiteNav)}>Pricing</Link>
-                <Link href="/about" style={navLinkStyle(false, showWhiteNav)}>About</Link>
+                <Link href="#product-showcase" style={navLinkStyle(activeSection === 'product-showcase', darkText)}>Platform</Link>
+                <Link href="#who" style={navLinkStyle(activeSection === 'who', darkText)}>Who it&apos;s for</Link>
+                <div style={{ width: 1, height: 18, background: darkText ? 'var(--border-med)' : 'rgba(255,255,255,0.2)', margin: '0 6px', alignSelf: 'center', transition: 'background 0.35s ease' }} />
+                <Link href="/pricing" style={navLinkStyle(false, darkText)}>Pricing</Link>
+                <Link href="/about" style={navLinkStyle(false, darkText)}>About</Link>
               </>
             )}
           </div>
@@ -150,31 +146,26 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           {/* Right buttons */}
           <div className="nav-right-desktop" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <Link href="/login" style={{
-              padding: '7px 14px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 500,
-              color: showWhiteNav ? 'var(--body-text)' : 'rgba(255,255,255,0.85)',
-              border: showWhiteNav ? '1px solid var(--border-med)' : '1px solid rgba(255,255,255,0.25)',
+              padding: isScrolled ? '0' : '7px 14px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 500,
+              color: darkText ? 'var(--body-text)' : 'rgba(255,255,255,0.85)',
+              border: isScrolled ? 'none' : (darkText ? '1px solid var(--border-med)' : '1px solid rgba(255,255,255,0.25)'),
               background: 'transparent', fontFamily: 'inherit',
-              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+              transition: 'opacity 0.35s ease, width 0.5s cubic-bezier(0.22, 1, 0.36, 1), padding 0.5s cubic-bezier(0.22, 1, 0.36, 1), color 0.4s ease, border-color 0.4s ease',
               textDecoration: 'none', display: 'inline-flex', alignItems: 'center',
+              opacity: isScrolled ? 0 : 1,
+              width: isScrolled ? 0 : 'auto',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
             }}>Sign in</Link>
-            {activePage ? (
-              <Link href="/#cta" style={{
+            <Link href="/signup" style={{
                 padding: '7px 14px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 600,
                 color: 'white', border: 'none', background: '#2563EB', fontFamily: 'inherit',
                 transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', letterSpacing: '-0.01em',
                 textDecoration: 'none', display: 'inline-flex', alignItems: 'center',
-              }}>Get Started</Link>
-            ) : (
-              <button onClick={scrollToCta} style={{
-                padding: '7px 14px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 600,
-                color: 'white', border: 'none', background: '#2563EB', cursor: 'pointer',
-                fontFamily: 'inherit', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                letterSpacing: '-0.01em',
               }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#1D4ED8' }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#2563EB' }}
-              >Get Started</button>
-            )}
+              onMouseEnter={e => { e.currentTarget.style.background = '#1D4ED8' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#2563EB' }}
+            >Get Started</Link>
           </div>
         </div>
       </nav>
@@ -201,7 +192,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
             boxShadow: showWhiteNav || menuOpen
               ? 'rgba(5,14,36,0.08) 0px 2px 8px, rgba(5,14,36,0.04) 0px 1px 2px'
               : 'none',
-            transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'background 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.45s ease',
             pointerEvents: 'auto',
             overflow: 'hidden',
           }}
@@ -221,9 +212,9 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 fontWeight: 600, fontSize: '0.97rem',
-                color: showWhiteNav || menuOpen ? 'var(--navy-heading)' : 'white',
+                color: darkText || menuOpen ? 'var(--navy-heading)' : 'white',
                 textDecoration: 'none', letterSpacing: '-0.01em',
-                transition: 'color 0.3s ease',
+                transition: 'color 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
               }}
             >
               <Image src="/Logo.png" alt="DealFlow AI logo" width={26} height={26} style={{ objectFit: 'contain' }} />
@@ -241,16 +232,16 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 width: 40, height: 40, borderRadius: 10,
                 border: '1px solid',
-                borderColor: showWhiteNav || menuOpen ? 'rgba(5,14,36,0.1)' : 'rgba(255,255,255,0.15)',
-                background: showWhiteNav || menuOpen ? 'rgba(5,14,36,0.03)' : 'rgba(255,255,255,0.06)',
+                borderColor: darkText || menuOpen ? 'rgba(5,14,36,0.1)' : 'rgba(255,255,255,0.15)',
+                background: darkText || menuOpen ? 'rgba(5,14,36,0.03)' : 'rgba(255,255,255,0.06)',
                 cursor: 'pointer', position: 'relative',
-                transition: 'all 0.3s ease',
+                transition: 'background 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
               }}
             >
               <span className={`hamburger-line hamburger-top${menuOpen ? ' open' : ''}`}
-                style={{ background: showWhiteNav || menuOpen ? 'var(--navy-heading)' : 'white' }} />
+                style={{ background: darkText || menuOpen ? 'var(--navy-heading)' : 'white' }} />
               <span className={`hamburger-line hamburger-bot${menuOpen ? ' open' : ''}`}
-                style={{ background: showWhiteNav || menuOpen ? 'var(--navy-heading)' : 'white' }} />
+                style={{ background: darkText || menuOpen ? 'var(--navy-heading)' : 'white' }} />
             </button>
           </div>
 
@@ -308,10 +299,9 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                   textDecoration: 'none', textAlign: 'center', display: 'block',
                   fontFamily: 'inherit',
                 }}
-              >Log In</Link>
-              {activePage ? (
-                <Link
-                  href="/#cta"
+              >Sign In</Link>
+              <Link
+                  href="/signup"
                   className="btn-cta"
                   onClick={() => setMenuOpen(false)}
                   style={{
@@ -321,18 +311,6 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                     textAlign: 'center', display: 'block',
                   }}
                 >Get Started</Link>
-              ) : (
-                <button
-                  className="btn-cta"
-                  onClick={scrollToCta}
-                  style={{
-                    width: '100%', padding: '8px', borderRadius: 10,
-                    fontSize: '0.88rem', fontWeight: 600, color: 'white',
-                    border: 'none', background: '#2563EB',
-                    cursor: 'pointer', fontFamily: 'inherit',
-                  }}
-                >Get Started</button>
-              )}
             </div>
           </div>
           </div>

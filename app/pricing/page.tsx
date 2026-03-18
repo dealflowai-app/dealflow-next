@@ -1,226 +1,472 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import ScrollReveal from '@/components/ScrollReveal'
 import Link from 'next/link'
+import Image from 'next/image'
 
-export const metadata: Metadata = {
-  title: 'Pricing · DealFlow AI',
-  description: 'Simple, transparent pricing for real estate wholesalers.',
-}
+/* ── Tokens ─────────────────────────────────────────────── */
+const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
+const SERIF = "'DM Serif Display', Georgia, serif"
+const NAVY = '#0B1224'
+const NAVY_H = 'rgb(8, 18, 42)'
+const BLUE = '#2563EB'
+const CREAM = 'rgb(249, 247, 244)'
+const BODY = 'rgba(5, 14, 36, 0.65)'
+const BODY_FEAT = 'rgba(5, 14, 36, 0.7)'
+const MUTED = 'rgba(5, 14, 36, 0.45)'
+const BORDER = '#E5E7EB'
+const BORDER_SOFT = 'rgba(5, 14, 36, 0.06)'
+const ACCENT_BG = 'rgba(37, 99, 235, 0.06)'
 
-const wholesalerTiers = [
+/* ── Data ───────────────────────────────────────────────── */
+const tiers = [
   {
     name: 'Starter',
-    price: '$199',
+    price: '$149',
     period: '/mo',
-    tagline: 'For wholesalers just getting started',
+    tagline: 'For solo wholesalers getting started',
     highlight: false,
+    cta: 'Get started',
+    ctaHref: '/signup',
     features: [
       '1 active market',
-      '500 AI calls/month',
-      'Up to 5 active deals',
-      'Buyer database up to 500',
-      'Contract templates for top 5 states',
-      '1 team user',
-      'Basic deal map',
-      'Standard deal quality protection',
-      '$250/deal transaction fee',
+      'CRM: 500 contacts',
+      '30 deal analyses per month',
+      '5 active deals',
+      '50 free AI call minutes included',
+      'Contract templates (top 5 states)',
+      'Basic marketplace access',
       'Email support',
+      '$200 per-deal transaction fee',
     ],
-    cta: 'Join waitlist',
   },
   {
     name: 'Pro',
-    price: '$349',
+    price: '$299',
     period: '/mo',
     tagline: 'For active wholesalers scaling up',
     highlight: true,
     badge: 'Most popular',
+    cta: 'Get started',
+    ctaHref: '/signup',
     features: [
       '3 active markets',
-      '2,000 AI calls/month',
-      'Up to 20 active deals',
-      'Buyer database up to 5,000',
+      'CRM: 3,000 contacts',
+      '150 deal analyses per month',
+      '20 active deals',
+      '150 free AI call minutes included',
       'Contract templates for all 50 states',
-      '3 team users',
-      'Full deal map + heat layers',
-      'Standard deal quality protection',
-      '$200/deal transaction fee',
-      'Priority email support',
+      'Full marketplace with deal listings',
+      'SMS + email campaigns',
+      'A/B testing + analytics',
+      'Priority support',
+      '$200 per-deal transaction fee',
     ],
-    cta: 'Join waitlist',
   },
   {
     name: 'Enterprise',
     price: '$499+',
     period: '/mo',
-    tagline: 'For large operations and coaching programs',
+    tagline: 'For large operations and teams',
     highlight: false,
+    cta: 'Contact us',
+    ctaHref: 'mailto:hello@dealflowai.app',
     features: [
       'Unlimited markets',
-      'Unlimited AI calls',
+      'Unlimited CRM contacts',
+      'Unlimited deal analyses',
       'Unlimited active deals',
-      'Unlimited buyer database',
-      'All 50 states + custom templates',
-      'Unlimited team users',
-      'Full deal map + white-label',
-      'Priority deal quality flagging',
-      'Negotiated transaction fee',
+      '500 free AI call minutes included',
+      'All 50 states + custom contract templates',
+      'White-label option',
+      'Team accounts (unlimited users)',
       'Dedicated account manager',
+      'Custom integrations + API access',
+      'Negotiated transaction fee',
     ],
-    cta: 'Contact us',
-    ctaHref: '/contact',
   },
 ]
 
-const compare = [
-  { feature: 'AI buyer discovery', starter: true, pro: true, enterprise: true },
-  { feature: 'AI voice calling', starter: true, pro: true, enterprise: true },
-  { feature: 'Deal analysis & ARV', starter: true, pro: true, enterprise: true },
-  { feature: 'Smart deal matching', starter: true, pro: true, enterprise: true },
-  { feature: 'Assignment contract generation', starter: true, pro: true, enterprise: true },
-  { feature: 'E-signature collection', starter: true, pro: true, enterprise: true },
-  { feature: 'Multiple markets', starter: false, pro: true, enterprise: true },
-  { feature: 'Heat map layers', starter: false, pro: true, enterprise: true },
-  { feature: 'Team accounts', starter: false, pro: true, enterprise: true },
-  { feature: 'White-label', starter: false, pro: false, enterprise: true },
-  { feature: 'Custom contract templates', starter: false, pro: false, enterprise: true },
-  { feature: 'API access', starter: false, pro: false, enterprise: true },
+const usagePricing = [
+  {
+    label: 'AI Voice Calls',
+    price: '$0.18',
+    unit: '/min after free minutes',
+    note: 'AI calls, qualifies, and transcribes buyer conversations automatically.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z" />
+      </svg>
+    ),
+  },
+  {
+    label: 'SMS Messages',
+    price: '$0.03',
+    unit: '/message',
+    note: 'Automated follow-up texts to buyers and sellers.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Skip Trace Reveals',
+    price: '$0.50',
+    unit: '/reveal',
+    note: 'Uncover phone numbers, emails, and mailing addresses for property owners.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="10" cy="7" r="4" /><path d="M10.3 15H7a4 4 0 00-4 4v2" /><circle cx="17" cy="17" r="3" /><path d="m21 21-1.9-1.9" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Per-Deal Fee',
+    price: '$200',
+    unit: '/closed deal',
+    note: 'Only charged when a deal closes through the platform with both signatures.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 15l2 2 4-4" />
+      </svg>
+    ),
+  },
 ]
 
+const freeMinutes = [
+  { tier: 'Starter', mins: 50, calls: '~17 calls', pct: 10 },
+  { tier: 'Pro', mins: 150, calls: '~50 calls', pct: 30 },
+  { tier: 'Enterprise', mins: 500, calls: '~167 calls', pct: 100 },
+]
+
+const compare: { feature: string; starter: boolean | string; pro: boolean | string; enterprise: boolean | string }[] = [
+  { feature: 'AI buyer discovery', starter: true, pro: true, enterprise: true },
+  { feature: 'AI voice calling', starter: 'Usage-based', pro: 'Usage-based', enterprise: 'Usage-based' },
+  { feature: 'SMS campaigns', starter: false, pro: true, enterprise: true },
+  { feature: 'Deal analysis', starter: '30/mo', pro: '150/mo', enterprise: 'Unlimited' },
+  { feature: 'Smart deal matching', starter: true, pro: true, enterprise: true },
+  { feature: 'Assignment contracts', starter: '5 states', pro: 'All 50 states', enterprise: 'All 50 states' },
+  { feature: 'E-signature', starter: true, pro: true, enterprise: true },
+  { feature: 'Multiple markets', starter: false, pro: true, enterprise: true },
+  { feature: 'A/B testing', starter: false, pro: true, enterprise: true },
+  { feature: 'Conversation intelligence', starter: false, pro: true, enterprise: true },
+  { feature: 'Live call monitoring', starter: false, pro: false, enterprise: true },
+  { feature: 'Team accounts', starter: false, pro: '3 users', enterprise: 'Unlimited' },
+  { feature: 'White-label', starter: false, pro: false, enterprise: true },
+  { feature: 'Custom templates', starter: false, pro: false, enterprise: true },
+  { feature: 'API access', starter: false, pro: false, enterprise: true },
+  { feature: 'Dedicated account manager', starter: false, pro: false, enterprise: true },
+]
+
+const faqs = [
+  {
+    q: 'What happens when I use all my free AI call minutes?',
+    a: 'Additional minutes are billed at $0.18/min. You can set a monthly spending cap in Settings to avoid surprises.',
+  },
+  {
+    q: 'What is the per-deal transaction fee?',
+    a: 'When a deal closes through the platform (contract signed by both parties), a $200 fee is charged. This only applies to completed transactions, not to listings or offers.',
+  },
+  {
+    q: 'Can I switch plans?',
+    a: 'Yes, upgrade or downgrade anytime. Changes take effect on your next billing cycle. No long-term contracts.',
+  },
+  {
+    q: 'Do I need to sign a contract?',
+    a: 'No. All plans are month-to-month. Cancel anytime with no penalties.',
+  },
+  {
+    q: 'How do I get started?',
+    a: 'Sign up, pick a plan, and start finding buyers in minutes. No long setup process.',
+  },
+  {
+    q: 'What payment methods do you accept?',
+    a: 'All major credit cards via Stripe. Enterprise customers can pay by invoice.',
+  },
+]
+
+/* ── Icons ──────────────────────────────────────────────── */
 function Check() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--accent)' }}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12" />
     </svg>
   )
 }
 
-function X() {
+function XMark() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--gray-300)' }}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.18)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   )
 }
 
+function FeatureCheck() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  )
+}
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={MUTED}
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      style={{ transition: 'transform 0.2s ease', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  )
+}
+
+/* String value is "positive" if Unlimited, All 50, or a high number */
+function isPositiveValue(val: string) {
+  return /unlimited|all 50/i.test(val)
+}
+
+function CellContent({ val, isPro }: { val: boolean | string; isPro?: boolean }) {
+  if (val === true) return <div style={{ display: 'flex', justifyContent: 'center' }}><Check /></div>
+  if (val === false) return <div style={{ display: 'flex', justifyContent: 'center' }}><XMark /></div>
+  if (isPro) return <span style={{ fontSize: '0.75rem', fontWeight: 500, color: BLUE, fontFamily: F }}>{val}</span>
+  const positive = isPositiveValue(val)
+  return <span style={{ fontSize: '0.75rem', fontWeight: 400, color: positive ? NAVY_H : MUTED, fontFamily: F }}>{val}</span>
+}
+
+/* ── FAQ Item ───────────────────────────────────────────── */
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ borderBottom: `1px solid ${BORDER_SOFT}` }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '20px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+          gap: 16,
+        }}
+      >
+        <span style={{ fontSize: 15, fontWeight: 500, color: NAVY_H, fontFamily: F, lineHeight: 1.4 }}>{q}</span>
+        <Chevron open={open} />
+      </button>
+      <div style={{
+        maxHeight: open ? 200 : 0, overflow: 'hidden',
+        transition: 'max-height 0.3s ease, opacity 0.2s ease',
+        opacity: open ? 1 : 0,
+      }}>
+        <p style={{ fontSize: 14, color: BODY, lineHeight: 1.7, paddingBottom: 20, fontFamily: F }}>{a}</p>
+      </div>
+    </div>
+  )
+}
+
+/* ── Page ────────────────────────────────────────────────── */
 export default function PricingPage() {
   return (
     <>
       <Nav currentPage="pricing" />
-      <main style={{ paddingTop: 62, background: 'var(--cream)' }}>
+      <main style={{ paddingTop: 62, background: CREAM }}>
 
-        {/* Hero */}
-        <div style={{ background: 'var(--cream)' }}>
-          <div className="pricing-hero" style={{ maxWidth: 680, margin: '0 auto', padding: '80px 40px 64px', textAlign: 'center' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 22 }}>
-              <span className="eyebrow-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
-              Early access pricing
-            </div>
-            <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(1.9rem, 4vw, 2.8rem)', fontWeight: 400, letterSpacing: '-0.022em', color: 'var(--navy-heading)', marginBottom: 16, lineHeight: 1.1, textTransform: 'capitalize' }}>
-              Simple pricing, serious results
+        {/* ── Hero ────────────────────────────────────────── */}
+        <div style={{ background: CREAM }}>
+          <div className="pricing-hero reveal" style={{ maxWidth: 700, margin: '0 auto', padding: '80px 40px 64px', textAlign: 'center' }}>
+            <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(1.7rem, 3.5vw, 2.4rem)', fontWeight: 400, letterSpacing: '-0.022em', color: NAVY_H, marginBottom: 14, lineHeight: 1.15 }}>
+              Simple Pricing, Serious Results
             </h1>
-            <p style={{ fontSize: '0.97rem', color: 'var(--body-text)', lineHeight: 1.7, maxWidth: 480, margin: '0 auto 28px' }}>
-              Replace PropStream, your dialer, your CRM, and your contract platform, all in one. Founding members lock in their rate forever.
+            <p style={{ fontSize: '0.97rem', color: 'rgba(5, 14, 36, 0.6)', lineHeight: 1.7, maxWidth: 540, margin: '0 auto 28px', fontFamily: F }}>
+              Replace PropStream, your dialer, your CRM, and your contract platform. All in one. Usage-based so you only pay for what you use.
             </p>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--green-bg)', border: '1px solid rgba(22,163,74,0.15)', borderRadius: 20, padding: '6px 16px', fontSize: '0.8rem', color: '#16a34a', fontWeight: 500 }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
-              Founding member pricing locked in during beta
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'white', border: `1px solid ${BORDER}`, borderRadius: 20, padding: '6px 16px', fontSize: '0.8rem', color: NAVY_H, fontWeight: 500, fontFamily: F }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: BLUE, display: 'inline-block' }} />
+              Usage-based so you only pay for what you use
             </div>
           </div>
         </div>
 
-        {/* Wholesaler tiers */}
-        <div className="pricing-section" style={{ maxWidth: 1160, margin: '0 auto', padding: '64px 40px 0' }}>
-          <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 28 }}>
+        {/* ── Pricing Cards ──────────────────────────────── */}
+        <div className="pricing-section reveal" style={{ maxWidth: 1160, margin: '0 auto', padding: '0 40px' }}>
+          <p style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: BLUE, marginBottom: 28, fontFamily: F, textAlign: 'center' }}>
             Plans
           </p>
-          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, alignItems: 'start' }}>
-            {wholesalerTiers.map((tier) => (
+          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'stretch' }}>
+            {tiers.map((tier) => (
               <div
                 key={tier.name}
                 style={{
                   borderRadius: 16,
-                  border: tier.highlight ? '1px solid var(--accent)' : '1px solid var(--border-light)',
-                  padding: '28px 24px',
-                  background: 'var(--white)',
+                  border: tier.highlight ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
+                  padding: '36px 32px 28px',
+                  background: tier.highlight
+                    ? 'linear-gradient(180deg, rgba(37,99,235,0.03) 0%, rgba(37,99,235,0.01) 100%)'
+                    : 'white',
                   position: 'relative',
-                  boxShadow: tier.highlight ? '0 0 0 1px var(--accent), 0 4px 20px rgba(37,99,235,0.08)' : '0 1px 3px rgba(5,14,36,0.04)',
+                  boxShadow: tier.highlight
+                    ? '0 8px 30px rgba(37,99,235,0.1)'
+                    : '0 1px 3px rgba(5,14,36,0.04)',
+                  transform: tier.highlight ? 'translateY(-6px)' : 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
                 {tier.badge && (
-                  <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: 'var(--accent)', color: 'white', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', padding: '3px 12px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+                  <div style={{
+                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                    background: BLUE, color: 'white', fontSize: 10, fontWeight: 600,
+                    letterSpacing: '0.06em', textTransform: 'uppercase', padding: '5px 14px',
+                    borderRadius: 20, whiteSpace: 'nowrap', fontFamily: F,
+                  }}>
                     {tier.badge}
                   </div>
                 )}
-                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 16 }}>{tier.name}</p>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 4 }}>
-                  <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 48, fontWeight: 400, color: 'var(--navy-heading)', letterSpacing: '-0.03em', lineHeight: 1 }}>{tier.price}</span>
-                  <span style={{ fontSize: 16, color: 'var(--muted-text)' }}>{tier.period}</span>
+                <p style={{
+                  fontSize: 10, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase',
+                  color: tier.highlight ? BLUE : MUTED, marginBottom: 16, fontFamily: F, textAlign: 'center',
+                }}>
+                  {tier.name}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', marginBottom: 4 }}>
+                  <span style={{ fontFamily: F, fontSize: '2.5rem', fontWeight: 600, color: NAVY_H, letterSpacing: '-0.03em', lineHeight: 1 }}>
+                    {tier.price}
+                  </span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 400, color: MUTED, fontFamily: F, marginLeft: 3 }}>{tier.period}</span>
                 </div>
-                <p style={{ fontSize: '0.82rem', color: 'var(--body-text)', marginBottom: 22, lineHeight: 1.5 }}>{tier.tagline}</p>
+                <p style={{ fontSize: '0.82rem', color: BODY, marginBottom: 22, lineHeight: 1.5, fontFamily: F, textAlign: 'center' }}>{tier.tagline}</p>
                 <Link
-                  href={tier.ctaHref ?? '/#cta'}
+                  href={tier.ctaHref}
+                  className={tier.highlight ? 'pricing-cta-pro' : 'pricing-cta-outline'}
                   style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    padding: '10px 20px',
-                    borderRadius: 10,
-                    fontSize: '0.87rem',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    background: tier.highlight ? 'var(--accent)' : 'transparent',
-                    color: tier.highlight ? 'white' : 'var(--navy-heading)',
-                    border: tier.highlight ? 'none' : '1px solid var(--border-med)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    height: 42, borderRadius: 10,
+                    fontSize: '0.85rem', fontWeight: 500, textDecoration: 'none', fontFamily: F,
+                    background: tier.highlight ? BLUE : 'transparent',
+                    color: tier.highlight ? 'white' : NAVY_H,
+                    border: tier.highlight ? 'none' : `1px solid ${NAVY_H}`,
                     marginBottom: 22,
-                    transition: 'opacity 0.15s',
+                    transition: 'all 0.2s ease',
+                    boxShadow: tier.highlight ? '0 4px 12px rgba(37,99,235,0.25)' : 'none',
                   }}
                 >
                   {tier.cta}
                 </Link>
-                <div style={{ height: 1, background: 'var(--border-light)', marginBottom: 18 }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {tier.features.map((f) => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
-                      <div style={{ marginTop: 1, flexShrink: 0, width: 18, height: 18, borderRadius: '50%', background: 'var(--accent-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
+                <div style={{ height: 1, background: BORDER, marginBottom: 18 }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 0, flex: 1, alignItems: 'center' }}>
+                  <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 0 }}>
+                    {tier.features.map((f) => (
+                      <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, lineHeight: 2 }}>
+                        <div style={{ marginTop: 4, flexShrink: 0 }}>
+                          <FeatureCheck />
+                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 400, color: BODY, fontFamily: F }}>{f}</span>
                       </div>
-                      <span style={{ fontSize: 13, color: 'var(--body-text)', lineHeight: 1.5 }}>{f}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Feature comparison table */}
-        <div className="pricing-section pricing-compare" style={{ maxWidth: 1160, margin: '0 auto', padding: '72px 40px 0' }}>
-          <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 14 }}>
+        {/* ── Usage-Based Pricing ────────────────────────── */}
+        <div className="pricing-section reveal" style={{ maxWidth: 1160, margin: '0 auto', padding: '80px 40px 0' }}>
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <p style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: BLUE, marginBottom: 14, fontFamily: F }}>
+              Usage-based
+            </p>
+            <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(1.3rem, 2.5vw, 1.6rem)', fontWeight: 400, color: NAVY_H, marginBottom: 10, letterSpacing: '-0.022em' }}>
+              Pay as You Grow
+            </h2>
+            <p style={{ fontSize: '0.92rem', color: BODY, lineHeight: 1.7, maxWidth: 480, margin: '0 auto', fontFamily: F }}>
+              Free minutes included with every plan. Only pay for what you use beyond your limit.
+            </p>
+          </div>
+          <div className="usage-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+            {usagePricing.map((item) => (
+              <div key={item.label} style={{
+                background: 'white', borderRadius: 14, border: `1px solid ${BORDER}`,
+                padding: 24, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 180,
+                alignItems: 'center', textAlign: 'center',
+              }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {item.icon}
+                </div>
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 500, color: MUTED, marginBottom: 5, fontFamily: F, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item.label}</p>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 }}>
+                    <span style={{ fontSize: '1.5rem', fontWeight: 600, color: NAVY_H, fontFamily: F, letterSpacing: '-0.02em', lineHeight: 1 }}>{item.price}</span>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 400, color: MUTED, fontFamily: F }}>{item.unit}</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: 12.5, fontWeight: 400, color: 'rgba(5,14,36,0.4)', lineHeight: 1.5, fontFamily: F }}>{item.note}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{ textAlign: 'center', fontSize: '0.82rem', color: MUTED, marginTop: 20, fontFamily: F }}>
+            Email campaigns included free with all plans. Free AI minutes reset monthly.
+          </p>
+        </div>
+
+        {/* ── Free Minutes Comparison ────────────────────── */}
+        <div className="pricing-section reveal" style={{ maxWidth: 1160, margin: '0 auto', padding: '48px 40px 0' }}>
+          <div style={{
+            background: 'white', borderRadius: 14, border: `1px solid ${BORDER}`,
+            padding: '24px 28px',
+          }}>
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ fontSize: '0.88rem', fontWeight: 500, color: NAVY_H, fontFamily: F }}>Free AI call minutes per plan</p>
+              <p style={{ fontSize: '0.78rem', color: MUTED, fontFamily: F }}>Average AI call duration: 3 minutes</p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {freeMinutes.map((fm) => (
+                <div key={fm.tier} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: NAVY_H, fontFamily: F, width: 80, flexShrink: 0 }}>{fm.tier}</span>
+                  <div style={{ flex: 1, height: 10, background: 'rgba(5,14,36,0.04)', borderRadius: 5, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${fm.pct}%`, background: BLUE, borderRadius: 5, transition: 'width 0.5s ease' }} />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: NAVY_H, fontFamily: F, width: 70, textAlign: 'right', flexShrink: 0 }}>{fm.mins} min</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: MUTED, fontFamily: F, width: 80, flexShrink: 0 }}>{fm.calls}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Feature Comparison Table ───────────────────── */}
+        <div className="pricing-section pricing-compare reveal" style={{ maxWidth: 1160, margin: '0 auto', padding: '80px 40px 0' }}>
+          <p style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: BLUE, marginBottom: 14, fontFamily: F, textAlign: 'center' }}>
             Compare plans
           </p>
-          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.5rem', fontWeight: 400, color: 'var(--navy-heading)', marginBottom: 32, letterSpacing: '-0.022em' }}>
-            Full feature comparison
+          <h2 style={{ fontFamily: SERIF, fontSize: '1.35rem', fontWeight: 400, color: NAVY_H, marginBottom: 32, letterSpacing: '-0.022em', textAlign: 'center' }}>
+            Full Feature Comparison
           </h2>
-          <div style={{ border: '1px solid var(--border-light)', borderRadius: 12, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+              <colgroup>
+                <col style={{ width: '40%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '20%' }} />
+              </colgroup>
               <thead>
-                <tr style={{ background: 'var(--warm-gray)', borderBottom: '1px solid var(--border-light)' }}>
-                  <th style={{ textAlign: 'left', padding: '13px 20px', fontSize: '0.78rem', fontWeight: 600, color: 'var(--muted-text)' }}>Feature</th>
-                  {['Starter', 'Pro', 'Enterprise'].map((t) => (
-                    <th key={t} style={{ textAlign: 'center', padding: '13px 20px', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: t === 'Pro' ? 'var(--accent)' : 'var(--muted-text)' }}>{t}</th>
-                  ))}
+                <tr style={{ background: 'rgb(245, 243, 240)' }}>
+                  <th style={{ textAlign: 'left', padding: '10px 18px', fontSize: '0.72rem', fontWeight: 600, color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Feature</th>
+                  <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Starter</th>
+                  <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: BLUE, fontFamily: F, background: 'rgba(37,99,235,0.03)', borderBottom: `1px solid ${BORDER}` }}>Pro</th>
+                  <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Enterprise</th>
                 </tr>
               </thead>
               <tbody>
                 {compare.map((row, i) => (
-                  <tr key={row.feature} style={{ borderBottom: i < compare.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
-                    <td style={{ padding: '13px 20px', fontSize: '0.86rem', color: 'var(--body-text)' }}>{row.feature}</td>
-                    <td style={{ textAlign: 'center', padding: '13px 20px' }}>{row.starter ? <Check /> : <X />}</td>
-                    <td style={{ textAlign: 'center', padding: '13px 20px', background: 'var(--accent-bg)' }}>{row.pro ? <Check /> : <X />}</td>
-                    <td style={{ textAlign: 'center', padding: '13px 20px' }}>{row.enterprise ? <Check /> : <X />}</td>
+                  <tr key={row.feature} style={{ borderBottom: i < compare.length - 1 ? `1px solid ${BORDER_SOFT}` : 'none' }}>
+                    <td style={{ padding: '9px 18px', fontSize: '0.78rem', color: BODY, fontFamily: F, background: i % 2 === 1 ? 'rgba(5,14,36,0.015)' : 'white' }}>{row.feature}</td>
+                    <td style={{ textAlign: 'center', padding: '9px 12px', verticalAlign: 'middle', background: i % 2 === 1 ? 'rgba(5,14,36,0.015)' : 'white' }}><CellContent val={row.starter} /></td>
+                    <td style={{ textAlign: 'center', padding: '9px 12px', verticalAlign: 'middle', background: i % 2 === 1 ? 'rgba(37,99,235,0.04)' : 'rgba(37,99,235,0.03)' }}><CellContent val={row.pro} isPro /></td>
+                    <td style={{ textAlign: 'center', padding: '9px 12px', verticalAlign: 'middle', background: i % 2 === 1 ? 'rgba(5,14,36,0.015)' : 'white' }}><CellContent val={row.enterprise} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -228,62 +474,123 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Benchmark callout */}
-        <div className="pricing-section" style={{ maxWidth: 1160, margin: '0 auto', padding: '32px 40px 0' }}>
-          <div style={{ background: 'var(--warm-gray)', border: '1px solid var(--border-light)', borderRadius: 12, padding: '24px 28px', display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        {/* ── How We Compare ─────────────────────────────── */}
+        <div className="pricing-section reveal" style={{ maxWidth: 1160, margin: '0 auto', padding: '48px 40px 0' }}>
+          <div style={{ background: 'rgba(37,99,235,0.03)', borderLeft: `3px solid ${BLUE}`, borderRadius: '0 12px 12px 0', padding: '24px 28px', display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
             <div>
-              <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--navy-heading)', marginBottom: 5 }}>How we compare</p>
-              <p style={{ fontSize: '0.86rem', color: 'var(--body-text)', lineHeight: 1.7, maxWidth: 700 }}>
-                PropStream alone is $99 to $399/mo for data only. Add a dialer ($100 to $200/mo), a CRM, and a contract platform and you&apos;re at $400 to $700/mo with no automation and no matching. DealFlow AI replaces all of it for less and actually does the work.
+              <p style={{ fontSize: '0.88rem', fontWeight: 500, color: NAVY_H, marginBottom: 5, fontFamily: F }}>How we compare</p>
+              <p style={{ fontSize: '0.86rem', color: BODY, lineHeight: 1.7, maxWidth: 740, fontFamily: F }}>
+                PropStream alone is $99 to $399/mo for data only. Add a dialer ($100 to $200/mo), a CRM ($50 to $100/mo), and a contract platform ($30 to $50/mo) and you are at $280 to $750/mo with no automation, no AI calling, and no deal matching. DealFlow AI replaces all of it starting at $149/mo and actually does the work for you.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom CTA */}
-        <div className="pricing-section" style={{ maxWidth: 760, margin: '0 auto', padding: '80px 40px 96px', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 400, letterSpacing: '-0.022em', color: 'var(--navy-heading)', marginBottom: 12, lineHeight: 1.15 }}>
-            Ready to close more deals?
-          </h2>
-          <p style={{ fontSize: '0.95rem', color: 'var(--body-text)', lineHeight: 1.7, maxWidth: 400, margin: '0 auto 28px' }}>
-            Join the waitlist today and lock in founding member pricing before we launch.
-          </p>
-          <Link
-            href="/#cta"
+        {/* ── FAQ ────────────────────────────────────────── */}
+        <div className="pricing-section reveal" style={{ maxWidth: 720, margin: '0 auto', padding: '64px 40px 0' }}>
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <p style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: BLUE, marginBottom: 14, fontFamily: F }}>
+              FAQ
+            </p>
+            <h2 style={{ fontFamily: SERIF, fontSize: '1.35rem', fontWeight: 400, color: NAVY_H, letterSpacing: '-0.022em' }}>
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <div style={{ borderTop: `1px solid ${BORDER_SOFT}` }}>
+            {faqs.map((faq) => (
+              <FaqItem key={faq.q} q={faq.q} a={faq.a} />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Bottom CTA ─────────────────────────────────── */}
+        <div style={{ marginTop: 80 }}>
+          <div
             style={{
-              display: 'inline-block',
-              background: 'var(--accent)',
-              color: 'var(--white)',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-              textDecoration: 'none',
-              padding: '12px 28px',
-              borderRadius: 10,
-              letterSpacing: '-0.01em',
-              transition: 'opacity 0.15s',
+              position: 'relative', padding: '72px 40px', background: NAVY, overflow: 'hidden',
             }}
           >
-            Join the waitlist
-          </Link>
-          <p style={{ fontSize: '0.75rem', color: 'var(--muted-text)', marginTop: 12 }}>
-            No credit card · Founding members lock in pricing forever
-          </p>
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.03, pointerEvents: 'none' }}>
+              <Image src="/Logo.png" alt="" width={240} height={240} style={{ objectFit: 'contain' }} />
+            </div>
+            <div className="reveal" style={{ position: 'relative', zIndex: 2, maxWidth: 580, margin: '0 auto', textAlign: 'center' }}>
+              <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)', fontWeight: 400, letterSpacing: '-0.022em', color: 'white', lineHeight: 1.15, marginBottom: 14 }}>
+                Ready to Close More Deals?
+              </h2>
+              <p style={{ fontSize: '1rem', fontWeight: 400, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, maxWidth: 400, margin: '0 auto 28px', fontFamily: F }}>
+                Join thousands of wholesalers closing more deals with less work.
+              </p>
+              <a
+                href="/signup"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  background: BLUE, color: 'white', fontFamily: F, fontWeight: 500,
+                  fontSize: '0.88rem', padding: '12px 28px', borderRadius: 10,
+                  border: 'none', textDecoration: 'none', cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
+                  boxShadow: '0 4px 20px rgba(37, 99, 235, 0.35)',
+                }}
+              >
+                Get started free
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </a>
+              <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.4)', marginTop: 14, fontFamily: F }}>
+                or <a href="/#cta" className="pricing-waitlist-link" style={{ color: 'rgba(255,255,255,0.5)' }}>join the waitlist</a> for early access
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24, flexWrap: 'wrap' }}>
+                {['50 states', 'TCPA compliant', 'Cancel anytime'].map((badge) => (
+                  <div key={badge} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    background: 'rgba(255,255,255,0.1)', borderRadius: 20,
+                    padding: '5px 14px',
+                  }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', fontFamily: F }}>{badge}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
       </main>
       <Footer />
+      <ScrollReveal />
 
       <style>{`
+        .pricing-cta-outline:hover {
+          background: ${NAVY} !important;
+          color: white !important;
+        }
+        .pricing-cta-pro:hover {
+          opacity: 0.92;
+        }
+        .pricing-waitlist-link {
+          text-decoration: none;
+          transition: text-decoration-color 0.15s ease;
+        }
+        .pricing-waitlist-link:hover {
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
         @media (max-width: 860px) {
           .pricing-hero { padding: 56px 20px 48px !important; }
           .pricing-section { padding-left: 20px !important; padding-right: 20px !important; }
           .pricing-compare { padding-top: 48px !important; }
           .pricing-grid { grid-template-columns: 1fr !important; }
-.pricing-compare table { font-size: 0.82rem; }
-          .pricing-compare td, .pricing-compare th { padding: 10px 14px !important; }
+          .usage-grid { grid-template-columns: 1fr 1fr !important; }
+          .pricing-compare table { font-size: 0.82rem; }
+          .pricing-compare td, .pricing-compare th { padding: 10px 12px !important; }
+        }
+        @media (max-width: 560px) {
+          .usage-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </>
