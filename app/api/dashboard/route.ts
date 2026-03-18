@@ -77,6 +77,14 @@ export async function GET() {
       callsByChannel,
       callsLast14Days,
       recentCampaignEvents,
+      // ── New: dashboard redesign data ─────────────
+      buyersByStatusRaw,
+      buyersByStateRaw,
+      closedDealsThisMonth,
+      dealValuesByStatusRaw,
+      topBuyers,
+      overdueCallbacks,
+      unreadSmsCount,
     ] = await timeQuery('Dashboard.allQueries', () => Promise.all([
       // Existing KPIs
       prisma.deal.count({ where: { profileId: pid, status: 'ACTIVE' } }),
@@ -309,6 +317,66 @@ export async function GET() {
         take: 5,
         select: { id: true, name: true, status: true, totalBuyers: true, qualified: true, startedAt: true, completedAt: true, updatedAt: true },
       }),
+
+      // ── New: dashboard redesign data ─────────────
+      // Each wrapped with .catch() so failures don't break the entire dashboard
+
+      // Buyer status distribution
+      Promise.resolve().then(() =>
+        prisma.cashBuyer.groupBy({
+          by: ['status'],
+          where: { profileId: pid, isOptedOut: false },
+          _count: { _all: true },
+        }),
+      ).catch(() => []),
+      // Buyer market distribution (top states)
+      Promise.resolve().then(() =>
+        prisma.cashBuyer.groupBy({
+          by: ['state'],
+          where: { profileId: pid, isOptedOut: false, state: { not: null } },
+          _count: { _all: true },
+          orderBy: { _count: { state: 'desc' } },
+          take: 8,
+        }),
+      ).catch(() => []),
+      // Closed deals this month with dates + assign fees (for revenue chart)
+      Promise.resolve().then(() =>
+        prisma.deal.findMany({
+          where: { profileId: pid, status: 'CLOSED', updatedAt: { gte: monthStart } },
+          select: { id: true, assignFee: true, updatedAt: true },
+          orderBy: { updatedAt: 'asc' },
+        }),
+      ).catch(() => []),
+      // Deal values by pipeline stage (aggregate assignFee + askingPrice)
+      Promise.resolve().then(() =>
+        prisma.deal.groupBy({
+          by: ['status'],
+          where: { profileId: pid },
+          _count: { _all: true },
+          _sum: { askingPrice: true, assignFee: true },
+        }),
+      ).catch(() => []),
+      // Top active buyers by score
+      Promise.resolve().then(() =>
+        prisma.cashBuyer.findMany({
+          where: { profileId: pid, isOptedOut: false, buyerScore: { gt: 0 } },
+          orderBy: { buyerScore: 'desc' },
+          take: 5,
+          select: { id: true, firstName: true, lastName: true, entityName: true, buyerScore: true, status: true, state: true, lastContactedAt: true },
+        }),
+      ).catch(() => []),
+      // Overdue callbacks (wrapped to handle missing model on stale prisma singleton)
+      Promise.resolve().then(() =>
+        prisma.scheduledCallback.count({
+          where: { profileId: pid, status: 'scheduled', scheduledAt: { lt: now } },
+        }),
+      ).catch(() => 0),
+      // Unread SMS conversations
+      Promise.resolve().then(() =>
+        prisma.sMSConversation.count({
+          where: { profileId: pid, unreadCount: { gt: 0 } },
+        }),
+      ).catch(() => 0),
     ]))
 
     // Transform pipelines into maps
@@ -395,7 +463,44 @@ export async function GET() {
       }
     }
 
+    // ── Process new data ──────────────────────────
+    const buyersByStatus: Record<string, number> = {}
+    for (const row of buyersByStatusRaw) {
+      buyersByStatus[row.status] = row._count._all
+    }
+
+    const buyersByState: { state: string; count: number }[] = buyersByStateRaw.map(
+      (row: { state: string | null; _count: { _all: number } }) => ({
+        state: row.state || 'Unknown',
+        count: row._count._all,
+      }),
+    )
+
+    const dealValuesByStage: { status: string; count: number; totalValue: number; totalFees: number }[] =
+      dealValuesByStatusRaw.map(
+        (row: { status: string; _count: { _all: number }; _sum: { askingPrice: number | null; assignFee: number | null } }) => ({
+          status: row.status,
+          count: row._count._all,
+          totalValue: row._sum.askingPrice || 0,
+          totalFees: row._sum.assignFee || 0,
+        }),
+      )
+
+    // Daily revenue from closed deals this month
+    const dailyRevenue: { date: string; revenue: number }[] = []
+    const revBuckets: Record<string, number> = {}
+    for (const d of closedDealsThisMonth) {
+      const date = d.updatedAt.toISOString().split('T')[0]
+      revBuckets[date] = (revBuckets[date] || 0) + (d.assignFee || 0)
+    }
+    // Fill current month days
+    for (let day = new Date(monthStart); day <= now; day.setDate(day.getDate() + 1)) {
+      const date = day.toISOString().split('T')[0]
+      dailyRevenue.push({ date, revenue: revBuckets[date] || 0 })
+    }
+
     const responseData = {
+      firstName: profile.firstName || null,
       kpis: {
         activeDeals,
         closedDeals,
@@ -439,6 +544,14 @@ export async function GET() {
         outreachByChannel,
         outreachEvents,
       },
+      // New: dashboard redesign data
+      buyersByStatus,
+      buyersByState,
+      dailyRevenue,
+      dealValuesByStage,
+      topBuyers,
+      overdueCallbacks,
+      unreadSmsCount,
     }
 
     setCache(cacheKey, responseData)

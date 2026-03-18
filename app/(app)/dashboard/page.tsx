@@ -1,18 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
-  TrendingUp,
   Play,
-  Pause,
   Upload,
   UserPlus,
   Search,
   PhoneOutgoing,
   DollarSign,
   Handshake,
-  Send,
   CheckCircle,
   XCircle,
   ChevronRight,
@@ -22,9 +19,14 @@ import {
   Eye,
   MessageSquare,
   Phone,
-  Mail,
   Clock,
   Target,
+  Users,
+  Home,
+  AlertTriangle,
+  ArrowUpRight,
+  Briefcase,
+  Activity,
 } from 'lucide-react'
 import { useToast } from '@/components/toast'
 
@@ -50,7 +52,6 @@ type KpiData = {
   activeListings: number
   totalListingViews: number
   newInquiries: number
-  // Outreach
   activeCampaigns: number
   callsThisWeek: number
   callsToday: number
@@ -137,197 +138,84 @@ type RecentInquiry = {
   listing: { address: string; city: string; state: string }
 }
 
-/* ── Static data ── */
+type TopBuyer = {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  entityName: string | null
+  buyerScore: number
+  status: string
+  state: string | null
+  lastContactedAt: string | null
+}
 
-const revenueData = [
-  { month: 'Oct', value: 18500 },
-  { month: 'Nov', value: 24500 },
-  { month: 'Dec', value: 12000 },
-  { month: 'Jan', value: 31000 },
-  { month: 'Feb', value: 28500 },
-  { month: 'Mar', value: 42000 },
+type DealValuesByStage = {
+  status: string
+  count: number
+  totalValue: number
+  totalFees: number
+}
+
+type DashboardData = {
+  firstName: string | null
+  kpis: KpiData
+  recentActivity: ActivityItem[]
+  recentDeals: RecentDeal[]
+  topMatches: TopMatch[]
+  pendingOffersList: PendingOffer[]
+  dealPipeline: Record<string, number>
+  contractPipeline: Record<string, number>
+  recentContracts: RecentContract[]
+  recentInquiries: RecentInquiry[]
+  outreach: OutreachData
+  buyersByStatus: Record<string, number>
+  buyersByState: { state: string; count: number }[]
+  dailyRevenue: { date: string; revenue: number }[]
+  dealValuesByStage: DealValuesByStage[]
+  topBuyers: TopBuyer[]
+  overdueCallbacks: number
+  unreadSmsCount: number
+}
+
+/* ── Tabs ── */
+type TabKey = 'overview' | 'deals' | 'outreach' | 'contracts' | 'analytics'
+
+const TABS: { key: TabKey; label: string; icon: typeof Home }[] = [
+  { key: 'overview', label: 'Overview', icon: Home },
+  { key: 'deals', label: 'Deals & Pipeline', icon: Briefcase },
+  { key: 'outreach', label: 'Outreach & Buyers', icon: PhoneOutgoing },
+  { key: 'contracts', label: 'Contracts & Marketplace', icon: FileSignature },
+  { key: 'analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
-
-/* ── Helpers ── */
+/* ══════════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════════ */
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime()
   const mins = Math.floor(diff / 60000)
   if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins} min ago`
+  if (mins < 60) return `${mins}m ago`
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs} hr${hrs > 1 ? 's' : ''} ago`
+  if (hrs < 24) return `${hrs}h ago`
   const days = Math.floor(hrs / 24)
-  return `${days} day${days > 1 ? 's' : ''} ago`
+  return `${days}d ago`
 }
 
-function buyerName(b: { firstName: string | null; lastName: string | null; entityName: string | null }) {
+function bName(b: { firstName: string | null; lastName: string | null; entityName: string | null }) {
   if (b.firstName || b.lastName) return [b.firstName, b.lastName].filter(Boolean).join(' ')
-  return b.entityName || 'Unknown Buyer'
+  return b.entityName || 'Unknown'
 }
 
 function fmtMoney(n: number) {
+  if (n >= 1000000) return `$${(n / 1000000).toFixed(1)}M`
+  if (n >= 1000) return `$${(n / 1000).toFixed(0)}K`
   return '$' + n.toLocaleString()
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  DRAFT: '#9CA3AF',
-  ACTIVE: '#2563EB',
-  UNDER_OFFER: '#d97706',
-  CLOSED: '#16a34a',
-  CANCELLED: '#ef4444',
-  EXPIRED: '#6b7280',
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  DRAFT: 'Draft',
-  ACTIVE: 'Active',
-  UNDER_OFFER: 'Under Offer',
-  CLOSED: 'Closed',
-  CANCELLED: 'Cancelled',
-  EXPIRED: 'Expired',
-}
-
-const CONTRACT_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  DRAFT: { bg: 'rgba(156,163,175,0.1)', text: '#6b7280' },
-  SENT: { bg: 'rgba(37,99,235,0.08)', text: '#2563eb' },
-  EXECUTED: { bg: 'rgba(22,163,74,0.08)', text: '#16a34a' },
-  VOIDED: { bg: 'rgba(239,68,68,0.08)', text: '#ef4444' },
-}
-
-/* ── Quick actions ── */
-const quickActions = [
-  { label: 'New AI Campaign', icon: PhoneOutgoing, color: '#2563EB', href: '/outreach' },
-  { label: 'Upload Deal', icon: Upload, color: '#16a34a', href: '/deals/new' },
-  { label: 'Add Buyer', icon: UserPlus, color: '#7c3aed', href: '/crm' },
-  { label: 'Run Analysis', icon: Search, color: '#d97706', href: '/analyzer' },
-]
-
-/* ── Card wrapper ── */
-const cardStyle: React.CSSProperties = {
-  background: 'var(--white, #ffffff)',
-  border: '1px solid var(--border-light, #F0F0F0)',
-  borderRadius: 14,
-  padding: '20px 22px',
-}
-
-const sectionLabel: React.CSSProperties = {
-  fontSize: '0.68rem',
-  fontWeight: 700,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  color: 'var(--accent, #2563EB)',
-  marginBottom: 14,
-}
-
-/* ── Revenue chart SVG builder ── */
-function RevenueChart() {
-  const max = Math.max(...revenueData.map(d => d.value))
-  const w = 480
-  const h = 180
-  const padL = 0
-  const padB = 28
-  const chartH = h - padB
-  const stepX = (w - padL) / (revenueData.length - 1)
-
-  const points = revenueData.map((d, i) => ({
-    x: padL + i * stepX,
-    y: chartH - (d.value / max) * (chartH - 16),
-  }))
-
-  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
-  const areaPath = `${linePath} L${points[points.length - 1].x},${chartH} L${points[0].x},${chartH} Z`
-
-  const total = revenueData.reduce((s, d) => s + d.value, 0)
-
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div>
-          <div style={sectionLabel}>Revenue (6 mo)</div>
-          <div
-            style={{
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: '1.6rem',
-              fontWeight: 400,
-              color: 'var(--navy-heading, #0B1224)',
-              letterSpacing: '-0.03em',
-              lineHeight: 1,
-            }}
-          >
-            ${total.toLocaleString()}
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16a34a', fontSize: '0.75rem', fontWeight: 500 }}>
-          <TrendingUp style={{ width: 14, height: 14 }} />
-          +32% vs prior
-        </div>
-      </div>
-      <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 160 }}>
-        <defs>
-          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2563EB" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#2563EB" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={areaPath} fill="url(#areaGrad)" />
-        <path d={linePath} fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-        {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#fff" stroke="#2563EB" strokeWidth="2" />
-        ))}
-        {revenueData.map((d, i) => (
-          <text
-            key={i}
-            x={padL + i * stepX}
-            y={h - 6}
-            textAnchor="middle"
-            fill="var(--muted-text, #9CA3AF)"
-            fontSize="11"
-            fontFamily="inherit"
-          >
-            {d.month}
-          </text>
-        ))}
-      </svg>
-    </div>
-  )
-}
-
-/* ── Activity type indicator dot ── */
-const dotColors: Record<string, string> = {
-  buyer: '#2563EB',
-  match: '#16a34a',
-  contract: '#7c3aed',
-  call: '#d97706',
-  analysis: '#e11d48',
-  offer: '#d97706',
-  deal: '#2563EB',
-  campaign: '#2563EB',
-  call_completed: '#d97706',
-  call_annotated: '#7c3aed',
-}
-
-const OUTCOME_COLORS_DASH: Record<string, { text: string; bg: string }> = {
-  QUALIFIED: { text: '#16a34a', bg: 'rgba(22,163,74,0.08)' },
-  NOT_BUYING: { text: '#6b7280', bg: 'rgba(107,114,128,0.08)' },
-  NO_ANSWER: { text: '#d97706', bg: 'rgba(217,119,6,0.08)' },
-  VOICEMAIL: { text: '#7c3aed', bg: 'rgba(124,58,237,0.08)' },
-  WRONG_NUMBER: { text: '#ef4444', bg: 'rgba(239,68,68,0.08)' },
-  DO_NOT_CALL: { text: '#ef4444', bg: 'rgba(239,68,68,0.08)' },
-  CALLBACK_REQUESTED: { text: '#7c3aed', bg: 'rgba(124,58,237,0.08)' },
-}
-
-const OUTCOME_LABELS_DASH: Record<string, string> = {
-  QUALIFIED: 'Qualified', NOT_BUYING: 'Not Buying', NO_ANSWER: 'No Answer',
-  VOICEMAIL: 'Voicemail', WRONG_NUMBER: 'Wrong #', DO_NOT_CALL: 'DNC',
-  CALLBACK_REQUESTED: 'Callback',
-}
-
-const CHANNEL_ICONS_DASH: Record<string, { icon: typeof Phone; label: string; color: string }> = {
-  VOICE: { icon: Phone, label: 'Voice', color: '#2563EB' },
-  SMS: { icon: MessageSquare, label: 'SMS', color: '#16a34a' },
-  EMAIL: { icon: Mail, label: 'Email', color: '#7c3aed' },
+function fmtMoneyFull(n: number) {
+  return '$' + n.toLocaleString()
 }
 
 function fmtDuration(secs: number | null) {
@@ -344,149 +232,1187 @@ function fmtMinutesAsHours(mins: number) {
   return m > 0 ? `${h}h ${m}m` : `${h}h`
 }
 
+function fmtShortDate(dateStr: string) {
+  const d = new Date(dateStr + 'T00:00:00')
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+/* ── Constants ── */
+const SERIF = "'DM Serif Display', Georgia, serif"
+
+/* ── Status & Pipeline Maps ── */
+const PIPELINE_COLORS: Record<string, string> = {
+  DRAFT: '#E5E7EB', ACTIVE: '#3B82F6', UNDER_OFFER: '#F59E0B',
+  CLOSED: '#22C55E', CANCELLED: '#EF4444', EXPIRED: '#9CA3AF',
+}
+const STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Draft', ACTIVE: 'Active', UNDER_OFFER: 'Under Offer', CLOSED: 'Closed', CANCELLED: 'Cancelled', EXPIRED: 'Expired',
+}
+const OUTCOME_LABELS: Record<string, string> = {
+  QUALIFIED: 'Qualified', NOT_BUYING: 'Not Buying', NO_ANSWER: 'No Answer',
+  VOICEMAIL: 'Voicemail', WRONG_NUMBER: 'Wrong #', DO_NOT_CALL: 'DNC',
+  CALLBACK_REQUESTED: 'Callback',
+}
+const BUYER_STATUS_COLORS: Record<string, string> = {
+  ACTIVE: '#3B82F6', HIGH_CONFIDENCE: '#22C55E', RECENTLY_VERIFIED: '#8B5CF6', DORMANT: '#9CA3AF', DO_NOT_CALL: '#EF4444',
+}
+const BUYER_STATUS_LABELS: Record<string, string> = {
+  ACTIVE: 'Active', HIGH_CONFIDENCE: 'High Confidence', RECENTLY_VERIFIED: 'Verified', DORMANT: 'Dormant', DO_NOT_CALL: 'DNC',
+}
+const CONTRACT_PIPELINE_COLORS: Record<string, string> = {
+  DRAFT: '#E5E7EB', SENT: '#3B82F6', EXECUTED: '#22C55E', VOIDED: '#EF4444',
+}
+const CONTRACT_LABELS: Record<string, string> = {
+  DRAFT: 'Draft', SENT: 'Sent', EXECUTED: 'Executed', VOIDED: 'Voided',
+}
+const CHANNEL_COLORS: Record<string, string> = { VOICE: '#3B82F6', SMS: '#22C55E', EMAIL: '#8B5CF6', MULTI_CHANNEL: '#F59E0B' }
+const CHANNEL_LABELS: Record<string, string> = { VOICE: 'Voice', SMS: 'SMS', EMAIL: 'Email', MULTI_CHANNEL: 'Multi' }
+
+/* ── Badge helpers ── */
+function statusBadgeCls(status: string): string {
+  const m: Record<string, string> = {
+    ACTIVE: 'text-blue-700 bg-blue-50 border-blue-100',
+    CLOSED: 'text-green-700 bg-green-50 border-green-100',
+    DRAFT: 'text-gray-500 bg-gray-50 border-gray-100',
+    CANCELLED: 'text-red-600 bg-red-50 border-red-100',
+    VOIDED: 'text-red-600 bg-red-50 border-red-100',
+    SENT: 'text-indigo-700 bg-indigo-50 border-indigo-100',
+    UNDER_OFFER: 'text-amber-700 bg-amber-50 border-amber-100',
+    EXPIRED: 'text-gray-500 bg-gray-50 border-gray-100',
+    EXECUTED: 'text-green-700 bg-green-50 border-green-100',
+    RUNNING: 'text-green-700 bg-green-50 border-green-100',
+    COMPLETED: 'text-blue-700 bg-blue-50 border-blue-100',
+    PAUSED: 'text-amber-700 bg-amber-50 border-amber-100',
+    PENDING: 'text-amber-700 bg-amber-50 border-amber-100',
+    COUNTERED: 'text-purple-700 bg-purple-50 border-purple-100',
+  }
+  return `inline-flex text-[0.68rem] font-medium px-2 py-0.5 rounded-full border ${m[status] || 'text-gray-500 bg-gray-50 border-gray-100'}`
+}
+
+function outcomeBadgeCls(outcome: string): string {
+  const m: Record<string, string> = {
+    QUALIFIED: 'text-green-700 bg-green-50 border-green-100',
+    NOT_BUYING: 'text-gray-500 bg-gray-50 border-gray-100',
+    NO_ANSWER: 'text-amber-700 bg-amber-50 border-amber-100',
+    VOICEMAIL: 'text-purple-700 bg-purple-50 border-purple-100',
+    WRONG_NUMBER: 'text-red-600 bg-red-50 border-red-100',
+    DO_NOT_CALL: 'text-red-600 bg-red-50 border-red-100',
+    CALLBACK_REQUESTED: 'text-purple-700 bg-purple-50 border-purple-100',
+  }
+  return `inline-flex text-[0.68rem] font-medium px-2 py-0.5 rounded-full border ${m[outcome] || 'text-gray-500 bg-gray-50 border-gray-100'}`
+}
+
+/* ── Icon tint helper ── */
+function iconTint(color: string): [string, string] {
+  const m: Record<string, [string, string]> = {
+    '#2563EB': ['bg-blue-50', 'text-blue-500'],
+    '#3B82F6': ['bg-blue-50', 'text-blue-500'],
+    '#16a34a': ['bg-green-50', 'text-green-500'],
+    '#22C55E': ['bg-green-50', 'text-green-500'],
+    '#7c3aed': ['bg-purple-50', 'text-purple-500'],
+    '#8B5CF6': ['bg-purple-50', 'text-purple-500'],
+    '#d97706': ['bg-amber-50', 'text-amber-500'],
+    '#F59E0B': ['bg-amber-50', 'text-amber-500'],
+    '#ef4444': ['bg-red-50', 'text-red-500'],
+    '#EF4444': ['bg-red-50', 'text-red-500'],
+    '#9CA3AF': ['bg-gray-100', 'text-gray-400'],
+    '#0891b2': ['bg-cyan-50', 'text-cyan-500'],
+  }
+  return m[color] || ['bg-gray-100', 'text-gray-400']
+}
+
 /* ══════════════════════════════════════════════
-   DEAL PIPELINE BAR
+   REUSABLE COMPONENTS
    ══════════════════════════════════════════════ */
 
-function DealPipelineBar({ pipeline, router }: { pipeline: Record<string, number>; router: ReturnType<typeof useRouter> }) {
-  const statuses = ['DRAFT', 'ACTIVE', 'UNDER_OFFER', 'CLOSED', 'CANCELLED', 'EXPIRED']
-  const total = statuses.reduce((s, st) => s + (pipeline[st] || 0), 0)
+function StatCard({ label, value, subtitle, icon: Icon, color, onClick }: {
+  label: string; value: string; subtitle?: string; icon: typeof Home; color: string; onClick?: () => void
+}) {
+  const [bg, text] = iconTint(color)
+  return (
+    <div
+      className={`bg-white rounded-xl border border-[#EAEAEA] p-5 relative overflow-hidden ${
+        onClick
+          ? 'cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]'
+          : 'transition-shadow duration-200 hover:shadow-sm'
+      }`}
+      onClick={onClick}
+    >
+      <div className={`absolute top-4 right-4 w-9 h-9 rounded-lg ${bg} flex items-center justify-center`}>
+        <Icon className={`w-4 h-4 ${text}`} />
+      </div>
+      <div className="text-[0.72rem] font-semibold tracking-[0.04em] uppercase text-[#9CA3AF] mb-3">
+        {label}
+      </div>
+      <div className="text-[2rem] font-semibold text-[#0B1224] tracking-tight leading-none">
+        {value}
+      </div>
+      {subtitle && (
+        <div className="text-[0.7rem] text-[#9CA3AF] mt-1.5">{subtitle}</div>
+      )}
+    </div>
+  )
+}
 
-  if (total === 0) {
+function ViewAllLink({ href, router }: { href: string; router: ReturnType<typeof useRouter> }) {
+  return (
+    <button
+      onClick={() => router.push(href)}
+      className="flex items-center gap-0.5 text-[0.75rem] text-[#2563EB] font-medium bg-transparent border-none cursor-pointer font-[inherit] hover:underline"
+    >
+      View all <ChevronRight className="w-3 h-3" />
+    </button>
+  )
+}
+
+function SectionHeader({ title, viewAllHref, router, rightSlot }: {
+  title: string
+  viewAllHref?: string
+  router?: ReturnType<typeof useRouter>
+  rightSlot?: React.ReactNode
+}) {
+  return (
+    <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#F3F4F6]">
+      <h3 className="text-base text-[#0B1224] font-normal" style={{ fontFamily: SERIF }}>
+        {title}
+      </h3>
+      {viewAllHref && router && <ViewAllLink href={viewAllHref} router={router} />}
+      {rightSlot}
+    </div>
+  )
+}
+
+function EmptyState({ message, actionLabel, onAction, compact }: {
+  message: string; actionLabel?: string; onAction?: () => void; compact?: boolean
+}) {
+  if (compact) {
     return (
-      <div style={{ textAlign: 'center', padding: '16px 0', fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)' }}>
-        No deals yet. <span style={{ color: '#2563EB', cursor: 'pointer' }} onClick={() => router.push('/deals/new')}>Create your first deal</span>
+      <div className="flex items-center justify-center h-[120px] rounded-lg border border-dashed border-[#E5E7EB]">
+        <span className="text-sm text-[#9CA3AF]">{message}</span>
       </div>
     )
   }
+  return (
+    <div className="text-center py-6">
+      <p className="text-[0.82rem] text-[#9CA3AF]">{message}</p>
+      {actionLabel && onAction && (
+        <button
+          onClick={onAction}
+          className="mt-2.5 inline-flex items-center gap-1.5 px-4 py-[7px] rounded-lg border border-[#2563EB] bg-transparent text-[#2563EB] text-[0.76rem] font-semibold cursor-pointer font-[inherit] transition-colors hover:bg-blue-50"
+        >
+          {actionLabel}
+        </button>
+      )}
+    </div>
+  )
+}
+
+function PipelineBar({ statuses, pipeline, colors, labels, onClick }: {
+  statuses: string[]
+  pipeline: Record<string, number>
+  colors: Record<string, string>
+  labels: Record<string, string>
+  onClick?: (status: string) => void
+}) {
+  const total = statuses.reduce((s, st) => s + (pipeline[st] || 0), 0)
+  if (total === 0) return null
+
+  const active = statuses.filter(st => (pipeline[st] || 0) > 0)
 
   return (
     <div>
-      {/* Bar */}
-      <div style={{ display: 'flex', height: 28, borderRadius: 8, overflow: 'hidden', marginBottom: 10 }}>
-        {statuses.map(st => {
+      <div className="flex items-center bg-[#F5F5F5] rounded-full h-[10px] overflow-hidden gap-[2px] px-[1px]">
+        {active.map((st, i) => {
           const count = pipeline[st] || 0
-          if (count === 0) return null
           const pct = (count / total) * 100
           return (
             <div
               key={st}
-              onClick={() => router.push(`/deals?status=${st}`)}
-              title={`${STATUS_LABELS[st]}: ${count}`}
-              style={{
-                width: `${pct}%`,
-                minWidth: count > 0 ? 24 : 0,
-                background: STATUS_COLORS[st],
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'opacity 0.15s ease',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-            >
-              {pct >= 12 && (
-                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#fff' }}>{count}</span>
-              )}
-            </div>
+              onClick={() => onClick?.(st)}
+              title={`${labels[st]}: ${count}`}
+              className={`h-full transition-opacity hover:opacity-80 ${
+                onClick ? 'cursor-pointer' : ''
+              } ${i === 0 ? 'rounded-l-full' : ''} ${
+                i === active.length - 1 ? 'rounded-r-full' : ''
+              }`}
+              style={{ width: `${pct}%`, minWidth: 8, background: colors[st] }}
+            />
           )
         })}
       </div>
-      {/* Legend */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px' }}>
-        {statuses.map(st => {
-          const count = pipeline[st] || 0
-          if (count === 0) return null
-          return (
-            <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: 'var(--body-text, #4B5563)' }}>
-              <span style={{ width: 8, height: 8, borderRadius: 2, background: STATUS_COLORS[st], flexShrink: 0 }} />
-              {STATUS_LABELS[st]} ({count})
-            </div>
-          )
-        })}
+      <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3">
+        {active.map(st => (
+          <div key={st} className="flex items-center gap-1.5 text-[0.7rem] text-[#4B5563]">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: colors[st] }} />
+            {labels[st]} <span className="text-[#9CA3AF] ml-0.5">{pipeline[st]}</span>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-/* ══════════════════════════════════════════════
-   CONTRACT PIPELINE BAR
-   ══════════════════════════════════════════════ */
+/* ── SVG Line Chart ── */
+function LineChart({ data, height = 120, color = '#3B82F6', areaColor, showGrid = false }: {
+  data: { label?: string; value: number }[]
+  height?: number
+  color?: string
+  areaColor?: string
+  showGrid?: boolean
+}) {
+  if (data.length < 2) return null
+  const max = Math.max(...data.map(d => d.value), 1)
+  const w = 480
+  const h = height
+  const padB = data[0].label ? 24 : 4
+  const chartH = h - padB
+  const stepX = w / (data.length - 1)
 
-const CONTRACT_PIPELINE_COLORS: Record<string, string> = {
-  DRAFT: '#9CA3AF',
-  SENT: '#2563EB',
-  EXECUTED: '#16a34a',
-  VOIDED: '#ef4444',
-}
+  const points = data.map((d, i) => ({
+    x: i * stepX,
+    y: chartH - (d.value / max) * (chartH - 12) - 4,
+  }))
 
-const CONTRACT_PIPELINE_LABELS: Record<string, string> = {
-  DRAFT: 'Draft',
-  SENT: 'Sent',
-  EXECUTED: 'Executed',
-  VOIDED: 'Voided',
-}
-
-function ContractPipelineBar({ pipeline, router }: { pipeline: Record<string, number>; router: ReturnType<typeof useRouter> }) {
-  const statuses = ['DRAFT', 'SENT', 'EXECUTED', 'VOIDED']
-  const total = statuses.reduce((s, st) => s + (pipeline[st] || 0), 0)
-
-  if (total === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '16px 0', fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)' }}>
-        No contracts yet. <span style={{ color: '#2563EB', cursor: 'pointer' }} onClick={() => router.push('/contracts')}>Create your first contract</span>
-      </div>
-    )
-  }
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
+  const areaPath = `${linePath} L${points[points.length - 1].x},${chartH} L${points[0].x},${chartH} Z`
+  const gradId = `areaG-${color.replace('#', '')}`
 
   return (
-    <div>
-      {/* Bar */}
-      <div style={{ display: 'flex', height: 28, borderRadius: 8, overflow: 'hidden', marginBottom: 10 }}>
-        {statuses.map(st => {
-          const count = pipeline[st] || 0
-          if (count === 0) return null
-          const pct = (count / total) * 100
-          return (
-            <div
-              key={st}
-              onClick={() => router.push('/contracts')}
-              title={`${CONTRACT_PIPELINE_LABELS[st]}: ${count}`}
-              style={{
-                width: `${pct}%`,
-                minWidth: count > 0 ? 24 : 0,
-                background: CONTRACT_PIPELINE_COLORS[st],
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'opacity 0.15s ease',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-            >
-              {pct >= 12 && (
-                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#fff' }}>{count}</span>
-              )}
-            </div>
-          )
-        })}
+    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height }} preserveAspectRatio="none">
+      {showGrid && [0.25, 0.5, 0.75, 1].map(frac => {
+        const y = chartH - frac * (chartH - 12) - 4
+        return <line key={frac} x1="0" y1={y} x2={w} y2={y} stroke="#F3F4F6" strokeWidth="1" />
+      })}
+      {areaColor && (
+        <>
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={areaColor} stopOpacity="0.12" />
+              <stop offset="100%" stopColor={areaColor} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={areaPath} fill={`url(#${gradId})`} />
+        </>
+      )}
+      <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      {points.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="#fff" stroke={color} strokeWidth="1.5" />
+      ))}
+      {data[0].label && data.map((d, i) => (
+        <text key={i} x={i * stepX} y={h - 4} textAnchor="middle" fill="#9CA3AF" fontSize="10" fontFamily="inherit">
+          {d.label}
+        </text>
+      ))}
+    </svg>
+  )
+}
+
+/* ── Donut Chart ── */
+function DonutChart({ segments, size = 140, showTotal = false }: {
+  segments: { label: string; value: number; color: string }[]
+  size?: number
+  showTotal?: boolean
+}) {
+  const total = segments.reduce((s, seg) => s + seg.value, 0)
+  if (total === 0) return null
+
+  const strokeW = 24
+  const r = (size - strokeW) / 2
+  const cx = size / 2
+  const cy = size / 2
+
+  let cumAngle = -90
+  const arcs = segments.filter(s => s.value > 0).map(seg => {
+    const angle = (seg.value / total) * 360
+    const startAngle = cumAngle
+    cumAngle += angle
+    const endAngle = cumAngle
+    const startRad = (startAngle * Math.PI) / 180
+    const endRad = (endAngle * Math.PI) / 180
+    const largeArc = angle > 180 ? 1 : 0
+    const x1 = cx + r * Math.cos(startRad)
+    const y1 = cy + r * Math.sin(startRad)
+    const x2 = cx + r * Math.cos(endRad)
+    const y2 = cy + r * Math.sin(endRad)
+    return { ...seg, d: `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}` }
+  })
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative inline-flex">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F3F4F6" strokeWidth={strokeW} />
+          {arcs.map((arc, i) => (
+            <path key={i} d={arc.d} fill="none" stroke={arc.color} strokeWidth={strokeW} strokeLinecap="butt" />
+          ))}
+        </svg>
+        {showTotal && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-lg font-semibold text-[#0B1224] leading-none">{total}</span>
+            <span className="text-[0.65rem] text-[#9CA3AF] mt-0.5">total</span>
+          </div>
+        )}
       </div>
-      {/* Legend */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px' }}>
-        {statuses.map(st => {
-          const count = pipeline[st] || 0
-          if (count === 0) return null
-          return (
-            <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: 'var(--body-text, #4B5563)' }}>
-              <span style={{ width: 8, height: 8, borderRadius: 2, background: CONTRACT_PIPELINE_COLORS[st], flexShrink: 0 }} />
-              {CONTRACT_PIPELINE_LABELS[st]} ({count})
-            </div>
-          )
-        })}
+      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 justify-center">
+        {segments.filter(s => s.value > 0).map(s => (
+          <div key={s.label} className="flex items-center gap-1.5 text-[0.72rem] text-[#4B5563]">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
+            {s.label}: {s.value}
+          </div>
+        ))}
       </div>
     </div>
+  )
+}
+
+/* ── Skeleton ── */
+function Skeleton({ height = 16, width, className = '' }: { height?: number; width?: string | number; className?: string }) {
+  return (
+    <div
+      className={`animate-pulse bg-[#F3F4F6] rounded-lg ${className}`}
+      style={{ height, width: width || '100%' }}
+    />
+  )
+}
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+      <div className="flex items-start justify-between mb-3">
+        <Skeleton height={10} width="40%" />
+        <div className="w-9 h-9 rounded-lg animate-pulse bg-[#F3F4F6]" />
+      </div>
+      <Skeleton height={32} width="50%" className="mb-2" />
+      <Skeleton height={10} width="60%" />
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════
+   ALERT BADGES
+   ══════════════════════════════════════════════ */
+
+function AlertBadges({ data, router }: { data: DashboardData; router: ReturnType<typeof useRouter> }) {
+  const alerts: { label: string; count: number; borderCls: string; dotCls: string; href: string }[] = []
+  if (data.overdueCallbacks > 0) alerts.push({ label: 'Overdue callbacks', count: data.overdueCallbacks, borderCls: 'border-red-200 hover:bg-red-50', dotCls: 'bg-red-400', href: '/outreach' })
+  if (data.kpis.pendingOffers > 0) alerts.push({ label: 'Pending offers', count: data.kpis.pendingOffers, borderCls: 'border-amber-200 hover:bg-amber-50', dotCls: 'bg-amber-400', href: '/deals' })
+  if (data.unreadSmsCount > 0) alerts.push({ label: 'Unread SMS', count: data.unreadSmsCount, borderCls: 'border-blue-200 hover:bg-blue-50', dotCls: 'bg-blue-400', href: '/outreach?tab=sms' })
+  if (data.kpis.newInquiries > 0) alerts.push({ label: 'New inquiries', count: data.kpis.newInquiries, borderCls: 'border-purple-200 hover:bg-purple-50', dotCls: 'bg-purple-400', href: '/marketplace' })
+
+  if (alerts.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap gap-2 mb-5">
+      {alerts.map(a => (
+        <button
+          key={a.label}
+          onClick={() => router.push(a.href)}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border ${a.borderCls} cursor-pointer font-[inherit] transition-colors`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.dotCls}`} />
+          <span className="text-[0.76rem] font-medium text-[#374151]">{a.count} {a.label}</span>
+          <ArrowUpRight className="w-3 h-3 text-[#9CA3AF]" />
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════
+   TAB: OVERVIEW
+   ══════════════════════════════════════════════ */
+
+function OverviewTab({ data, router, onOfferAction, offerLoading }: {
+  data: DashboardData; router: ReturnType<typeof useRouter>
+  onOfferAction: (id: string, action: 'ACCEPTED' | 'REJECTED') => void
+  offerLoading: string | null
+}) {
+  const k = data.kpis
+  const monthRevenue = data.dailyRevenue.reduce((s, d) => s + d.revenue, 0)
+
+  return (
+    <>
+      {/* KPI Row */}
+      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+        <StatCard label="Active Deals" value={k.activeDeals.toLocaleString()} subtitle={`${k.dealsThisMonth} new this month`} icon={Briefcase} color="#3B82F6" onClick={() => router.push('/deals')} />
+        <StatCard label="Total Revenue" value={fmtMoney(k.totalSpread)} subtitle={monthRevenue > 0 ? `${fmtMoney(monthRevenue)} this month` : 'From closed deals'} icon={DollarSign} color="#22C55E" />
+        <StatCard label="Buyer Network" value={k.buyerCount.toLocaleString()} subtitle={`${k.qualifiedThisWeek} qualified this week`} icon={Users} color="#8B5CF6" onClick={() => router.push('/crm')} />
+        <StatCard label="AI Outreach" value={k.callsThisWeek.toLocaleString()} subtitle={`${k.activeCampaigns} active campaign${k.activeCampaigns !== 1 ? 's' : ''}`} icon={PhoneOutgoing} color="#3B82F6" onClick={() => router.push('/outreach')} />
+      </div>
+
+      {/* Deal Pipeline */}
+      <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+        <SectionHeader title="Deal Pipeline" viewAllHref="/deals" router={router} />
+        {Object.keys(data.dealPipeline).length > 0 ? (
+          <PipelineBar
+            statuses={['DRAFT', 'ACTIVE', 'UNDER_OFFER', 'CLOSED', 'CANCELLED', 'EXPIRED']}
+            pipeline={data.dealPipeline}
+            colors={PIPELINE_COLORS}
+            labels={STATUS_LABELS}
+            onClick={st => router.push(`/deals?status=${st}`)}
+          />
+        ) : (
+          <EmptyState message="No deals yet." actionLabel="Create your first deal" onAction={() => router.push('/deals/new')} />
+        )}
+      </div>
+
+      {/* Two columns: Recent Deals + Pending Offers */}
+      <div className="dash-grid-2 grid grid-cols-2 gap-3.5 mb-5">
+        {/* Recent Deals */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Recent Deals" viewAllHref="/deals" router={router} />
+          {data.recentDeals.length === 0 ? (
+            <EmptyState message="No deals yet." />
+          ) : (
+            <div>
+              {data.recentDeals.map((deal, i) => {
+                const activeOffers = deal.offers.filter(o => o.status === 'PENDING' || o.status === 'COUNTERED').length
+                return (
+                  <div
+                    key={deal.id}
+                    onClick={() => router.push(`/deals/${deal.id}`)}
+                    className="dash-row flex items-center justify-between py-2.5 cursor-pointer"
+                    style={{ borderBottom: i < data.recentDeals.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{deal.address}</div>
+                      <div className="text-[0.72rem] text-[#9CA3AF] mt-0.5">{deal.city}, {deal.state} &middot; {fmtMoneyFull(deal.askingPrice)}</div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                      {activeOffers > 0 && (
+                        <span className={statusBadgeCls('PENDING')}>{activeOffers} offer{activeOffers > 1 ? 's' : ''}</span>
+                      )}
+                      <span className={statusBadgeCls(deal.status)}>{STATUS_LABELS[deal.status] || deal.status}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Pending Offers */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader
+            title="Pending Offers"
+            rightSlot={k.pendingOffers > 0 ? <span className="text-[0.68rem] font-semibold text-amber-600">{k.pendingOffers} pending</span> : undefined}
+          />
+          {data.pendingOffersList.length === 0 ? (
+            <EmptyState message="No pending offers." />
+          ) : (
+            <div>
+              {data.pendingOffersList.map((offer, i) => {
+                const pctOfAsking = offer.deal.askingPrice > 0 ? Math.round((offer.amount / offer.deal.askingPrice) * 100) : null
+                const isLoading = offerLoading === offer.id
+                return (
+                  <div key={offer.id} className="py-2.5" style={{ borderBottom: i < data.pendingOffersList.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[0.82rem] font-medium text-[#0B1224]">
+                          {fmtMoneyFull(offer.amount)}
+                          {pctOfAsking && <span className="text-[0.7rem] text-[#9CA3AF] font-normal ml-1.5">({pctOfAsking}%)</span>}
+                        </div>
+                        <div className="text-[0.72rem] text-[#9CA3AF] mt-0.5">{bName(offer.buyer)} &middot; {offer.deal.address}</div>
+                      </div>
+                      <div className="flex gap-1.5 shrink-0 ml-2">
+                        <button
+                          onClick={() => onOfferAction(offer.id, 'ACCEPTED')}
+                          disabled={isLoading}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-green-600 text-white text-[0.68rem] font-semibold cursor-pointer font-[inherit] border-none transition-colors hover:bg-green-700 disabled:opacity-50"
+                        >
+                          <CheckCircle className="w-[10px] h-[10px]" /> Accept
+                        </button>
+                        <button
+                          onClick={() => onOfferAction(offer.id, 'REJECTED')}
+                          disabled={isLoading}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-red-500 bg-transparent text-red-500 text-[0.68rem] font-semibold cursor-pointer font-[inherit] transition-colors hover:bg-red-50 disabled:opacity-50"
+                        >
+                          <XCircle className="w-[10px] h-[10px]" /> Reject
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-[0.68rem] text-[#9CA3AF]">
+                      {timeAgo(offer.createdAt)}
+                      {offer.status === 'COUNTERED' && <span className={`ml-1.5 ${statusBadgeCls('COUNTERED')}`}>COUNTERED</span>}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Two columns: Activity + Quick Actions */}
+      <div className="dash-grid-2 grid grid-cols-[3fr_2fr] gap-3.5">
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Recent Activity" />
+          {(() => {
+            const outreachEvts = data.outreach?.outreachEvents || []
+            const merged = [...data.recentActivity, ...outreachEvts]
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .slice(0, 8)
+            if (merged.length === 0) return <EmptyState message="No recent activity." />
+            return merged.map((a, i) => (
+              <div key={a.id} className="flex items-start gap-2.5 py-2" style={{ borderBottom: i < merged.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#3B82F6] mt-[7px] shrink-0" />
+                <p className="flex-1 text-[0.82rem] text-[#0B1224] leading-[1.45] m-0">{a.title}</p>
+                <span className="text-[0.68rem] text-[#9CA3AF] whitespace-nowrap shrink-0">{timeAgo(a.createdAt)}</span>
+              </div>
+            ))
+          })()}
+        </div>
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Quick Actions" />
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { label: 'New Campaign', icon: PhoneOutgoing, color: '#3B82F6', href: '/outreach' },
+              { label: 'Upload Deal', icon: Upload, color: '#22C55E', href: '/deals/new' },
+              { label: 'Add Buyer', icon: UserPlus, color: '#8B5CF6', href: '/crm' },
+              { label: 'Run Analysis', icon: Search, color: '#F59E0B', href: '/analyzer' },
+            ].map(a => {
+              const Icon = a.icon
+              const [bg, text] = iconTint(a.color)
+              return (
+                <button
+                  key={a.label}
+                  onClick={() => router.push(a.href)}
+                  className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-[#EAEAEA] bg-white cursor-pointer font-[inherit] transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]"
+                >
+                  <div className={`w-9 h-9 rounded-lg ${bg} flex items-center justify-center`}>
+                    <Icon className={`w-4 h-4 ${text}`} />
+                  </div>
+                  <span className="text-[0.74rem] text-[#4B5563] font-medium text-center leading-tight">{a.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+/* ══════════════════════════════════════════════
+   TAB: DEALS & PIPELINE
+   ══════════════════════════════════════════════ */
+
+function DealsTab({ data, router }: { data: DashboardData; router: ReturnType<typeof useRouter> }) {
+  const k = data.kpis
+
+  return (
+    <>
+      {/* KPI Row */}
+      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+        <StatCard label="Active Deals" value={k.activeDeals.toLocaleString()} subtitle={`${k.dealsThisMonth} new this month`} icon={Briefcase} color="#3B82F6" />
+        <StatCard label="Deals Closed" value={k.closedDeals.toLocaleString()} subtitle={fmtMoney(k.totalSpread) + ' total spread'} icon={CheckCircle} color="#22C55E" />
+        <StatCard label="Pending Offers" value={k.pendingOffers.toLocaleString()} icon={DollarSign} color="#F59E0B" />
+        <StatCard label="Matches Sent" value={k.matchesSent.toLocaleString()} subtitle="Last 30 days" icon={Handshake} color="#8B5CF6" />
+      </div>
+
+      {/* Pipeline */}
+      <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+        <SectionHeader title="Deal Pipeline" viewAllHref="/deals" router={router} />
+        {Object.keys(data.dealPipeline).length > 0 ? (
+          <PipelineBar
+            statuses={['DRAFT', 'ACTIVE', 'UNDER_OFFER', 'CLOSED', 'CANCELLED', 'EXPIRED']}
+            pipeline={data.dealPipeline}
+            colors={PIPELINE_COLORS}
+            labels={STATUS_LABELS}
+            onClick={st => router.push(`/deals?status=${st}`)}
+          />
+        ) : (
+          <EmptyState message="No deals yet." actionLabel="Create your first deal" onAction={() => router.push('/deals/new')} />
+        )}
+      </div>
+
+      {/* Deal Values by Stage */}
+      {data.dealValuesByStage.length > 0 && (
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+          <SectionHeader title="Pipeline Value by Stage" />
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
+            {data.dealValuesByStage
+              .filter(d => d.count > 0)
+              .sort((a, b) => {
+                const order = ['DRAFT', 'ACTIVE', 'UNDER_OFFER', 'CLOSED', 'CANCELLED', 'EXPIRED']
+                return order.indexOf(a.status) - order.indexOf(b.status)
+              })
+              .map(d => (
+                <div key={d.status} className="p-3.5 rounded-lg border border-[#EAEAEA]">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="w-2 h-2 rounded-full" style={{ background: PIPELINE_COLORS[d.status] || '#9CA3AF' }} />
+                    <span className="text-[0.72rem] font-semibold text-[#4B5563]">{STATUS_LABELS[d.status] || d.status}</span>
+                  </div>
+                  <div className="text-[1.1rem] font-semibold text-[#0B1224] tracking-tight">{fmtMoney(d.totalValue)}</div>
+                  <div className="text-[0.68rem] text-[#9CA3AF] mt-0.5">
+                    {d.count} deal{d.count !== 1 ? 's' : ''}
+                    {d.totalFees > 0 && ` · ${fmtMoney(d.totalFees)} fees`}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top Matches + Recent Deals */}
+      <div className="dash-grid-2 grid grid-cols-2 gap-3.5">
+        {/* Top Matches */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader
+            title="Top Buyer Matches"
+            rightSlot={<span className="text-[0.68rem] font-semibold text-green-600">{k.matchesSent} sent (30d)</span>}
+          />
+          {data.topMatches.length === 0 ? (
+            <EmptyState message="No matches yet." />
+          ) : (
+            <div>
+              {data.topMatches.map((match, i) => (
+                <div
+                  key={match.id}
+                  className="dash-row flex items-center justify-between py-2 cursor-pointer"
+                  onClick={() => router.push(`/deals/${match.dealId}`)}
+                  style={{ borderBottom: i < data.topMatches.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[0.82rem] font-medium text-[#0B1224]">{bName(match.buyer)}</div>
+                    <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">{match.deal.address}, {match.deal.city}</div>
+                  </div>
+                  <span className={`text-[0.66rem] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2 ${
+                    match.matchScore >= 80 ? 'text-green-700 bg-green-50' :
+                    match.matchScore >= 60 ? 'text-amber-700 bg-amber-50' : 'text-gray-500 bg-gray-50'
+                  }`}>
+                    {match.matchScore}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Deals */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Recent Deals" viewAllHref="/deals" router={router} />
+          {data.recentDeals.length === 0 ? (
+            <EmptyState message="No deals yet." actionLabel="Create a deal" onAction={() => router.push('/deals/new')} />
+          ) : (
+            <div>
+              {data.recentDeals.map((deal, i) => (
+                <div
+                  key={deal.id}
+                  className="dash-row flex items-center justify-between py-2 cursor-pointer"
+                  onClick={() => router.push(`/deals/${deal.id}`)}
+                  style={{ borderBottom: i < data.recentDeals.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{deal.address}</div>
+                    <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">{deal.city}, {deal.state} &middot; {fmtMoneyFull(deal.askingPrice)}</div>
+                  </div>
+                  <span className={`${statusBadgeCls(deal.status)} shrink-0 ml-2`}>
+                    {STATUS_LABELS[deal.status] || deal.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/* ══════════════════════════════════════════════
+   TAB: OUTREACH & BUYERS
+   ══════════════════════════════════════════════ */
+
+function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType<typeof useRouter> }) {
+  const k = data.kpis
+  const o = data.outreach
+
+  return (
+    <>
+      {/* KPI Row */}
+      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+        <StatCard
+          label="Active Campaigns" value={k.activeCampaigns.toLocaleString()}
+          subtitle={`${k.callsToday} calls today`} icon={Activity} color={k.activeCampaigns > 0 ? '#22C55E' : '#9CA3AF'}
+          onClick={() => router.push('/outreach')}
+        />
+        <StatCard label="Calls This Week" value={k.callsThisWeek.toLocaleString()} subtitle={`${k.qualifiedThisWeek} qualified`} icon={Phone} color="#3B82F6" />
+        <StatCard
+          label="Qualification Rate" value={`${k.qualificationRate}%`}
+          subtitle={`Avg ${k.avgCallDuration}s per call`} icon={Target}
+          color={k.qualificationRate >= 20 ? '#22C55E' : k.qualificationRate >= 10 ? '#F59E0B' : '#EF4444'}
+        />
+        <StatCard label="Total Talk Time" value={fmtMinutesAsHours(k.totalCallMinutes)} subtitle={`${k.aiCalls.toLocaleString()} calls all time`} icon={Clock} color="#8B5CF6" />
+      </div>
+
+      {/* Sparkline + Buyer Distribution */}
+      <div className="dash-grid-2 grid grid-cols-[2fr_1fr] gap-3.5 mb-5">
+        {/* 14-Day Calling Trend */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-base text-[#0B1224] font-normal" style={{ fontFamily: SERIF }}>14-Day Calling Trend</h3>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-[0.68rem] text-[#9CA3AF]">
+                <span className="w-2.5 h-0.5 bg-[#9CA3AF] rounded-sm" /> Calls
+              </span>
+              <span className="flex items-center gap-1 text-[0.68rem] text-[#9CA3AF]">
+                <span className="w-2.5 h-0.5 bg-[#22C55E] rounded-sm" /> Qualified
+              </span>
+            </div>
+          </div>
+          {o.callsPerDay.some(d => d.total > 0) ? (() => {
+            const days = o.callsPerDay
+            const maxT = Math.max(...days.map(d => d.total), 1)
+            const w = 500, h = 64
+            const totalPath = days.map((d, i) => {
+              const x = days.length > 1 ? (i / (days.length - 1)) * w : w / 2
+              const y = h - (d.total / maxT) * (h - 8) - 4
+              return `${i === 0 ? 'M' : 'L'}${x},${y}`
+            }).join(' ')
+            const qualPath = days.map((d, i) => {
+              const x = days.length > 1 ? (i / (days.length - 1)) * w : w / 2
+              const y = h - (d.qualified / maxT) * (h - 8) - 4
+              return `${i === 0 ? 'M' : 'L'}${x},${y}`
+            }).join(' ')
+            const totalSum = days.reduce((s, d) => s + d.total, 0)
+            const qualSum = days.reduce((s, d) => s + d.qualified, 0)
+            return (
+              <div className="flex items-center gap-4">
+                <svg viewBox={`0 0 ${w} ${h}`} className="flex-1" style={{ height: 64 }} preserveAspectRatio="none">
+                  <path d={totalPath} fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={qualPath} fill="none" stroke="#22C55E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <div className="shrink-0 text-right">
+                  <div className="text-[1.1rem] font-semibold text-[#0B1224] leading-tight">{totalSum}</div>
+                  <div className="text-[0.64rem] text-[#9CA3AF]">calls</div>
+                  <div className="text-[1.1rem] font-semibold text-[#22C55E] leading-tight mt-1">{qualSum}</div>
+                  <div className="text-[0.64rem] text-[#9CA3AF]">qualified</div>
+                </div>
+              </div>
+            )
+          })() : <EmptyState message="No calling data yet." compact />}
+        </div>
+
+        {/* Buyer Status Distribution */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Buyer Breakdown" />
+          {Object.keys(data.buyersByStatus).length > 0 ? (() => {
+            const statuses = ['ACTIVE', 'HIGH_CONFIDENCE', 'RECENTLY_VERIFIED', 'DORMANT', 'DO_NOT_CALL']
+            const segments = statuses
+              .filter(s => data.buyersByStatus[s] > 0)
+              .map(s => ({ label: BUYER_STATUS_LABELS[s], value: data.buyersByStatus[s], color: BUYER_STATUS_COLORS[s] }))
+            return <DonutChart segments={segments} size={140} showTotal />
+          })() : <EmptyState message="No buyers yet." />}
+        </div>
+      </div>
+
+      {/* Recent Calls + Campaign Performance */}
+      <div className="dash-grid-2 grid grid-cols-2 gap-3.5 mb-5">
+        {/* Recent Calls */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Recent Calls" viewAllHref="/outreach?tab=calllog" router={router} />
+          {o.recentCalls.length === 0 ? (
+            <EmptyState message="No calls yet." actionLabel="Launch a campaign" onAction={() => router.push('/outreach')} />
+          ) : (
+            <div>
+              {o.recentCalls.map((call, i) => (
+                <div
+                  key={call.id}
+                  className="dash-row flex items-center justify-between py-2 cursor-pointer"
+                  onClick={() => router.push('/outreach')}
+                  style={{ borderBottom: i < o.recentCalls.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[0.82rem] font-medium text-[#0B1224]">{bName(call.buyer)}</div>
+                    <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">{call.campaign.name}</div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                    <span className={outcomeBadgeCls(call.outcome || '')}>
+                      {OUTCOME_LABELS[call.outcome || ''] || call.outcome || 'Pending'}
+                    </span>
+                    <span className="text-[0.7rem] text-[#4B5563] tabular-nums">{fmtDuration(call.durationSecs)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Campaign Performance */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Campaign Performance" viewAllHref="/outreach" router={router} />
+          {o.campaignPerformance.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                <PhoneOutgoing className="w-5 h-5 text-blue-400" />
+              </div>
+              <p className="text-sm text-[#9CA3AF] mb-3">No campaigns yet</p>
+              <button
+                onClick={() => router.push('/outreach')}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-[0.78rem] font-semibold cursor-pointer font-[inherit] border-none transition-colors hover:bg-[#1d4ed8]"
+              >
+                <Play className="w-3.5 h-3.5" /> Launch your first campaign
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2.5">
+              {o.campaignPerformance.map(c => {
+                const progress = c.totalBuyers > 0 ? (c.callsCompleted / c.totalBuyers) * 100 : 0
+                return (
+                  <div key={c.id} className="rounded-lg border border-[#EAEAEA] p-3.5">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[0.8rem] font-medium text-[#0B1224] truncate flex-1">{c.name}</span>
+                      <span className={`${statusBadgeCls(c.status)} shrink-0 ml-2 flex items-center gap-1`}>
+                        {c.status === 'RUNNING' && <Play className="w-[9px] h-[9px]" />}
+                        {c.status}
+                      </span>
+                    </div>
+                    <div className="h-1 bg-[#F3F4F6] rounded-full overflow-hidden mb-1.5">
+                      <div className="h-full bg-[#3B82F6] rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} />
+                    </div>
+                    <div className="flex items-center justify-between text-[0.72rem]">
+                      <span className="text-[#4B5563]">{c.callsCompleted}/{c.totalBuyers} &middot; {c.qualified} qualified</span>
+                      <span className={`font-semibold ${
+                        c.qualificationRate >= 20 ? 'text-green-600' : c.qualificationRate >= 10 ? 'text-amber-600' : 'text-gray-500'
+                      }`}>
+                        {c.qualificationRate}%
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Top Buyers + Markets */}
+      <div className="dash-grid-2 grid grid-cols-2 gap-3.5">
+        {/* Top Buyers */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Top Buyers by Score" viewAllHref="/crm" router={router} />
+          {data.topBuyers.length === 0 ? (
+            <EmptyState message="No scored buyers yet." />
+          ) : (
+            <div>
+              {data.topBuyers.map((buyer, i) => (
+                <div
+                  key={buyer.id}
+                  className="dash-row flex items-center justify-between py-2 cursor-pointer"
+                  onClick={() => router.push(`/crm/${buyer.id}`)}
+                  style={{ borderBottom: i < data.topBuyers.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[0.82rem] font-medium text-[#0B1224]">{bName(buyer)}</div>
+                    <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">
+                      {buyer.state || 'Unknown'} &middot;{' '}
+                      <span style={{ color: BUYER_STATUS_COLORS[buyer.status] || '#9CA3AF' }}>{BUYER_STATUS_LABELS[buyer.status] || buyer.status}</span>
+                    </div>
+                  </div>
+                  <div className={`text-[0.82rem] font-bold tabular-nums shrink-0 ml-2 ${
+                    buyer.buyerScore >= 70 ? 'text-green-600' : buyer.buyerScore >= 40 ? 'text-amber-600' : 'text-gray-400'
+                  }`}>
+                    {buyer.buyerScore}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Markets */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Buyer Markets" />
+          {data.buyersByState.length === 0 ? (
+            <EmptyState message="No buyer location data." />
+          ) : (() => {
+            const maxCount = Math.max(...data.buyersByState.map(s => s.count))
+            return (
+              <div>
+                {data.buyersByState.map((s, i) => (
+                  <div key={s.state} className="flex items-center gap-2.5 py-1.5"
+                    style={{ borderBottom: i < data.buyersByState.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                    <span className="text-[0.78rem] font-medium text-[#0B1224] w-8 shrink-0">{s.state}</span>
+                    <div className="flex-1 h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#3B82F6] rounded-full" style={{ width: `${(s.count / maxCount) * 100}%` }} />
+                    </div>
+                    <span className="text-[0.72rem] font-semibold text-[#4B5563] tabular-nums w-7 text-right shrink-0">{s.count}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/* ══════════════════════════════════════════════
+   TAB: CONTRACTS & MARKETPLACE
+   ══════════════════════════════════════════════ */
+
+function ContractsTab({ data, router }: { data: DashboardData; router: ReturnType<typeof useRouter> }) {
+  const k = data.kpis
+
+  return (
+    <>
+      {/* KPI Row */}
+      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+        <StatCard
+          label="Contracts Pending" value={(k.contractsDraft + k.contractsPending).toLocaleString()}
+          subtitle={`${k.contractsDraft} draft, ${k.contractsPending} awaiting`}
+          icon={FileSignature} color={(k.contractsDraft + k.contractsPending) > 0 ? '#F59E0B' : '#9CA3AF'}
+        />
+        <StatCard
+          label="Executed" value={k.contractsExecutedThisMonth.toLocaleString()}
+          subtitle={`${k.contractsExecuted} all time`} icon={CheckCircle} color="#22C55E"
+        />
+        <StatCard
+          label="Active Listings" value={k.activeListings.toLocaleString()}
+          subtitle={`${k.totalListingViews.toLocaleString()} total views`}
+          icon={Store} color="#3B82F6"
+        />
+        <StatCard
+          label="New Inquiries" value={k.newInquiries.toLocaleString()}
+          icon={MessageSquare} color={k.newInquiries > 0 ? '#8B5CF6' : '#9CA3AF'}
+          onClick={() => router.push('/marketplace')}
+        />
+      </div>
+
+      {/* Contract Pipeline */}
+      <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+        <SectionHeader title="Contract Pipeline" viewAllHref="/contracts" router={router} />
+        {Object.keys(data.contractPipeline).length > 0 ? (
+          <PipelineBar
+            statuses={['DRAFT', 'SENT', 'EXECUTED', 'VOIDED']}
+            pipeline={data.contractPipeline}
+            colors={CONTRACT_PIPELINE_COLORS}
+            labels={CONTRACT_LABELS}
+            onClick={() => router.push('/contracts')}
+          />
+        ) : (
+          <EmptyState message="No contracts yet." actionLabel="Create a contract" onAction={() => router.push('/contracts')} />
+        )}
+      </div>
+
+      {/* Contracts + Marketplace */}
+      <div className="dash-grid-2 grid grid-cols-2 gap-3.5">
+        {/* Recent Contracts */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader
+            title="Contracts"
+            viewAllHref="/contracts"
+            router={router}
+            rightSlot={k.contractsPending > 0
+              ? <span className={statusBadgeCls('PENDING')}>action needed</span>
+              : undefined
+            }
+          />
+          {data.recentContracts.length === 0 ? (
+            <EmptyState message="No contracts yet." actionLabel="Create a contract" onAction={() => router.push('/contracts')} />
+          ) : (
+            <div>
+              {data.recentContracts.map((c, i) => {
+                const contractBuyer = c.offer?.buyer
+                  ? ([c.offer.buyer.firstName, c.offer.buyer.lastName].filter(Boolean).join(' ') || c.offer.buyer.entityName || 'Manual Entry')
+                  : 'Manual Entry'
+                return (
+                  <div
+                    key={c.id}
+                    className="dash-row flex items-center justify-between py-2 cursor-pointer"
+                    onClick={() => router.push('/contracts')}
+                    style={{ borderBottom: i < data.recentContracts.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{c.deal.address}</div>
+                      <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">
+                        {contractBuyer} &middot; {c.deal.city}, {c.deal.state}
+                        {c.offer?.amount ? ` · ${fmtMoneyFull(c.offer.amount)}` : ''}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                      <span className={statusBadgeCls(c.status)}>{CONTRACT_LABELS[c.status] || c.status}</span>
+                      <span className="text-[0.66rem] text-[#9CA3AF]">{timeAgo(c.createdAt)}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Marketplace */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+          <SectionHeader title="Marketplace" viewAllHref="/marketplace" router={router} />
+          {k.activeListings > 0 && (
+            <div className="flex items-center gap-3.5 mb-3 p-2.5 bg-blue-50/40 rounded-lg">
+              <div className="flex items-center gap-1.5">
+                <div className="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center">
+                  <Store className="w-3 h-3 text-blue-500" />
+                </div>
+                <span className="text-[0.78rem] font-semibold text-[#0B1224]">{k.activeListings}</span>
+                <span className="text-[0.72rem] text-[#9CA3AF]">listing{k.activeListings !== 1 ? 's' : ''}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-[0.78rem] font-semibold text-[#0B1224]">{k.totalListingViews.toLocaleString()}</span>
+                <span className="text-[0.72rem] text-[#9CA3AF]">views</span>
+              </div>
+            </div>
+          )}
+          {data.recentInquiries.length > 0 ? (
+            <div>
+              {data.recentInquiries.map((inq, i) => (
+                <div key={inq.id} className="py-2" style={{ borderBottom: i < data.recentInquiries.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[0.82rem] font-medium text-[#0B1224]">{inq.buyerName}</div>
+                      <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">{inq.listing.address}, {inq.listing.city}</div>
+                    </div>
+                    <button
+                      onClick={() => router.push('/marketplace')}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[#2563EB] bg-transparent text-[#2563EB] text-[0.68rem] font-semibold cursor-pointer font-[inherit] shrink-0 ml-2 transition-colors hover:bg-blue-50"
+                    >
+                      Respond
+                    </button>
+                  </div>
+                  {inq.message && (
+                    <div className="text-[0.72rem] text-[#4B5563] truncate max-w-[90%]">{inq.message}</div>
+                  )}
+                  <div className="text-[0.66rem] text-[#9CA3AF] mt-0.5">{timeAgo(inq.createdAt)}</div>
+                </div>
+              ))}
+            </div>
+          ) : k.activeListings === 0 ? (
+            <EmptyState message="No marketplace listings yet." actionLabel="List your first deal" onAction={() => router.push('/marketplace')} />
+          ) : (
+            <EmptyState message="No new inquiries." />
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/* ══════════════════════════════════════════════
+   TAB: ANALYTICS
+   ══════════════════════════════════════════════ */
+
+function AnalyticsTab({ data, router }: { data: DashboardData; router: ReturnType<typeof useRouter> }) {
+  const k = data.kpis
+  const monthRevenue = data.dailyRevenue.reduce((s, d) => s + d.revenue, 0)
+  const hasRevData = data.dailyRevenue.some(d => d.revenue > 0)
+
+  const channels = data.outreach?.outreachByChannel || {}
+  const channelTotal = Object.values(channels).reduce((s, v) => s + v, 0)
+
+  return (
+    <>
+      {/* Revenue Row */}
+      <div className="dash-grid-2 grid grid-cols-[2fr_1fr] gap-3.5 mb-5">
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-base text-[#0B1224] font-normal" style={{ fontFamily: SERIF }}>Revenue This Month</h3>
+              <div className="text-[1.5rem] font-semibold text-[#0B1224] tracking-tight mt-1">
+                {fmtMoneyFull(monthRevenue)}
+              </div>
+            </div>
+            {k.totalSpread > 0 && (
+              <div className="text-right">
+                <div className="text-[0.68rem] text-[#9CA3AF]">All time</div>
+                <div className="text-base font-semibold text-[#0B1224]">{fmtMoney(k.totalSpread)}</div>
+              </div>
+            )}
+          </div>
+          {hasRevData ? (
+            <LineChart
+              data={data.dailyRevenue.slice(-14).map(d => ({ label: fmtShortDate(d.date), value: d.revenue }))}
+              height={140}
+              color="#22C55E"
+              areaColor="#22C55E"
+              showGrid
+            />
+          ) : (
+            <EmptyState message="No revenue data for this month yet." compact />
+          )}
+        </div>
+
+        {/* Channel Breakdown */}
+        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+          <SectionHeader title="Outreach Channels" />
+          {channelTotal > 0 ? (
+            <DonutChart
+              segments={Object.entries(channels).map(([ch, count]) => ({
+                label: CHANNEL_LABELS[ch] || ch,
+                value: count,
+                color: CHANNEL_COLORS[ch] || '#9CA3AF',
+              }))}
+              size={130}
+              showTotal
+            />
+          ) : (
+            <EmptyState message="No outreach data yet." />
+          )}
+        </div>
+      </div>
+
+      {/* Summary Stats */}
+      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+        <StatCard label="Total Spread" value={fmtMoney(k.totalSpread)} icon={DollarSign} color="#22C55E" />
+        <StatCard label="Deals Closed" value={k.closedDeals.toLocaleString()} icon={CheckCircle} color="#3B82F6" />
+        <StatCard label="Fees Collected" value={fmtMoney(k.totalFeesCollected)} icon={DollarSign} color="#8B5CF6" />
+        <StatCard label="Contracts Executed" value={k.contractsExecuted.toLocaleString()} icon={FileSignature} color="#22C55E" />
+      </div>
+
+      {/* Platform Performance (merged Outreach + Marketplace) */}
+      <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+        <SectionHeader title="Platform Performance" />
+        <div className="dash-grid-2 grid grid-cols-2 gap-8">
+          {/* Outreach column */}
+          <div>
+            <div className="text-[0.72rem] font-semibold tracking-[0.04em] uppercase text-[#9CA3AF] mb-3">Outreach</div>
+            {[
+              { label: 'Total Calls', value: k.aiCalls.toLocaleString() },
+              { label: 'This Week', value: k.callsThisWeek.toLocaleString() },
+              { label: 'Qualification Rate', value: `${k.qualificationRate}%` },
+              { label: 'Avg Duration', value: `${k.avgCallDuration}s` },
+              { label: 'Talk Time', value: fmtMinutesAsHours(k.totalCallMinutes) },
+              { label: 'Qualified', value: k.qualifiedThisWeek.toLocaleString() },
+            ].map((s, i, arr) => (
+              <div key={s.label} className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? 'border-b border-[#F3F4F6]' : ''}`}>
+                <span className="text-[0.82rem] text-[#4B5563]">{s.label}</span>
+                <span className="text-[0.82rem] font-semibold text-[#0B1224] tabular-nums">{s.value}</span>
+              </div>
+            ))}
+          </div>
+          {/* Marketplace column */}
+          <div>
+            <div className="text-[0.72rem] font-semibold tracking-[0.04em] uppercase text-[#9CA3AF] mb-3">Marketplace</div>
+            {[
+              { label: 'Active Listings', value: k.activeListings.toLocaleString() },
+              { label: 'Total Views', value: k.totalListingViews.toLocaleString() },
+              { label: 'New Inquiries', value: k.newInquiries.toLocaleString() },
+              { label: 'Matches Sent', value: k.matchesSent.toLocaleString() },
+            ].map((s, i, arr) => (
+              <div key={s.label} className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? 'border-b border-[#F3F4F6]' : ''}`}>
+                <span className="text-[0.82rem] text-[#4B5563]">{s.label}</span>
+                <span className="text-[0.82rem] font-semibold text-[#0B1224] tabular-nums">{s.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -496,40 +1422,61 @@ function ContractPipelineBar({ pipeline, router }: { pipeline: Record<string, nu
 
 export default function DashboardPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const showToast = useToast()
-  const [kpiData, setKpiData] = useState<KpiData | null>(null)
-  const [activity, setActivity] = useState<ActivityItem[]>([])
-  const [recentDeals, setRecentDeals] = useState<RecentDeal[]>([])
-  const [topMatches, setTopMatches] = useState<TopMatch[]>([])
-  const [pendingOffers, setPendingOffers] = useState<PendingOffer[]>([])
-  const [dealPipeline, setDealPipeline] = useState<Record<string, number>>({})
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [offerActionLoading, setOfferActionLoading] = useState<string | null>(null)
-  const [recentContracts, setRecentContracts] = useState<RecentContract[]>([])
-  const [recentInquiries, setRecentInquiries] = useState<RecentInquiry[]>([])
-  const [contractPipeline, setContractPipeline] = useState<Record<string, number>>({})
-  const [outreach, setOutreach] = useState<OutreachData | null>(null)
+
+  const tabParam = searchParams.get('tab') as TabKey | null
+  const activeTab = TABS.find(t => t.key === tabParam)?.key || 'overview'
+
+  const setTab = useCallback((key: TabKey) => {
+    const url = key === 'overview' ? '/dashboard' : `/dashboard?tab=${key}`
+    router.push(url)
+  }, [router])
 
   const fetchDashboard = useCallback(() => {
+    setLoading(true)
+    setError(null)
     fetch('/api/dashboard')
-      .then(r => r.json())
-      .then(data => {
-        if (data.kpis) setKpiData(data.kpis)
-        if (data.recentActivity) setActivity(data.recentActivity)
-        if (data.recentDeals) setRecentDeals(data.recentDeals)
-        if (data.topMatches) setTopMatches(data.topMatches)
-        if (data.pendingOffersList) setPendingOffers(data.pendingOffersList)
-        if (data.dealPipeline) setDealPipeline(data.dealPipeline)
-        if (data.recentContracts) setRecentContracts(data.recentContracts)
-        if (data.recentInquiries) setRecentInquiries(data.recentInquiries)
-        if (data.contractPipeline) setContractPipeline(data.contractPipeline)
-        if (data.outreach) setOutreach(data.outreach)
+      .then(r => {
+        if (!r.ok) return r.json().then(e => { throw new Error(e.detail || e.error || `HTTP ${r.status}`) })
+        return r.json()
       })
-      .catch(() => {})
+      .then(d => {
+        if (d.kpis) {
+          setData({
+            firstName: d.firstName || null,
+            kpis: d.kpis,
+            recentActivity: d.recentActivity || [],
+            recentDeals: d.recentDeals || [],
+            topMatches: d.topMatches || [],
+            pendingOffersList: d.pendingOffersList || [],
+            dealPipeline: d.dealPipeline || {},
+            contractPipeline: d.contractPipeline || {},
+            recentContracts: d.recentContracts || [],
+            recentInquiries: d.recentInquiries || [],
+            outreach: d.outreach || { recentCalls: [], campaignPerformance: [], callsPerDay: [], outreachByChannel: {}, outreachEvents: [] },
+            buyersByStatus: d.buyersByStatus || {},
+            buyersByState: d.buyersByState || [],
+            dailyRevenue: d.dailyRevenue || [],
+            dealValuesByStage: d.dealValuesByStage || [],
+            topBuyers: d.topBuyers || [],
+            overdueCallbacks: d.overdueCallbacks || 0,
+            unreadSmsCount: d.unreadSmsCount || 0,
+          })
+        } else {
+          setError(d.error || 'Unexpected response format')
+        }
+      })
+      .catch(err => setError(err instanceof Error ? err.message : 'Failed to load dashboard'))
+      .finally(() => setLoading(false))
   }, [])
 
   useEffect(() => { fetchDashboard() }, [fetchDashboard])
 
-  /* ── Offer actions ── */
   async function handleOfferAction(offerId: string, action: 'ACCEPTED' | 'REJECTED') {
     setOfferActionLoading(offerId)
     try {
@@ -539,8 +1486,8 @@ export default function DashboardPage() {
         body: JSON.stringify({ status: action }),
       })
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        showToast(data.error || 'Action failed')
+        const d = await res.json().catch(() => ({}))
+        showToast(d.error || 'Action failed')
         return
       }
       showToast(action === 'ACCEPTED' ? 'Offer accepted!' : 'Offer rejected')
@@ -552,1038 +1499,112 @@ export default function DashboardPage() {
     }
   }
 
-  /* ── KPI cards config ── */
-  const kpis = [
-    { label: 'Active Deals', value: kpiData ? kpiData.activeDeals.toLocaleString() : '—', color: '#2563EB' },
-    { label: 'Pending Offers', value: kpiData ? kpiData.pendingOffers.toLocaleString() : '—', color: '#d97706' },
-    { label: 'Total Spread', value: kpiData ? fmtMoney(kpiData.totalSpread) : '—', color: '#16a34a' },
-    { label: 'Deals Closed', value: kpiData ? kpiData.closedDeals.toLocaleString() : '—', color: '#7c3aed' },
-    { label: 'Buyers in CRM', value: kpiData ? kpiData.buyerCount.toLocaleString() : '—', color: '#0891b2' },
-    { label: 'Deals This Month', value: kpiData ? kpiData.dealsThisMonth.toLocaleString() : '—', color: '#e11d48' },
-  ]
-
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 1200 }}>
+    <div className="px-9 py-7 max-w-[1200px]">
       {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1
-          style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: '1.5rem',
-            fontWeight: 400,
-            color: 'var(--navy-heading, #0B1224)',
-            letterSpacing: '-0.022em',
-            marginBottom: 4,
-            lineHeight: 1.15,
-          }}
-        >
-          Dashboard
+      <div className="mb-6">
+        <h1 className="text-[1.5rem] font-normal text-[#0B1224] tracking-[-0.022em] leading-[1.15] mb-1" style={{ fontFamily: SERIF }}>
+          {data?.firstName ? `${getGreeting()}, ${data.firstName}` : 'Dashboard'}
         </h1>
-        <p style={{ fontSize: '0.86rem', color: 'var(--body-text, #4B5563)', lineHeight: 1.5 }}>
-          Your deals, pipeline, and AI outreach at a glance.
+        <p className="text-[0.84rem] text-[#4B5563] leading-normal">
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </div>
 
-      {/* KPI Cards — 6 cards in a 3x2 grid on desktop */}
-      <div className="dash-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 20 }}>
-        {kpis.map(k => (
-          <div
-            key={k.label}
-            style={{
-              ...cardStyle,
-              borderLeft: `3px solid ${k.color}`,
-              padding: '18px 20px',
-            }}
-            className="dash-card"
-          >
-            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10 }}>{k.label}</div>
-            <div
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '1.8rem',
-                fontWeight: 400,
-                color: 'var(--navy-heading, #0B1224)',
-                letterSpacing: '-0.04em',
-                lineHeight: 1,
-              }}
+      {/* Alert badges */}
+      {data && <AlertBadges data={data} router={router} />}
+
+      {/* Tab bar */}
+      <div className="flex gap-0 border-b border-[#F0F0F0] mb-6 overflow-auto">
+        {TABS.map(tab => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.key
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setTab(tab.key)}
+              className={`dash-tab flex items-center gap-1.5 px-[18px] py-2.5 border-none cursor-pointer bg-transparent font-[inherit] text-[0.8rem] whitespace-nowrap transition-colors duration-150 -mb-px ${
+                isActive
+                  ? 'font-semibold text-[#2563EB] border-b-2 border-b-[#2563EB]'
+                  : 'font-medium text-[#9CA3AF] border-b-2 border-b-transparent hover:text-[#2563EB]'
+              }`}
             >
-              {k.value}
-            </div>
-          </div>
-        ))}
+              <Icon className="w-3.5 h-3.5" />
+              {tab.label}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Deal Pipeline Bar */}
-      <div style={{ ...cardStyle, marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div style={sectionLabel as React.CSSProperties}>Deal Pipeline</div>
+      {/* Loading skeleton */}
+      {loading && !data && (
+        <div>
+          <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+            <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
+          </div>
+          <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+            <Skeleton height={10} width="20%" className="mb-4" />
+            <Skeleton height={10} width="100%" className="rounded-full" />
+          </div>
+          <div className="dash-grid-2 grid grid-cols-2 gap-3.5">
+            <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+              <Skeleton height={10} width="30%" className="mb-4" />
+              <div className="flex flex-col gap-3">
+                <Skeleton height={14} width="85%" />
+                <Skeleton height={14} width="70%" />
+                <Skeleton height={14} width="90%" />
+                <Skeleton height={14} width="60%" />
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+              <Skeleton height={10} width="30%" className="mb-4" />
+              <div className="flex flex-col gap-3">
+                <Skeleton height={14} width="80%" />
+                <Skeleton height={14} width="65%" />
+                <Skeleton height={14} width="75%" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && !data && (
+        <div className="bg-white rounded-xl border border-[#EAEAEA] text-center py-10 px-5">
+          <AlertTriangle className="w-7 h-7 text-amber-500 mx-auto mb-3" />
+          <div className="text-[0.9rem] font-semibold text-[#0B1224] mb-1.5">Failed to load dashboard</div>
+          <div className="text-[0.78rem] text-[#9CA3AF] mb-4">{error}</div>
           <button
-            onClick={() => router.push('/deals')}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.72rem',
-              color: '#2563EB',
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              fontFamily: 'inherit',
-            }}
+            onClick={fetchDashboard}
+            className="px-5 py-2 rounded-lg bg-[#2563EB] text-white text-[0.78rem] font-semibold cursor-pointer font-[inherit] border-none transition-colors hover:bg-[#1d4ed8]"
           >
-            View all <ChevronRight style={{ width: 12, height: 12 }} />
+            Retry
           </button>
         </div>
-        <DealPipelineBar pipeline={dealPipeline} router={router} />
-      </div>
-
-      {/* Contract Pipeline Bar */}
-      <div style={{ ...cardStyle, marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div style={sectionLabel as React.CSSProperties}>Contract Pipeline</div>
-          <button
-            onClick={() => router.push('/contracts')}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.72rem',
-              color: '#2563EB',
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              fontFamily: 'inherit',
-            }}
-          >
-            View all <ChevronRight style={{ width: 12, height: 12 }} />
-          </button>
-        </div>
-        <ContractPipelineBar pipeline={contractPipeline} router={router} />
-      </div>
-
-      {/* Contract & Marketplace KPI Cards */}
-      <div className="dash-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
-        <div style={{ ...cardStyle, borderLeft: `3px solid ${kpiData && (kpiData.contractsDraft + kpiData.contractsPending) > 0 ? '#d97706' : '#9CA3AF'}`, padding: '18px 20px' }} className="dash-card">
-          <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <FileSignature style={{ width: 12, height: 12 }} /> Contracts Pending
-          </div>
-          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-            {kpiData ? (kpiData.contractsDraft + kpiData.contractsPending) : '—'}
-          </div>
-          {kpiData && (
-            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
-              {kpiData.contractsDraft} draft{kpiData.contractsDraft !== 1 ? 's' : ''}, {kpiData.contractsPending} awaiting signature
-            </div>
-          )}
-        </div>
-        <div style={{ ...cardStyle, borderLeft: '3px solid #16a34a', padding: '18px 20px' }} className="dash-card">
-          <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle style={{ width: 12, height: 12 }} /> Contracts Executed
-          </div>
-          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-            {kpiData ? kpiData.contractsExecutedThisMonth : '—'}
-          </div>
-          <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
-            {kpiData ? `${kpiData.contractsExecuted} all time` : '—'}
-            {kpiData && kpiData.totalFeesCollected > 0 && ` · ${fmtMoney(kpiData.totalFeesCollected)} fees`}
-          </div>
-        </div>
-        <div style={{ ...cardStyle, borderLeft: '3px solid #2563EB', padding: '18px 20px' }} className="dash-card">
-          <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Store style={{ width: 12, height: 12 }} /> Active Listings
-          </div>
-          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-            {kpiData ? kpiData.activeListings : '—'}
-          </div>
-          {kpiData && (
-            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Eye style={{ width: 10, height: 10 }} /> {kpiData.totalListingViews.toLocaleString()} total views
-            </div>
-          )}
-        </div>
-        <div style={{ ...cardStyle, borderLeft: `3px solid ${kpiData && kpiData.newInquiries > 0 ? '#2563EB' : '#9CA3AF'}`, padding: '18px 20px', position: 'relative' }} className="dash-card">
-          <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <MessageSquare style={{ width: 12, height: 12 }} /> New Inquiries
-          </div>
-          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-            {kpiData ? kpiData.newInquiries : '—'}
-          </div>
-          {kpiData && kpiData.newInquiries > 0 && (
-            <span style={{ position: 'absolute', top: 14, right: 14, width: 8, height: 8, borderRadius: '50%', background: '#2563EB' }} />
-          )}
-        </div>
-      </div>
-
-      {/* Contract Status + Marketplace Activity */}
-      <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
-        {/* Contracts Status */}
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={{ ...sectionLabel as React.CSSProperties, display: 'flex', alignItems: 'center', gap: 6 }}>
-              Contracts
-              {kpiData && kpiData.contractsPending > 0 && (
-                <span style={{ fontSize: '0.6rem', fontWeight: 600, color: '#d97706', background: 'rgba(217,119,6,0.08)', padding: '2px 7px', borderRadius: 10 }}>
-                  action needed
-                </span>
-              )}
-            </div>
-            <button
-              onClick={() => router.push('/contracts')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
-            >
-              View all <ChevronRight style={{ width: 12, height: 12 }} />
-            </button>
-          </div>
-          {recentContracts.length === 0 ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
-              No contracts yet. <span style={{ color: '#2563EB', cursor: 'pointer' }} onClick={() => router.push('/contracts')}>Create your first contract</span>
-            </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {recentContracts.map((c, i) => {
-                const sc = CONTRACT_STATUS_COLORS[c.status] || CONTRACT_STATUS_COLORS.DRAFT
-                const contractBuyer = c.offer?.buyer
-                  ? ([c.offer.buyer.firstName, c.offer.buyer.lastName].filter(Boolean).join(' ') || c.offer.buyer.entityName || 'Manual Entry')
-                  : 'Manual Entry'
-                const typeLabel = c.templateName.toLowerCase().includes('double close') ? 'Double Close'
-                  : c.templateName.toLowerCase().includes('jv') ? 'JV' : 'Assignment'
-                return (
-                  <div
-                    key={c.id}
-                    onClick={() => router.push('/contracts')}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '10px 0',
-                      borderBottom: i < recentContracts.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
-                      cursor: 'pointer',
-                    }}
-                    className="dash-deal-row"
-                  >
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {c.deal.address}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
-                        {contractBuyer} · {c.deal.city}, {c.deal.state}
-                        {c.offer?.amount ? ` · ${fmtMoney(c.offer.amount)}` : ''}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, marginLeft: 12 }}>
-                      <span style={{
-                        fontSize: '0.62rem', fontWeight: 600,
-                        color: '#6b7280', background: 'rgba(107,114,128,0.08)',
-                        padding: '2px 6px', borderRadius: 10,
-                      }}>
-                        {typeLabel}
-                      </span>
-                      <span style={{
-                        fontSize: '0.66rem', fontWeight: 600,
-                        color: sc.text, background: sc.bg,
-                        padding: '2px 8px', borderRadius: 10,
-                      }}>
-                        {c.status}
-                      </span>
-                      <span style={{ fontSize: '0.66rem', color: 'var(--muted-text, #9CA3AF)' }}>
-                        {timeAgo(c.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Marketplace Activity */}
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={sectionLabel as React.CSSProperties}>Marketplace</div>
-            <button
-              onClick={() => router.push('/marketplace')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
-            >
-              View all <ChevronRight style={{ width: 12, height: 12 }} />
-            </button>
-          </div>
-          {kpiData && kpiData.activeListings > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12, padding: '10px 14px', background: 'rgba(37,99,235,0.04)', borderRadius: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <Store style={{ width: 13, height: 13, color: '#2563EB' }} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--navy-heading, #0B1224)' }}>{kpiData.activeListings}</span>
-                <span style={{ fontSize: '0.76rem', color: 'var(--muted-text, #9CA3AF)' }}>active listing{kpiData.activeListings !== 1 ? 's' : ''}</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <Eye style={{ width: 13, height: 13, color: '#6b7280' }} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--navy-heading, #0B1224)' }}>{kpiData.totalListingViews.toLocaleString()}</span>
-                <span style={{ fontSize: '0.76rem', color: 'var(--muted-text, #9CA3AF)' }}>views</span>
-              </div>
-            </div>
-          )}
-          {recentInquiries.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {recentInquiries.map((inq, i) => (
-                <div
-                  key={inq.id}
-                  style={{
-                    padding: '10px 0',
-                    borderBottom: i < recentInquiries.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)' }}>
-                        {inq.buyerName}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {inq.listing.address}, {inq.listing.city}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => router.push('/marketplace')}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 3,
-                        padding: '4px 10px', borderRadius: 6,
-                        border: '1px solid #2563EB', background: 'transparent', color: '#2563EB',
-                        fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                        flexShrink: 0, marginLeft: 8,
-                      }}
-                    >
-                      Respond
-                    </button>
-                  </div>
-                  {inq.message && (
-                    <div style={{ fontSize: '0.74rem', color: 'var(--body-text, #4B5563)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '90%' }}>
-                      {inq.message}
-                    </div>
-                  )}
-                  <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 4 }}>
-                    {timeAgo(inq.createdAt)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : kpiData && kpiData.activeListings === 0 ? (
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10 }}>
-                No marketplace listings yet.
-              </p>
-              <button
-                onClick={() => router.push('/marketplace')}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  padding: '8px 16px', borderRadius: 8,
-                  border: '1px solid #2563EB', background: 'transparent', color: '#2563EB',
-                  fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                <Store style={{ width: 13, height: 13 }} /> List your first deal
-              </button>
-            </div>
-          ) : (
-            <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
-              No new inquiries.
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Outreach KPI Cards — only show if user has outreach activity */}
-      {kpiData && (kpiData.activeCampaigns > 0 || kpiData.callsThisWeek > 0 || kpiData.totalCallMinutes > 0) && (
-        <div className="dash-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
-          <div
-            style={{ ...cardStyle, borderLeft: `3px solid ${kpiData.activeCampaigns > 0 ? '#16a34a' : '#9CA3AF'}`, padding: '18px 20px', cursor: 'pointer' }}
-            className="dash-card"
-            onClick={() => router.push('/outreach')}
-          >
-            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Phone style={{ width: 12, height: 12 }} /> Active Campaigns
-            </div>
-            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-              {kpiData.activeCampaigns}
-            </div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
-              {kpiData.callsToday} calls today
-            </div>
-            {kpiData.activeCampaigns > 0 && (
-              <span style={{ position: 'absolute', top: 14, right: 14, width: 8, height: 8, borderRadius: '50%', background: '#16a34a', animation: 'pulse 2s infinite' }} />
-            )}
-          </div>
-
-          <div style={{ ...cardStyle, borderLeft: '3px solid #2563EB', padding: '18px 20px' }} className="dash-card">
-            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <PhoneOutgoing style={{ width: 12, height: 12 }} /> Calls This Week
-            </div>
-            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-              {kpiData.callsThisWeek}
-            </div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
-              {kpiData.qualifiedThisWeek} qualified ({kpiData.qualificationRate}%)
-            </div>
-          </div>
-
-          <div style={{ ...cardStyle, borderLeft: `3px solid ${kpiData.qualificationRate >= 20 ? '#16a34a' : kpiData.qualificationRate >= 10 ? '#d97706' : '#ef4444'}`, padding: '18px 20px' }} className="dash-card">
-            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Target style={{ width: 12, height: 12 }} /> Qualification Rate
-            </div>
-            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-              {kpiData.qualificationRate}%
-            </div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
-              Avg {kpiData.avgCallDuration}s per call
-            </div>
-          </div>
-
-          <div style={{ ...cardStyle, borderLeft: '3px solid #0891b2', padding: '18px 20px' }} className="dash-card">
-            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock style={{ width: 12, height: 12 }} /> Total Call Time
-            </div>
-            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-              {fmtMinutesAsHours(kpiData.totalCallMinutes)}
-            </div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
-              {kpiData.aiCalls.toLocaleString()} total calls all time
-            </div>
-          </div>
-        </div>
       )}
 
-      {/* Two-column: Recent Deals + Pending Offers */}
-      <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
-        {/* Recent Deals */}
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={sectionLabel as React.CSSProperties}>Recent Deals</div>
-            <button
-              onClick={() => router.push('/deals')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: '0.72rem', color: '#2563EB', fontWeight: 500,
-                display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit',
-              }}
-            >
-              View all <ChevronRight style={{ width: 12, height: 12 }} />
-            </button>
-          </div>
-          {recentDeals.length === 0 ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
-              No deals yet.
-            </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {recentDeals.map((deal, i) => {
-                const activeOffers = deal.offers.filter(o => o.status === 'PENDING' || o.status === 'COUNTERED').length
-                return (
-                  <div
-                    key={deal.id}
-                    onClick={() => router.push(`/deals/${deal.id}`)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '10px 0',
-                      borderBottom: i < recentDeals.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
-                      cursor: 'pointer',
-                    }}
-                    className="dash-deal-row"
-                  >
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {deal.address}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
-                        {deal.city}, {deal.state} · {fmtMoney(deal.askingPrice)}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 12 }}>
-                      {activeOffers > 0 && (
-                        <span style={{ fontSize: '0.66rem', fontWeight: 600, color: '#d97706', background: 'rgba(217,119,6,0.08)', padding: '2px 7px', borderRadius: 10 }}>
-                          {activeOffers} offer{activeOffers > 1 ? 's' : ''}
-                        </span>
-                      )}
-                      <span style={{
-                        fontSize: '0.66rem',
-                        fontWeight: 600,
-                        color: STATUS_COLORS[deal.status] || '#6b7280',
-                        background: `${STATUS_COLORS[deal.status] || '#6b7280'}14`,
-                        padding: '2px 8px',
-                        borderRadius: 10,
-                      }}>
-                        {STATUS_LABELS[deal.status] || deal.status}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+      {/* Tab content */}
+      {data && (
+        <>
+          {activeTab === 'overview' && (
+            <OverviewTab data={data} router={router} onOfferAction={handleOfferAction} offerLoading={offerActionLoading} />
           )}
-        </div>
-
-        {/* Pending Offers */}
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={sectionLabel as React.CSSProperties}>Pending Offers</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <DollarSign style={{ width: 12, height: 12, color: '#d97706' }} />
-              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#d97706' }}>
-                {kpiData?.pendingOffers || 0} pending
-              </span>
-            </div>
-          </div>
-          {pendingOffers.length === 0 ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
-              No pending offers.
-            </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {pendingOffers.map((offer, i) => {
-                const pctOfAsking = offer.deal.askingPrice > 0
-                  ? Math.round((offer.amount / offer.deal.askingPrice) * 100)
-                  : null
-                const isLoading = offerActionLoading === offer.id
-                return (
-                  <div
-                    key={offer.id}
-                    style={{
-                      padding: '10px 0',
-                      borderBottom: i < pendingOffers.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {fmtMoney(offer.amount)}
-                          {pctOfAsking && (
-                            <span style={{ fontSize: '0.7rem', color: 'var(--muted-text, #9CA3AF)', fontWeight: 400, marginLeft: 6 }}>
-                              ({pctOfAsking}% of ask)
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
-                          {buyerName(offer.buyer)} · {offer.deal.address}, {offer.deal.city}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: 6, flexShrink: 0, marginLeft: 8 }}>
-                        <button
-                          onClick={() => handleOfferAction(offer.id, 'ACCEPTED')}
-                          disabled={isLoading}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 3,
-                            padding: '4px 10px', borderRadius: 6,
-                            border: '1px solid #16a34a', background: '#16a34a', color: '#fff',
-                            fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer',
-                            opacity: isLoading ? 0.6 : 1, fontFamily: 'inherit',
-                          }}
-                        >
-                          <CheckCircle style={{ width: 11, height: 11 }} />
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => handleOfferAction(offer.id, 'REJECTED')}
-                          disabled={isLoading}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 3,
-                            padding: '4px 10px', borderRadius: 6,
-                            border: '1px solid #ef4444', background: 'transparent', color: '#ef4444',
-                            fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer',
-                            opacity: isLoading ? 0.6 : 1, fontFamily: 'inherit',
-                          }}
-                        >
-                          <XCircle style={{ width: 11, height: 11 }} />
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                    <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)' }}>
-                      {timeAgo(offer.createdAt)}
-                      {offer.status === 'COUNTERED' && (
-                        <span style={{ marginLeft: 6, color: '#2563EB', fontWeight: 600 }}>COUNTERED</span>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Two-column: Recent Calls + Campaign Performance — only if outreach data exists */}
-      {outreach && (outreach.recentCalls.length > 0 || outreach.campaignPerformance.length > 0) && (
-        <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
-          {/* Recent Calls */}
-          <div style={cardStyle}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div style={sectionLabel as React.CSSProperties}>Recent Calls</div>
-              <button
-                onClick={() => router.push('/outreach?tab=calllog')}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
-              >
-                View all <ChevronRight style={{ width: 12, height: 12 }} />
-              </button>
-            </div>
-            {outreach.recentCalls.length === 0 ? (
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
-                No calls yet. <span style={{ color: '#2563EB', cursor: 'pointer' }} onClick={() => router.push('/outreach')}>Launch a campaign</span>
-              </p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                {outreach.recentCalls.map((call, i) => {
-                  const name = buyerName(call.buyer)
-                  const oc = OUTCOME_COLORS_DASH[call.outcome || ''] || { text: '#6b7280', bg: 'rgba(107,114,128,0.08)' }
-                  const ChIcon = CHANNEL_ICONS_DASH[call.channel || 'VOICE']?.icon || Phone
-                  return (
-                    <div
-                      key={call.id}
-                      onClick={() => router.push('/outreach')}
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '9px 0', cursor: 'pointer',
-                        borderBottom: i < outreach.recentCalls.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
-                      }}
-                      className="dash-deal-row"
-                    >
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {name}
-                        </div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
-                          {call.campaign.name}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, marginLeft: 12 }}>
-                        <span style={{ fontSize: '0.66rem', fontWeight: 600, color: oc.text, background: oc.bg, padding: '2px 8px', borderRadius: 10 }}>
-                          {OUTCOME_LABELS_DASH[call.outcome || ''] || call.outcome || 'Pending'}
-                        </span>
-                        <span style={{ fontSize: '0.72rem', color: 'var(--body-text, #4B5563)', fontVariantNumeric: 'tabular-nums' }}>
-                          {fmtDuration(call.durationSecs)}
-                        </span>
-                        <ChIcon style={{ width: 12, height: 12, color: CHANNEL_ICONS_DASH[call.channel || 'VOICE']?.color || '#2563EB' }} />
-                        <span style={{ fontSize: '0.66rem', color: 'var(--muted-text, #9CA3AF)' }}>
-                          {call.startedAt ? timeAgo(call.startedAt) : ''}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Campaign Performance */}
-          <div style={cardStyle}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div style={sectionLabel as React.CSSProperties}>Campaign Performance</div>
-              <button
-                onClick={() => router.push('/outreach')}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
-              >
-                View all <ChevronRight style={{ width: 12, height: 12 }} />
-              </button>
-            </div>
-            {outreach.campaignPerformance.length === 0 ? (
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
-                No campaigns with enough data yet.
-              </p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {outreach.campaignPerformance.map(c => {
-                  const progress = c.totalBuyers > 0 ? (c.callsCompleted / c.totalBuyers) * 100 : 0
-                  const ChIcon = CHANNEL_ICONS_DASH[c.channel || 'VOICE']?.icon || Phone
-                  return (
-                    <div
-                      key={c.id}
-                      style={{ border: '1px solid var(--border-light, #F0F0F0)', borderRadius: 10, padding: '12px 14px' }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden', flex: 1 }}>
-                          <span style={{ fontSize: '0.8rem', color: 'var(--navy-heading, #0B1224)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                          <ChIcon style={{ width: 11, height: 11, color: CHANNEL_ICONS_DASH[c.channel || 'VOICE']?.color || '#2563EB' }} />
-                          <span style={{
-                            display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.66rem', fontWeight: 600,
-                            padding: '2px 8px', borderRadius: 20, flexShrink: 0,
-                            color: c.status === 'RUNNING' ? '#16a34a' : 'var(--muted-text, #9CA3AF)',
-                            background: c.status === 'RUNNING' ? 'rgba(22,163,74,0.08)' : 'rgba(5,14,36,0.04)',
-                          }}>
-                            {c.status === 'RUNNING' && <Play style={{ width: 9, height: 9 }} />}
-                            {c.status}
-                          </span>
-                        </div>
-                      </div>
-                      {/* Progress bar */}
-                      <div style={{ height: 4, background: 'var(--border-light, #F0F0F0)', borderRadius: 2, overflow: 'hidden', marginBottom: 6 }}>
-                        <div style={{ width: `${Math.min(progress, 100)}%`, height: '100%', background: '#2563EB', borderRadius: 2 }} />
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem' }}>
-                        <span style={{ color: 'var(--body-text, #4B5563)' }}>
-                          {c.callsCompleted}/{c.totalBuyers} calls · {c.qualified} qualified
-                        </span>
-                        <span style={{ fontWeight: 600, color: c.qualificationRate >= 20 ? '#16a34a' : c.qualificationRate >= 10 ? '#d97706' : '#6b7280' }}>
-                          {c.qualificationRate}% qual
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </div>
+          {activeTab === 'deals' && <DealsTab data={data} router={router} />}
+          {activeTab === 'outreach' && <OutreachTab data={data} router={router} />}
+          {activeTab === 'contracts' && <ContractsTab data={data} router={router} />}
+          {activeTab === 'analytics' && <AnalyticsTab data={data} router={router} />}
+        </>
       )}
-
-      {/* Outreach Sparkline + Channel Breakdown */}
-      {outreach && outreach.callsPerDay.some(d => d.total > 0) && (
-        <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14, marginBottom: 20 }}>
-          {/* Sparkline */}
-          <div style={{ ...cardStyle, padding: '16px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)' }}>
-                14-Day Calling Trend
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)' }}>
-                  <span style={{ width: 10, height: 2, background: '#9CA3AF', borderRadius: 1 }} /> Calls
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)' }}>
-                  <span style={{ width: 10, height: 2, background: '#16a34a', borderRadius: 1 }} /> Qualified
-                </span>
-              </div>
-            </div>
-            {(() => {
-              const days = outreach.callsPerDay
-              const maxT = Math.max(...days.map(d => d.total), 1)
-              const w = 500
-              const h = 64
-              const totalPath = days.map((d, i) => {
-                const x = days.length > 1 ? (i / (days.length - 1)) * w : w / 2
-                const y = h - (d.total / maxT) * (h - 8) - 4
-                return `${i === 0 ? 'M' : 'L'}${x},${y}`
-              }).join(' ')
-              const qualPath = days.map((d, i) => {
-                const x = days.length > 1 ? (i / (days.length - 1)) * w : w / 2
-                const y = h - (d.qualified / maxT) * (h - 8) - 4
-                return `${i === 0 ? 'M' : 'L'}${x},${y}`
-              }).join(' ')
-              const totalSum = days.reduce((s, d) => s + d.total, 0)
-              const qualSum = days.reduce((s, d) => s + d.qualified, 0)
-              return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <svg viewBox={`0 0 ${w} ${h}`} style={{ flex: 1, height: 64 }} preserveAspectRatio="none">
-                    <path d={totalPath} fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d={qualPath} fill="none" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--navy-heading, #0B1224)', lineHeight: 1.2 }}>{totalSum}</div>
-                    <div style={{ fontSize: '0.66rem', color: 'var(--muted-text, #9CA3AF)' }}>calls</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#16a34a', lineHeight: 1.2, marginTop: 4 }}>{qualSum}</div>
-                    <div style={{ fontSize: '0.66rem', color: 'var(--muted-text, #9CA3AF)' }}>qualified</div>
-                  </div>
-                </div>
-              )
-            })()}
-          </div>
-
-          {/* Channel Breakdown — only show if multi-channel */}
-          {Object.keys(outreach.outreachByChannel).length > 1 ? (
-            <div style={{ ...cardStyle, padding: '16px 20px' }}>
-              <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10 }}>
-                Channel Breakdown
-              </div>
-              {(() => {
-                const channels = outreach.outreachByChannel
-                const total = Object.values(channels).reduce((s, v) => s + v, 0)
-                const channelColors: Record<string, string> = { VOICE: '#2563EB', SMS: '#16a34a', EMAIL: '#7c3aed', MULTI_CHANNEL: '#d97706' }
-                const channelLabels: Record<string, string> = { VOICE: 'Voice', SMS: 'SMS', EMAIL: 'Email', MULTI_CHANNEL: 'Multi' }
-                return (
-                  <div>
-                    <div style={{ display: 'flex', height: 20, borderRadius: 6, overflow: 'hidden', marginBottom: 10 }}>
-                      {Object.entries(channels).map(([ch, count]) => {
-                        const pct = total > 0 ? (count / total) * 100 : 0
-                        return (
-                          <div
-                            key={ch}
-                            title={`${channelLabels[ch] || ch}: ${count} (${Math.round(pct)}%)`}
-                            style={{ width: `${pct}%`, minWidth: pct > 0 ? 8 : 0, background: channelColors[ch] || '#9CA3AF' }}
-                          />
-                        )
-                      })}
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 12px' }}>
-                      {Object.entries(channels).map(([ch, count]) => {
-                        const pct = total > 0 ? Math.round((count / total) * 100) : 0
-                        return (
-                          <div key={ch} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: 'var(--body-text, #4B5563)' }}>
-                            <span style={{ width: 8, height: 8, borderRadius: 2, background: channelColors[ch] || '#9CA3AF', flexShrink: 0 }} />
-                            {channelLabels[ch] || ch}: {pct}%
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })()}
-            </div>
-          ) : (
-            <div style={{ ...cardStyle, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ textAlign: 'center' }}>
-                <Phone style={{ width: 20, height: 20, color: '#2563EB', marginBottom: 6 }} />
-                <div style={{ fontSize: '0.78rem', color: 'var(--body-text, #4B5563)', fontWeight: 500 }}>Voice Only</div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
-                  {Object.values(outreach.outreachByChannel).reduce((s, v) => s + v, 0)} calls (30d)
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Top Matches Section */}
-      {topMatches.length > 0 && (
-        <div style={{ ...cardStyle, marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={sectionLabel as React.CSSProperties}>Top Buyer Matches</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Handshake style={{ width: 12, height: 12, color: '#16a34a' }} />
-              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#16a34a' }}>
-                {kpiData?.matchesSent || 0} sent (30d)
-              </span>
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
-            {topMatches.map(match => (
-              <div
-                key={match.id}
-                style={{
-                  border: '1px solid var(--border-light, #F0F0F0)',
-                  borderRadius: 10,
-                  padding: '14px 16px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{
-                    fontSize: '0.7rem', fontWeight: 700,
-                    color: match.matchScore >= 80 ? '#16a34a' : match.matchScore >= 60 ? '#d97706' : '#6b7280',
-                    background: match.matchScore >= 80 ? 'rgba(22,163,74,0.08)' : match.matchScore >= 60 ? 'rgba(217,119,6,0.08)' : 'rgba(107,114,128,0.08)',
-                    padding: '2px 8px', borderRadius: 10,
-                  }}>
-                    {match.matchScore}% match
-                  </span>
-                  <BarChart3 style={{ width: 12, height: 12, color: 'var(--muted-text, #9CA3AF)' }} />
-                </div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {buyerName(match.buyer)}
-                </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {match.deal.address}, {match.deal.city}
-                </div>
-                <button
-                  onClick={() => router.push(`/deals/${match.dealId}`)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 4, width: '100%', justifyContent: 'center',
-                    padding: '6px 12px', borderRadius: 6,
-                    border: '1px solid #2563EB', background: 'transparent', color: '#2563EB',
-                    fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                  }}
-                >
-                  <Send style={{ width: 11, height: 11 }} />
-                  View Deal
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Middle row: Revenue + Campaigns */}
-      <div className="dash-mid2" style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 14, marginBottom: 20 }}>
-        {/* Revenue chart */}
-        <div style={cardStyle}>
-          <RevenueChart />
-        </div>
-
-        {/* Active campaigns (real data) */}
-        <div style={cardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={sectionLabel as React.CSSProperties}>Active Campaigns</div>
-            <button
-              onClick={() => router.push('/outreach')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
-            >
-              View all <ChevronRight style={{ width: 12, height: 12 }} />
-            </button>
-          </div>
-          {outreach && outreach.campaignPerformance.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {outreach.campaignPerformance.map(c => (
-                <div
-                  key={c.id}
-                  onClick={() => router.push('/outreach')}
-                  style={{
-                    border: '1px solid var(--border-light, #F0F0F0)',
-                    borderRadius: 10,
-                    padding: '12px 14px',
-                    cursor: 'pointer',
-                  }}
-                  className="dash-deal-row"
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--navy-heading, #0B1224)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 8 }}>{c.name}</span>
-                    <span
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.66rem', fontWeight: 600,
-                        padding: '2px 8px', borderRadius: 20, flexShrink: 0,
-                        color: c.status === 'RUNNING' ? '#16a34a' : 'var(--muted-text, #9CA3AF)',
-                        background: c.status === 'RUNNING' ? 'rgba(22,163,74,0.08)' : 'rgba(5,14,36,0.04)',
-                      }}
-                    >
-                      {c.status === 'RUNNING' ? <Play style={{ width: 10, height: 10 }} /> : <Pause style={{ width: 10, height: 10 }} />}
-                      {c.status === 'RUNNING' ? 'Running' : c.status === 'COMPLETED' ? 'Done' : c.status}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '0.74rem', color: 'var(--body-text, #4B5563)' }}>
-                    <span>{c.callsCompleted} calls</span>
-                    <span>{c.qualificationRate}% qual rate</span>
-                    <span style={{ color: '#16a34a', fontWeight: 500 }}>{c.qualified} qualified</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10 }}>
-                No campaign data yet.
-              </p>
-              <button
-                onClick={() => router.push('/outreach')}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  padding: '8px 16px', borderRadius: 8,
-                  border: '1px solid #2563EB', background: 'transparent', color: '#2563EB',
-                  fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                <PhoneOutgoing style={{ width: 13, height: 13 }} /> Launch a campaign
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Bottom row: Activity + Quick Actions */}
-      <div className="dash-bot" style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 14 }}>
-        {/* Activity feed */}
-        <div style={cardStyle}>
-          <div style={{ marginBottom: 14 }}>
-            <div style={sectionLabel as React.CSSProperties}>Recent Activity</div>
-          </div>
-          <div>
-            {(() => {
-              // Merge activity + outreach events, sort by date, take 10
-              const outreachEvts = outreach?.outreachEvents || []
-              const merged = [...activity, ...outreachEvts]
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                .slice(0, 10)
-              if (merged.length === 0) return (
-                <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
-                  No recent activity yet.
-                </p>
-              )
-              return merged.map((a, i) => (
-              <div
-                key={a.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 10,
-                  padding: '9px 0',
-                  borderBottom: i < merged.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
-                }}
-              >
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    background: dotColors[a.type] ?? '#d1d5db',
-                    marginTop: 5,
-                    flexShrink: 0,
-                  }}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '0.82rem', color: 'var(--navy-heading, #0B1224)', lineHeight: 1.45, margin: 0 }}>{a.title}</p>
-                </div>
-                <span style={{ fontSize: '0.7rem', color: 'var(--muted-text, #9CA3AF)', whiteSpace: 'nowrap', flexShrink: 0 }}>{timeAgo(a.createdAt)}</span>
-              </div>
-            ))
-            })()}
-          </div>
-        </div>
-
-        {/* Quick actions */}
-        <div style={cardStyle}>
-          <div style={sectionLabel as React.CSSProperties}>Quick Actions</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {quickActions.map(a => {
-              const Icon = a.icon
-              return (
-                <button
-                  key={a.label}
-                  className="dash-action"
-                  onClick={() => router.push(a.href)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 10,
-                    padding: '20px 12px',
-                    borderRadius: 12,
-                    border: '1px solid var(--border-light, #F0F0F0)',
-                    background: 'var(--white, #ffffff)',
-                    cursor: 'pointer',
-                    transition: 'background 0.15s ease, border-color 0.15s ease',
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 10,
-                      background: a.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Icon style={{ width: 16, height: 16, color: 'white' }} />
-                  </div>
-                  <span style={{ fontSize: '0.76rem', color: 'var(--body-text, #4B5563)', fontWeight: 500, textAlign: 'center', lineHeight: 1.3 }}>
-                    {a.label}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      </div>
 
       <style>{`
-        .dash-card { transition: box-shadow 0.2s ease; }
-        .dash-card:hover { box-shadow: rgba(5,14,36,0.04) 0px 2px 8px; }
-        .dash-action:hover { background: var(--warm-gray, rgba(5,14,36,0.02)) !important; border-color: var(--border-med, #E5E7EB) !important; }
-        .dash-deal-row:hover { background: rgba(5,14,36,0.02); }
+        .dash-row { transition: background 0.1s; }
+        .dash-row:hover { background: rgba(5,14,36,0.015); }
         @media (max-width: 1000px) {
-          .dash-kpi { grid-template-columns: repeat(2, 1fr) !important; }
-          .dash-mid { grid-template-columns: 1fr !important; }
-          .dash-mid2 { grid-template-columns: 1fr !important; }
-          .dash-bot { grid-template-columns: 1fr !important; }
+          .dash-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+          .dash-grid-2 { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 600px) {
-          .dash-kpi { grid-template-columns: 1fr !important; }
+          .dash-grid-4 { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>
