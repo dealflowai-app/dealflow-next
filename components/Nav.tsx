@@ -114,16 +114,21 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           >
             <Image src="/Logo.png" alt="DealFlow AI logo" width={28} height={28} style={{ objectFit: 'contain', flexShrink: 0 }} />
             DealFlow AI
-            <span style={{
+            <span className="nav-beta-badge" style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
               fontSize: '0.68rem', fontWeight: 400, letterSpacing: '0.04em', textTransform: 'uppercase',
               color: 'var(--blue-600)', background: 'var(--blue-50)', border: '1px solid var(--blue-100)',
-              borderRadius: 20, padding: '2px 8px', lineHeight: 1,
+              borderRadius: 20, padding: isScrolled ? '0' : '2px 8px', lineHeight: 1,
+              opacity: isScrolled ? 0 : 1,
+              width: isScrolled ? 0 : 'auto',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              transition: 'opacity 0.35s ease, width 0.5s cubic-bezier(0.22, 1, 0.36, 1), padding 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
             }}>Beta</span>
           </Link>
 
           {/* Center links */}
-          <div className="nav-center-links" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', gap: 2, marginLeft: 30 }}>
+          <div className="nav-center-links" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', gap: 2 }}>
             {activePage ? (
               <>
                 <Link href="/#product-showcase" style={navLinkStyle(false, darkText)}>Platform</Link>

@@ -13,31 +13,31 @@ const BD = '#E5E7EB'
 const MT = 'rgba(5,14,36,0.45)'
 
 const SCENES = [
-  { dur: 7000, label: 'Find Buyers', nav: 3 },
   { dur: 7000, label: 'Dashboard', nav: 0 },
-  { dur: 9500, label: 'AI Outreach', nav: 5 },
   { dur: 8000, label: 'Marketplace', nav: 2 },
+  { dur: 7000, label: 'Find Buyers', nav: 3 },
+  { dur: 9500, label: 'AI Outreach', nav: 5 },
   { dur: 7500, label: 'Analyze Deal', nav: 6 },
   { dur: 6000, label: 'Close Deal', nav: 8 },
 ]
-const STEP_LABELS = ['Find Buyers', 'Dashboard', 'AI Outreach', 'Marketplace', 'Analyze Deal', 'Close Deal']
+const STEP_LABELS = ['Dashboard', 'Marketplace', 'Find Buyers', 'AI Outreach', 'Analyze Deal', 'Close Deal']
 const SCENE_TO_STEP = [0, 1, 2, 3, 4, 5]
 const MOBILE_IDX = [0, 2, 5]
 
 /* Cursor keyframes per scene */
 const CK: { t: number; x: number; y: number }[][] = [
-  /* S0 Find Buyers */ [{ t: 0, x: 550, y: 250 }, { t: 400, x: 280, y: 55 }, { t: 2600, x: 455, y: 55 }, { t: 4200, x: 300, y: 165 }, { t: 5600, x: 465, y: 172 }],
-  /* S1 Dashboard */ [{ t: 0, x: 450, y: 240 }, { t: 3800, x: 230, y: 110 }, { t: 5000, x: 350, y: 290 }],
-  /* S2 AI Outreach */ [{ t: 0, x: 500, y: 130 }],
-  /* S3 Marketplace */ [{ t: 0, x: 500, y: 200 }, { t: 1600, x: 260, y: 200 }, { t: 3800, x: 560, y: 340 }, { t: 5200, x: 570, y: 400 }],
+  /* S0 Dashboard */ [{ t: 0, x: 450, y: 240 }, { t: 3800, x: 230, y: 110 }, { t: 5000, x: 350, y: 290 }],
+  /* S1 Marketplace */ [{ t: 0, x: 500, y: 200 }, { t: 1600, x: 260, y: 200 }, { t: 3800, x: 560, y: 340 }, { t: 5200, x: 570, y: 400 }],
+  /* S2 Find Buyers */ [{ t: 0, x: 550, y: 250 }, { t: 400, x: 280, y: 55 }, { t: 2600, x: 455, y: 55 }, { t: 4200, x: 300, y: 165 }, { t: 5600, x: 465, y: 172 }],
+  /* S3 AI Outreach */ [{ t: 0, x: 500, y: 130 }],
   /* S4 Analyze Deal */ [{ t: 0, x: 500, y: 240 }, { t: 400, x: 300, y: 55 }, { t: 2600, x: 455, y: 55 }, { t: 6600, x: 460, y: 420 }],
   /* S5 Close Deal */ [{ t: 0, x: 400, y: 220 }, { t: 600, x: 380, y: 380 }],
 ]
 const CL: number[][] = [
-  [2800, 5800],
-  [],
   [],
   [1800, 4000, 5400],
+  [2800, 5800],
+  [],
   [2800, 6800],
   [800],
 ]
@@ -1007,7 +1007,7 @@ function S5({ t }: { t: number }) {
   )
 }
 
-const RENDERERS = [S0, S1, S2, S3, S4, S5]
+const RENDERERS = [S1, S3, S0, S2, S4, S5]
 
 /* ── Step Indicator ─────────────────────────────────────── */
 function StepIndicator({ currentStep }: { currentStep: number }) {
