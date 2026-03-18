@@ -1,6 +1,6 @@
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
-import Features from '@/components/Features'
+import ProductShowcase from '@/components/ProductShowcase'
 import LiveDealMap from '@/components/LiveDealMap'
 import WhoItsFor from '@/components/WhoItsFor'
 import CtaSection from '@/components/CtaSection'
@@ -12,8 +12,8 @@ export default function Home() {
     <>
       <Nav />
       <Hero />
+      <ProductShowcase />
       <LiveDealMap />
-      <Features />
       <WhoItsFor />
       <CtaSection />
       <Footer />

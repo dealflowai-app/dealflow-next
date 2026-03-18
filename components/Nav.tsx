@@ -20,7 +20,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
       setIsScrolled(window.scrollY > 60)
 
       if (!activePage) {
-        const sections = ['how', 'who']
+        const sections = ['product-showcase', 'who']
         let active: string | null = null
         sections.forEach((id) => {
           const el = document.getElementById(id)
@@ -51,13 +51,13 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
 
   const mobileLinks = activePage
     ? [
-        { label: 'Features', href: '/#how' },
+        { label: 'Platform', href: '/#product-showcase' },
         { label: "Who it's for", href: '/#who' },
         { label: 'Pricing', href: '/pricing' },
         { label: 'About', href: '/about' },
       ]
     : [
-        { label: 'Features', href: '#how' },
+        { label: 'Platform', href: '#product-showcase' },
         { label: "Who it's for", href: '#who' },
         { label: 'Pricing', href: '/pricing' },
         { label: 'About', href: '/about' },
@@ -65,7 +65,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
 
   return (
     <>
-      {/* ===== DESKTOP NAV — floating pill ===== */}
+      {/* ===== DESKTOP NAV - floating pill ===== */}
       <nav
         className="nav-desktop-wrap"
         style={{
@@ -120,7 +120,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
             DealFlow AI
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
+              fontSize: '0.68rem', fontWeight: 400, letterSpacing: '0.04em', textTransform: 'uppercase',
               color: 'var(--blue-600)', background: 'var(--blue-50)', border: '1px solid var(--blue-100)',
               borderRadius: 20, padding: '2px 8px', lineHeight: 1,
             }}>Beta</span>
@@ -130,7 +130,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           <div className="nav-center-links" style={{ display: 'flex', gap: 2 }}>
             {activePage ? (
               <>
-                <Link href="/#how" style={navLinkStyle(false, showWhiteNav)}>Features</Link>
+                <Link href="/#product-showcase" style={navLinkStyle(false, showWhiteNav)}>Platform</Link>
                 <Link href="/#who" style={navLinkStyle(false, showWhiteNav)}>Who it&apos;s for</Link>
                 <div style={{ width: 1, height: 18, background: showWhiteNav ? 'var(--border-med)' : 'rgba(255,255,255,0.2)', margin: '0 6px', alignSelf: 'center', transition: 'background 0.35s ease' }} />
                 <Link href="/pricing" style={navLinkStyle(activePage === 'pricing', showWhiteNav)}>Pricing</Link>
@@ -138,7 +138,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
               </>
             ) : (
               <>
-                <Link href="#how" style={navLinkStyle(activeSection === 'how', showWhiteNav)}>Features</Link>
+                <Link href="#product-showcase" style={navLinkStyle(activeSection === 'product-showcase', showWhiteNav)}>Platform</Link>
                 <Link href="#who" style={navLinkStyle(activeSection === 'who', showWhiteNav)}>Who it&apos;s for</Link>
                 <div style={{ width: 1, height: 18, background: showWhiteNav ? 'var(--border-med)' : 'rgba(255,255,255,0.2)', margin: '0 6px', alignSelf: 'center', transition: 'background 0.35s ease' }} />
                 <Link href="/pricing" style={navLinkStyle(false, showWhiteNav)}>Pricing</Link>
@@ -163,7 +163,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                 color: 'white', border: 'none', background: '#2563EB', fontFamily: 'inherit',
                 transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', letterSpacing: '-0.01em',
                 textDecoration: 'none', display: 'inline-flex', alignItems: 'center',
-              }}>Join waitlist</Link>
+              }}>Get Started</Link>
             ) : (
               <button onClick={scrollToCta} style={{
                 padding: '7px 14px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 600,
@@ -173,13 +173,13 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
               }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#1D4ED8' }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#2563EB' }}
-              >Join waitlist</button>
+              >Get Started</button>
             )}
           </div>
         </div>
       </nav>
 
-      {/* ===== MOBILE NAV — single expanding card (Eden style) ===== */}
+      {/* ===== MOBILE NAV - single expanding card (Eden style) ===== */}
       <div
         className="nav-mobile-bar"
         style={{
@@ -206,7 +206,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
             overflow: 'hidden',
           }}
         >
-          {/* Header row — logo + hamburger/X */}
+          {/* Header row - logo + hamburger/X */}
           <div
             style={{
               display: 'flex',
@@ -229,7 +229,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
               <Image src="/Logo.png" alt="DealFlow AI logo" width={26} height={26} style={{ objectFit: 'contain' }} />
               DealFlow AI
               <span style={{
-                fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
+                fontSize: '0.62rem', fontWeight: 400, letterSpacing: '0.04em', textTransform: 'uppercase',
                 color: 'var(--blue-600)', background: 'var(--blue-50)', border: '1px solid var(--blue-100)',
                 borderRadius: 20, padding: '2px 7px', lineHeight: 1,
               }}>Beta</span>
@@ -320,7 +320,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                     background: '#2563EB', textDecoration: 'none',
                     textAlign: 'center', display: 'block',
                   }}
-                >Join waitlist</Link>
+                >Get Started</Link>
               ) : (
                 <button
                   className="btn-cta"
@@ -331,7 +331,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
                     border: 'none', background: '#2563EB',
                     cursor: 'pointer', fontFamily: 'inherit',
                   }}
-                >Join waitlist</button>
+                >Get Started</button>
               )}
             </div>
           </div>

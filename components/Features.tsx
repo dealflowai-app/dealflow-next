@@ -116,9 +116,9 @@ function VisualFindBuyers() {
           <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'white' }}>Atlanta Metro</span>
           <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>· 3 counties</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: 100, padding: '3px 9px' }}>
-          <span className="live-pill-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-          <span style={{ fontSize: '0.64rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Scanning</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', borderRadius: 100, padding: '3px 9px' }}>
+          <span className="live-pill-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: '#60A5FA', display: 'inline-block' }} />
+          <span style={{ fontSize: '0.64rem', fontWeight: 700, color: '#60A5FA', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Scanning</span>
         </div>
       </div>
 
@@ -154,7 +154,7 @@ function VisualFindBuyers() {
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--navy-heading)' }}>{r.name}</span>
-                <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--green)', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4, padding: '1px 5px' }}>Cash</span>
+                <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--blue-600)', background: 'var(--blue-50)', border: '1px solid var(--blue-200)', borderRadius: 4, padding: '1px 5px' }}>Cash</span>
               </div>
               <div style={{ fontSize: '0.68rem', color: 'var(--muted-text)', marginTop: 2 }}>{r.loc} · {r.type} · {r.date}</div>
             </div>
@@ -224,11 +224,11 @@ function VisualAiCaller() {
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.25)', borderRadius: 100, padding: '3px 9px' }}>
-            <span className="live-pill-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-            <span style={{ fontSize: '0.64rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Live</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', borderRadius: 100, padding: '3px 9px' }}>
+            <span className="live-pill-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: '#60A5FA', display: 'inline-block' }} />
+            <span style={{ fontSize: '0.64rem', fontWeight: 700, color: '#60A5FA', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Live</span>
           </div>
-          <div style={{ fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 700, color: '#4ade80', letterSpacing: '0.04em' }}>
+          <div style={{ fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 700, color: '#60A5FA', letterSpacing: '0.04em' }}>
             {fmt(secs)}
           </div>
         </div>
@@ -266,15 +266,15 @@ function VisualAiCaller() {
             if (i > visible) return null
             if (line.from === 'captured') {
               return (
-                <div key={i} className="vis-screen-active" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '10px 13px', marginTop: 2 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+                <div key={i} className="vis-screen-active" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--blue-50)', border: '1px solid var(--blue-200)', borderRadius: 10, padding: '10px 13px', marginTop: 2 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blue-700)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   <div>
-                    <div style={{ fontSize: '0.69rem', fontWeight: 700, color: '#16a34a', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    <div style={{ fontSize: '0.69rem', fontWeight: 700, color: 'var(--blue-700)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       Buy box captured
                     </div>
-                    <div style={{ fontSize: '0.82rem', color: '#166534', fontWeight: 500 }}>{line.text}</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--blue-900)', fontWeight: 500 }}>{line.text}</div>
                   </div>
                 </div>
               )
@@ -302,7 +302,7 @@ function VisualAiCaller() {
       <div style={{ padding: '11px 18px', background: 'var(--warm-gray)', display: 'flex', gap: 20, alignItems: 'center' }}>
         {[
           { val: '48', label: 'calls active', color: 'var(--blue-600)' },
-          { val: '31', label: 'qualified', color: 'var(--green)' },
+          { val: '31', label: 'qualified', color: 'var(--accent)' },
           { val: '9', label: 'not buying', color: 'var(--muted-text)' },
         ].map((s) => (
           <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -318,7 +318,7 @@ function VisualAiCaller() {
 /* ── Visual 3: Organize & Score ──────────────────────────── */
 function VisualOrganize() {
   const buyers = [
-    { initials: 'MT', bg: 'linear-gradient(135deg,#1D4ED8,#2563EB)', name: 'Marcus T.', market: 'Atlanta, GA · SFR Flip', score: 94, tag: 'High-Confidence', tagColor: '#16a34a', tagBg: '#f0fdf4', tagBorder: '#bbf7d0' },
+    { initials: 'MT', bg: 'linear-gradient(135deg,#1D4ED8,#2563EB)', name: 'Marcus T.', market: 'Atlanta, GA · SFR Flip', score: 94, tag: 'High-Confidence', tagColor: 'var(--blue-700)', tagBg: 'var(--blue-50)', tagBorder: 'var(--blue-200)' },
     { initials: 'LW', bg: 'linear-gradient(135deg,#0ea5e9,#2563EB)', name: 'Lisa W.', market: 'Charlotte, NC · Multi-fam', score: 87, tag: 'Active', tagColor: 'var(--blue-600)', tagBg: 'var(--blue-50)', tagBorder: 'var(--blue-100)' },
     { initials: 'RP', bg: 'linear-gradient(135deg,#6366f1,#2563EB)', name: 'Rachel P.', market: 'Tampa, FL · SFR Hold', score: 72, tag: 'Dormant', tagColor: 'var(--body-text)', tagBg: 'var(--warm-gray)', tagBorder: 'var(--border-med)' },
   ]
@@ -386,7 +386,7 @@ function VisualMatch() {
       <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
         {[
           { label: 'ARV', val: '$168K', color: 'var(--navy-heading)' },
-          { label: 'Spread', val: '$47K', color: 'var(--green)' },
+          { label: 'Spread', val: '$47K', color: 'var(--accent)' },
           { label: 'Deal Score', val: '87/100', color: 'var(--blue-600)' },
         ].map((s) => (
           <div key={s.label} style={{ flex: 1, background: 'var(--warm-gray)', border: '1px solid var(--border-light)', borderRadius: 10, padding: '10px 8px', textAlign: 'center' }}>
@@ -451,7 +451,7 @@ function VisualClose() {
       <div style={{ background: 'var(--warm-gray)', border: '1px solid var(--border-light)', borderRadius: 10, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
         <div>
           <div style={{ fontSize: '0.6rem', color: 'var(--muted-text)', marginBottom: 2 }}>Fee</div>
-          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--green)', letterSpacing: '-0.02em' }}>+$12,800</div>
+          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--accent)', letterSpacing: '-0.02em' }}>+$12,800</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '0.6rem', color: 'var(--muted-text)', marginBottom: 2 }}>Days</div>
@@ -468,8 +468,8 @@ function VisualClose() {
           { label: 'Signatures collected', icon: '✓' },
           { label: 'Audit trail saved', icon: '✓' },
         ].map((item) => (
-          <div key={item.label} style={{ flex: 1, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '8px 10px', textAlign: 'center', fontSize: '0.68rem', color: '#166534', fontWeight: 500 }}>
-            <span style={{ color: '#16a34a', marginRight: 4 }}>{item.icon}</span>{item.label}
+          <div key={item.label} style={{ flex: 1, background: 'var(--blue-50)', border: '1px solid var(--blue-200)', borderRadius: 8, padding: '8px 10px', textAlign: 'center', fontSize: '0.68rem', color: 'var(--blue-900)', fontWeight: 500 }}>
+            <span style={{ color: 'var(--blue-700)', marginRight: 4 }}>{item.icon}</span>{item.label}
           </div>
         ))}
       </div>
@@ -512,23 +512,72 @@ function VisualGPT() {
 }
 
 /* ── Main Features component ─────────────────────────────── */
+const AUTO_ADVANCE_MS = 4000
+
 export default function Features() {
   const [active, setActive] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const isVisible = useRef(true)
+  const timerStart = useRef(Date.now())
+  const rafRef = useRef<number>(0)
   const ActiveVisual = steps[active].Visual
+
+  // Auto-advance timer with progress bar
+  useEffect(() => {
+    timerStart.current = Date.now()
+    setProgress(0)
+
+    function tick() {
+      if (!isVisible.current) {
+        rafRef.current = requestAnimationFrame(tick)
+        return
+      }
+      const elapsed = Date.now() - timerStart.current
+      const pct = Math.min(elapsed / AUTO_ADVANCE_MS, 1)
+      setProgress(pct)
+      if (pct >= 1) {
+        setActive((prev) => (prev + 1) % steps.length)
+        return
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [active])
+
+  // Stop auto-advance when section scrolls out of view
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { isVisible.current = entry.isIntersecting },
+      { threshold: 0.1 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  function handleTabClick(i: number) {
+    setActive(i)
+    timerStart.current = Date.now()
+    setProgress(0)
+  }
 
   return (
     <div
       id="how"
+      ref={sectionRef}
       style={{
         padding: '96px 40px',
-        background: 'var(--cream)',
-        borderTop: 'none',
+        background: 'var(--white)',
+        borderTop: '1px solid var(--border-light)',
       }}
     >
       <div style={{ maxWidth: 1160, margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 14 }}>
+        <div className="reveal" style={{ textAlign: 'center', marginBottom: 56 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 14, fontFamily: "'Satoshi', sans-serif" }}>
             How it works
           </div>
           <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 'clamp(1.9rem, 3vw, 2.8rem)', fontWeight: 400, lineHeight: 1.1, letterSpacing: '-0.022em', color: 'var(--navy-heading)', marginBottom: 14, textTransform: 'capitalize' }}>
@@ -540,13 +589,14 @@ export default function Features() {
         </div>
 
         {/* Pipeline tabs */}
-        <div className="features-tabs" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 44, gap: 6, flexWrap: 'wrap' }}>
+        <div className="features-tabs stagger-children" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 44, gap: 6, flexWrap: 'wrap' }}>
           {steps.map((s, i) => (
             <button
               key={i}
-              onClick={() => setActive(i)}
+              onClick={() => handleTabClick(i)}
               className="features-tab-btn"
               style={{
+                position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 7,
@@ -561,16 +611,20 @@ export default function Features() {
                 color: active === i ? 'var(--accent)' : 'var(--body-text)',
                 transition: 'all 0.15s',
                 whiteSpace: 'nowrap',
+                overflow: 'hidden',
               }}
             >
               <span style={{ color: 'currentColor' }}>{s.icon}</span>
               <span className="features-tab-label">{s.title}</span>
+              {active === i && (
+                <div className="features-tab-progress" style={{ width: `${progress * 100}%` }} />
+              )}
             </button>
           ))}
         </div>
 
         {/* Active step detail */}
-        <div className="features-detail" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 48, alignItems: 'start' }}>
+        <div className="features-detail reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 48, alignItems: 'start' }}>
           {/* Left: description */}
           <div style={{ paddingTop: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -593,7 +647,7 @@ export default function Features() {
               {steps.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setActive(i)}
+                  onClick={() => handleTabClick(i)}
                   style={{
                     width: active === i ? 24 : 8,
                     height: 8,
@@ -611,7 +665,7 @@ export default function Features() {
 
           {/* Right: visual */}
           <div style={{ background: 'var(--white)', border: '1px solid var(--border-light)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(5,14,36,0.06), 0 0 0 1px rgba(5,14,36,0.06)', minHeight: 280 }}>
-            <div className="vis-screen-active" key={active}>
+            <div className="vis-screen-active" key={active} style={{ animation: 'slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
               <ActiveVisual />
             </div>
           </div>
