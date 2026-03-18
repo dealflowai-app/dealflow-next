@@ -1,6 +1,14 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { nanoid } from 'nanoid'
+import ReactMarkdown, { type Components } from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { ChatErrorBoundary } from '@/components/chat/ChatErrorBoundary'
+import { HistorySidebarSkeleton, ContextSidebarSkeleton, ChatLoadingSkeleton } from '@/components/chat/ChatSkeletons'
+import { OfflineBanner } from '@/components/chat/OfflineBanner'
+import { useOnlineStatus } from '@/lib/hooks/useOnlineStatus'
 import {
   Send,
   Bot,
@@ -13,216 +21,1056 @@ import {
   FileSignature,
   Radar,
   Store,
-  ChevronDown,
-  ChevronUp,
   Copy,
   ThumbsUp,
   ThumbsDown,
   RefreshCw,
   Zap,
   Clock,
-  TrendingUp,
-  AlertCircle,
   CheckCircle2,
   ArrowRight,
+  Square,
+  RotateCcw,
+  MessageSquare,
+  Search,
+  Pin,
+  PinOff,
+  Pencil,
+  Trash2,
+  MoreVertical,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Plus,
+  X,
+  Calculator,
+  Download,
+  StickyNote,
+  ArrowUpDown,
+  Users,
+  Loader2,
+  ExternalLink,
+  XCircle,
+  UserPlus,
+  Archive,
+  Tag,
+  TrendingUp,
+  ClipboardList,
+  Pause,
+  Mail,
+  Eye,
+  AlertTriangle,
+  Coins,
+  Share2,
+  Link,
+  Check,
+  ShieldOff,
 } from 'lucide-react'
 
-/* ── Connected data sources ── */
-const dataSources = [
-  { label: 'Buyer List', icon: Contact, count: 847, connected: true },
-  { label: 'Active Deals', icon: BarChart3, count: 12, connected: true },
-  { label: 'Campaigns', icon: PhoneOutgoing, count: 6, connected: true },
-  { label: 'Find Buyers Data', icon: Radar, count: '14.2k', connected: true },
-  { label: 'Marketplace', icon: Store, count: 48, connected: true },
-  { label: 'Contracts', icon: FileSignature, count: 7, connected: true },
-]
+// ── Types ───────────────────────────────────────────────────────────────────
 
-/* ── Account overview ── */
-const accountStats = [
-  { label: 'Plan', value: 'Pro ($299/mo)' },
-  { label: 'Markets', value: 'Phoenix, Dallas, Tampa' },
-  { label: 'Searches Left', value: '1,847 / 2,500' },
-  { label: 'AI Calls Left', value: '1,102 / 1,500' },
-]
-
-/* ── Recent activity for context ── */
-const recentActivity = [
-  { text: 'Marcus T. added to Buyer List', time: '2 min ago' },
-  { text: '1847 Oak St matched to 3 buyers', time: '18 min ago' },
-  { text: 'Contract signed: 2201 Elm Ave', time: '1 hr ago' },
-  { text: 'AI call with David R. (Interested)', time: '2 hrs ago' },
-  { text: '940 Birch Dr analyzed, Score 78', time: '3 hrs ago' },
-]
-
-/* ── Quick actions ── */
-const quickActions = [
-  { label: 'Analyze a property', prompt: 'Analyze 1423 Sunset Blvd, Phoenix, AZ 85042' },
-  { label: 'Find matching buyers', prompt: 'Which buyers in my Buyer List match the deal at 1847 Oak St?' },
-  { label: 'Campaign performance', prompt: 'How is my Phoenix Cash Buyers campaign performing?' },
-  { label: 'Deal strategy help', prompt: 'What\'s the best negotiation strategy for a distressed seller?' },
-]
-
-/* ── Suggested prompt chips ── */
-const suggestedPrompts = [
-  'What buyers should I match to my latest deal?',
-  'Summarize my pipeline this week',
-  'Draft a follow-up script for David R.',
-  'What properties should I target in Phoenix?',
-  'Compare my top 3 campaigns',
-  'Estimate ARV for 2850 Maple Dr',
-]
-
-/* ── Mock conversation ── */
-interface Message {
-  id: number
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: string
+interface ToolCall {
+  tool: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  result?: any
 }
 
-const initialMessages: Message[] = [
+interface Message {
+  id: string
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  timestamp: Date
+  toolCalls?: ToolCall[]
+}
+
+interface EntityLink {
+  name: string
+  href: string
+}
+
+interface ConversationItem {
+  id: string
+  title: string
+  summary: string | null
+  pinned: boolean
+  updatedAt: string
+  messageCount: number
+  shared: boolean
+}
+
+interface ActionCard {
+  actionType: string
+  title: string
+  description: string
+  params: Record<string, unknown>
+  estimatedImpact: string
+}
+
+interface ActionCardState {
+  card: ActionCard
+  status: 'pending' | 'executing' | 'success' | 'error'
+  result?: { success: boolean; message: string; link?: string }
+}
+
+const actionIcons: Record<string, typeof Send> = {
+  // Buyer List
+  add_buyer: UserPlus,
+  update_buyer: UserPlus,
+  unarchive_buyer: UserPlus,
+  archive_buyer: Archive,
+  tag_buyer: Tag,
+  bulk_tag_buyers: Tag,
+  score_buyer: TrendingUp,
+  rescore_all_buyers: TrendingUp,
+  add_buyer_note: StickyNote,
+  update_buyer_status: ArrowUpDown,
+  merge_buyers: Users,
+  export_buyers: Download,
+  // Deals
+  create_deal: ClipboardList,
+  update_deal: ClipboardList,
+  delete_deal: Trash2,
+  change_deal_status: ArrowUpDown,
+  analyze_property: Calculator,
+  match_deal: Users,
+  send_deal_blast: Send,
+  // Marketplace
+  list_on_marketplace: Store,
+  reactivate_listing: Store,
+  pause_listing: Pause,
+  post_buyer_board: ClipboardList,
+  // Contracts
+  generate_contract: FileSignature,
+  send_contract: FileSignature,
+  void_contract: X,
+  // Outreach
+  create_campaign: Zap,
+  resume_campaign: Zap,
+  pause_campaign: Pause,
+  send_sms: MessageSquare,
+  send_email: Mail,
+  // Discovery
+  search_properties: Search,
+  reveal_contact: Eye,
+}
+
+const destructiveActions = new Set([
+  'delete_deal',
+  'archive_buyer',
+  'void_contract',
+])
+
+const creditActions = new Set(['reveal_contact'])
+
+// Map link paths to friendly page names
+function linkLabel(link: string): string {
+  if (link.startsWith('/crm/')) return 'Buyer Profile'
+  if (link.startsWith('/deals/')) return 'Deal Details'
+  if (link.startsWith('/contracts')) return 'Contract'
+  if (link.startsWith('/marketplace')) return 'Marketplace'
+  if (link.startsWith('/outreach')) return 'Outreach'
+  if (link.startsWith('/analyzer')) return 'Deal Analyzer'
+  if (link.startsWith('/buyers')) return 'Find Buyers'
+  return 'View'
+}
+
+// Follow-up suggestions after successful actions
+const followUpSuggestions: Record<string, { label: string; prompt: string }> = {
+  create_deal: { label: 'Run matching?', prompt: 'Match buyers to the deal I just created' },
+  match_deal: { label: 'Blast to matched buyers?', prompt: 'Send this deal to the matched buyers' },
+  generate_contract: { label: 'Send for signature?', prompt: 'Send the contract for signature' },
+  add_buyer: { label: 'Tag this buyer?', prompt: 'Tag the buyer I just added as hot lead' },
+  change_deal_status: { label: 'Generate contract?', prompt: 'Generate the assignment contract for this deal' },
+  list_on_marketplace: { label: 'Share in chat?', prompt: 'Share a link to my new marketplace listing' },
+}
+
+// ── Tool-name-to-friendly-label map ─────────────────────────────────────────
+
+const toolLabels: Record<string, string> = {
+  search_buyers: 'Searching buyers…',
+  get_buyer_detail: 'Loading buyer profile…',
+  search_deals: 'Searching deals…',
+  get_deal_detail: 'Analyzing deal…',
+  get_campaign_detail: 'Checking campaign…',
+  match_buyers_to_deal: 'Matching buyers to deal…',
+  get_pipeline_summary: 'Building pipeline summary…',
+  search_marketplace: 'Checking marketplace…',
+  get_contract_status: 'Looking up contract…',
+  get_market_intelligence: 'Analyzing market data…',
+  propose_action: 'Preparing action…',
+}
+
+// ── Categorized suggested prompts ────────────────────────────────────────────
+
+const promptCategories = [
   {
-    id: 1,
-    role: 'user',
-    content: 'Which buyers in my Buyer List would be the best match for the property at 1847 Oak St, Phoenix?',
-    timestamp: '10:32 AM',
+    label: 'Quick Info',
+    prompts: [
+      'Give me a full pipeline briefing',
+      'Who are my hottest buyers right now?',
+      "How's my Phoenix campaign doing?",
+    ],
   },
   {
-    id: 2,
-    role: 'assistant',
-    content: `Great question! I've cross-referenced **1847 Oak St** (3BR/2BA SFR, ARV $285k, asking $189k) against your Buyer List and found **3 strong matches**:
-
-**1. Marcus Thompson** (Score: 94/100)
-- Buy box: Phoenix SFR, $150k-$300k, 3+ BR
-- Cash buyer, verified POF ($2.1M)
-- Closed 4 deals in the last 90 days
-- *Last contacted: 2 days ago via AI call, interested in new deals*
-
-**2. Rachel Kim** (Score: 87/100)
-- Buy box: Phoenix/Scottsdale SFR, $175k-$350k
-- Active investor, 12 properties in portfolio
-- Prefers turnkey or light rehab
-- *No contact in 14 days, consider a follow-up*
-
-**3. David Rodriguez** (Score: 82/100)
-- Buy box: Maricopa County, any type, under $250k
-- Fix & flip investor, targets 25%+ ROI
-- *Spoke with him 2 hours ago, expressed interest in new opportunities*
-
-Would you like me to send deal sheets to any of these buyers, or draft a personalized message for each?`,
-    timestamp: '10:32 AM',
+    label: 'Take Action',
+    prompts: [
+      'Add a new buyer: Marcus Johnson, (602) 555-0199, flips SFR in Phoenix, $150K-$250K range',
+      'Submit a deal at 1423 Sunset Blvd, Phoenix AZ, asking $185K',
+      'Blast my latest deal to all matched buyers',
+    ],
   },
   {
-    id: 3,
-    role: 'user',
-    content: 'Yes, draft a quick message for Marcus and David. Also, how is my Phoenix Cash Buyers campaign performing this week?',
-    timestamp: '10:34 AM',
-  },
-  {
-    id: 4,
-    role: 'assistant',
-    content: `Here are your personalized messages:
-
----
-
-**For Marcus Thompson:**
-> "Hey Marcus, I just locked up a property at 1847 Oak St in Phoenix. 3BR/2BA SFR, ARV around $285k, and I can assign it at $189k. Based on your buy box, this looks like a solid fit. Want me to send over the full breakdown? I can get you the comps and deal analysis within the hour."
-
-**For David Rodriguez:**
-> "David, great chatting with you earlier! I wanted to circle back with something that just came across my desk. 1847 Oak St, Phoenix. 3BR/2BA, ARV ~$285k, asking $189k. At that price point, you're looking at potential 30%+ ROI on a flip. Should I send over the Analyze Deal report?"
-
----
-
-Now for your **Phoenix Cash Buyers - Cold Call** campaign this week:
-
-| Metric | This Week | Last Week | Change |
-|--------|-----------|-----------|--------|
-| Calls Made | 342 | 289 | +18.3% |
-| Connections | 67 | 52 | +28.8% |
-| Response Rate | 18.4% | 14.2% | +4.2pp |
-| Interested | 12 | 8 | +50% |
-| Appointments Set | 4 | 2 | +100% |
-
-The campaign is **outperforming last week across every metric**. The new AI script you updated on Monday seems to be driving the higher response rate. I'd recommend:
-
-1. **Keep the current script running** since it's clearly resonating
-2. **Increase daily call volume by 20%** while momentum is strong
-3. **Prioritize callbacks** to the 12 interested leads before end of week
-
-Want me to set up those callbacks as a new mini-campaign?`,
-    timestamp: '10:34 AM',
+    label: 'Workflow',
+    prompts: [
+      'Find properties in Tampa, match the best ones to my buyers, and set up a campaign',
+      'Close the Elm St deal and generate the assignment contract',
+      "Tag all dormant buyers who haven't been contacted in 30+ days as 'going cold'",
+    ],
   },
 ]
 
-export default function DealFlowGPTPage() {
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
-  const [input, setInput] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
-  const [contextOpen, setContextOpen] = useState(true)
-  const [copiedId, setCopiedId] = useState<number | null>(null)
-  const [likedIds, setLikedIds] = useState<Set<number>>(new Set())
-  const [dislikedIds, setDislikedIds] = useState<Set<number>>(new Set())
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+// Flat list for backward compat
+const suggestedPrompts = promptCategories.flatMap((c) => c.prompts)
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+// ── Entity link extraction ──────────────────────────────────────────────────
 
-  const handleSend = () => {
-    if (!input.trim()) return
-    const userMsg: Message = {
-      id: messages.length + 1,
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+function extractEntityLinks(toolCalls?: ToolCall[]): EntityLink[] {
+  if (!toolCalls) return []
+  const links: EntityLink[] = []
+
+  for (const tc of toolCalls) {
+    const r = tc.result
+    if (!r || typeof r !== 'object') continue
+
+    const buyers =
+      r.buyers ?? r.matches?.map((m: { buyerId?: string; buyerName?: string; entityName?: string }) => ({
+        id: m.buyerId,
+        firstName: m.buyerName?.split(' ')[0],
+        lastName: m.buyerName?.split(' ').slice(1).join(' '),
+        entityName: m.entityName,
+      })) ?? []
+    for (const b of buyers) {
+      const name =
+        [b.firstName, b.lastName].filter(Boolean).join(' ') || b.entityName
+      if (name && b.id) links.push({ name, href: `/crm/${b.id}` })
+      if (b.entityName && b.id && b.entityName !== name)
+        links.push({ name: b.entityName, href: `/crm/${b.id}` })
     }
-    setMessages(prev => [...prev, userMsg])
-    setInput('')
-    setIsTyping(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMsg: Message = {
-        id: messages.length + 2,
-        role: 'assistant',
-        content: `I understand you're asking about "${input.trim().slice(0, 60)}${input.trim().length > 60 ? '...' : ''}". Let me pull the relevant data from your account.\n\nBased on your current pipeline, Buyer List data, and market conditions, here's what I recommend:\n\n1. **Review your active deals**: You have 12 deals in progress across Phoenix, Dallas, and Tampa\n2. **Check your highest-scoring buyers**: 23 buyers in your Buyer List match this criteria\n3. **Consider market timing**: Phoenix inventory is down 8% this month, which creates urgency\n\nWould you like me to dive deeper into any of these areas?`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      }
-      setMessages(prev => [...prev, aiMsg])
-      setIsTyping(false)
-    }, 2000)
+    const deals = r.deals ?? (r.id && r.address ? [r] : [])
+    for (const d of deals) {
+      if (d.address && d.id) links.push({ name: d.address, href: `/deals/${d.id}` })
+    }
+
+    if (r.name && r.id && tc.tool === 'get_campaign_detail') {
+      links.push({ name: r.name, href: `/outreach?campaign=${r.id}` })
+    }
   }
 
+  return links
+}
+
+// ── Custom markdown components with entity linking ──────────────────────────
+
+function buildMarkdownComponents(entityLinks: EntityLink[]): Components {
+  const linkMap = new Map<string, string>()
+  for (const el of entityLinks) {
+    linkMap.set(el.name.toLowerCase(), el.href)
+  }
+
+  return {
+    strong: ({ children }) => {
+      const text = typeof children === 'string' ? children : ''
+      const href = linkMap.get(text.toLowerCase())
+      if (href) {
+        return (
+          <a href={href} className="font-semibold text-[#2563EB] hover:underline">
+            {children}
+          </a>
+        )
+      }
+      return <strong>{children}</strong>
+    },
+    table: ({ children }) => (
+      <div className="overflow-x-auto my-2">
+        <table className="min-w-full text-xs border-collapse">
+          {children}
+        </table>
+      </div>
+    ),
+    thead: ({ children }) => (
+      <thead className="border-b border-[#E5E7EB] font-semibold text-[#111827]">
+        {children}
+      </thead>
+    ),
+    th: ({ children }) => <th className="px-2 py-1.5 text-left">{children}</th>,
+    td: ({ children }) => <td className="px-2 py-1.5">{children}</td>,
+    a: ({ href, children }) => (
+      <a href={href} target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline">
+        {children}
+      </a>
+    ),
+    code: ({ children, className }) => {
+      const isBlock = className?.includes('language-')
+      if (isBlock) {
+        return (
+          <pre className="bg-[#F3F4F6] rounded-lg p-3 my-2 overflow-x-auto text-xs">
+            <code>{children}</code>
+          </pre>
+        )
+      }
+      return <code className="bg-[#F3F4F6] px-1 py-0.5 rounded text-xs">{children}</code>
+    },
+  }
+}
+
+// ── Sidebar data source type ────────────────────────────────────────────────
+
+interface DataSource {
+  label: string
+  icon: typeof Contact
+  count: number | string
+  connected: boolean
+}
+
+// ── Conversation grouping helper ────────────────────────────────────────────
+
+function groupConversations(conversations: ConversationItem[]) {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const yesterday = new Date(today.getTime() - 86_400_000)
+  const weekAgo = new Date(today.getTime() - 7 * 86_400_000)
+
+  const pinned: ConversationItem[] = []
+  const todayItems: ConversationItem[] = []
+  const yesterdayItems: ConversationItem[] = []
+  const thisWeekItems: ConversationItem[] = []
+  const olderItems: ConversationItem[] = []
+
+  for (const c of conversations) {
+    if (c.pinned) {
+      pinned.push(c)
+      continue
+    }
+    const d = new Date(c.updatedAt)
+    if (d >= today) todayItems.push(c)
+    else if (d >= yesterday) yesterdayItems.push(c)
+    else if (d >= weekAgo) thisWeekItems.push(c)
+    else olderItems.push(c)
+  }
+
+  const groups: { label: string; items: ConversationItem[] }[] = []
+  if (pinned.length) groups.push({ label: 'Pinned', items: pinned })
+  if (todayItems.length) groups.push({ label: 'Today', items: todayItems })
+  if (yesterdayItems.length) groups.push({ label: 'Yesterday', items: yesterdayItems })
+  if (thisWeekItems.length) groups.push({ label: 'This Week', items: thisWeekItems })
+  if (olderItems.length) groups.push({ label: 'Older', items: olderItems })
+
+  return groups
+}
+
+// ── Page component ──────────────────────────────────────────────────────────
+
+export default function DealFlowGPTPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Chat state
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState('')
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [activeToolCall, setActiveToolCall] = useState<string | null>(null)
+  const [activeConversationId, _setActiveConversationId] = useState<string | null>(null)
+
+  // Wrap setter so activeConversationId is always mirrored to sessionStorage
+  const setActiveConversationId = useCallback((id: string | null) => {
+    _setActiveConversationId(id)
+    if (id) {
+      try { sessionStorage.setItem('gpt_active_conversation', id) } catch {}
+    } else {
+      try { sessionStorage.removeItem('gpt_active_conversation') } catch {}
+    }
+  }, [])
+  const [contextOpen, setContextOpen] = useState(true)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set())
+  const [dislikedIds, setDislikedIds] = useState<Set<string>>(new Set())
+
+  // Action card state — keyed by a unique ID per proposed action
+  const [actionCards, setActionCards] = useState<Map<string, ActionCardState>>(new Map())
+
+  // History sidebar state
+  const [historyOpen, setHistoryOpen] = useState(true)
+  const [conversations, setConversations] = useState<ConversationItem[]>([])
+  const [historySearch, setHistorySearch] = useState('')
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
+  const [renamingId, setRenamingId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+
+  // Share modal state
+  const [shareOpen, setShareOpen] = useState(false)
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
+  const [shareLoading, setShareLoading] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
+  const shareRef = useRef<HTMLDivElement>(null)
+
+  // Loading / error states
+  const [historyLoading, setHistoryLoading] = useState(true)
+  const [contextLoading, setContextLoading] = useState(true)
+  const [conversationLoading, setConversationLoading] = useState(false)
+  const [streamIncomplete, setStreamIncomplete] = useState<string | null>(null)
+  const [lastSendTime, setLastSendTime] = useState(0)
+  const isOnline = useOnlineStatus()
+
+  // Sidebar real data
+  const [dataSources, setDataSources] = useState<DataSource[]>([
+    { label: 'Buyer List', icon: Contact, count: '—', connected: false },
+    { label: 'Active Deals', icon: BarChart3, count: '—', connected: false },
+    { label: 'Campaigns', icon: PhoneOutgoing, count: '—', connected: false },
+    { label: 'Find Buyers Data', icon: Radar, count: '—', connected: false },
+    { label: 'Marketplace', icon: Store, count: '—', connected: false },
+    { label: 'Contracts', icon: FileSignature, count: '—', connected: false },
+  ])
+  const [recentActivity, setRecentActivity] = useState<
+    Array<{ title: string; createdAt: string }>
+  >([])
+
+  // Refs
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // ── Fetch conversation history ────────────────────────────────────────────
+  const fetchConversations = useCallback(() => {
+    setHistoryLoading(true)
+    fetch('/api/chat/conversations?limit=50')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.conversations) setConversations(data.conversations)
+      })
+      .catch(() => {})
+      .finally(() => setHistoryLoading(false))
+  }, [])
+
+  useEffect(() => {
+    fetchConversations()
+  }, [fetchConversations])
+
+  // ── Load conversation from URL param or sessionStorage on mount ──────────
+  useEffect(() => {
+    const cId = searchParams.get('c')
+    if (cId) {
+      loadConversation(cId)
+      return
+    }
+    // No URL param — try restoring from sessionStorage
+    try {
+      const stored = sessionStorage.getItem('gpt_active_conversation')
+      if (stored) {
+        loadConversation(stored)
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // ── Fetch sidebar data on mount ───────────────────────────────────────────
+  useEffect(() => {
+    setContextLoading(true)
+    fetch('/api/dashboard')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data?.kpis) return
+        const k = data.kpis
+        setDataSources([
+          { label: 'Buyer List', icon: Contact, count: k.buyerCount ?? 0, connected: true },
+          { label: 'Active Deals', icon: BarChart3, count: k.activeDeals ?? 0, connected: true },
+          { label: 'Campaigns', icon: PhoneOutgoing, count: k.aiCalls ?? 0, connected: true },
+          { label: 'Find Buyers Data', icon: Radar, count: '—', connected: true },
+          { label: 'Marketplace', icon: Store, count: k.activeListings ?? 0, connected: true },
+          { label: 'Contracts', icon: FileSignature, count: (k.contractsDraft ?? 0) + (k.contractsPending ?? 0) + (k.contractsExecuted ?? 0), connected: true },
+        ])
+        if (data.recentActivity) setRecentActivity(data.recentActivity)
+      })
+      .catch(() => {})
+      .finally(() => setContextLoading(false))
+  }, [])
+
+  // ── Close menu on outside click ───────────────────────────────────────────
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpenId(null)
+      }
+    }
+    if (menuOpenId) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpenId])
+
+  // ── Cmd/Ctrl+K to focus input ─────────────────────────────────────────────
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        inputRef.current?.focus()
+      }
+      if (e.key === 'Escape' && isStreaming) {
+        abortRef.current?.abort()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [isStreaming])
+
+  // ── Debounced auto-scroll ─────────────────────────────────────────────────
+  const scheduleScroll = useCallback(() => {
+    if (scrollTimerRef.current) return
+    scrollTimerRef.current = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      scrollTimerRef.current = null
+    }, 100)
+  }, [])
+
+  // ── Save current messages to the DB ──────────────────────────────────────
+  const saveMessages = useCallback(
+    async (convId: string, msgs: Message[]) => {
+      try {
+        const payload = msgs
+          .filter((m) => m.role !== 'system')
+          .map((m) => ({
+            role: m.role,
+            content: m.content,
+            timestamp: m.timestamp.toISOString(),
+          }))
+        await fetch(`/api/chat/conversations/${convId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: payload }),
+        })
+      } catch {
+        // best-effort
+      }
+    },
+    [],
+  )
+
+  // ── Load a conversation ───────────────────────────────────────────────────
+  const loadConversation = useCallback(
+    async (id: string) => {
+      setConversationLoading(true)
+      try {
+        const res = await fetch(`/api/chat/conversations/${id}`)
+        if (!res.ok) {
+          // Conversation deleted or not found — clear stale reference
+          try { sessionStorage.removeItem('gpt_active_conversation') } catch {}
+          router.replace('/gpt', { scroll: false })
+          setConversationLoading(false)
+          return
+        }
+        const data = await res.json()
+
+        setActiveConversationId(data.id)
+        const msgs: Message[] = (data.messages as Array<{ role: string; content: string; timestamp?: string }>).map(
+          (m) => ({
+            id: nanoid(),
+            role: m.role as 'user' | 'assistant',
+            content: m.content,
+            timestamp: m.timestamp ? new Date(m.timestamp) : new Date(data.updatedAt),
+          }),
+        )
+        setMessages(msgs)
+        router.replace(`/gpt?c=${data.id}`, { scroll: false })
+
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
+        }, 50)
+      } catch {
+        // Failed to load
+      }
+    },
+    [router],
+  )
+
+  // ── Stream a response from the API ────────────────────────────────────────
+  const streamResponse = useCallback(
+    async (allMessages: Message[]) => {
+      setIsStreaming(true)
+      setActiveToolCall(null)
+
+      const assistantId = nanoid()
+      let created = false
+      const toolCalls: ToolCall[] = []
+
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: allMessages
+              .filter((m) => m.role !== 'system')
+              .map((m) => ({
+                role: m.role,
+                content: m.content,
+                timestamp: m.timestamp.toISOString(),
+              })),
+            conversationId: activeConversationId,
+          }),
+          signal: controller.signal,
+        })
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ error: 'Request failed' }))
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              role: 'system',
+              content: errData.error || `Error ${res.status}`,
+              timestamp: new Date(),
+            },
+          ])
+          setIsStreaming(false)
+          return
+        }
+
+        const reader = res.body!.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
+
+        const processLine = (line: string) => {
+          if (!line.startsWith('data: ')) return
+          const payload = line.slice(6).trim()
+          if (!payload) return
+
+          if (payload === '[DONE]') {
+            setActiveToolCall(null)
+            return
+          }
+
+          try {
+            const data = JSON.parse(payload)
+
+            if (data.token) {
+              if (!created) {
+                created = true
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: assistantId,
+                    role: 'assistant',
+                    content: data.token,
+                    timestamp: new Date(),
+                    toolCalls,
+                  },
+                ])
+              } else {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? { ...m, content: m.content + data.token, toolCalls }
+                      : m,
+                  ),
+                )
+              }
+              scheduleScroll()
+            }
+
+            if (data.status === 'calling_tool') {
+              setActiveToolCall(data.tool)
+              toolCalls.push({ tool: data.tool })
+              scheduleScroll()
+            }
+
+            // Action card from propose_action tool
+            if (data.actionCard) {
+              const cardId = nanoid()
+              const card: ActionCard = {
+                actionType: data.actionCard.actionType,
+                title: data.actionCard.title,
+                description: data.actionCard.description,
+                params: data.actionCard.params,
+                estimatedImpact: data.actionCard.estimatedImpact,
+              }
+              setActionCards((prev) => {
+                const next = new Map(prev)
+                next.set(cardId, { card, status: 'pending' })
+                return next
+              })
+            }
+
+            // Server sends back the conversationId after auto-save
+            if (data.conversationId) {
+              setActiveConversationId(data.conversationId)
+              router.replace(`/gpt?c=${data.conversationId}`, { scroll: false })
+              fetchConversations()
+            }
+
+            if (data.error) {
+              setMessages((prev) => [
+                ...prev,
+                {
+                  id: nanoid(),
+                  role: 'system',
+                  content: data.error,
+                  timestamp: new Date(),
+                },
+              ])
+            }
+          } catch {
+            // skip unparseable
+          }
+        }
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() ?? ''
+
+          for (const line of lines) {
+            processLine(line)
+          }
+        }
+
+        // Flush any remaining data in the buffer after stream ends
+        if (buffer.trim()) {
+          for (const line of buffer.split('\n')) {
+            processLine(line)
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') {
+          if (created) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, content: m.content + '\n\n*Response cancelled.*' }
+                  : m,
+              ),
+            )
+          }
+        } else {
+          if (created) setStreamIncomplete(assistantId)
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              role: 'system',
+              content: 'Response interrupted. Try again.',
+              timestamp: new Date(),
+            },
+          ])
+        }
+      } finally {
+        setIsStreaming(false)
+        setActiveToolCall(null)
+        abortRef.current = null
+      }
+    },
+    [activeConversationId, scheduleScroll, router, fetchConversations],
+  )
+
+  // ── Send message ──────────────────────────────────────────────────────────
+  const handleSend = useCallback(() => {
+    const text = input.trim()
+    if (!text || isStreaming || !isOnline) return
+    if (text.length > 4000) return
+    if (Date.now() - lastSendTime < 500) return
+
+    setLastSendTime(Date.now())
+    setStreamIncomplete(null)
+
+    const userMsg: Message = {
+      id: nanoid(),
+      role: 'user',
+      content: text,
+      timestamp: new Date(),
+    }
+    const updated = [...messages, userMsg]
+    setMessages(updated)
+    setInput('')
+    streamResponse(updated)
+  }, [input, isStreaming, isOnline, lastSendTime, messages, streamResponse])
+
+  // ── Regenerate last response ──────────────────────────────────────────────
+  const handleRegenerate = useCallback(
+    (assistantMsgId: string) => {
+      if (isStreaming) return
+      const idx = messages.findIndex((m) => m.id === assistantMsgId)
+      if (idx < 1) return
+      const truncated = messages.slice(0, idx)
+      setMessages(truncated)
+      streamResponse(truncated)
+    },
+    [messages, isStreaming, streamResponse],
+  )
+
+  // ── Action card handlers ────────────────────────────────────────────────
+  const handleActionConfirm = useCallback(
+    async (cardId: string) => {
+      const entry = actionCards.get(cardId)
+      if (!entry || entry.status !== 'pending') return
+
+      setActionCards((prev) => {
+        const next = new Map(prev)
+        next.set(cardId, { ...entry, status: 'executing' })
+        return next
+      })
+
+      try {
+        const res = await fetch('/api/chat/actions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            actionType: entry.card.actionType,
+            params: entry.card.params,
+            conversationId: activeConversationId,
+          }),
+        })
+
+        const data = await res.json()
+
+        setActionCards((prev) => {
+          const next = new Map(prev)
+          next.set(cardId, {
+            ...entry,
+            status: data.success !== false ? 'success' : 'error',
+            result: {
+              success: data.success !== false,
+              message: data.message || (data.error ? `Error: ${data.error}` : 'Action completed'),
+              link: data.link,
+            },
+          })
+          return next
+        })
+
+        // Add result as assistant message and persist to DB
+        const resultMsg: Message = {
+          id: nanoid(),
+          role: 'assistant',
+          content: data.message || data.error || 'Action completed.',
+          timestamp: new Date(),
+        }
+        setMessages((prev) => {
+          const updated = [...prev, resultMsg]
+          // Persist updated messages to the conversation
+          if (activeConversationId) {
+            saveMessages(activeConversationId, updated)
+            fetchConversations()
+          }
+          return updated
+        })
+        scheduleScroll()
+      } catch {
+        setActionCards((prev) => {
+          const next = new Map(prev)
+          next.set(cardId, {
+            ...entry,
+            status: 'error',
+            result: { success: false, message: 'Network error. Please try again.' },
+          })
+          return next
+        })
+      }
+    },
+    [actionCards, activeConversationId, scheduleScroll, saveMessages, fetchConversations],
+  )
+
+  const handleActionDismiss = useCallback(
+    (cardId: string) => {
+      setActionCards((prev) => {
+        const next = new Map(prev)
+        next.delete(cardId)
+        return next
+      })
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: nanoid(),
+          role: 'system',
+          content: 'Action dismissed.',
+          timestamp: new Date(),
+        },
+      ])
+    },
+    [],
+  )
+
+  // ── New chat ──────────────────────────────────────────────────────────────
+  const handleNewChat = () => {
+    if (isStreaming) abortRef.current?.abort()
+    setMessages([])
+    setInput('')
+    setActiveToolCall(null)
+    setActiveConversationId(null)
+    setActionCards(new Map())
+    router.replace('/gpt', { scroll: false })
+    inputRef.current?.focus()
+  }
+
+  // ── Prompt chips ──────────────────────────────────────────────────────────
   const handlePromptChip = (prompt: string) => {
     setInput(prompt)
     inputRef.current?.focus()
   }
 
-  const handleCopy = (id: number, content: string) => {
-    navigator.clipboard.writeText(content)
+  // ── Copy ──────────────────────────────────────────────────────────────────
+  const handleCopy = (id: string, content: string) => {
+    const plain = content
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/#{1,6}\s/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    navigator.clipboard.writeText(plain)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
   }
 
-  const toggleLike = (id: number) => {
-    setLikedIds(prev => {
+  // ── Like / dislike ────────────────────────────────────────────────────────
+  const toggleLike = (id: string) => {
+    setLikedIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
-      else { next.add(id); setDislikedIds(p => { const n = new Set(p); n.delete(id); return n }) }
+      else {
+        next.add(id)
+        setDislikedIds((p) => { const n = new Set(p); n.delete(id); return n })
+      }
+      return next
+    })
+  }
+  const toggleDislike = (id: string) => {
+    setDislikedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else {
+        next.add(id)
+        setLikedIds((p) => { const n = new Set(p); n.delete(id); return n })
+      }
       return next
     })
   }
 
-  const toggleDislike = (id: number) => {
-    setDislikedIds(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else { next.add(id); setLikedIds(p => { const n = new Set(p); n.delete(id); return n }) }
-      return next
-    })
+  // ── Conversation management ───────────────────────────────────────────────
+  const handleRename = async (id: string, newTitle: string) => {
+    const trimmed = newTitle.trim()
+    if (!trimmed) return
+    try {
+      await fetch(`/api/chat/conversations/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: trimmed }),
+      })
+      setConversations((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, title: trimmed } : c)),
+      )
+    } catch {
+      // silently fail
+    }
+    setRenamingId(null)
   }
 
+  const handlePin = async (id: string, pinned: boolean) => {
+    try {
+      await fetch(`/api/chat/conversations/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pinned }),
+      })
+      setConversations((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, pinned } : c)),
+      )
+    } catch {
+      // silently fail
+    }
+    setMenuOpenId(null)
+  }
+
+  const handleDelete = async (id: string) => {
+    try {
+      await fetch(`/api/chat/conversations/${id}`, { method: 'DELETE' })
+      setConversations((prev) => prev.filter((c) => c.id !== id))
+      if (activeConversationId === id) {
+        handleNewChat()
+      }
+    } catch {
+      // silently fail
+    }
+    setDeleteConfirmId(null)
+    setMenuOpenId(null)
+  }
+
+  // ── Sharing ──────────────────────────────────────────────────────────────
+  const handleShare = async () => {
+    if (!activeConversationId) return
+    setShareOpen(true)
+    setShareLoading(true)
+    setShareCopied(false)
+    try {
+      const res = await fetch(`/api/chat/conversations/${activeConversationId}/share`, {
+        method: 'POST',
+      })
+      const data = await res.json()
+      if (data.shareUrl) {
+        setShareUrl(data.shareUrl)
+        // Mark conversation as shared in sidebar
+        setConversations((prev) =>
+          prev.map((c) => (c.id === activeConversationId ? { ...c, shared: true } : c)),
+        )
+      }
+    } catch {
+      // silently fail
+    }
+    setShareLoading(false)
+  }
+
+  const handleRevokeShare = async () => {
+    if (!activeConversationId) return
+    try {
+      await fetch(`/api/chat/conversations/${activeConversationId}/share`, {
+        method: 'DELETE',
+      })
+      setShareUrl(null)
+      setShareOpen(false)
+      setConversations((prev) =>
+        prev.map((c) => (c.id === activeConversationId ? { ...c, shared: false } : c)),
+      )
+    } catch {
+      // silently fail
+    }
+  }
+
+  const handleCopyShareUrl = () => {
+    if (!shareUrl) return
+    navigator.clipboard.writeText(shareUrl)
+    setShareCopied(true)
+    setTimeout(() => setShareCopied(false), 2000)
+  }
+
+  // Close share popover on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (shareRef.current && !shareRef.current.contains(e.target as Node)) {
+        setShareOpen(false)
+      }
+    }
+    if (shareOpen) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [shareOpen])
+
+  // Reset share state when switching conversations
+  useEffect(() => {
+    setShareOpen(false)
+    setShareUrl(null)
+  }, [activeConversationId])
+
+  // ── Keyboard handler ─────────────────────────────────────────────────────
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -230,22 +1078,268 @@ export default function DealFlowGPTPage() {
     }
   }
 
+  // ── Auto-resize textarea ─────────────────────────────────────────────────
+  useEffect(() => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = '44px'
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px'
+  }, [input])
+
+  // ── Filter and group conversations ────────────────────────────────────────
+  const filteredConversations = historySearch
+    ? conversations.filter(
+        (c) =>
+          c.title.toLowerCase().includes(historySearch.toLowerCase()) ||
+          c.summary?.toLowerCase().includes(historySearch.toLowerCase()),
+      )
+    : conversations
+
+  const grouped = groupConversations(filteredConversations)
+
+  // ── Thinking state ────────────────────────────────────────────────────────
+  const lastMsg = messages[messages.length - 1]
+  const showThinking = isStreaming && lastMsg?.role === 'user'
+
   return (
+    <ChatErrorBoundary>
     <div className="flex h-[calc(100vh-0px)] overflow-hidden">
+      {/* Skip to input for keyboard users */}
+      <a href="#chat-input" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:text-[#2563EB] focus:rounded-md focus:shadow-lg focus:top-2 focus:left-2">
+        Skip to chat input
+      </a>
+      {/* ── History Sidebar ── */}
+      <div
+        className={`${
+          historyOpen ? 'w-[280px]' : 'w-0'
+        } transition-all duration-300 overflow-hidden border-r border-[#E5E7EB] bg-white flex flex-col flex-shrink-0 history-sidebar`}
+        role="complementary"
+        aria-label="Conversation history"
+      >
+        {/* History header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#E5E7EB]">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-[#6B7280]" />
+            <span className="text-sm font-medium text-[#374151]">History</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleNewChat}
+              className="p-1.5 rounded-md hover:bg-[#F3F4F6] transition-colors"
+              title="New chat"
+            >
+              <Plus className="w-4 h-4 text-[#6B7280]" />
+            </button>
+            <button
+              onClick={() => setHistoryOpen(false)}
+              className="p-1.5 rounded-md hover:bg-[#F3F4F6] transition-colors"
+              title="Close history"
+            >
+              <PanelLeftClose className="w-4 h-4 text-[#6B7280]" />
+            </button>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="px-3 py-2">
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={historySearch}
+              onChange={(e) => setHistorySearch(e.target.value)}
+              placeholder="Search conversations…"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-[#E5E7EB] text-[#374151] placeholder-[#9CA3AF] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+            />
+            {historySearch && (
+              <button
+                onClick={() => setHistorySearch('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2"
+              >
+                <X className="w-3 h-3 text-[#9CA3AF]" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Conversation list */}
+        <div className="flex-1 overflow-y-auto">
+          {historyLoading && conversations.length === 0 ? (
+            <HistorySidebarSkeleton />
+          ) : grouped.length === 0 ? (
+            <div className="px-4 py-8 text-center">
+              <Sparkles className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
+              <p className="text-sm text-[#6B7280] mb-1">
+                {historySearch ? 'No matching conversations' : 'No conversations yet'}
+              </p>
+              {!historySearch && (
+                <p className="text-xs text-[#9CA3AF]">Start a chat and it&apos;ll show up here</p>
+              )}
+            </div>
+          ) : null}
+
+          {grouped.map((group) => (
+            <div key={group.label}>
+              <div className="px-4 pt-3 pb-1">
+                <span className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">
+                  {group.label}
+                </span>
+              </div>
+              {group.items.map((conv) => (
+                <div
+                  key={conv.id}
+                  className={`group relative mx-2 mb-0.5 rounded-md transition-colors ${
+                    activeConversationId === conv.id
+                      ? 'bg-[#EFF6FF] border border-[#BFDBFE]'
+                      : 'hover:bg-[#F9FAFB] border border-transparent'
+                  }`}
+                >
+                  {renamingId === conv.id ? (
+                    <div className="px-3 py-2">
+                      <input
+                        autoFocus
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onBlur={() => handleRename(conv.id, renameValue)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleRename(conv.id, renameValue)
+                          if (e.key === 'Escape') setRenamingId(null)
+                        }}
+                        className="w-full text-xs px-2 py-1 rounded border border-[#2563EB] focus:outline-none"
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => loadConversation(conv.id)}
+                      className="w-full text-left px-3 py-2"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        {conv.pinned && <Pin className="w-3 h-3 text-[#2563EB] flex-shrink-0" />}
+                        {conv.shared && (
+                          <span title="This conversation has a share link">
+                            <Share2 className="w-3 h-3 text-[#9CA3AF] flex-shrink-0" />
+                          </span>
+                        )}
+                        <span className="text-xs font-medium text-[#374151] truncate">
+                          {conv.title}
+                        </span>
+                      </div>
+                      {conv.summary && (
+                        <p className="text-[10px] text-[#9CA3AF] truncate mt-0.5">{conv.summary}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] text-[#9CA3AF]">
+                          {conv.messageCount} msgs
+                        </span>
+                        <span className="text-[10px] text-[#9CA3AF]">
+                          {new Date(conv.updatedAt).toLocaleDateString([], {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Three-dot menu */}
+                  {renamingId !== conv.id && (
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setMenuOpenId(menuOpenId === conv.id ? null : conv.id)
+                        }}
+                        className="p-1 rounded hover:bg-[#E5E7EB] transition-colors"
+                      >
+                        <MoreVertical className="w-3.5 h-3.5 text-[#6B7280]" />
+                      </button>
+
+                      {menuOpenId === conv.id && (
+                        <div
+                          ref={menuRef}
+                          className="absolute right-0 top-7 w-36 bg-white border border-[#E5E7EB] rounded-lg shadow-lg z-50 py-1"
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setRenamingId(conv.id)
+                              setRenameValue(conv.title)
+                              setMenuOpenId(null)
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#374151] hover:bg-[#F9FAFB]"
+                          >
+                            <Pencil className="w-3 h-3" /> Rename
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handlePin(conv.id, !conv.pinned)
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#374151] hover:bg-[#F9FAFB]"
+                          >
+                            {conv.pinned ? (
+                              <><PinOff className="w-3 h-3" /> Unpin</>
+                            ) : (
+                              <><Pin className="w-3 h-3" /> Pin</>
+                            )}
+                          </button>
+                          <div className="border-t border-[#E5E7EB] my-1" />
+                          {deleteConfirmId === conv.id ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDelete(conv.id)
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 font-medium"
+                            >
+                              <Trash2 className="w-3 h-3" /> Confirm delete
+                            </button>
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setDeleteConfirmId(conv.id)
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-3 h-3" /> Delete
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── Chat Area ── */}
-      <div className={`flex flex-col transition-all duration-300 ${contextOpen ? 'flex-1' : 'w-full'}`}>
+      <div className="flex flex-col flex-1 min-w-0">
+        <OfflineBanner />
         {/* Chat Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] bg-white">
           <div className="flex items-center gap-3">
+            {!historyOpen && (
+              <button
+                onClick={() => setHistoryOpen(true)}
+                className="p-1.5 rounded-md hover:bg-[#F3F4F6] transition-colors mr-1"
+                title="Show history"
+              >
+                <PanelLeftOpen className="w-5 h-5 text-[#6B7280]" />
+              </button>
+            )}
             <div className="w-9 h-9 rounded-lg bg-[#F3F4F6] flex items-center justify-center">
               <Bot className="w-5 h-5 text-[#6B7280]" />
             </div>
             <div>
-              <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] flex items-center gap-2.5">
+              <h1
+                style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
+                className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] flex items-center gap-2.5"
+              >
                 Ask AI
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.62rem] font-semibold tracking-wide uppercase" style={{ background: 'rgba(217,119,6,0.1)', color: '#d97706', lineHeight: 1.6 }}>
-                  Demo Mode
-                </span>
               </h1>
               <p className="text-sm text-[#9CA3AF]">AI assistant with full account context</p>
             </div>
@@ -255,10 +1349,76 @@ export default function DealFlowGPTPage() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-[#F9FAFB] transition-colors">
+            <button
+              onClick={handleNewChat}
+              className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-[#F9FAFB] transition-colors"
+            >
               <RefreshCw className="w-3.5 h-3.5" />
               New Chat
             </button>
+            {activeConversationId && messages.length > 0 && (
+              <div className="relative" ref={shareRef}>
+                <button
+                  onClick={handleShare}
+                  className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-[#F9FAFB] transition-colors"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  Share
+                </button>
+                {shareOpen && (
+                  <div className="absolute right-0 top-10 w-80 bg-white border border-[#E5E7EB] rounded-lg shadow-lg z-50 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Link className="w-4 h-4 text-[#6B7280]" />
+                      <span className="text-sm font-medium text-[#374151]">
+                        Share Conversation
+                      </span>
+                    </div>
+                    {shareLoading ? (
+                      <div className="flex items-center gap-2 text-xs text-[#9CA3AF] py-2">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Generating link...
+                      </div>
+                    ) : shareUrl ? (
+                      <>
+                        <div className="flex gap-2 mb-3">
+                          <input
+                            readOnly
+                            value={shareUrl}
+                            className="flex-1 text-xs px-2.5 py-1.5 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] text-[#374151] truncate focus:outline-none"
+                          />
+                          <button
+                            onClick={handleCopyShareUrl}
+                            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1 transition-colors ${
+                              shareCopied
+                                ? 'bg-green-50 text-green-700 border border-green-200'
+                                : 'bg-[#2563EB] text-white hover:bg-[#1D4ED8]'
+                            }`}
+                          >
+                            {shareCopied ? (
+                              <><Check className="w-3 h-3" /> Copied</>
+                            ) : (
+                              <><Copy className="w-3 h-3" /> Copy</>
+                            )}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-[#9CA3AF] mb-3">
+                          Anyone with this link can view this conversation (read-only).
+                        </p>
+                        <button
+                          onClick={handleRevokeShare}
+                          className="flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 transition-colors"
+                        >
+                          <ShieldOff className="w-3 h-3" />
+                          Revoke Access
+                        </button>
+                      </>
+                    ) : (
+                      <p className="text-xs text-red-500">Failed to generate share link.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             <button
               onClick={() => setContextOpen(!contextOpen)}
               className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-[#F9FAFB] transition-colors"
@@ -270,178 +1430,400 @@ export default function DealFlowGPTPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-[var(--cream,#FAF9F6)]">
-          {/* Welcome banner (only show if no messages) */}
-          {messages.length === 0 && (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-2xl bg-[#F3F4F6] flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-8 h-8 text-[#6B7280]" />
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-[var(--cream,#FAF9F6)]"
+          role="log"
+          aria-live="polite"
+          aria-label="Chat messages"
+        >
+          {/* Loading skeleton when opening a saved conversation */}
+          {conversationLoading && messages.length === 0 && <ChatLoadingSkeleton />}
+
+          {/* Welcome */}
+          {messages.length === 0 && !isStreaming && !conversationLoading && (
+            <div className="py-8">
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-2xl bg-[#F3F4F6] flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-8 h-8 text-[#6B7280]" />
+                </div>
+                <h2
+                  style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
+                  className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-2"
+                >
+                  How can I help your deals today?
+                </h2>
+                <p className="text-[#9CA3AF] max-w-md mx-auto mb-8">
+                  I can manage buyers, deals, campaigns, contracts, and more. Ask anything or take action.
+                </p>
+                <div className="max-w-2xl mx-auto space-y-4">
+                  {promptCategories.map((cat) => (
+                    <div key={cat.label}>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF] mb-2">
+                        {cat.label}
+                      </p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {cat.prompts.map((prompt, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handlePromptChip(prompt)}
+                            className="text-xs px-3 py-1.5 rounded-full border border-[#E5E7EB] bg-white text-[#374151] hover:bg-[#F9FAFB] hover:border-[#D1D5DB] transition-all text-left"
+                          >
+                            {prompt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <h2 className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-2">
-                How can I help your deals today?
-              </h2>
-              <p className="text-[#9CA3AF] max-w-md mx-auto">
-                I have access to your Buyer List, deals, campaigns, and market data. Ask me anything about your business.
-              </p>
             </div>
           )}
 
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-              {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
-                  <Bot className="w-4 h-4 text-[#6B7280]" />
-                </div>
-              )}
-              <div className={`max-w-[75%] ${msg.role === 'user' ? 'order-first' : ''}`}>
-                <div
-                  className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                    msg.role === 'user'
-                      ? 'bg-[#F3F4F6] text-[#374151] rounded-br-md'
-                      : 'bg-white border border-[#E5E7EB] text-[#374151] rounded-bl-md'
-                  }`}
-                >
-                  {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm max-w-none prose-headings:text-[#111827] prose-strong:text-[#111827] prose-p:text-[#374151]">
-                      {msg.content.split('\n').map((line, i) => {
-                        // Bold headings
-                        if (line.startsWith('**') && line.endsWith('**')) {
-                          return <p key={i} className="font-semibold text-[#111827] mt-3 mb-1">{line.replace(/\*\*/g, '')}</p>
-                        }
-                        // Table rows
-                        if (line.startsWith('|')) {
-                          const cells = line.split('|').filter(Boolean).map(c => c.trim())
-                          if (cells.every(c => c.match(/^-+$/))) return null
-                          const isHeader = msg.content.split('\n')[i + 1]?.includes('---')
-                          return (
-                            <div key={i} className={`grid grid-cols-${cells.length} gap-2 py-1 text-xs ${isHeader ? 'font-semibold border-b border-[#E5E7EB]' : ''}`}
-                              style={{ gridTemplateColumns: `repeat(${cells.length}, 1fr)` }}>
-                              {cells.map((cell, j) => <span key={j}>{cell}</span>)}
-                            </div>
-                          )
-                        }
-                        // Blockquotes
-                        if (line.startsWith('>')) {
-                          return <blockquote key={i} className="border-l-3 border-[#E5E7EB] pl-3 py-1 my-2 text-[#6B7280] italic text-[13px]">{line.replace(/^>\s*/, '').replace(/"/g, '"').replace(/"/g, '"')}</blockquote>
-                        }
-                        // Numbered items
-                        if (line.match(/^\d+\.\s/)) {
-                          return <p key={i} className="ml-2 my-1">{line.replace(/\*\*(.*?)\*\*/g, '⟨$1⟩').split('⟨').map((part, pi) => {
-                            if (part.includes('⟩')) {
-                              const [bold, rest] = part.split('⟩')
-                              return <span key={pi}><strong>{bold}</strong>{rest}</span>
-                            }
-                            return <span key={pi}>{part}</span>
-                          })}</p>
-                        }
-                        // Horizontal rule
-                        if (line.trim() === '---') return <hr key={i} className="my-3 border-[#E5E7EB]" />
-                        // Bold inline
-                        if (line.includes('**')) {
-                          return <p key={i} className="my-1">{line.replace(/\*\*(.*?)\*\*/g, '⟨$1⟩').split('⟨').map((part, pi) => {
-                            if (part.includes('⟩')) {
-                              const [bold, rest] = part.split('⟩')
-                              return <span key={pi}><strong>{bold}</strong>{rest}</span>
-                            }
-                            return <span key={pi}>{part}</span>
-                          })}</p>
-                        }
-                        // Empty line
-                        if (line.trim() === '') return <div key={i} className="h-2" />
-                        // Regular line
-                        return <p key={i} className="my-1">{line}</p>
-                      })}
-                    </div>
-                  ) : (
-                    msg.content
-                  )}
-                </div>
-                {/* Message actions */}
-                <div className={`flex items-center gap-1 mt-1.5 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-                  <span className="text-[10px] text-[#9CA3AF] mr-2">{msg.timestamp}</span>
-                  {msg.role === 'assistant' && (
-                    <>
+          {messages.map((msg) => {
+            if (msg.role === 'system') {
+              return (
+                <div key={msg.id} className="flex justify-center">
+                  <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-sm text-red-700 max-w-lg text-center">
+                    {msg.content}
+                    {msg.content.includes('interrupted') && (
                       <button
-                        onClick={() => handleCopy(msg.id, msg.content)}
-                        className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
-                        title="Copy"
+                        onClick={() => {
+                          const truncated = messages.slice(0, messages.indexOf(msg))
+                          setMessages(truncated)
+                          streamResponse(truncated)
+                        }}
+                        className="ml-2 underline hover:no-underline"
                       >
-                        {copiedId === msg.id ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5 text-[#9CA3AF] hover:text-[#374151]" />
-                        )}
+                        Retry
                       </button>
-                      <button
-                        onClick={() => toggleLike(msg.id)}
-                        className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
-                        title="Helpful"
-                      >
-                        <ThumbsUp className={`w-3.5 h-3.5 ${likedIds.has(msg.id) ? 'text-[#2563EB] fill-[#2563EB]' : 'text-[#9CA3AF] hover:text-[#374151]'}`} />
-                      </button>
-                      <button
-                        onClick={() => toggleDislike(msg.id)}
-                        className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
-                        title="Not helpful"
-                      >
-                        <ThumbsDown className={`w-3.5 h-3.5 ${dislikedIds.has(msg.id) ? 'text-red-500 fill-red-500' : 'text-[#9CA3AF] hover:text-[#374151]'}`} />
-                      </button>
-                    </>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-              {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
-                  <User className="w-4 h-4 text-[#6B7280]" />
-                </div>
-              )}
-            </div>
-          ))}
+              )
+            }
 
-          {/* Typing indicator */}
-          {isTyping ? (
-            <div className="flex gap-3">
+            const entityLinks = msg.role === 'assistant' ? extractEntityLinks(msg.toolCalls) : []
+            const mdComponents = msg.role === 'assistant' ? buildMarkdownComponents(entityLinks) : {}
+            const isLastAssistant = msg.role === 'assistant' && msg.id === messages[messages.length - 1]?.id
+
+            return (
+              <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                {msg.role === 'assistant' && (
+                  <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
+                    <Bot className="w-4 h-4 text-[#6B7280]" />
+                  </div>
+                )}
+                <div className={`max-w-[75%] ${msg.role === 'user' ? 'order-first' : ''}`}>
+                  <div
+                    className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                      msg.role === 'user'
+                        ? 'bg-[#F3F4F6] text-[#374151] rounded-br-md'
+                        : 'bg-white border border-[#E5E7EB] text-[#374151] rounded-bl-md'
+                    }`}
+                  >
+                    {msg.role === 'assistant' ? (
+                      <div className="prose prose-sm max-w-none prose-headings:text-[#111827] prose-strong:text-[#111827] prose-p:text-[#374151]">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+                          {msg.content}
+                        </ReactMarkdown>
+                        {isStreaming && isLastAssistant && (
+                          <span className="inline-block w-2 h-4 bg-[#374151] ml-0.5 animate-pulse rounded-sm" />
+                        )}
+                      </div>
+                    ) : (
+                      <span className="whitespace-pre-wrap">{msg.content}</span>
+                    )}
+                  </div>
+
+                  {/* Stream incomplete indicator */}
+                  {streamIncomplete === msg.id && (
+                    <div className="mt-2 flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                        <AlertTriangle className="w-3 h-3" />
+                        Response incomplete
+                      </span>
+                      <button
+                        onClick={() => handleRegenerate(msg.id)}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-[#2563EB] hover:bg-[#EFF6FF] transition-colors"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        Retry
+                      </button>
+                      <button
+                        onClick={() => {
+                          setStreamIncomplete(null)
+                          const continueMsg: Message = {
+                            id: nanoid(),
+                            role: 'user',
+                            content: 'Please continue your response from where you left off.',
+                            timestamp: new Date(),
+                          }
+                          const updated = [...messages, continueMsg]
+                          setMessages(updated)
+                          streamResponse(updated)
+                        }}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-[#2563EB] hover:bg-[#EFF6FF] transition-colors"
+                      >
+                        <ArrowRight className="w-3 h-3" />
+                        Continue
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Message actions */}
+                  <div className={`flex items-center gap-1 mt-1.5 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                    <span className="text-[10px] text-[#9CA3AF] mr-2">
+                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    {msg.role === 'assistant' && !isStreaming && (
+                      <>
+                        <button
+                          onClick={() => handleCopy(msg.id, msg.content)}
+                          className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
+                          title="Copy"
+                        >
+                          {copiedId === msg.id ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5 text-[#9CA3AF] hover:text-[#374151]" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => toggleLike(msg.id)}
+                          className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
+                          title="Helpful"
+                        >
+                          <ThumbsUp
+                            className={`w-3.5 h-3.5 ${
+                              likedIds.has(msg.id)
+                                ? 'text-[#2563EB] fill-[#2563EB]'
+                                : 'text-[#9CA3AF] hover:text-[#374151]'
+                            }`}
+                          />
+                        </button>
+                        <button
+                          onClick={() => toggleDislike(msg.id)}
+                          className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
+                          title="Not helpful"
+                        >
+                          <ThumbsDown
+                            className={`w-3.5 h-3.5 ${
+                              dislikedIds.has(msg.id)
+                                ? 'text-red-500 fill-red-500'
+                                : 'text-[#9CA3AF] hover:text-[#374151]'
+                            }`}
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleRegenerate(msg.id)}
+                          className="p-1 rounded hover:bg-[#F3F4F6] transition-colors"
+                          title="Regenerate"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5 text-[#9CA3AF] hover:text-[#374151]" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {msg.role === 'user' && (
+                  <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
+                    <User className="w-4 h-4 text-[#6B7280]" />
+                  </div>
+                )}
+              </div>
+            )
+          })}
+
+          {/* Thinking indicator */}
+          {showThinking && (
+            <div className="flex gap-3" role="status" aria-live="assertive" aria-label="AI is thinking">
               <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
                 <Bot className="w-4 h-4 text-[#6B7280]" />
               </div>
-              <div className="bg-white border border-[#E5E7EB] rounded-2xl rounded-bl-md px-4 py-3">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div>
+                <div className="bg-white border border-[#E5E7EB] rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="flex items-center gap-2 text-sm text-[#6B7280]">
+                    <span>DealFlow AI is thinking</span>
+                    <span className="inline-flex gap-0.5">
+                      <span className="w-1 h-1 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1 h-1 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1 h-1 rounded-full bg-[#9CA3AF] animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </span>
+                  </div>
                 </div>
+                {activeToolCall && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs text-blue-700">
+                    <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+                      <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" />
+                    </svg>
+                    {toolLabels[activeToolCall] ?? `Running ${activeToolCall}…`}
+                  </div>
+                )}
               </div>
-            </div>
-          ) : messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
-            <div className="flex items-center gap-2 pl-11 pt-1">
-              <div className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] animate-pulse" />
-                <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] animate-pulse" style={{ animationDelay: '300ms' }} />
-                <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] animate-pulse" style={{ animationDelay: '600ms' }} />
-              </div>
-              <span className="text-[10px] text-[#9CA3AF]">Ask AI is ready</span>
             </div>
           )}
 
+          {/* Tool call pill during streaming */}
+          {isStreaming && activeToolCall && !showThinking && (
+            <div className="pl-11">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs text-blue-700">
+                <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+                  <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" />
+                </svg>
+                {toolLabels[activeToolCall] ?? `Running ${activeToolCall}…`}
+              </div>
+            </div>
+          )}
+
+          {/* Action Cards */}
+          {Array.from(actionCards.entries()).map(([cardId, entry]) => {
+            const Icon = actionIcons[entry.card.actionType] || Zap
+            const isDestructive = destructiveActions.has(entry.card.actionType)
+            const isCredit = creditActions.has(entry.card.actionType)
+            const followUp = followUpSuggestions[entry.card.actionType]
+
+            if (entry.status === 'success' && entry.result) {
+              return (
+                <div key={cardId} className="pl-11">
+                  <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 max-w-[75%]">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-green-800">{entry.result.message}</p>
+                        {entry.result.link && (
+                          <a
+                            href={entry.result.link}
+                            className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 mt-1.5 font-medium"
+                          >
+                            View {linkLabel(entry.result.link)} <ArrowRight className="w-3 h-3" />
+                          </a>
+                        )}
+                        {followUp && (
+                          <button
+                            onClick={() => handlePromptChip(followUp.prompt)}
+                            className="mt-2 text-xs px-2.5 py-1 rounded-full border border-green-300 bg-green-100 text-green-800 hover:bg-green-200 transition-colors"
+                          >
+                            {followUp.label}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+
+            if (entry.status === 'error' && entry.result) {
+              return (
+                <div key={cardId} className="pl-11">
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 max-w-[75%]">
+                    <div className="flex items-start gap-2">
+                      <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-red-700">{entry.result.message}</p>
+                        <button
+                          onClick={() => handleActionConfirm(cardId)}
+                          className="text-xs text-red-600 hover:text-red-800 mt-1.5 underline"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+
+            // Pending / Executing state
+            const borderColor = isDestructive
+              ? 'border-red-200'
+              : isCredit
+                ? 'border-amber-200'
+                : 'border-blue-200'
+            const bgColor = isDestructive
+              ? 'bg-red-50/50'
+              : isCredit
+                ? 'bg-amber-50/50'
+                : 'bg-blue-50/50'
+            const iconBg = isDestructive
+              ? 'bg-red-100'
+              : isCredit
+                ? 'bg-amber-100'
+                : 'bg-blue-100'
+            const iconColor = isDestructive
+              ? 'text-red-600'
+              : isCredit
+                ? 'text-amber-600'
+                : 'text-blue-600'
+
+            return (
+              <div key={cardId} className="pl-11">
+                <div className={`rounded-xl border ${borderColor} ${bgColor} px-4 py-4 max-w-[75%]`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`w-4.5 h-4.5 ${iconColor}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-[#111827]">{entry.card.title}</h4>
+                      <p className="text-xs text-[#4B5563] mt-1">{entry.card.description}</p>
+                      {isDestructive && (
+                        <div className="flex items-center gap-1 mt-1.5 text-[10px] text-red-600">
+                          <AlertTriangle className="w-3 h-3" />
+                          This action cannot be easily undone.
+                        </div>
+                      )}
+                      {isCredit && (
+                        <div className="flex items-center gap-1 mt-1.5 text-[10px] text-amber-600">
+                          <Coins className="w-3 h-3" />
+                          {entry.card.estimatedImpact}
+                        </div>
+                      )}
+                      {!isCredit && (
+                        <p className="text-[10px] text-[#6B7280] mt-1.5 italic">{entry.card.estimatedImpact}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-3">
+                        <button
+                          onClick={() => handleActionConfirm(cardId)}
+                          disabled={entry.status === 'executing'}
+                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-medium text-white disabled:opacity-60 transition-colors ${
+                            isDestructive
+                              ? 'bg-red-600 hover:bg-red-700'
+                              : 'bg-[#2563EB] hover:bg-[#1D4ED8]'
+                          }`}
+                        >
+                          {entry.status === 'executing' ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              Executing…
+                            </>
+                          ) : isDestructive ? (
+                            'Confirm Delete'
+                          ) : (
+                            'Confirm'
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleActionDismiss(cardId)}
+                          disabled={entry.status === 'executing'}
+                          className={`px-3.5 py-1.5 rounded-md text-xs text-[#6B7280] hover:text-[#374151] disabled:opacity-60 transition-colors ${
+                            isDestructive ? 'hover:bg-red-100' : 'hover:bg-blue-100'
+                          }`}
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+
           <div ref={messagesEndRef} />
         </div>
-
-        {/* Suggested prompts */}
-        {messages.length <= 4 && (
-          <div className="px-6 py-3 bg-[var(--cream,#FAF9F6)] border-t border-[#E5E7EB]">
-            <div className="flex flex-wrap gap-2">
-              {suggestedPrompts.map((prompt, i) => (
-                <button
-                  key={i}
-                  onClick={() => handlePromptChip(prompt)}
-                  className="text-xs px-3 py-1.5 rounded-full border border-[#E5E7EB] bg-white text-[#374151] hover:bg-[#F9FAFB] transition-all"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Input area */}
         <div className="px-6 py-4 border-t border-[#E5E7EB] bg-white">
@@ -449,39 +1831,65 @@ export default function DealFlowGPTPage() {
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
+                id="chat-input"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask AI anything about your deals, buyers, campaigns..."
+                aria-label="Message input"
+                maxLength={4200}
                 rows={1}
                 className="w-full resize-none rounded-xl border border-[#E5E7EB] px-4 py-3 pr-12 text-sm text-[#374151] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                 style={{ minHeight: '44px', maxHeight: '120px' }}
               />
               <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                <span className="text-[10px] text-[#9CA3AF] mr-1">⏎ Send</span>
+                <span className="text-[10px] text-[#9CA3AF] mr-1">
+                  {isStreaming ? 'Esc to stop' : '⏎ Send'}
+                </span>
               </div>
             </div>
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || isTyping}
-              className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
-                input.trim() && !isTyping
-                  ? 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
-                  : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
-              }`}
-            >
-              <Send className="w-4 h-4" />
-            </button>
+            {isStreaming ? (
+              <button
+                onClick={() => abortRef.current?.abort()}
+                className="w-10 h-10 rounded-md flex items-center justify-center bg-red-500 hover:bg-red-600 text-white transition-all"
+                title="Stop generating"
+                aria-label="Stop generating"
+              >
+                <Square className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || !isOnline || input.trim().length > 4000}
+                aria-label="Send message"
+                className={`w-10 h-10 rounded-md flex items-center justify-center transition-all ${
+                  input.trim() && isOnline && input.trim().length <= 4000
+                    ? 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
+                    : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
+                }`}
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            )}
           </div>
+          {input.length > 3500 && (
+            <div className={`text-right text-[10px] mt-1 pr-1 ${input.length > 4000 ? 'text-red-500 font-medium' : 'text-[#9CA3AF]'}`}>
+              {input.length > 4000 ? 'Message too long — ' : ''}{input.length.toLocaleString()}/4,000
+            </div>
+          )}
           <p className="text-[10px] text-[#9CA3AF] mt-2 text-center">
-            Demo Mode — responses are simulated. Live AI integration coming soon.
+            AI responses may not be 100% accurate. Always verify critical deal numbers.
           </p>
         </div>
       </div>
 
       {/* ── Context Sidebar ── */}
       {contextOpen && (
-        <div className="w-[320px] border-l border-[#E5E7EB] bg-white flex flex-col overflow-y-auto">
+        <div className="w-[320px] border-l border-[#E5E7EB] bg-white flex flex-col overflow-y-auto flex-shrink-0 context-sidebar" role="complementary" aria-label="Context data">
+          {contextLoading ? (
+            <ContextSidebarSkeleton />
+          ) : (
+          <>
           {/* Connected Data */}
           <div className="px-5 py-4 border-b border-[#E5E7EB]">
             <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5">
@@ -497,24 +1905,8 @@ export default function DealFlowGPTPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-medium text-[#6B7280]">{src.count}</span>
-                    <span className="w-2 h-2 rounded-full bg-green-400" />
+                    <span className={`w-2 h-2 rounded-full ${src.connected ? 'bg-green-400' : 'bg-[#D1D5DB]'}`} />
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Account Overview */}
-          <div className="px-5 py-4 border-b border-[#E5E7EB]">
-            <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5 text-[#6B7280]" />
-              Account Overview
-            </h3>
-            <div className="space-y-2.5">
-              {accountStats.map((stat, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <span className="text-xs text-[#9CA3AF]">{stat.label}</span>
-                  <span className="text-xs font-medium text-[#374151]">{stat.value}</span>
                 </div>
               ))}
             </div>
@@ -527,15 +1919,24 @@ export default function DealFlowGPTPage() {
               Recent Activity
             </h3>
             <div className="space-y-3">
-              {recentActivity.map((item, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#9CA3AF] mt-1.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-[#374151] leading-snug">{item.text}</p>
-                    <p className="text-[10px] text-[#9CA3AF] mt-0.5">{item.time}</p>
-                  </div>
-                </div>
-              ))}
+              {recentActivity.length > 0
+                ? recentActivity.map((item, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#9CA3AF] mt-1.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs text-[#374151] leading-snug">{item.title}</p>
+                        <p className="text-[10px] text-[#9CA3AF] mt-0.5">
+                          {new Date(item.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                : Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-start gap-2 animate-pulse">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#E5E7EB] mt-1.5" />
+                      <div className="h-3 w-40 bg-[#E5E7EB] rounded" />
+                    </div>
+                  ))}
             </div>
           </div>
 
@@ -546,14 +1947,14 @@ export default function DealFlowGPTPage() {
               Quick Actions
             </h3>
             <div className="space-y-2">
-              {quickActions.map((action, i) => (
+              {promptCategories[0].prompts.slice(0, 2).concat(promptCategories[1].prompts.slice(0, 2)).map((prompt, i) => (
                 <button
                   key={i}
-                  onClick={() => handlePromptChip(action.prompt)}
+                  onClick={() => handlePromptChip(prompt)}
                   className="w-full text-left flex items-center justify-between px-3 py-2 rounded-lg border border-[#E5E7EB] bg-white hover:bg-[#F9FAFB] transition-all group"
                 >
-                  <span className="text-xs text-[#374151]">{action.label}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#374151]" />
+                  <span className="text-xs text-[#374151] truncate">{prompt}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#374151] flex-shrink-0" />
                 </button>
               ))}
             </div>
@@ -585,17 +1986,27 @@ export default function DealFlowGPTPage() {
               </div>
             </div>
           </div>
+          </>
+          )}
         </div>
       )}
 
       <style>{`
-        @media (max-width: 1024px) {
-          .w-\\[320px\\] { width: 280px; }
+        @media (max-width: 1280px) {
+          .context-sidebar { display: none; }
         }
         @media (max-width: 768px) {
-          .w-\\[320px\\] { display: none; }
+          .history-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 50;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+          }
         }
       `}</style>
     </div>
+    </ChatErrorBoundary>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import {
   User,
   CreditCard,
@@ -20,6 +20,9 @@ import {
   Lock,
   AlertTriangle,
   Trash2,
+  Search,
+  Phone,
+  Loader2,
 } from 'lucide-react'
 
 /* ── Section nav ── */
@@ -215,6 +218,134 @@ export default function SettingsPage() {
   const [callDays, setCallDays] = useState({ Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: false, Sun: false })
   const [dataRetention, setDataRetention] = useState('1 year')
   const [saved, setSaved] = useState(false)
+
+  // DNC management state
+  const [dncOpen, setDncOpen] = useState(false)
+  const [dncEntries, setDncEntries] = useState<any[]>([])
+  const [dncTotal, setDncTotal] = useState(0)
+  const [dncLoading, setDncLoading] = useState(false)
+  const [dncSearch, setDncSearch] = useState('')
+  const [dncOffset, setDncOffset] = useState(0)
+  const [addPhoneInput, setAddPhoneInput] = useState('')
+  const [addPhoneReason, setAddPhoneReason] = useState('')
+  const [addingPhone, setAddingPhone] = useState(false)
+  const [dncMessage, setDncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const fetchDNCList = useCallback(async (search?: string, offset?: number) => {
+    setDncLoading(true)
+    try {
+      const params = new URLSearchParams()
+      params.set('limit', '50')
+      params.set('offset', String(offset ?? 0))
+      if (search) params.set('search', search)
+      const res = await fetch(`/api/outreach/dnc?${params}`)
+      if (res.ok) {
+        const data = await res.json()
+        setDncEntries(data.entries || [])
+        setDncTotal(data.total || 0)
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setDncLoading(false)
+    }
+  }, [])
+
+  const openDNCList = () => {
+    setDncOpen(true)
+    setDncOffset(0)
+    setDncSearch('')
+    fetchDNCList()
+  }
+
+  const addPhoneToDNC = async () => {
+    if (!addPhoneInput.trim()) return
+    setAddingPhone(true)
+    setDncMessage(null)
+    try {
+      const res = await fetch('/api/outreach/dnc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: addPhoneInput, reason: addPhoneReason || 'Manually added' }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setDncMessage({ type: 'success', text: data.message })
+        setAddPhoneInput('')
+        setAddPhoneReason('')
+        fetchDNCList(dncSearch, dncOffset)
+      } else {
+        setDncMessage({ type: 'error', text: data.error || 'Failed to add number' })
+      }
+    } catch {
+      setDncMessage({ type: 'error', text: 'Network error' })
+    } finally {
+      setAddingPhone(false)
+    }
+  }
+
+  const removeFromDNC = async (phone: string) => {
+    try {
+      const res = await fetch(`/api/outreach/dnc/${encodeURIComponent(phone)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true }),
+      })
+      if (res.ok) {
+        setDncMessage({ type: 'success', text: 'Number removed from DNC list' })
+        setConfirmRemove(null)
+        fetchDNCList(dncSearch, dncOffset)
+      } else {
+        const data = await res.json()
+        setDncMessage({ type: 'error', text: data.error || 'Failed to remove' })
+      }
+    } catch {
+      setDncMessage({ type: 'error', text: 'Network error' })
+    }
+  }
+
+  const handleDNCFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setDncMessage(null)
+    try {
+      const text = await file.text()
+      const phones = text.split(/[\n\r,]+/).map(l => l.trim()).filter(Boolean)
+      if (phones.length === 0) {
+        setDncMessage({ type: 'error', text: 'No valid phone numbers found in file' })
+        return
+      }
+      if (phones.length > 10000) {
+        setDncMessage({ type: 'error', text: 'Maximum 10,000 numbers per import' })
+        return
+      }
+      setDncLoading(true)
+      const res = await fetch('/api/outreach/dnc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phones }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setDncMessage({ type: 'success', text: data.message })
+        fetchDNCList(dncSearch, dncOffset)
+      } else {
+        setDncMessage({ type: 'error', text: data.error || 'Import failed' })
+      }
+    } catch {
+      setDncMessage({ type: 'error', text: 'Failed to read file' })
+    } finally {
+      setDncLoading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const formatPhoneDisplay = (phone: string) => {
+    if (phone.length === 10) return `(${phone.slice(0,3)}) ${phone.slice(3,6)}-${phone.slice(6)}`
+    return phone
+  }
 
   const showSaved = () => {
     setSaved(true)
@@ -1018,17 +1149,187 @@ export default function SettingsPage() {
               <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
                 <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Do Not Call Management</h3>
                 <div className="flex items-center gap-3 mb-3">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-sm text-[#374151] hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={openDNCList}
+                    className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-sm text-[#374151] hover:bg-gray-50 transition-colors"
+                  >
                     <Shield className="w-4 h-4 text-gray-400" />
                     View DNC List
-                    <span className="text-xs text-gray-400">(47 numbers)</span>
+                    {dncTotal > 0 && <span className="text-xs text-gray-400">({dncTotal} numbers)</span>}
                   </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-sm text-[#374151] hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-sm text-[#374151] hover:bg-gray-50 transition-colors"
+                  >
                     <Upload className="w-4 h-4 text-gray-400" />
                     Upload DNC List
                   </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv,.txt"
+                    onChange={handleDNCFileUpload}
+                    className="hidden"
+                  />
                 </div>
                 <p className="text-[10px] text-gray-500">Numbers on this list will be automatically excluded from all AI outreach campaigns.</p>
+
+                {/* DNC Message */}
+                {dncMessage && (
+                  <div className={`mt-3 px-3 py-2 rounded-md text-sm ${
+                    dncMessage.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
+                  }`}>
+                    {dncMessage.text}
+                  </div>
+                )}
+
+                {/* DNC Panel */}
+                {dncOpen && (
+                  <div className="mt-4 border border-[#E5E7EB] rounded-lg overflow-hidden">
+                    {/* Search & Add */}
+                    <div className="p-4 bg-gray-50 border-b border-[#E5E7EB] space-y-3">
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="text"
+                            placeholder="Search by phone number..."
+                            value={dncSearch}
+                            onChange={e => {
+                              setDncSearch(e.target.value)
+                              setDncOffset(0)
+                              fetchDNCList(e.target.value, 0)
+                            }}
+                            className="w-full pl-9 pr-3 py-2 rounded-md border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                          />
+                        </div>
+                        <button
+                          onClick={() => setDncOpen(false)}
+                          className="p-2 text-gray-400 hover:text-gray-600"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Phone number"
+                          value={addPhoneInput}
+                          onChange={e => setAddPhoneInput(e.target.value)}
+                          className="flex-1 px-3 py-2 rounded-md border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Reason (optional)"
+                          value={addPhoneReason}
+                          onChange={e => setAddPhoneReason(e.target.value)}
+                          className="flex-1 px-3 py-2 rounded-md border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                        />
+                        <button
+                          onClick={addPhoneToDNC}
+                          disabled={addingPhone || !addPhoneInput.trim()}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
+                        >
+                          {addingPhone ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                          Add
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* List */}
+                    <div className="max-h-80 overflow-y-auto">
+                      {dncLoading ? (
+                        <div className="flex items-center justify-center py-8 text-gray-400 text-sm">
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading...
+                        </div>
+                      ) : dncEntries.length === 0 ? (
+                        <div className="flex items-center justify-center py-8 text-gray-400 text-sm">
+                          No numbers on the DNC list
+                        </div>
+                      ) : (
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-[#E5E7EB] bg-gray-50">
+                              <th className="text-left px-4 py-2 font-medium text-gray-600 text-xs">Phone</th>
+                              <th className="text-left px-4 py-2 font-medium text-gray-600 text-xs">Buyer</th>
+                              <th className="text-left px-4 py-2 font-medium text-gray-600 text-xs">Reason</th>
+                              <th className="text-left px-4 py-2 font-medium text-gray-600 text-xs">Date</th>
+                              <th className="text-right px-4 py-2 font-medium text-gray-600 text-xs"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {dncEntries.map((entry: any) => (
+                              <tr key={entry.id} className="border-b border-[#F3F4F6] hover:bg-gray-50">
+                                <td className="px-4 py-2.5 font-mono text-gray-800">
+                                  <div className="flex items-center gap-1.5">
+                                    <Phone className="w-3.5 h-3.5 text-gray-400" />
+                                    {formatPhoneDisplay(entry.phone)}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-2.5 text-gray-600">{entry.buyerName || '—'}</td>
+                                <td className="px-4 py-2.5 text-gray-500 text-xs">{entry.reason || '—'}</td>
+                                <td className="px-4 py-2.5 text-gray-500 text-xs">
+                                  {new Date(entry.createdAt).toLocaleDateString()}
+                                </td>
+                                <td className="px-4 py-2.5 text-right">
+                                  {confirmRemove === entry.phone ? (
+                                    <div className="flex items-center gap-1 justify-end">
+                                      <span className="text-xs text-red-600 mr-1">Remove?</span>
+                                      <button
+                                        onClick={() => removeFromDNC(entry.phone)}
+                                        className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                                      >
+                                        Yes
+                                      </button>
+                                      <button
+                                        onClick={() => setConfirmRemove(null)}
+                                        className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                                      >
+                                        No
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      onClick={() => setConfirmRemove(entry.phone)}
+                                      className="text-xs text-red-500 hover:text-red-700"
+                                    >
+                                      Remove
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+
+                    {/* Pagination */}
+                    {dncTotal > 50 && (
+                      <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-t border-[#E5E7EB]">
+                        <span className="text-xs text-gray-500">
+                          Showing {dncOffset + 1}–{Math.min(dncOffset + 50, dncTotal)} of {dncTotal}
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            disabled={dncOffset === 0}
+                            onClick={() => { const n = Math.max(0, dncOffset - 50); setDncOffset(n); fetchDNCList(dncSearch, n) }}
+                            className="px-3 py-1 text-xs border border-[#D1D5DB] rounded hover:bg-gray-100 disabled:opacity-50"
+                          >
+                            Previous
+                          </button>
+                          <button
+                            disabled={dncOffset + 50 >= dncTotal}
+                            onClick={() => { const n = dncOffset + 50; setDncOffset(n); fetchDNCList(dncSearch, n) }}
+                            className="px-3 py-1 text-xs border border-[#D1D5DB] rounded hover:bg-gray-100 disabled:opacity-50"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Account Actions */}

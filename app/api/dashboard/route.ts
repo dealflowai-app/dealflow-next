@@ -22,6 +22,20 @@ export async function GET() {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
 
+    // Week start (Monday)
+    const weekStart = new Date(now)
+    const dayOfWeek = weekStart.getDay()
+    weekStart.setDate(weekStart.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
+    weekStart.setHours(0, 0, 0, 0)
+
+    // Today start
+    const todayStart = new Date(now)
+    todayStart.setHours(0, 0, 0, 0)
+
+    // 14 days ago (for sparkline)
+    const fourteenDaysAgo = new Date(now)
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14)
+
     const [
       activeDeals,
       closedDeals,
@@ -50,6 +64,19 @@ export async function GET() {
       totalListingViewsAgg,
       newInquiries,
       recentInquiries,
+      // Outreach KPIs
+      activeCampaignsCount,
+      callsThisWeek,
+      callsToday,
+      qualifiedThisWeek,
+      connectedThisWeek,
+      avgCallDurationAgg,
+      totalCallSecsAgg,
+      recentCalls,
+      topCampaigns,
+      callsByChannel,
+      callsLast14Days,
+      recentCampaignEvents,
     ] = await timeQuery('Dashboard.allQueries', () => Promise.all([
       // Existing KPIs
       prisma.deal.count({ where: { profileId: pid, status: 'ACTIVE' } }),
@@ -208,6 +235,80 @@ export async function GET() {
           listing: { select: { address: true, city: true, state: true } },
         },
       }),
+
+      // ── Outreach KPIs ──────────────────────────────────
+      prisma.campaign.count({ where: { profileId: pid, status: 'RUNNING' } }),
+      prisma.campaignCall.count({
+        where: { campaign: { profileId: pid }, startedAt: { gte: weekStart } },
+      }),
+      prisma.campaignCall.count({
+        where: { campaign: { profileId: pid }, startedAt: { gte: todayStart } },
+      }),
+      prisma.campaignCall.count({
+        where: { campaign: { profileId: pid }, outcome: 'QUALIFIED', startedAt: { gte: weekStart } },
+      }),
+      // Connected calls this week (for qualification rate calculation)
+      prisma.campaignCall.count({
+        where: {
+          campaign: { profileId: pid },
+          startedAt: { gte: weekStart },
+          outcome: { notIn: ['NO_ANSWER', 'VOICEMAIL'], not: null },
+        },
+      }),
+      // Avg call duration (last 30 days)
+      prisma.campaignCall.aggregate({
+        where: { campaign: { profileId: pid }, durationSecs: { gt: 0 }, startedAt: { gte: thirtyDaysAgo } },
+        _avg: { durationSecs: true },
+      }),
+      // Total call minutes (all time)
+      prisma.campaignCall.aggregate({
+        where: { campaign: { profileId: pid } },
+        _sum: { durationSecs: true },
+      }),
+      // Recent calls (last 5)
+      prisma.campaignCall.findMany({
+        where: { campaign: { profileId: pid }, outcome: { not: null } },
+        orderBy: { startedAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          outcome: true,
+          durationSecs: true,
+          channel: true,
+          startedAt: true,
+          buyer: { select: { id: true, firstName: true, lastName: true, entityName: true } },
+          campaign: { select: { id: true, name: true } },
+        },
+      }),
+      // Top campaigns by qualification rate (min 10 calls)
+      prisma.campaign.findMany({
+        where: { profileId: pid, callsCompleted: { gte: 10 } },
+        orderBy: { qualified: 'desc' },
+        take: 3,
+        select: {
+          id: true, name: true, channel: true, status: true,
+          totalBuyers: true, callsCompleted: true, qualified: true, notBuying: true,
+        },
+      }),
+      // Calls by channel (last 30 days)
+      prisma.campaignCall.groupBy({
+        by: ['channel'],
+        where: { campaign: { profileId: pid }, startedAt: { gte: thirtyDaysAgo } },
+        _count: { _all: true },
+      }),
+      // Calls per day (last 14 days, for sparkline)
+      prisma.campaignCall.findMany({
+        where: { campaign: { profileId: pid }, startedAt: { gte: fourteenDaysAgo } },
+        select: { startedAt: true, outcome: true },
+        orderBy: { startedAt: 'asc' },
+      }),
+      // Recent campaign events (status changes for activity feed)
+      prisma.campaign.findMany({
+        where: { profileId: pid, startedAt: { not: null } },
+        orderBy: { updatedAt: 'desc' },
+        take: 5,
+        select: { id: true, name: true, status: true, totalBuyers: true, qualified: true, startedAt: true, completedAt: true, updatedAt: true },
+      }),
     ]))
 
     // Transform pipelines into maps
@@ -227,12 +328,79 @@ export async function GET() {
       0,
     )
 
+    // ── Process outreach data ──────────────────────────
+    const qualificationRate = connectedThisWeek > 0
+      ? Math.round((qualifiedThisWeek / connectedThisWeek) * 100)
+      : 0
+    const avgCallDuration = Math.round(avgCallDurationAgg._avg.durationSecs || 0)
+    const totalCallMinutes = Math.round((totalCallSecsAgg._sum.durationSecs || 0) / 60)
+    const totalCallsAllTime = (campaignCalls._sum.callsCompleted || 0)
+
+    // Calls per day (sparkline data)
+    const callsPerDay: { date: string; total: number; qualified: number }[] = []
+    const dayBuckets: Record<string, { total: number; qualified: number }> = {}
+    for (const c of callsLast14Days) {
+      if (!c.startedAt) continue
+      const date = c.startedAt.toISOString().split('T')[0]
+      if (!dayBuckets[date]) dayBuckets[date] = { total: 0, qualified: 0 }
+      dayBuckets[date].total++
+      if (c.outcome === 'QUALIFIED') dayBuckets[date].qualified++
+    }
+    // Fill in missing days
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - i)
+      const date = d.toISOString().split('T')[0]
+      callsPerDay.push({ date, total: dayBuckets[date]?.total || 0, qualified: dayBuckets[date]?.qualified || 0 })
+    }
+
+    // Channel breakdown
+    const outreachByChannel: Record<string, number> = {}
+    for (const row of callsByChannel) {
+      outreachByChannel[row.channel || 'VOICE'] = row._count._all
+    }
+
+    // Campaign performance (derive qualification rate)
+    const campaignPerformance = topCampaigns.map(c => {
+      const connected = c.qualified + c.notBuying
+      return {
+        id: c.id,
+        name: c.name,
+        channel: c.channel,
+        status: c.status,
+        totalBuyers: c.totalBuyers,
+        callsCompleted: c.callsCompleted,
+        qualified: c.qualified,
+        qualificationRate: connected > 0 ? Math.round((c.qualified / connected) * 100) : 0,
+      }
+    })
+
+    // Outreach activity events (synthesized from campaign data)
+    const outreachEvents: { id: string; type: string; title: string; createdAt: string }[] = []
+    for (const c of recentCampaignEvents) {
+      if (c.status === 'COMPLETED' && c.completedAt) {
+        outreachEvents.push({
+          id: `camp-completed-${c.id}`,
+          type: 'campaign',
+          title: `Campaign "${c.name}" completed — ${c.qualified} qualified out of ${c.totalBuyers}`,
+          createdAt: c.completedAt.toISOString(),
+        })
+      } else if (c.status === 'RUNNING' && c.startedAt) {
+        outreachEvents.push({
+          id: `camp-started-${c.id}`,
+          type: 'campaign',
+          title: `Campaign "${c.name}" launched with ${c.totalBuyers} buyers`,
+          createdAt: c.startedAt.toISOString(),
+        })
+      }
+    }
+
     const responseData = {
       kpis: {
         activeDeals,
         closedDeals,
         buyerCount,
-        aiCalls: campaignCalls._sum.callsCompleted || 0,
+        aiCalls: totalCallsAllTime,
         pendingOffers,
         totalSpread: totalSpreadAgg._sum.assignFee || 0,
         matchesSent,
@@ -246,6 +414,14 @@ export async function GET() {
         activeListings,
         totalListingViews: totalListingViewsAgg._sum.viewCount || 0,
         newInquiries,
+        // Outreach KPIs
+        activeCampaigns: activeCampaignsCount,
+        callsThisWeek,
+        callsToday,
+        qualifiedThisWeek,
+        qualificationRate,
+        avgCallDuration,
+        totalCallMinutes,
       },
       recentActivity,
       recentDeals,
@@ -255,6 +431,14 @@ export async function GET() {
       contractPipeline,
       recentContracts,
       recentInquiries,
+      // Outreach data
+      outreach: {
+        recentCalls,
+        campaignPerformance,
+        callsPerDay,
+        outreachByChannel,
+        outreachEvents,
+      },
     }
 
     setCache(cacheKey, responseData)

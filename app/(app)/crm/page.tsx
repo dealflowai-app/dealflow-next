@@ -50,6 +50,8 @@ import {
   checkDuplicates,
   mergeBuyers,
 } from '@/lib/hooks/useCRMActions'
+import ClickToCall from '@/components/outreach/ClickToCall'
+import PowerDialer, { type DialerBuyer } from '@/components/outreach/PowerDialer'
 
 /* ═══════════════════════════════════════════════
    HELPERS
@@ -971,6 +973,7 @@ function ListView({
   const [sortCol, setSortCol] = useState<string>('score')
   const [menuOpen, setMenuOpen] = useState<string | null>(null)
   const [bulkLoading, setBulkLoading] = useState(false)
+  const [showDialer, setShowDialer] = useState(false)
 
   const allSelected = buyers.length > 0 && selected.size === buyers.length
   function toggleAll() { setSelected(allSelected ? new Set() : new Set(buyers.map((b) => b.id))) }
@@ -1053,6 +1056,13 @@ function ListView({
         <div className="flex items-center gap-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg px-4 py-2.5 mb-3">
           <span className="text-[0.8rem] text-[#2563EB] font-medium">{selected.size} selected</span>
           <div className="flex items-center gap-1.5 ml-auto">
+            <button
+              onClick={() => setShowDialer(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-bold text-emerald-700 hover:bg-emerald-100 bg-emerald-50 border border-emerald-200 cursor-pointer transition-colors"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              Power Dial
+            </button>
             {[
               { label: 'Send Campaign', icon: PhoneOutgoing, action: 'campaign' },
               { label: 'Add Tag', icon: Tag, action: 'tag' },
@@ -1132,7 +1142,12 @@ function ListView({
                       <span className="text-[0.82rem] font-medium text-gray-800 group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
                     </button>
                   </td>
-                  <td className="px-3 py-3 text-[0.78rem] text-gray-600 whitespace-nowrap">{b.phone || '—'}</td>
+                  <td className="px-3 py-3 text-[0.78rem] text-gray-600 whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1.5">
+                      {b.phone || '—'}
+                      {b.phone && <ClickToCall buyerId={b.id} buyerName={buyerName(b)} phone={b.phone} compact />}
+                    </span>
+                  </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-wrap gap-1">
                       {(b.preferredMarkets || []).map((m) => (
@@ -1203,6 +1218,40 @@ function ListView({
           </tbody>
         </table>
       </div>
+
+      {/* Power Dialer overlay */}
+      {showDialer && (() => {
+        const dialerBuyers: DialerBuyer[] = buyers
+          .filter(b => selected.has(b.id) && b.phone)
+          .map(b => ({
+            id: b.id,
+            name: buyerName(b),
+            phone: b.phone!,
+            score: b.buyerScore,
+            status: b.status,
+            notes: b.notes || undefined,
+            strategy: b.strategy,
+            preferredTypes: b.preferredTypes,
+            preferredMarkets: b.preferredMarkets,
+            minPrice: b.minPrice,
+            maxPrice: b.maxPrice,
+            closeSpeedDays: b.closeSpeedDays,
+            lastContactedAt: b.lastContactedAt,
+          }))
+        return dialerBuyers.length > 0 ? (
+          <PowerDialer
+            buyers={dialerBuyers}
+            onClose={() => { setShowDialer(false); setSelected(new Set()) }}
+          />
+        ) : (
+          <div className="fixed inset-0 z-50 bg-gray-900/50 flex items-center justify-center">
+            <div className="bg-white rounded-xl p-6 max-w-sm text-center">
+              <p className="text-sm text-gray-600 mb-3">No selected buyers have phone numbers.</p>
+              <button onClick={() => setShowDialer(false)} className="text-sm text-blue-600 hover:text-blue-500">Close</button>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

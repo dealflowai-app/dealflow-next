@@ -217,11 +217,11 @@ function buyerPhone(contract: ContractRow): string | null {
 function feeFromContract(contract: ContractRow): number | null {
   const fd = contract.filledData
   if (fd?.assignment_fee) {
-    const n = parseFloat(fd.assignment_fee.replace(/[^0-9.]/g, ''))
+    const n = parseFloat(String(fd.assignment_fee).replace(/[^0-9.]/g, ''))
     if (!isNaN(n)) return n
   }
   if (fd?.assignmentFee) {
-    const n = parseFloat(fd.assignmentFee.replace(/[^0-9.]/g, ''))
+    const n = parseFloat(String(fd.assignmentFee).replace(/[^0-9.]/g, ''))
     if (!isNaN(n)) return n
   }
   return contract.offer?.amount ?? null

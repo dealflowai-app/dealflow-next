@@ -8,7 +8,7 @@ import {
   ArrowLeft, Users, DollarSign, BarChart3, Clock, Send,
   ChevronDown, Loader2, Home, BedDouble, Bath, Ruler,
   Calendar, MapPin, FileText, Pencil, X, Check, TrendingUp,
-  Megaphone, CheckCircle2, AlertTriangle, Store, FileSignature,
+  Megaphone, CheckCircle2, AlertTriangle, Store, FileSignature, RefreshCw,
 } from 'lucide-react'
 
 /* ═══════════════════════════════════════════════
@@ -253,6 +253,7 @@ export default function DealDetailPage() {
   const [listingCreated, setListingCreated] = useState(false)
   const [contractLoading, setContractLoading] = useState(false)
   const [contractCreated, setContractCreated] = useState(false)
+  const [reanalyzing, setReanalyzing] = useState(false)
 
   // Pick up daisy chain flash from sessionStorage (set during deal creation)
   useEffect(() => {
@@ -415,6 +416,37 @@ export default function DealDetailPage() {
       toast(err instanceof Error ? err.message : 'Failed to generate contract')
     } finally {
       setContractLoading(false)
+    }
+  }
+
+  // ── Re-analyze deal ──────────────────────────
+
+  const reanalyzeDeal = async () => {
+    if (!deal) return
+    setReanalyzing(true)
+    try {
+      const res = await fetch('/api/analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: `${deal.address}, ${deal.city}, ${deal.state} ${deal.zip}`,
+          askingPrice: deal.askingPrice || undefined,
+          repairCost: deal.repairCost || undefined,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Analysis failed')
+      }
+      // Store the analysis result in sessionStorage so the Analyzer page can pick it up
+      const data = await res.json()
+      sessionStorage.setItem('analyzer_result', JSON.stringify(data.analysis))
+      sessionStorage.setItem('analyzer_address', `${deal.address}, ${deal.city}, ${deal.state} ${deal.zip}`)
+      router.push('/analyzer')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to run analysis')
+    } finally {
+      setReanalyzing(false)
     }
   }
 
@@ -718,6 +750,15 @@ export default function DealDetailPage() {
               </button>
             </div>
           )}
+
+          <button
+            onClick={reanalyzeDeal}
+            disabled={reanalyzing}
+            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {reanalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            {reanalyzing ? 'Analyzing...' : 'Re-analyze'}
+          </button>
 
           <button
             onClick={listingCreated ? undefined : listOnMarketplace}

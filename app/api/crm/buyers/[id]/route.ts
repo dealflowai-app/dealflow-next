@@ -20,6 +20,22 @@ export async function GET(
           orderBy: { createdAt: 'desc' },
           take: 50,
         },
+        inboundCalls: {
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+          select: {
+            id: true,
+            fromPhone: true,
+            routedTo: true,
+            status: true,
+            duration: true,
+            outcome: true,
+            aiSummary: true,
+            recordingUrl: true,
+            notes: true,
+            createdAt: true,
+          },
+        },
         dealMatches: {
           include: { deal: true },
           orderBy: { matchScore: 'desc' },

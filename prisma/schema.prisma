@@ -25,6 +25,13 @@ enum CampaignMode {
   MANUAL
 }
 
+enum CampaignChannel {
+  VOICE
+  SMS
+  EMAIL
+  MULTI_CHANNEL
+}
+
 enum CallOutcome {
   QUALIFIED
   NOT_BUYING
@@ -152,6 +159,7 @@ model Profile {
   role      Role
   company   String?
   avatarUrl String?
+  settings  Json?          // user preferences & config (inbound routing, etc.)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -168,6 +176,17 @@ model Profile {
   marketplaceListings  MarketplaceListing[]
   buyerBoardPosts      BuyerBoardPost[]
   buyerBoardContacts   BuyerBoardContact[]
+  analysisCache        AnalysisCache[]
+  chatConversations    ChatConversation[]
+  complianceLogs       ComplianceLog[]
+  abTests              ABTest[]
+  campaignTemplates    CampaignTemplate[]
+  scheduledCallbacks   ScheduledCallback[]
+  voicemailRecordings  VoicemailRecording[]
+  inboundCalls         InboundCall[]
+  callIntelligence     CallIntelligence[]
+  smsConversations     SMSConversation[]
+  liveCallSessions     LiveCallSession[]
 
   @@map("profiles")
 }
@@ -374,6 +393,9 @@ model CashBuyer {
   activityEvents   ActivityEvent[]
   tags             BuyerTag[]
   buyerBoardPosts  BuyerBoardPost[]
+  scheduledCallbacks ScheduledCallback[]
+  inboundCalls       InboundCall[]
+  smsConversations   SMSConversation[]
 
   @@index([savedMarketId])
   @@index([profileId])
@@ -451,6 +473,7 @@ model Campaign {
   market          String         // "Atlanta, GA"
   status          CampaignStatus @default(DRAFT)
   mode            CampaignMode   @default(AI)
+  channel         CampaignChannel @default(VOICE)
 
   // Script config
   scriptTemplate  String         @default("standard_qualification")
@@ -483,6 +506,13 @@ model Campaign {
   estimatedCost   Float?
   actualCost      Float?
 
+  // Smart scheduling
+  useSmartScheduling Boolean @default(true)
+
+  // Voicemail drop
+  voicemailRecordingId  String?     // which VM recording to use
+  voicemailSequence     Json?       // for smart sequencing: [{ attempt: 1, recordingId: "..." }]
+
   startedAt       DateTime?
   completedAt     DateTime?
   createdAt       DateTime       @default(now())
@@ -498,8 +528,17 @@ model Campaign {
 
 model CampaignCall {
   id            String       @id @default(cuid())
-  campaignId    String
+  campaignId    String?          // null for manual calls outside campaigns
   buyerId       String
+  isManual      Boolean      @default(false)
+  // Channel & provider tracking
+  channel       String?          // "voice" | "sms" | "email" | "manual_voice"
+  messageId     String?          // Twilio SID or SendGrid message ID
+  messageSent   Boolean          @default(false)
+  messageDelivered Boolean       @default(false)
+  messageRead   Boolean          @default(false)
+  responseText  String?          // inbound SMS response text
+  responseAt    DateTime?        // when they responded
   // Bland AI data
   blandCallId   String?      @unique
   phoneNumber   String
@@ -516,7 +555,7 @@ model CampaignCall {
   endedAt       DateTime?
   createdAt     DateTime     @default(now())
 
-  campaign Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaign Campaign?  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   buyer    CashBuyer  @relation(fields: [buyerId], references: [id])
 
   @@index([campaignId])
@@ -525,14 +564,364 @@ model CampaignCall {
   @@map("campaign_calls")
 }
 
+// ─── A/B TESTING ──────────────────────────────────────────────────────────────
+
+model ABTest {
+  id               String    @id @default(cuid())
+  profileId        String
+  name             String
+  status           String    @default("RUNNING") // RUNNING | COMPLETED | CANCELLED
+  campaignIdA      String
+  campaignIdB      String
+  testVariable     String    // "script" | "time" | "channel" | "voicemail"
+  variantALabel    String
+  variantBLabel    String
+  winnerId         String?
+  winnerDeclaredAt DateTime?
+  confidenceLevel  Float?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  profile          Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@map("ab_tests")
+}
+
+// ─── CAMPAIGN TEMPLATES ───────────────────────────────────────────────────────
+
+model CampaignTemplate {
+  id                 String    @id @default(cuid())
+  profileId          String?   // null = system template, set = user-created
+
+  name               String
+  description        String?
+  category           String    // "qualification" | "deal_alert" | "reactivation" | "follow_up" | "verification" | "custom"
+  icon               String?
+
+  // Pre-configured campaign settings
+  channel            String    // "VOICE" | "SMS" | "EMAIL" | "MULTI_CHANNEL"
+  scriptTemplate     String?
+  customScript       String?
+  smsTemplateId      String?
+  emailSequenceId    String?
+
+  // Default audience filter & settings
+  audienceFilter     Json?
+  settings           Json?
+  multiChannelConfig Json?
+
+  // Usage tracking
+  useCount           Int       @default(0)
+  lastUsedAt         DateTime?
+
+  isPublic           Boolean   @default(false)
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  profile            Profile?  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([category])
+  @@index([isPublic])
+  @@map("campaign_templates")
+}
+
+// ─── SCHEDULED CALLBACKS ──────────────────────────────────────────────────────
+
+model ScheduledCallback {
+  id             String    @id @default(cuid())
+  profileId      String
+  buyerId        String
+  campaignId     String?
+
+  scheduledAt    DateTime
+  reason         String              // "Buyer requested callback" or "Auto-retry: no answer"
+  source         String              // "buyer_request" | "ai_detected" | "manual" | "auto_retry"
+  status         String   @default("scheduled")  // "scheduled" | "completed" | "missed" | "cancelled"
+
+  notes          String?             // context from previous call
+  previousCallId String?             // reference to the call that generated this callback
+
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+
+  profile        Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  buyer          CashBuyer @relation(fields: [buyerId], references: [id])
+
+  @@index([profileId, status, scheduledAt])
+  @@index([buyerId])
+  @@index([scheduledAt])
+  @@map("scheduled_callbacks")
+}
+
+model VoicemailRecording {
+  id            String   @id @default(cuid())
+  profileId     String
+
+  name          String              // "Deal Alert VM" or "Follow Up VM"
+  category      String              // "deal_alert" | "follow_up" | "reactivation" | "introduction" | "custom"
+
+  // Audio
+  audioUrl      String?             // URL to uploaded recording
+  audioData     Bytes?              // raw audio data (stored locally, < 1MB)
+  duration      Int?                // seconds
+  format        String?             // "mp3" | "wav"
+
+  // TTS alternative
+  ttsText       String?             // text to convert to speech
+  ttsVoiceId    String?             // ElevenLabs or Bland voice ID
+  ttsGenerated  Boolean  @default(false)
+
+  // Usage
+  isDefault     Boolean  @default(false)  // default VM for this category
+  useCount      Int      @default(0)
+  callbackRate  Float?              // percentage of VM drops that resulted in a callback
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  profile       Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, category])
+  @@map("voicemail_recordings")
+}
+
+model InboundCall {
+  id            String   @id @default(cuid())
+  profileId     String
+
+  // Call info
+  callSid       String   @unique        // Twilio Call SID
+  fromPhone     String                   // caller's phone number
+  toPhone       String                   // your Twilio number that was called
+
+  // Caller identification
+  buyerId       String?                  // matched CashBuyer, null if unknown caller
+  buyerName     String?                  // denormalized for quick display
+  identified    Boolean  @default(false) // whether we matched to a known buyer
+
+  // Routing
+  routedTo      String                   // "ai" | "wholesaler" | "voicemail" | "missed"
+  transferredAt DateTime?                // when call was transferred to wholesaler
+
+  // Call data
+  status        String   @default("ringing")  // "ringing" | "in-progress" | "completed" | "missed" | "busy"
+  duration      Int?
+  recordingUrl  String?
+  transcript    String?
+  aiSummary     String?
+  extractedData Json?
+
+  // Context
+  relatedCampaignId   String?            // if callback from a specific campaign
+  relatedCallId       String?            // the outbound call that triggered this callback
+  scheduledCallbackId String?            // if this matches a scheduled callback
+
+  outcome       String?                  // QUALIFIED, NOT_BUYING, etc.
+  notes         String?
+
+  startedAt     DateTime?
+  endedAt       DateTime?
+  createdAt     DateTime @default(now())
+
+  profile       Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  buyer         CashBuyer? @relation(fields: [buyerId], references: [id])
+
+  @@index([profileId, createdAt])
+  @@index([fromPhone])
+  @@index([buyerId])
+  @@index([callSid])
+  @@map("inbound_calls")
+}
+
+// ─── CONVERSATION INTELLIGENCE ──────────────────────────────────────────────
+
+model CallIntelligence {
+  id            String   @id @default(cuid())
+  callId        String   @unique         // CampaignCall id
+  profileId     String
+
+  // Sentiment
+  overallSentiment    String             // "positive" | "neutral" | "negative" | "mixed"
+  sentimentScore      Int                // -100 to +100
+  sentimentArc        Json?              // array of { segment: number, score: number }
+
+  // Buying signals
+  buyingSignals       Json?              // array of { signal, strength, quote }
+  buyingSignalCount   Int    @default(0)
+  overallBuyingIntent String             // "high" | "medium" | "low" | "none"
+
+  // Objections
+  objections          Json?              // array of { objection, category, handled, response }
+  objectionCount      Int    @default(0)
+
+  // Competitive mentions
+  competitorMentions  Json?              // array of { competitor, context, sentiment }
+
+  // Talk metrics
+  aiTalkPercent       Float              // 0-100
+  buyerTalkPercent    Float              // 0-100
+  idealRatio          Boolean            // true if AI talk < 45%
+  longestAiMonologue  Int?               // seconds
+  questionCount       Int    @default(0)
+
+  // Engagement
+  engagementScore     Int                // 0-100
+  engagementSignals   Json?              // array of { signal, type }
+
+  // Highlights
+  highlights          Json?              // array of { type, startSegment, endSegment, summary, quote }
+
+  // Script performance
+  scriptEffectiveness Int?               // 0-100
+  scriptSuggestions   Json?              // array of { suggestion, reason, priority }
+
+  createdAt     DateTime @default(now())
+
+  profile       Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([overallSentiment])
+  @@index([overallBuyingIntent])
+  @@map("call_intelligence")
+}
+
+// ─── SMS CONVERSATIONS ─────────────────────────────────────────────────────
+
+model SMSConversation {
+  id            String   @id @default(cuid())
+  profileId     String
+  buyerId       String?              // linked CashBuyer, null if unknown number
+  phone         String               // buyer/recipient phone in E.164
+
+  status        String   @default("active")    // "active" | "closed" | "archived"
+  mode          String   @default("auto")      // "auto" | "manual" | "hybrid"
+
+  // Last message snapshot for list view
+  lastMessageBody   String?
+  lastMessageAt     DateTime?
+  lastMessageDir    String?          // "inbound" | "outbound"
+
+  unreadCount   Int      @default(0)
+
+  // Campaign link
+  campaignId    String?              // originating campaign, if any
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  profile       Profile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  buyer         CashBuyer?       @relation(fields: [buyerId], references: [id])
+  messages      SMSMessage[]
+
+  @@unique([profileId, phone])
+  @@index([profileId, updatedAt(sort: Desc)])
+  @@index([profileId, status])
+  @@index([buyerId])
+  @@map("sms_conversations")
+}
+
+model SMSMessage {
+  id               String   @id @default(cuid())
+  conversationId   String
+
+  direction        String               // "inbound" | "outbound"
+  from             String               // E.164 sender
+  to               String               // E.164 recipient
+  body             String
+
+  sentBy           String?              // "ai" | "wholesaler" | "system" | null (inbound)
+  twilioSid        String?  @unique     // Twilio message SID
+  status           String   @default("sent")  // "sent" | "delivered" | "failed" | "received"
+
+  // AI classification (inbound only)
+  aiClassification String?              // "opt_out" | "interested" | "not_interested" | "question" | "callback_request" | "address_response" | "price_response" | "other"
+  aiAutoReplied    Boolean  @default(false)
+
+  createdAt        DateTime @default(now())
+
+  conversation     SMSConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([twilioSid])
+  @@map("sms_messages")
+}
+
+// ─── LIVE CALL MONITORING ──────────────────────────────────────────────────
+
+model LiveCallSession {
+  id            String   @id @default(cuid())
+  profileId     String
+  callId        String   @unique         // CampaignCall id
+  blandCallId   String                   // Bland AI call id
+
+  // Call state
+  status        String   @default("active")  // "active" | "monitoring" | "whisper" | "barged_in" | "completed"
+
+  // Monitoring
+  monitoringStartedAt DateTime?
+  monitoredBy         String?            // profileId of person monitoring
+
+  // Whisper
+  whisperMessages     Json?              // array of { message: string, sentAt: string }
+
+  // Barge-in
+  bargedInAt          DateTime?
+  bargedInBy          String?
+  transferSid         String?            // Twilio call SID after transfer
+
+  // Live data
+  currentDuration     Int    @default(0)  // seconds, updated periodically
+  currentTranscript   String?             // rolling transcript updated in real-time
+  lastActivityAt      DateTime @default(now())
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  profile       Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, status])
+  @@index([blandCallId])
+  @@map("live_call_sessions")
+}
+
 model OptOut {
   id          String   @id @default(cuid())
   phone       String   @unique
   email       String?
   reason      String?
+  source      String?  // "call_request" | "sms_stop" | "manual" | "webhook" | "import"
   createdAt   DateTime @default(now())
 
   @@map("opt_outs")
+}
+
+// ─── COMPLIANCE AUDIT LOG ──────────────────────────────────────────────────
+
+model ComplianceLog {
+  id            String   @id @default(cuid())
+  profileId     String
+  phone         String
+  channel       String   // "voice" | "sms" | "email"
+  action        String   // "check" | "opt_out" | "opt_in" | "dnc_import" | "call_blocked" | "call_allowed"
+  result        String   // "allowed" | "blocked" | "warning"
+  reasons       String[] // block/warning codes
+  consentBasis  String?
+  metadata      Json?    // full ComplianceCheckResult for auditing
+
+  campaignId    String?
+  buyerId       String?
+
+  createdAt     DateTime @default(now())
+
+  profile       Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, createdAt])
+  @@index([phone])
+  @@index([action])
+  @@map("compliance_logs")
 }
 
 // ─── DEALS ───────────────────────────────────────────────────────────────────
@@ -823,4 +1212,56 @@ model BuyerBoardContact {
   @@unique([postId, profileId])
   @@index([postId])
   @@map("buyer_board_contacts")
+}
+
+// ─── ANALYSIS CACHE ─────────────────────────────────────────────────────────
+
+model AnalysisCache {
+  id          String   @id @default(cuid())
+  profileId   String
+
+  // Lookup key
+  addressKey  String   // normalized address for matching
+  rawAddress  String   // original address string entered
+
+  // Cached result
+  result      Json     // full PropertyAnalysis object
+  apiCalls    Int      @default(3)
+
+  // Cache control
+  cachedAt    DateTime @default(now())
+  expiresAt   DateTime // 24 hours after cachedAt
+
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, addressKey])
+  @@index([profileId])
+  @@index([expiresAt])
+  @@map("analysis_cache")
+}
+
+// ─── CHAT CONVERSATIONS ────────────────────────────────────────────────────
+
+model ChatConversation {
+  id        String   @id @default(cuid())
+  profileId String
+  title     String   @default("New conversation")
+  messages  Json     // Array of {role, content, timestamp}
+  summary   String?  // AI-generated 1-line summary
+  pinned    Boolean  @default(false)
+
+  // Sharing
+  shareToken String?   @unique // random token for public read-only access
+  sharedAt   DateTime?          // when sharing was enabled
+  sharedBy   String?            // profileId of who shared it
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([updatedAt])
+  @@index([shareToken])
+  @@map("chat_conversations")
 }

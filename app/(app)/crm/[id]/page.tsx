@@ -8,6 +8,7 @@ import {
   Send, Clock, Circle, FileSignature, Users, UserPlus, Upload,
   Plus, Sparkles, ChevronDown, MessageSquare, AlertTriangle,
 } from 'lucide-react'
+import ClickToCall from '@/components/outreach/ClickToCall'
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -70,6 +71,10 @@ interface BuyerDetail {
   }>
   offers?: Array<{
     id: string; amount: number; status: string; createdAt: string; deal: { address: string; city: string; state: string }
+  }>
+  inboundCalls?: Array<{
+    id: string; fromPhone: string; routedTo: string; status: string; duration: number | null
+    outcome: string | null; aiSummary: string | null; recordingUrl: string | null; notes: string | null; createdAt: string
   }>
 }
 
@@ -324,7 +329,7 @@ function NoteComposer({ buyerId, onNoteAdded }: { buyerId: string; onNoteAdded: 
 /* ═══════════════════════════════════════════════
    TAB COMPONENT
    ═══════════════════════════════════════════════ */
-const TABS = ['Overview', 'Timeline', 'Deals', 'Calls', 'Notes'] as const
+const TABS = ['Overview', 'Timeline', 'Deals', 'Calls', 'Intelligence', 'Callbacks', 'Notes'] as const
 type TabName = typeof TABS[number]
 
 function TabBar({ active, onChange }: { active: TabName; onChange: (t: TabName) => void }) {
@@ -719,7 +724,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
           {buyer.phone && (
             <div className="flex items-center justify-between">
               <span className="text-[0.82rem] text-gray-500 flex items-center gap-2"><Phone className="w-3.5 h-3.5" /> Phone</span>
-              <span className="text-[0.82rem] text-gray-900 flex items-center gap-1.5">{buyer.phone} <CopyBtn text={buyer.phone} /></span>
+              <span className="text-[0.82rem] text-gray-900 flex items-center gap-1.5">{buyer.phone} <CopyBtn text={buyer.phone} /> <ClickToCall buyerId={buyer.id} buyerName={buyerName(buyer)} phone={buyer.phone} compact /></span>
             </div>
           )}
           {buyer.email && (
@@ -925,10 +930,24 @@ function DealsTab({ matches }: { matches: BuyerDetail['dealMatches'] }) {
 /* ═══════════════════════════════════════════════
    CALLS TAB
    ═══════════════════════════════════════════════ */
-function CallsTab({ calls }: { calls: BuyerDetail['campaignCalls'] }) {
+function CallsTab({ calls, inboundCalls }: { calls: BuyerDetail['campaignCalls']; inboundCalls: BuyerDetail['inboundCalls'] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
-  if (!calls || calls.length === 0) {
+  // Merge outbound + inbound calls into unified timeline
+  type UnifiedCall = { id: string; direction: 'outbound' | 'inbound'; outcome: string | null; duration: number | null; aiSummary: string | null; transcript?: string | null; campaign?: string; routedTo?: string; createdAt: string }
+
+  const unified: UnifiedCall[] = [
+    ...(calls || []).map(c => ({
+      id: c.id, direction: 'outbound' as const, outcome: c.outcome, duration: c.durationSecs,
+      aiSummary: c.aiSummary, transcript: c.transcript, campaign: c.campaign?.name, createdAt: c.createdAt,
+    })),
+    ...(inboundCalls || []).map(c => ({
+      id: `inbound-${c.id}`, direction: 'inbound' as const, outcome: c.outcome, duration: c.duration,
+      aiSummary: c.aiSummary || c.notes, routedTo: c.routedTo, createdAt: c.createdAt,
+    })),
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+  if (unified.length === 0) {
     return <p className="text-center text-sm text-gray-400 py-12">No calls recorded yet.</p>
   }
 
@@ -946,21 +965,34 @@ function CallsTab({ calls }: { calls: BuyerDetail['campaignCalls'] }) {
     }
   }
 
+  const ROUTE_LABELS: Record<string, string> = { ai: 'AI Answered', wholesaler: 'Forwarded', voicemail: 'Voicemail', missed: 'Missed' }
+
   return (
     <div className="space-y-3">
-      {calls.map(c => (
+      {unified.map(c => (
         <div key={c.id} className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded-full ${outcomeColor(c.outcome)}`}>
-                {c.outcome?.replace(/_/g, ' ') || 'UNKNOWN'}
-              </span>
-              {c.durationSecs != null && (
-                <span className="text-[0.72rem] text-gray-400">{Math.floor(c.durationSecs / 60)}m {c.durationSecs % 60}s</span>
+              {c.direction === 'inbound' ? (
+                <span className="text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full text-violet-700 bg-violet-50">Inbound</span>
+              ) : (
+                <span className="text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full text-sky-700 bg-sky-50">AI Call</span>
+              )}
+              {c.outcome && (
+                <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded-full ${outcomeColor(c.outcome)}`}>
+                  {c.outcome.replace(/_/g, ' ')}
+                </span>
+              )}
+              {c.direction === 'inbound' && c.routedTo && (
+                <span className="text-[0.68rem] text-gray-400">{ROUTE_LABELS[c.routedTo] || c.routedTo}</span>
+              )}
+              {c.duration != null && c.duration > 0 && (
+                <span className="text-[0.72rem] text-gray-400">{Math.floor(c.duration / 60)}m {c.duration % 60}s</span>
               )}
             </div>
             <span className="text-[0.72rem] text-gray-400">{relativeTime(c.createdAt)}</span>
           </div>
+          {c.campaign && <p className="text-[0.72rem] text-gray-400">Campaign: {c.campaign}</p>}
           {c.aiSummary && <p className="text-[0.78rem] text-gray-600 mt-1">{c.aiSummary}</p>}
           {c.transcript && (
             <div className="mt-2">
@@ -975,6 +1007,258 @@ function CallsTab({ calls }: { calls: BuyerDetail['campaignCalls'] }) {
           )}
         </div>
       ))}
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   CALLBACKS TAB (buyer-specific)
+   ═══════════════════════════════════════════════ */
+function BuyerCallbacksTab({ buyerId }: { buyerId: string }) {
+  const [callbacks, setCallbacks] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch(`/api/outreach/callbacks?buyerId=${buyerId}&limit=50`)
+        if (!res.ok) throw new Error()
+        const data = await res.json()
+        if (!cancelled) setCallbacks(data.data?.callbacks || [])
+      } catch { /* ignore */ } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [buyerId])
+
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })
+
+  const SOURCE_LABELS: Record<string, string> = {
+    buyer_request: 'Buyer Request', ai_detected: 'AI Detected', manual: 'Manual', auto_retry: 'Auto Retry',
+  }
+
+  const STATUS_COLORS: Record<string, string> = {
+    scheduled: 'text-blue-700 bg-blue-50',
+    completed: 'text-emerald-700 bg-emerald-50',
+    missed: 'text-red-700 bg-red-50',
+    cancelled: 'text-gray-500 bg-gray-100',
+  }
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-12 text-gray-400"><Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading callbacks...</div>
+  }
+
+  if (callbacks.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+        <p className="text-[0.82rem] text-gray-500">No scheduled callbacks for this buyer</p>
+        <p className="text-[0.75rem] text-gray-400 mt-1">Callbacks are created when the buyer requests a call back during a campaign.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2 py-2">
+      {callbacks.map((cb: any) => (
+        <div key={cb.id} className={`border rounded-lg p-3 ${cb.status === 'scheduled' && new Date(cb.scheduledAt) < new Date() ? 'border-red-200 bg-red-50/30' : 'border-gray-200 bg-white'}`}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className={`text-[0.68rem] font-medium px-1.5 py-0.5 rounded-full ${STATUS_COLORS[cb.status] || 'text-gray-500 bg-gray-100'}`}>
+                {cb.status}
+              </span>
+              <span className="text-[0.78rem] text-gray-700">{formatTime(cb.scheduledAt)}</span>
+              <span className={`text-[0.65rem] px-1.5 py-0.5 rounded-full ${
+                cb.source === 'ai_detected' ? 'text-violet-600 bg-violet-50' : 'text-gray-500 bg-gray-100'
+              }`}>
+                {SOURCE_LABELS[cb.source] || cb.source}
+              </span>
+            </div>
+            {cb.status === 'scheduled' && new Date(cb.scheduledAt) < new Date() && (
+              <span className="text-[0.65rem] font-medium text-red-600">Overdue</span>
+            )}
+          </div>
+          {cb.reason && <p className="text-[0.75rem] text-gray-500 mt-1">{cb.reason}</p>}
+          {cb.notes && <p className="text-[0.72rem] text-gray-400 mt-0.5 italic">{cb.notes}</p>}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   INTELLIGENCE TAB (buyer-specific)
+   ═══════════════════════════════════════════════ */
+function BuyerIntelligenceTab({ buyerId }: { buyerId: string }) {
+  const [records, setRecords] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        // Fetch intelligence records for this buyer's calls
+        const callsRes = await fetch(`/api/outreach/calls?buyerId=${buyerId}&limit=50`)
+        if (!callsRes.ok) throw new Error()
+        const callsData = await callsRes.json()
+        const callIds: string[] = (callsData.data?.calls || callsData.calls || []).map((c: any) => c.id)
+
+        if (callIds.length === 0) { if (!cancelled) { setRecords([]); setLoading(false) }; return }
+
+        // Fetch intelligence for each call (in parallel, up to 10)
+        const intelResults = await Promise.all(
+          callIds.slice(0, 10).map(async (cid: string) => {
+            try {
+              const res = await fetch(`/api/outreach/intelligence/call/${cid}`)
+              if (!res.ok) return null
+              const json = await res.json()
+              return json.data?.intelligence || null
+            } catch { return null }
+          })
+        )
+
+        if (!cancelled) setRecords(intelResults.filter(Boolean))
+      } catch { /* ignore */ }
+      finally { if (!cancelled) setLoading(false) }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [buyerId])
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-12 text-gray-400"><Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading intelligence...</div>
+  }
+
+  if (records.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Sparkles className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+        <p className="text-[0.82rem] text-gray-500">No conversation intelligence yet</p>
+        <p className="text-[0.72rem] text-gray-400 mt-1">Intelligence data appears after AI calls complete.</p>
+      </div>
+    )
+  }
+
+  // Aggregate across all calls
+  const avgSentiment = Math.round(records.reduce((s, r) => s + (r.sentimentScore || 0), 0) / records.length)
+  const avgEngagement = Math.round(records.reduce((s, r) => s + (r.engagementScore || 0), 0) / records.length)
+  const sentimentTrend = records.map((r, i) => ({ call: i + 1, score: r.sentimentScore })).reverse()
+
+  // Aggregate objections
+  const objMap = new Map<string, number>()
+  for (const r of records) {
+    for (const obj of ((r.objections as any[]) || [])) {
+      objMap.set(obj.objection, (objMap.get(obj.objection) || 0) + 1)
+    }
+  }
+  const topObjections = Array.from(objMap.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5)
+
+  // Aggregate buying signals
+  const sigMap = new Map<string, number>()
+  for (const r of records) {
+    for (const sig of ((r.buyingSignals as any[]) || [])) {
+      sigMap.set(sig.signal, (sigMap.get(sig.signal) || 0) + 1)
+    }
+  }
+  const topSignals = Array.from(sigMap.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5)
+
+  // Talk pattern
+  const avgAiTalk = Math.round(records.reduce((s, r) => s + (r.aiTalkPercent || 50), 0) / records.length)
+  const avgWords = Math.round(records.reduce((s, r) => s + (r.buyerTalkPercent || 50), 0) / records.length)
+
+  return (
+    <div className="space-y-5 py-2">
+      {/* Summary row */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="border border-gray-200 rounded-lg p-3 text-center">
+          <div className={`text-[1.1rem] font-bold ${avgSentiment > 20 ? 'text-emerald-600' : avgSentiment < -20 ? 'text-red-600' : 'text-amber-600'}`}>
+            {avgSentiment > 0 ? '+' : ''}{avgSentiment}
+          </div>
+          <div className="text-[0.65rem] text-gray-400">Avg Sentiment</div>
+        </div>
+        <div className="border border-gray-200 rounded-lg p-3 text-center">
+          <div className="text-[1.1rem] font-bold text-gray-900">{avgEngagement}</div>
+          <div className="text-[0.65rem] text-gray-400">Avg Engagement</div>
+        </div>
+        <div className="border border-gray-200 rounded-lg p-3 text-center">
+          <div className="text-[1.1rem] font-bold text-gray-900">{records.length}</div>
+          <div className="text-[0.65rem] text-gray-400">Calls Analyzed</div>
+        </div>
+      </div>
+
+      {/* Sentiment trend */}
+      {sentimentTrend.length > 1 && (
+        <div>
+          <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Sentiment Over Conversations</h4>
+          <div className="flex items-end gap-1 h-12">
+            {sentimentTrend.map((pt, i) => (
+              <div
+                key={i}
+                className={`flex-1 rounded-t ${pt.score > 10 ? 'bg-emerald-400' : pt.score < -10 ? 'bg-red-400' : 'bg-amber-300'}`}
+                style={{ height: `${Math.max(15, Math.min(100, ((pt.score + 100) / 200) * 100))}%` }}
+                title={`Call ${pt.call}: ${pt.score > 0 ? '+' : ''}${pt.score}`}
+              />
+            ))}
+          </div>
+          <div className="text-[0.62rem] text-gray-400 mt-1 text-right">
+            {sentimentTrend.length > 1 && (sentimentTrend[sentimentTrend.length - 1].score > sentimentTrend[0].score
+              ? 'Trending up — buyer is warming'
+              : sentimentTrend[sentimentTrend.length - 1].score < sentimentTrend[0].score
+              ? 'Trending down — buyer is cooling'
+              : 'Stable sentiment')}
+          </div>
+        </div>
+      )}
+
+      {/* Top objections */}
+      {topObjections.length > 0 && (
+        <div>
+          <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Common Objections</h4>
+          <div className="space-y-1">
+            {topObjections.map(([objection, count], i) => (
+              <div key={i} className="flex items-center justify-between text-[0.75rem]">
+                <span className="text-gray-600">{objection}</span>
+                <span className="text-gray-400">{count}x</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Buying signals */}
+      {topSignals.length > 0 && (
+        <div>
+          <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Buying Signals</h4>
+          <div className="space-y-1">
+            {topSignals.map(([signal, count], i) => (
+              <div key={i} className="flex items-center justify-between text-[0.75rem]">
+                <span className="text-gray-600">{signal}</span>
+                <span className="text-gray-400">{count}x</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Talk pattern */}
+      <div>
+        <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Talk Pattern</h4>
+        <div className="flex h-4 rounded-full overflow-hidden">
+          <div className="bg-blue-400 flex items-center justify-center" style={{ width: `${avgAiTalk}%` }}>
+            <span className="text-[0.55rem] text-white font-medium">AI {avgAiTalk}%</span>
+          </div>
+          <div className="bg-emerald-400 flex items-center justify-center" style={{ width: `${avgWords}%` }}>
+            <span className="text-[0.55rem] text-white font-medium">Buyer {avgWords}%</span>
+          </div>
+        </div>
+        <p className="text-[0.68rem] text-gray-400 mt-1">
+          {avgWords > 60 ? 'This buyer prefers detailed conversations' : avgWords < 40 ? 'Quick and to-the-point — keep calls brief' : 'Balanced conversationalist'}
+        </p>
+      </div>
     </div>
   )
 }
@@ -1344,7 +1628,9 @@ export default function BuyerDetailPage() {
             )}
             {tab === 'Timeline' && <TimelineTab buyerId={buyerId} />}
             {tab === 'Deals' && <DealsTab matches={buyer.dealMatches} />}
-            {tab === 'Calls' && <CallsTab calls={buyer.campaignCalls} />}
+            {tab === 'Calls' && <CallsTab calls={buyer.campaignCalls} inboundCalls={buyer.inboundCalls} />}
+            {tab === 'Intelligence' && <BuyerIntelligenceTab buyerId={buyerId} />}
+            {tab === 'Callbacks' && <BuyerCallbacksTab buyerId={buyerId} />}
             {tab === 'Notes' && <NotesTab buyerId={buyerId} />}
           </div>
         </div>

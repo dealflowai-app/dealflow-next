@@ -21,6 +21,10 @@ import {
   Store,
   Eye,
   MessageSquare,
+  Phone,
+  Mail,
+  Clock,
+  Target,
 } from 'lucide-react'
 import { useToast } from '@/components/toast'
 
@@ -46,6 +50,37 @@ type KpiData = {
   activeListings: number
   totalListingViews: number
   newInquiries: number
+  // Outreach
+  activeCampaigns: number
+  callsThisWeek: number
+  callsToday: number
+  qualifiedThisWeek: number
+  qualificationRate: number
+  avgCallDuration: number
+  totalCallMinutes: number
+}
+
+type OutreachRecentCall = {
+  id: string
+  outcome: string | null
+  durationSecs: number | null
+  channel: string | null
+  startedAt: string | null
+  buyer: { id: string; firstName: string | null; lastName: string | null; entityName: string | null }
+  campaign: { id: string; name: string }
+}
+
+type OutreachCampaignPerf = {
+  id: string; name: string; channel: string; status: string
+  totalBuyers: number; callsCompleted: number; qualified: number; qualificationRate: number
+}
+
+type OutreachData = {
+  recentCalls: OutreachRecentCall[]
+  campaignPerformance: OutreachCampaignPerf[]
+  callsPerDay: { date: string; total: number; qualified: number }[]
+  outreachByChannel: Record<string, number>
+  outreachEvents: { id: string; type: string; title: string; createdAt: string }[]
 }
 
 type ActivityItem = {
@@ -113,11 +148,6 @@ const revenueData = [
   { month: 'Mar', value: 42000 },
 ]
 
-const campaigns = [
-  { name: 'Phoenix Cash Buyers - Cold Call', status: 'running', calls: 342, responseRate: 18.4 },
-  { name: 'Dallas Absentee Owners', status: 'running', calls: 198, responseRate: 12.7 },
-  { name: 'Tampa Investor Reactivation', status: 'paused', calls: 87, responseRate: 22.1 },
-]
 
 /* ── Helpers ── */
 
@@ -273,6 +303,45 @@ const dotColors: Record<string, string> = {
   analysis: '#e11d48',
   offer: '#d97706',
   deal: '#2563EB',
+  campaign: '#2563EB',
+  call_completed: '#d97706',
+  call_annotated: '#7c3aed',
+}
+
+const OUTCOME_COLORS_DASH: Record<string, { text: string; bg: string }> = {
+  QUALIFIED: { text: '#16a34a', bg: 'rgba(22,163,74,0.08)' },
+  NOT_BUYING: { text: '#6b7280', bg: 'rgba(107,114,128,0.08)' },
+  NO_ANSWER: { text: '#d97706', bg: 'rgba(217,119,6,0.08)' },
+  VOICEMAIL: { text: '#7c3aed', bg: 'rgba(124,58,237,0.08)' },
+  WRONG_NUMBER: { text: '#ef4444', bg: 'rgba(239,68,68,0.08)' },
+  DO_NOT_CALL: { text: '#ef4444', bg: 'rgba(239,68,68,0.08)' },
+  CALLBACK_REQUESTED: { text: '#7c3aed', bg: 'rgba(124,58,237,0.08)' },
+}
+
+const OUTCOME_LABELS_DASH: Record<string, string> = {
+  QUALIFIED: 'Qualified', NOT_BUYING: 'Not Buying', NO_ANSWER: 'No Answer',
+  VOICEMAIL: 'Voicemail', WRONG_NUMBER: 'Wrong #', DO_NOT_CALL: 'DNC',
+  CALLBACK_REQUESTED: 'Callback',
+}
+
+const CHANNEL_ICONS_DASH: Record<string, { icon: typeof Phone; label: string; color: string }> = {
+  VOICE: { icon: Phone, label: 'Voice', color: '#2563EB' },
+  SMS: { icon: MessageSquare, label: 'SMS', color: '#16a34a' },
+  EMAIL: { icon: Mail, label: 'Email', color: '#7c3aed' },
+}
+
+function fmtDuration(secs: number | null) {
+  if (!secs || secs <= 0) return '0:00'
+  const m = Math.floor(secs / 60)
+  const s = secs % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+function fmtMinutesAsHours(mins: number) {
+  if (mins < 60) return `${mins}m`
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return m > 0 ? `${h}h ${m}m` : `${h}h`
 }
 
 /* ══════════════════════════════════════════════
@@ -438,6 +507,7 @@ export default function DashboardPage() {
   const [recentContracts, setRecentContracts] = useState<RecentContract[]>([])
   const [recentInquiries, setRecentInquiries] = useState<RecentInquiry[]>([])
   const [contractPipeline, setContractPipeline] = useState<Record<string, number>>({})
+  const [outreach, setOutreach] = useState<OutreachData | null>(null)
 
   const fetchDashboard = useCallback(() => {
     fetch('/api/dashboard')
@@ -452,6 +522,7 @@ export default function DashboardPage() {
         if (data.recentContracts) setRecentContracts(data.recentContracts)
         if (data.recentInquiries) setRecentInquiries(data.recentInquiries)
         if (data.contractPipeline) setContractPipeline(data.contractPipeline)
+        if (data.outreach) setOutreach(data.outreach)
       })
       .catch(() => {})
   }, [])
@@ -818,6 +889,66 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Outreach KPI Cards — only show if user has outreach activity */}
+      {kpiData && (kpiData.activeCampaigns > 0 || kpiData.callsThisWeek > 0 || kpiData.totalCallMinutes > 0) && (
+        <div className="dash-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
+          <div
+            style={{ ...cardStyle, borderLeft: `3px solid ${kpiData.activeCampaigns > 0 ? '#16a34a' : '#9CA3AF'}`, padding: '18px 20px', cursor: 'pointer' }}
+            className="dash-card"
+            onClick={() => router.push('/outreach')}
+          >
+            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Phone style={{ width: 12, height: 12 }} /> Active Campaigns
+            </div>
+            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+              {kpiData.activeCampaigns}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
+              {kpiData.callsToday} calls today
+            </div>
+            {kpiData.activeCampaigns > 0 && (
+              <span style={{ position: 'absolute', top: 14, right: 14, width: 8, height: 8, borderRadius: '50%', background: '#16a34a', animation: 'pulse 2s infinite' }} />
+            )}
+          </div>
+
+          <div style={{ ...cardStyle, borderLeft: '3px solid #2563EB', padding: '18px 20px' }} className="dash-card">
+            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <PhoneOutgoing style={{ width: 12, height: 12 }} /> Calls This Week
+            </div>
+            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+              {kpiData.callsThisWeek}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
+              {kpiData.qualifiedThisWeek} qualified ({kpiData.qualificationRate}%)
+            </div>
+          </div>
+
+          <div style={{ ...cardStyle, borderLeft: `3px solid ${kpiData.qualificationRate >= 20 ? '#16a34a' : kpiData.qualificationRate >= 10 ? '#d97706' : '#ef4444'}`, padding: '18px 20px' }} className="dash-card">
+            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Target style={{ width: 12, height: 12 }} /> Qualification Rate
+            </div>
+            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+              {kpiData.qualificationRate}%
+            </div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
+              Avg {kpiData.avgCallDuration}s per call
+            </div>
+          </div>
+
+          <div style={{ ...cardStyle, borderLeft: '3px solid #0891b2', padding: '18px 20px' }} className="dash-card">
+            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Clock style={{ width: 12, height: 12 }} /> Total Call Time
+            </div>
+            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: '1.8rem', fontWeight: 400, color: 'var(--navy-heading, #0B1224)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+              {fmtMinutesAsHours(kpiData.totalCallMinutes)}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 6 }}>
+              {kpiData.aiCalls.toLocaleString()} total calls all time
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Two-column: Recent Deals + Pending Offers */}
       <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
         {/* Recent Deals */}
@@ -978,6 +1109,237 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Two-column: Recent Calls + Campaign Performance — only if outreach data exists */}
+      {outreach && (outreach.recentCalls.length > 0 || outreach.campaignPerformance.length > 0) && (
+        <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
+          {/* Recent Calls */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div style={sectionLabel as React.CSSProperties}>Recent Calls</div>
+              <button
+                onClick={() => router.push('/outreach?tab=calllog')}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
+              >
+                View all <ChevronRight style={{ width: 12, height: 12 }} />
+              </button>
+            </div>
+            {outreach.recentCalls.length === 0 ? (
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
+                No calls yet. <span style={{ color: '#2563EB', cursor: 'pointer' }} onClick={() => router.push('/outreach')}>Launch a campaign</span>
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {outreach.recentCalls.map((call, i) => {
+                  const name = buyerName(call.buyer)
+                  const oc = OUTCOME_COLORS_DASH[call.outcome || ''] || { text: '#6b7280', bg: 'rgba(107,114,128,0.08)' }
+                  const ChIcon = CHANNEL_ICONS_DASH[call.channel || 'VOICE']?.icon || Phone
+                  return (
+                    <div
+                      key={call.id}
+                      onClick={() => router.push('/outreach')}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '9px 0', cursor: 'pointer',
+                        borderBottom: i < outreach.recentCalls.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
+                      }}
+                      className="dash-deal-row"
+                    >
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--navy-heading, #0B1224)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {name}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
+                          {call.campaign.name}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, marginLeft: 12 }}>
+                        <span style={{ fontSize: '0.66rem', fontWeight: 600, color: oc.text, background: oc.bg, padding: '2px 8px', borderRadius: 10 }}>
+                          {OUTCOME_LABELS_DASH[call.outcome || ''] || call.outcome || 'Pending'}
+                        </span>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--body-text, #4B5563)', fontVariantNumeric: 'tabular-nums' }}>
+                          {fmtDuration(call.durationSecs)}
+                        </span>
+                        <ChIcon style={{ width: 12, height: 12, color: CHANNEL_ICONS_DASH[call.channel || 'VOICE']?.color || '#2563EB' }} />
+                        <span style={{ fontSize: '0.66rem', color: 'var(--muted-text, #9CA3AF)' }}>
+                          {call.startedAt ? timeAgo(call.startedAt) : ''}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Campaign Performance */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div style={sectionLabel as React.CSSProperties}>Campaign Performance</div>
+              <button
+                onClick={() => router.push('/outreach')}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
+              >
+                View all <ChevronRight style={{ width: 12, height: 12 }} />
+              </button>
+            </div>
+            {outreach.campaignPerformance.length === 0 ? (
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
+                No campaigns with enough data yet.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {outreach.campaignPerformance.map(c => {
+                  const progress = c.totalBuyers > 0 ? (c.callsCompleted / c.totalBuyers) * 100 : 0
+                  const ChIcon = CHANNEL_ICONS_DASH[c.channel || 'VOICE']?.icon || Phone
+                  return (
+                    <div
+                      key={c.id}
+                      style={{ border: '1px solid var(--border-light, #F0F0F0)', borderRadius: 10, padding: '12px 14px' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden', flex: 1 }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--navy-heading, #0B1224)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                          <ChIcon style={{ width: 11, height: 11, color: CHANNEL_ICONS_DASH[c.channel || 'VOICE']?.color || '#2563EB' }} />
+                          <span style={{
+                            display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.66rem', fontWeight: 600,
+                            padding: '2px 8px', borderRadius: 20, flexShrink: 0,
+                            color: c.status === 'RUNNING' ? '#16a34a' : 'var(--muted-text, #9CA3AF)',
+                            background: c.status === 'RUNNING' ? 'rgba(22,163,74,0.08)' : 'rgba(5,14,36,0.04)',
+                          }}>
+                            {c.status === 'RUNNING' && <Play style={{ width: 9, height: 9 }} />}
+                            {c.status}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Progress bar */}
+                      <div style={{ height: 4, background: 'var(--border-light, #F0F0F0)', borderRadius: 2, overflow: 'hidden', marginBottom: 6 }}>
+                        <div style={{ width: `${Math.min(progress, 100)}%`, height: '100%', background: '#2563EB', borderRadius: 2 }} />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem' }}>
+                        <span style={{ color: 'var(--body-text, #4B5563)' }}>
+                          {c.callsCompleted}/{c.totalBuyers} calls · {c.qualified} qualified
+                        </span>
+                        <span style={{ fontWeight: 600, color: c.qualificationRate >= 20 ? '#16a34a' : c.qualificationRate >= 10 ? '#d97706' : '#6b7280' }}>
+                          {c.qualificationRate}% qual
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Outreach Sparkline + Channel Breakdown */}
+      {outreach && outreach.callsPerDay.some(d => d.total > 0) && (
+        <div className="dash-mid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14, marginBottom: 20 }}>
+          {/* Sparkline */}
+          <div style={{ ...cardStyle, padding: '16px 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)' }}>
+                14-Day Calling Trend
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)' }}>
+                  <span style={{ width: 10, height: 2, background: '#9CA3AF', borderRadius: 1 }} /> Calls
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)' }}>
+                  <span style={{ width: 10, height: 2, background: '#16a34a', borderRadius: 1 }} /> Qualified
+                </span>
+              </div>
+            </div>
+            {(() => {
+              const days = outreach.callsPerDay
+              const maxT = Math.max(...days.map(d => d.total), 1)
+              const w = 500
+              const h = 64
+              const totalPath = days.map((d, i) => {
+                const x = days.length > 1 ? (i / (days.length - 1)) * w : w / 2
+                const y = h - (d.total / maxT) * (h - 8) - 4
+                return `${i === 0 ? 'M' : 'L'}${x},${y}`
+              }).join(' ')
+              const qualPath = days.map((d, i) => {
+                const x = days.length > 1 ? (i / (days.length - 1)) * w : w / 2
+                const y = h - (d.qualified / maxT) * (h - 8) - 4
+                return `${i === 0 ? 'M' : 'L'}${x},${y}`
+              }).join(' ')
+              const totalSum = days.reduce((s, d) => s + d.total, 0)
+              const qualSum = days.reduce((s, d) => s + d.qualified, 0)
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <svg viewBox={`0 0 ${w} ${h}`} style={{ flex: 1, height: 64 }} preserveAspectRatio="none">
+                    <path d={totalPath} fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d={qualPath} fill="none" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--navy-heading, #0B1224)', lineHeight: 1.2 }}>{totalSum}</div>
+                    <div style={{ fontSize: '0.66rem', color: 'var(--muted-text, #9CA3AF)' }}>calls</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#16a34a', lineHeight: 1.2, marginTop: 4 }}>{qualSum}</div>
+                    <div style={{ fontSize: '0.66rem', color: 'var(--muted-text, #9CA3AF)' }}>qualified</div>
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+
+          {/* Channel Breakdown — only show if multi-channel */}
+          {Object.keys(outreach.outreachByChannel).length > 1 ? (
+            <div style={{ ...cardStyle, padding: '16px 20px' }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10 }}>
+                Channel Breakdown
+              </div>
+              {(() => {
+                const channels = outreach.outreachByChannel
+                const total = Object.values(channels).reduce((s, v) => s + v, 0)
+                const channelColors: Record<string, string> = { VOICE: '#2563EB', SMS: '#16a34a', EMAIL: '#7c3aed', MULTI_CHANNEL: '#d97706' }
+                const channelLabels: Record<string, string> = { VOICE: 'Voice', SMS: 'SMS', EMAIL: 'Email', MULTI_CHANNEL: 'Multi' }
+                return (
+                  <div>
+                    <div style={{ display: 'flex', height: 20, borderRadius: 6, overflow: 'hidden', marginBottom: 10 }}>
+                      {Object.entries(channels).map(([ch, count]) => {
+                        const pct = total > 0 ? (count / total) * 100 : 0
+                        return (
+                          <div
+                            key={ch}
+                            title={`${channelLabels[ch] || ch}: ${count} (${Math.round(pct)}%)`}
+                            style={{ width: `${pct}%`, minWidth: pct > 0 ? 8 : 0, background: channelColors[ch] || '#9CA3AF' }}
+                          />
+                        )
+                      })}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 12px' }}>
+                      {Object.entries(channels).map(([ch, count]) => {
+                        const pct = total > 0 ? Math.round((count / total) * 100) : 0
+                        return (
+                          <div key={ch} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.72rem', color: 'var(--body-text, #4B5563)' }}>
+                            <span style={{ width: 8, height: 8, borderRadius: 2, background: channelColors[ch] || '#9CA3AF', flexShrink: 0 }} />
+                            {channelLabels[ch] || ch}: {pct}%
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+          ) : (
+            <div style={{ ...cardStyle, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <Phone style={{ width: 20, height: 20, color: '#2563EB', marginBottom: 6 }} />
+                <div style={{ fontSize: '0.78rem', color: 'var(--body-text, #4B5563)', fontWeight: 500 }}>Voice Only</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--muted-text, #9CA3AF)', marginTop: 2 }}>
+                  {Object.values(outreach.outreachByChannel).reduce((s, v) => s + v, 0)} calls (30d)
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Top Matches Section */}
       {topMatches.length > 0 && (
         <div style={{ ...cardStyle, marginBottom: 20 }}>
@@ -1042,46 +1404,71 @@ export default function DashboardPage() {
           <RevenueChart />
         </div>
 
-        {/* Active campaigns */}
+        {/* Active campaigns (real data) */}
         <div style={cardStyle}>
-          <div style={sectionLabel}>Active Campaigns</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {campaigns.map(c => (
-              <div
-                key={c.name}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={sectionLabel as React.CSSProperties}>Active Campaigns</div>
+            <button
+              onClick={() => router.push('/outreach')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#2563EB', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 2, fontFamily: 'inherit' }}
+            >
+              View all <ChevronRight style={{ width: 12, height: 12 }} />
+            </button>
+          </div>
+          {outreach && outreach.campaignPerformance.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {outreach.campaignPerformance.map(c => (
+                <div
+                  key={c.id}
+                  onClick={() => router.push('/outreach')}
+                  style={{
+                    border: '1px solid var(--border-light, #F0F0F0)',
+                    borderRadius: 10,
+                    padding: '12px 14px',
+                    cursor: 'pointer',
+                  }}
+                  className="dash-deal-row"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--navy-heading, #0B1224)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 8 }}>{c.name}</span>
+                    <span
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.66rem', fontWeight: 600,
+                        padding: '2px 8px', borderRadius: 20, flexShrink: 0,
+                        color: c.status === 'RUNNING' ? '#16a34a' : 'var(--muted-text, #9CA3AF)',
+                        background: c.status === 'RUNNING' ? 'rgba(22,163,74,0.08)' : 'rgba(5,14,36,0.04)',
+                      }}
+                    >
+                      {c.status === 'RUNNING' ? <Play style={{ width: 10, height: 10 }} /> : <Pause style={{ width: 10, height: 10 }} />}
+                      {c.status === 'RUNNING' ? 'Running' : c.status === 'COMPLETED' ? 'Done' : c.status}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '0.74rem', color: 'var(--body-text, #4B5563)' }}>
+                    <span>{c.callsCompleted} calls</span>
+                    <span>{c.qualificationRate}% qual rate</span>
+                    <span style={{ color: '#16a34a', fontWeight: 500 }}>{c.qualified} qualified</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', marginBottom: 10 }}>
+                No campaign data yet.
+              </p>
+              <button
+                onClick={() => router.push('/outreach')}
                 style={{
-                  border: '1px solid var(--border-light, #F0F0F0)',
-                  borderRadius: 10,
-                  padding: '12px 14px',
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  padding: '8px 16px', borderRadius: 8,
+                  border: '1px solid #2563EB', background: 'transparent', color: '#2563EB',
+                  fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--navy-heading, #0B1224)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 8 }}>{c.name}</span>
-                  <span
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      fontSize: '0.66rem',
-                      fontWeight: 600,
-                      padding: '2px 8px',
-                      borderRadius: 20,
-                      flexShrink: 0,
-                      color: c.status === 'running' ? '#16a34a' : 'var(--muted-text, #9CA3AF)',
-                      background: c.status === 'running' ? 'rgba(22,163,74,0.08)' : 'rgba(5,14,36,0.04)',
-                    }}
-                  >
-                    {c.status === 'running' ? <Play style={{ width: 10, height: 10 }} /> : <Pause style={{ width: 10, height: 10 }} />}
-                    {c.status === 'running' ? 'Running' : 'Paused'}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '0.74rem', color: 'var(--body-text, #4B5563)' }}>
-                  <span>{c.calls} calls</span>
-                  <span>{c.responseRate}% response</span>
-                </div>
-              </div>
-            ))}
-          </div>
+                <PhoneOutgoing style={{ width: 13, height: 13 }} /> Launch a campaign
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1093,11 +1480,18 @@ export default function DashboardPage() {
             <div style={sectionLabel as React.CSSProperties}>Recent Activity</div>
           </div>
           <div>
-            {activity.length === 0 ? (
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
-                No recent activity yet.
-              </p>
-            ) : activity.map((a, i) => (
+            {(() => {
+              // Merge activity + outreach events, sort by date, take 10
+              const outreachEvts = outreach?.outreachEvents || []
+              const merged = [...activity, ...outreachEvts]
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .slice(0, 10)
+              if (merged.length === 0) return (
+                <p style={{ fontSize: '0.82rem', color: 'var(--muted-text, #9CA3AF)', textAlign: 'center', padding: '20px 0' }}>
+                  No recent activity yet.
+                </p>
+              )
+              return merged.map((a, i) => (
               <div
                 key={a.id}
                 style={{
@@ -1105,7 +1499,7 @@ export default function DashboardPage() {
                   alignItems: 'flex-start',
                   gap: 10,
                   padding: '9px 0',
-                  borderBottom: i < activity.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
+                  borderBottom: i < merged.length - 1 ? '1px solid var(--border-light, #F0F0F0)' : 'none',
                 }}
               >
                 <span
@@ -1124,7 +1518,8 @@ export default function DashboardPage() {
                 </div>
                 <span style={{ fontSize: '0.7rem', color: 'var(--muted-text, #9CA3AF)', whiteSpace: 'nowrap', flexShrink: 0 }}>{timeAgo(a.createdAt)}</span>
               </div>
-            ))}
+            ))
+            })()}
           </div>
         </div>
 

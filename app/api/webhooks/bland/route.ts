@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logger } from '@/lib/logger'
+import { processOptOut } from '@/lib/outreach'
+import { triggerNextBatch } from '@/lib/outreach/campaign-executor'
+import { detectCallbackRequest, parseCallbackTime, extractCallbackContext } from '@/lib/outreach/smart-scheduler'
+import { getRecipientTimezone } from '@/lib/outreach/timezone-map'
+import { parseTranscript } from '@/lib/outreach/transcript-processor'
+import {
+  analyzeConversation, saveCallIntelligence, qualifiesForDeepAnalysis,
+  generateDeepAnalysis, updateCallIntelligenceDeep,
+} from '@/lib/outreach/conversation-intelligence'
+import { completeLiveSession } from '@/lib/outreach/live-call-service'
 import crypto from 'crypto'
 
 const BLAND_WEBHOOK_SECRET = process.env.BLAND_WEBHOOK_SECRET
@@ -31,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     if (!call_id) return NextResponse.json({ ok: true })
 
-    const { campaignId, buyerId } = metadata || {}
+    const { campaignId, buyerId, voicemailRecordingId } = metadata || {}
     if (!campaignId || !buyerId) return NextResponse.json({ ok: true })
 
     // Find the call record
@@ -63,6 +73,11 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // Build extractedData payload, including voicemail recording reference
+      const callExtractedData = extractedData
+        ? { ...JSON.parse(JSON.stringify(extractedData)), ...(voicemailRecordingId ? { voicemailRecordingId } : {}) }
+        : voicemailRecordingId ? { voicemailRecordingId } : undefined
+
       // Update the call record
       const updatedCall = await prisma.campaignCall.updateMany({
         where: { blandCallId: call_id },
@@ -71,11 +86,34 @@ export async function POST(req: NextRequest) {
           durationSecs: duration || 0,
           recordingUrl: recording_url || null,
           transcript: transcript || null,
-          extractedData: extractedData ? JSON.parse(JSON.stringify(extractedData)) : undefined,
+          extractedData: callExtractedData,
           aiSummary,
           endedAt: new Date(),
         },
       })
+
+      // Complete live monitoring session
+      try {
+        await completeLiveSession(call_id)
+      } catch { /* session may not exist — ignore */ }
+
+      // ── Voicemail drop tracking ────────────────────────────────────────
+      if (outcome === 'VOICEMAIL' && voicemailRecordingId) {
+        try {
+          await prisma.voicemailRecording.update({
+            where: { id: voicemailRecordingId },
+            data: { useCount: { increment: 1 } },
+          })
+          logger.info('Voicemail drop tracked', {
+            route: '/api/webhooks/bland',
+            callId: call_id,
+            buyerId,
+            recordingId: voicemailRecordingId,
+          })
+        } catch {
+          // Recording may not exist (system template) — ignore
+        }
+      }
 
       // Update buyer profile with extracted preferences
       if (extractedData && outcome === 'QUALIFIED') {
@@ -108,6 +146,90 @@ export async function POST(req: NextRequest) {
         })
       }
 
+      // ── Callback detection from transcript ──────────────────────────────
+      if (transcript && detectCallbackRequest(transcript)) {
+        try {
+          const buyer = await prisma.cashBuyer.findUnique({
+            where: { id: buyerId },
+            select: { phone: true, profileId: true, state: true },
+          })
+
+          if (buyer?.profileId) {
+            const tz = buyer.state
+              ? getRecipientTimezone(buyer.phone || '', buyer.state)
+              : 'America/New_York'
+            const scheduledAt = parseCallbackTime(transcript, tz)
+            const context = extractCallbackContext(transcript)
+
+            if (scheduledAt) {
+              await prisma.scheduledCallback.create({
+                data: {
+                  profileId: buyer.profileId,
+                  buyerId,
+                  campaignId,
+                  scheduledAt,
+                  reason: context || 'Callback requested during call',
+                  source: 'ai_detected',
+                  previousCallId: callRecord?.id || null,
+                },
+              })
+
+              // Update call outcome to reflect callback request
+              await prisma.campaignCall.updateMany({
+                where: { blandCallId: call_id },
+                data: { outcome: 'CALLBACK_REQUESTED' },
+              })
+              outcome = 'CALLBACK_REQUESTED'
+
+              logger.info('Callback scheduled from transcript', {
+                route: '/api/webhooks/bland',
+                callId: call_id,
+                buyerId,
+                scheduledAt: scheduledAt.toISOString(),
+              })
+            }
+          }
+        } catch (err) {
+          logger.warn('Callback detection failed', {
+            route: '/api/webhooks/bland',
+            callId: call_id,
+            error: err instanceof Error ? err.message : String(err),
+          })
+        }
+      }
+
+      // ── Opt-out detection from transcript ──────────────────────────────
+      // Check for opt-out language in the transcript and extractedData
+      if (transcript && detectOptOut(transcript)) {
+        outcome = 'DO_NOT_CALL'
+
+        // Update the call outcome to DO_NOT_CALL
+        await prisma.campaignCall.updateMany({
+          where: { blandCallId: call_id },
+          data: { outcome: 'DO_NOT_CALL' },
+        })
+
+        // Process the opt-out across the system
+        const buyer = await prisma.cashBuyer.findUnique({
+          where: { id: buyerId },
+          select: { phone: true, profileId: true },
+        })
+
+        if (buyer?.phone) {
+          await processOptOut(buyer.phone, {
+            reason: 'Opt-out detected from call transcript',
+            source: 'webhook',
+            profileId: buyer.profileId || undefined,
+          })
+        }
+
+        logger.info('Opt-out detected from call transcript', {
+          route: '/api/webhooks/bland',
+          callId: call_id,
+          buyerId,
+        })
+      }
+
       // Update campaign stats
       const statUpdate: Record<string, any> = {
         callsCompleted: { increment: 1 },
@@ -116,12 +238,58 @@ export async function POST(req: NextRequest) {
 
       if (outcome === 'QUALIFIED') statUpdate.qualified = { increment: 1 }
       else if (outcome === 'NOT_BUYING') statUpdate.notBuying = { increment: 1 }
+      else if (outcome === 'CALLBACK_REQUESTED') statUpdate.qualified = { increment: 1 }
       else statUpdate.noAnswer = { increment: 1 }
 
       await prisma.campaign.update({
         where: { id: campaignId },
         data: statUpdate,
       })
+
+      // ── Conversation intelligence ──────────────────────────────────────
+      if (transcript && transcript.length > 50 && callRecord?.id) {
+        try {
+          const parsed = parseTranscript(transcript)
+          const intelligence = analyzeConversation(parsed)
+
+          // Resolve profileId from buyer
+          const buyerForProfile = await prisma.cashBuyer.findUnique({
+            where: { id: buyerId },
+            select: { profileId: true },
+          })
+          const pid = buyerForProfile?.profileId
+          if (pid) {
+            await saveCallIntelligence(callRecord.id, pid, intelligence)
+
+            logger.info('Conversation intelligence saved', {
+              route: '/api/webhooks/bland',
+              callId: call_id,
+              sentiment: intelligence.sentiment.score,
+              signals: intelligence.buyingSignals.count,
+              objections: intelligence.objections.count,
+            })
+
+            // Fire-and-forget deep analysis if qualified
+            if (qualifiesForDeepAnalysis(outcome, intelligence.engagement.score, intelligence.objections.count, duration)) {
+              generateDeepAnalysis(transcript, intelligence, extractedData as Record<string, unknown> | null)
+                .then(deep => {
+                  if (deep) updateCallIntelligenceDeep(callRecord.id, deep)
+                })
+                .catch(err => logger.warn('Deep analysis failed', {
+                  route: '/api/webhooks/bland',
+                  callId: call_id,
+                  error: err instanceof Error ? err.message : String(err),
+                }))
+            }
+          }
+        } catch (err) {
+          logger.warn('Conversation intelligence failed', {
+            route: '/api/webhooks/bland',
+            callId: call_id,
+            error: err instanceof Error ? err.message : String(err),
+          })
+        }
+      }
 
       // Check if campaign is complete
       const campaign = await prisma.campaign.findUnique({ where: { id: campaignId } })
@@ -130,6 +298,9 @@ export async function POST(req: NextRequest) {
           where: { id: campaignId },
           data: { status: 'COMPLETED', completedAt: new Date() },
         })
+      } else if (campaign && campaign.status === 'RUNNING') {
+        // Self-sustaining loop: trigger next batch after each completed call
+        triggerNextBatch(campaignId)
       }
     }
 
@@ -246,4 +417,32 @@ function generateSummary(data: ExtractedCallData): string {
   if (data.strategy) parts.push(`Strategy: ${data.strategy}.`)
   if (data.closeSpeedDays) parts.push(`Closes in ${data.closeSpeedDays} days.`)
   return parts.join(' ')
+}
+
+// ── Opt-out language detection ────────────────────────────────────────────────
+
+const OPT_OUT_PATTERNS = [
+  'remove me',
+  'do not call',
+  'don\'t call',
+  'dont call',
+  'stop calling',
+  'take me off',
+  'take my number off',
+  'not interested don\'t call again',
+  'not interested dont call again',
+  'put me on your do not call',
+  'put me on the do not call',
+  'never call',
+  'stop contacting',
+  'remove my number',
+  'delete my number',
+  'unsubscribe',
+  'opt out',
+  'opt me out',
+]
+
+function detectOptOut(transcript: string): boolean {
+  const lower = transcript.toLowerCase()
+  return OPT_OUT_PATTERNS.some(pattern => lower.includes(pattern))
 }
