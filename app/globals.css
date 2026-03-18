@@ -50,6 +50,22 @@
   --accent-border: rgba(37, 99, 235, 0.15);
   --green-bg: rgba(22, 163, 74, 0.08);
   --shadow-brand: 5, 14, 36;
+
+  /* Dashboard design tokens */
+  --dash-bg: #F9FAFB;
+  --dash-card: #ffffff;
+  --dash-card-border: rgba(5, 14, 36, 0.08);
+  --dash-card-radius: 12px;
+  --dash-text: #0B1224;
+  --dash-body: rgba(5, 14, 36, 0.65);
+  --dash-muted: rgba(5, 14, 36, 0.4);
+  --dash-meta: rgba(5, 14, 36, 0.45);
+  --dash-blue: #2563EB;
+  --dash-purple: #8B5CF6;
+  --dash-amber: #F59E0B;
+  --dash-red: #EF4444;
+  --dash-row-hover: rgba(37, 99, 235, 0.02);
+  --dash-font: 'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
 }
 
 /* ─── RESET ──────────────────────────────────────────────── */
@@ -261,10 +277,15 @@ body {
 
 /* ─── PULSE GLOW (outreach running campaigns) ── */
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.08); }
-  50% { box-shadow: 0 0 16px rgba(16, 185, 129, 0.18); }
+  0%, 100% { box-shadow: 0 0 8px rgba(37, 99, 235, 0.08); }
+  50% { box-shadow: 0 0 16px rgba(37, 99, 235, 0.18); }
 }
 
+.pulse-glow-blue {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+/* Keep old name as alias */
 .pulse-glow-green {
   animation: pulseGlow 2.5s ease-in-out infinite;
 }

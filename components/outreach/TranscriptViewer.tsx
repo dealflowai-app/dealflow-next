@@ -31,7 +31,7 @@ function formatTimestamp(secs: number | null): string {
 }
 
 const KEY_MOMENT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  interest: { bg: 'bg-emerald-900/40', text: 'text-emerald-400', dot: 'bg-emerald-400' },
+  interest: { bg: 'bg-blue-900/40', text: 'text-blue-400', dot: 'bg-blue-400' },
   objection: { bg: 'bg-red-900/40', text: 'text-red-400', dot: 'bg-red-400' },
   pricing: { bg: 'bg-amber-900/40', text: 'text-amber-400', dot: 'bg-amber-400' },
   opt_out: { bg: 'bg-red-900/60', text: 'text-red-300', dot: 'bg-red-500' },
@@ -96,7 +96,7 @@ function SpeakerStatsBar({ stats }: { stats: SpeakerStats[] }) {
           style={{ width: `${agent?.talkTimePercent || 0}%` }}
         />
         <div
-          className="bg-emerald-500 transition-all"
+          className="bg-blue-500 transition-all"
           style={{ width: `${buyer?.talkTimePercent || 0}%` }}
         />
       </div>
@@ -106,7 +106,7 @@ function SpeakerStatsBar({ stats }: { stats: SpeakerStats[] }) {
           {agent?.speakerLabel || 'Agent'}: {agent?.talkTimePercent || 0}% ({agent?.wordCount || 0} words)
         </span>
         <span>
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1" />
+          <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1" />
           {buyer?.speakerLabel || 'Buyer'}: {buyer?.talkTimePercent || 0}% ({buyer?.wordCount || 0} words)
         </span>
       </div>
@@ -282,7 +282,7 @@ export default function TranscriptViewer({
                 >
                   {/* Speaker label + timestamp */}
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className={`text-xs font-medium ${isAgent ? 'text-brand-blue-400' : 'text-emerald-400'}`}>
+                    <span className={`text-xs font-medium ${isAgent ? 'text-brand-blue-400' : 'text-blue-400'}`}>
                       {seg.speakerLabel}
                     </span>
                     {seg.timestamp !== null && (
@@ -302,7 +302,7 @@ export default function TranscriptViewer({
                     )}
                     {/* Sentiment indicator */}
                     {seg.sentiment === 'positive' && !isSystem && (
-                      <span className="text-[10px] text-emerald-500" title="Positive sentiment">+</span>
+                      <span className="text-[10px] text-blue-500" title="Positive sentiment">+</span>
                     )}
                     {seg.sentiment === 'negative' && !isSystem && (
                       <span className="text-[10px] text-red-400" title="Negative sentiment">-</span>

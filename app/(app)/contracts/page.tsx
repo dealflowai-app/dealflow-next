@@ -228,14 +228,14 @@ function feeFromContract(contract: ContractRow): number | null {
 }
 
 function contractTypeBadge(_t: string) {
-  return 'text-[#6B7280] bg-[#F3F4F6]'
+  return 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
 }
 
 function archiveStatusStyle(s: string) {
   switch (s) {
-    case 'EXECUTED': return 'text-emerald-700 bg-emerald-50'
-    case 'VOIDED': return 'text-red-700 bg-red-50'
-    default: return 'text-[#6B7280] bg-gray-100'
+    case 'EXECUTED': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
+    case 'VOIDED': return 'text-[#EF4444] bg-[rgba(239,68,68,0.06)]'
+    default: return 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
   }
 }
 
@@ -268,10 +268,10 @@ function PipelineView({
   }, [contracts])
 
   const pipelineStages = [
-    { key: 'DRAFT', label: 'Draft', count: statusCounts.DRAFT, color: 'bg-gray-100 text-gray-700 border-gray-300', activeColor: 'bg-gray-700 text-white', icon: Pencil },
-    { key: 'SENT', label: 'Sent', count: statusCounts.SENT, color: 'bg-blue-50 text-blue-700 border-blue-300', activeColor: 'bg-blue-600 text-white', icon: Send },
-    { key: 'EXECUTED', label: 'Executed', count: statusCounts.EXECUTED, color: 'bg-emerald-50 text-emerald-700 border-emerald-300', activeColor: 'bg-emerald-600 text-white', icon: CheckCircle2 },
-    { key: 'VOIDED', label: 'Voided', count: statusCounts.VOIDED, color: 'bg-red-50 text-red-700 border-red-300', activeColor: 'bg-red-600 text-white', icon: Ban },
+    { key: 'DRAFT', label: 'Draft', count: statusCounts.DRAFT, color: 'bg-[rgba(5,14,36,0.04)] text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.15)]', activeColor: 'bg-[rgba(5,14,36,0.8)] text-white', icon: Pencil },
+    { key: 'SENT', label: 'Sent', count: statusCounts.SENT, color: 'bg-[rgba(96,165,250,0.1)] text-[#60A5FA] border-[#60A5FA]', activeColor: 'bg-[#60A5FA] text-white', icon: Send },
+    { key: 'EXECUTED', label: 'Executed', count: statusCounts.EXECUTED, color: 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border-[#2563EB]', activeColor: 'bg-[#2563EB] text-white', icon: CheckCircle2 },
+    { key: 'VOIDED', label: 'Voided', count: statusCounts.VOIDED, color: 'bg-[rgba(239,68,68,0.06)] text-[#EF4444] border-[#EF4444]', activeColor: 'bg-[#EF4444] text-white', icon: Ban },
   ]
 
   return (
@@ -350,7 +350,7 @@ function ContractSkeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3].map(i => (
-        <div key={i} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 animate-pulse">
+        <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 animate-pulse">
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="h-4 w-64 bg-gray-200 rounded mb-2" />
@@ -382,27 +382,27 @@ function SendContractDialog({
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-[440px] p-6" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-[12px] shadow-xl w-full max-w-[440px] p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-[rgba(37,99,235,0.08)] flex items-center justify-center">
             <Send className="w-5 h-5 text-[#2563EB]" />
           </div>
           <div>
-            <h3 className="text-[1rem] font-medium text-[#374151]">Send Contract</h3>
-            <p className="text-[0.78rem] text-[#9CA3AF]">Notify buyer that contract is ready</p>
+            <h3 className="text-[15px] font-semibold text-[#0B1224]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Send Contract</h3>
+            <p className="text-[14px] text-[rgba(5,14,36,0.5)]">Notify buyer that contract is ready</p>
           </div>
         </div>
 
-        <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4 mb-4">
-          <div className="text-[0.78rem] text-[#374151] mb-2">
+        <div className="bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 mb-4">
+          <div className="text-[14px] text-[rgba(5,14,36,0.65)] mb-2">
             <strong>Property:</strong> {contract.deal.address}, {contract.deal.city} {contract.deal.state}
           </div>
-          <div className="text-[0.78rem] text-[#374151] mb-2">
+          <div className="text-[14px] text-[rgba(5,14,36,0.65)] mb-2">
             <strong>Buyer:</strong> {name}
           </div>
           {email && (
-            <div className="flex items-center gap-1.5 text-[0.78rem] text-[#374151]">
-              <Mail className="w-3.5 h-3.5 text-[#9CA3AF]" />
+            <div className="flex items-center gap-1.5 text-[14px] text-[rgba(5,14,36,0.65)]">
+              <Mail className="w-3.5 h-3.5 text-[rgba(5,14,36,0.4)]" />
               <strong>Email:</strong> {email}
             </div>
           )}
@@ -417,13 +417,13 @@ function SendContractDialog({
         <div className="flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-[0.82rem] font-medium text-[#6B7280] hover:text-[#374151] bg-transparent border-0 cursor-pointer transition-colors"
+            className="px-4 py-2 text-[14px] font-medium text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] bg-transparent border-0 cursor-pointer transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             <Send className="w-4 h-4" /> Confirm & Send
           </button>
@@ -459,12 +459,12 @@ function ActiveContractsSection({
 
   if (active.length === 0) {
     return (
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-12 text-center">
-        <FileSignature className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
-        <p className="text-[0.9rem] text-[#6B7280] mb-1">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-12 text-center">
+        <FileSignature className="w-10 h-10 text-[rgba(5,14,36,0.2)] mx-auto mb-3" />
+        <p className="text-[14px] text-[rgba(5,14,36,0.65)] mb-1">
           {pipelineFilter ? `No ${pipelineFilter.toLowerCase()} contracts` : 'No active contracts'}
         </p>
-        <p className="text-[0.78rem] text-[#9CA3AF]">Create a contract from a deal to get started.</p>
+        <p className="text-[12px] text-[rgba(5,14,36,0.4)]">Create a contract from a deal to get started.</p>
       </div>
     )
   }
@@ -480,11 +480,11 @@ function ActiveContractsSection({
         const offerAmount = c.offer?.amount
 
         return (
-          <div key={c.id} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 hover:bg-[#F9FAFB] transition-colors">
+          <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 hover:bg-[rgba(37,99,235,0.02)] transition-colors">
             <div className="flex items-start justify-between mb-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2.5 mb-1 flex-wrap">
-                  <h3 className="text-[0.9rem] font-medium text-[#374151]">
+                  <h3 className="text-[15px] font-semibold text-[#0B1224]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
                     {c.deal.address}, {c.deal.city} {c.deal.state}
                   </h3>
                   <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full ${contractTypeBadge(typeLabel)}`}>{typeLabel}</span>
@@ -499,23 +499,23 @@ function ActiveContractsSection({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-4 text-[0.76rem] text-[#9CA3AF] flex-wrap">
-                  <span>Buyer: <strong className="text-[#374151]">{buyer}</strong></span>
+                <div className="flex items-center gap-4 text-[12px] text-[rgba(5,14,36,0.4)] flex-wrap">
+                  <span>Buyer: <strong className="text-[rgba(5,14,36,0.65)]">{buyer}</strong></span>
                   {offerAmount && (
                     <>
-                      <span className="text-gray-300">|</span>
-                      <span>Offer: <strong className="text-[#374151]">${offerAmount.toLocaleString()}</strong></span>
+                      <span className="text-[rgba(5,14,36,0.15)]">|</span>
+                      <span>Offer: <strong className="text-[rgba(5,14,36,0.65)]">${offerAmount.toLocaleString()}</strong></span>
                     </>
                   )}
                   {fee !== null && (
                     <>
-                      <span className="text-gray-300">|</span>
+                      <span className="text-[rgba(5,14,36,0.15)]">|</span>
                       <span>Fee: <strong className="text-[#2563EB]">${fee.toLocaleString()}</strong></span>
                     </>
                   )}
                   {c.daysInCurrentStatus !== undefined && c.daysInCurrentStatus > 0 && (
                     <>
-                      <span className="text-gray-300">|</span>
+                      <span className="text-[rgba(5,14,36,0.15)]">|</span>
                       <span className="flex items-center gap-1">
                         <Timer className="w-3 h-3" />
                         {c.daysInCurrentStatus}d in {c.status.toLowerCase()}
@@ -528,26 +528,26 @@ function ActiveContractsSection({
                 <button
                   onClick={() => onViewDetail(c.id)}
                   title="View details"
-                  className="p-2 rounded-md text-[#2563EB] hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors"
+                  className="p-2 rounded-md text-[rgba(5,14,36,0.4)] hover:text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-transparent border-0 cursor-pointer transition-colors"
                 >
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-[18px] h-[18px]" />
                 </button>
                 {c.status === 'DRAFT' && (
                   <button
                     onClick={() => onSendContract(c)}
                     title="Send contract"
-                    className="p-2 rounded-md text-emerald-600 hover:bg-emerald-50 bg-transparent border-0 cursor-pointer transition-colors"
+                    className="p-2 rounded-md text-[rgba(5,14,36,0.4)] hover:text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-transparent border-0 cursor-pointer transition-colors"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="w-[18px] h-[18px]" />
                   </button>
                 )}
                 {c.status === 'SENT' && (
                   <button
                     onClick={() => onStatusChange(c.id, 'EXECUTED')}
                     title="Mark as executed"
-                    className="p-2 rounded-md text-emerald-600 hover:bg-emerald-50 bg-transparent border-0 cursor-pointer transition-colors"
+                    className="p-2 rounded-md text-[rgba(5,14,36,0.4)] hover:text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-transparent border-0 cursor-pointer transition-colors"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-[18px] h-[18px]" />
                   </button>
                 )}
                 {(c.status === 'DRAFT' || c.status === 'SENT') && (
@@ -557,9 +557,9 @@ function ActiveContractsSection({
                       if (reason) onStatusChange(c.id, 'VOIDED', { voidReason: reason })
                     }}
                     title="Void contract"
-                    className="p-2 rounded-md text-[#9CA3AF] hover:bg-[#F9FAFB] hover:text-red-500 bg-transparent border-0 cursor-pointer transition-colors"
+                    className="p-2 rounded-md text-[rgba(5,14,36,0.4)] hover:text-[#EF4444] hover:bg-[rgba(239,68,68,0.06)] bg-transparent border-0 cursor-pointer transition-colors"
                   >
-                    <Ban className="w-4 h-4" />
+                    <Ban className="w-[18px] h-[18px]" />
                   </button>
                 )}
               </div>
@@ -567,7 +567,7 @@ function ActiveContractsSection({
 
             <div className="flex items-end justify-between">
               <ProgressTracker currentStage={stage} />
-              <div className="flex items-center gap-4 text-[0.72rem] text-[#9CA3AF] flex-shrink-0 ml-4">
+              <div className="flex items-center gap-4 text-[12px] text-[rgba(5,14,36,0.4)] flex-shrink-0 ml-4">
                 <span>Created: {relativeTime(c.createdAt)}</span>
               </div>
             </div>
@@ -593,13 +593,13 @@ function SignatureTimeline({ contract }: { contract: ContractDetailData }) {
     {
       label: 'Buyer Signed',
       date: contract.buyerSignedAt,
-      color: contract.buyerSignedAt ? 'bg-emerald-500' : 'bg-gray-200',
+      color: contract.buyerSignedAt ? 'bg-[#2563EB]' : 'bg-gray-200',
       done: !!contract.buyerSignedAt,
     },
     {
       label: 'Seller Signed',
       date: contract.sellerSignedAt,
-      color: contract.sellerSignedAt ? 'bg-emerald-500' : 'bg-gray-200',
+      color: contract.sellerSignedAt ? 'bg-[#2563EB]' : 'bg-gray-200',
       done: !!contract.sellerSignedAt,
     },
   ]
@@ -624,9 +624,9 @@ function SignatureTimeline({ contract }: { contract: ContractDetailData }) {
             {e.done && <CheckCircle2 className="w-2.5 h-2.5 text-white" />}
           </div>
           <div className="pb-4 min-w-0">
-            <div className={`text-[0.78rem] ${e.done ? 'text-[#374151] font-medium' : 'text-[#9CA3AF]'}`}>{e.label}</div>
+            <div className={`text-[14px] ${e.done ? 'text-[#0B1224] font-medium' : 'text-[rgba(5,14,36,0.4)]'}`}>{e.label}</div>
             {e.date && (
-              <div className="text-[0.72rem] text-[#9CA3AF]">{new Date(e.date).toLocaleDateString()} at {new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+              <div className="text-[12px] text-[rgba(5,14,36,0.4)]">{new Date(e.date).toLocaleDateString()} at {new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
             )}
           </div>
         </div>
@@ -651,11 +651,11 @@ function changeTypeLabel(t: string): string {
 
 function changeTypeColor(t: string): string {
   switch (t) {
-    case 'created': return 'text-emerald-700 bg-emerald-50'
-    case 'fields_updated': return 'text-blue-700 bg-blue-50'
+    case 'created': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
+    case 'fields_updated': return 'text-[#60A5FA] bg-[rgba(96,165,250,0.1)]'
     case 'status_changed': return 'text-amber-700 bg-amber-50'
     case 'restored': return 'text-violet-700 bg-violet-50'
-    default: return 'text-[#6B7280] bg-gray-100'
+    default: return 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
   }
 }
 
@@ -702,8 +702,8 @@ function VersionHistory({ contractId }: { contractId: string }) {
 
   if (loading) {
     return (
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 mb-5 animate-fadeInUp">
-        <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-2">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5 animate-fadeInUp">
+        <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3 flex items-center gap-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <History className="w-3.5 h-3.5" /> Version History
         </div>
         <div className="animate-pulse space-y-2">
@@ -716,11 +716,11 @@ function VersionHistory({ contractId }: { contractId: string }) {
   if (versions.length === 0) return null
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 mb-5 animate-fadeInUp">
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5 animate-fadeInUp">
       <div className="flex items-center justify-between mb-3">
-        <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] flex items-center gap-2">
+        <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] flex items-center gap-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <History className="w-3.5 h-3.5" /> Version History
-          <span className="text-[0.66rem] font-bold px-1.5 py-0.5 rounded-full bg-[#F3F4F6] text-[#6B7280]">
+          <span className="text-[0.66rem] font-bold px-1.5 py-0.5 rounded-full bg-[rgba(5,14,36,0.04)] text-[rgba(5,14,36,0.4)]">
             v{currentVersion}
           </span>
         </div>
@@ -737,14 +737,14 @@ function VersionHistory({ contractId }: { contractId: string }) {
 
       {/* Compare UI */}
       {comparing && (
-        <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-3 mb-3">
+        <div className="bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3 mb-3">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex-1">
-              <label className="text-[0.72rem] text-[#9CA3AF] block mb-1">From</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] block mb-1">From</label>
               <select
                 value={diffA ?? ''}
                 onChange={e => { setDiffA(parseInt(e.target.value) || null); setDiffs(null) }}
-                className="w-full bg-white border border-[#E5E7EB] rounded px-2.5 py-1.5 text-[0.78rem] text-[#374151] outline-none focus:border-[#2563EB]"
+                className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
               >
                 <option value="">Select version...</option>
                 {versions.map(v => (
@@ -752,13 +752,13 @@ function VersionHistory({ contractId }: { contractId: string }) {
                 ))}
               </select>
             </div>
-            <ArrowRight className="w-4 h-4 text-[#9CA3AF] mt-4 flex-shrink-0" />
+            <ArrowRight className="w-4 h-4 text-[rgba(5,14,36,0.4)] mt-4 flex-shrink-0" />
             <div className="flex-1">
-              <label className="text-[0.72rem] text-[#9CA3AF] block mb-1">To</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] block mb-1">To</label>
               <select
                 value={diffB ?? ''}
                 onChange={e => { setDiffB(parseInt(e.target.value) || null); setDiffs(null) }}
-                className="w-full bg-white border border-[#E5E7EB] rounded px-2.5 py-1.5 text-[0.78rem] text-[#374151] outline-none focus:border-[#2563EB]"
+                className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
               >
                 <option value="">Select version...</option>
                 {versions.map(v => (
@@ -780,26 +780,26 @@ function VersionHistory({ contractId }: { contractId: string }) {
           {diffs !== null && (
             <div className="mt-2">
               {diffs.length === 0 ? (
-                <div className="text-[0.78rem] text-[#9CA3AF] py-2 text-center">No differences found between these versions.</div>
+                <div className="text-[12px] text-[rgba(5,14,36,0.4)] py-2 text-center">No differences found between these versions.</div>
               ) : (
-                <div className="border border-[#E5E7EB] rounded overflow-hidden">
+                <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-[#F3F4F6] border-b border-[#E5E7EB]">
-                        <th className="px-3 py-1.5 text-[0.68rem] uppercase tracking-wider text-[#6B7280] font-medium text-left">Field</th>
-                        <th className="px-3 py-1.5 text-[0.68rem] uppercase tracking-wider text-red-500 font-medium text-left">v{diffA} (Old)</th>
-                        <th className="px-3 py-1.5 text-[0.68rem] uppercase tracking-wider text-emerald-600 font-medium text-left">v{diffB} (New)</th>
+                      <tr className="bg-[rgba(5,14,36,0.02)] border-b border-[rgba(5,14,36,0.04)]">
+                        <th className="px-3 py-1.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold text-left" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Field</th>
+                        <th className="px-3 py-1.5 text-[11px] uppercase tracking-[0.05em] text-red-500 font-semibold text-left" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>v{diffA} (Old)</th>
+                        <th className="px-3 py-1.5 text-[11px] uppercase tracking-[0.05em] text-[#2563EB] font-semibold text-left" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>v{diffB} (New)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {diffs.map((d, i) => (
-                        <tr key={d.field} className={i < diffs.length - 1 ? 'border-b border-[#F3F4F6]' : ''}>
-                          <td className="px-3 py-1.5 text-[0.76rem] font-medium text-[#374151]">{d.field.replace(/_/g, ' ')}</td>
-                          <td className="px-3 py-1.5 text-[0.76rem] text-red-600 bg-red-50/50 max-w-[200px] truncate">
-                            {d.oldValue !== null && d.oldValue !== undefined ? String(d.oldValue) : <span className="text-[#9CA3AF] italic">empty</span>}
+                        <tr key={d.field} className={`${i < diffs.length - 1 ? 'border-b border-[rgba(5,14,36,0.04)]' : ''} hover:bg-[rgba(37,99,235,0.02)]`}>
+                          <td className="px-3 py-1.5 text-[14px] font-medium text-[rgba(5,14,36,0.65)]">{d.field.replace(/_/g, ' ')}</td>
+                          <td className="px-3 py-1.5 text-[14px] text-red-600 bg-red-50/50 max-w-[200px] truncate">
+                            {d.oldValue !== null && d.oldValue !== undefined ? String(d.oldValue) : <span className="text-[rgba(5,14,36,0.3)] italic">empty</span>}
                           </td>
-                          <td className="px-3 py-1.5 text-[0.76rem] text-emerald-700 bg-emerald-50/50 max-w-[200px] truncate">
-                            {d.newValue !== null && d.newValue !== undefined ? String(d.newValue) : <span className="text-[#9CA3AF] italic">empty</span>}
+                          <td className="px-3 py-1.5 text-[14px] text-[#2563EB] bg-[rgba(37,99,235,0.04)] max-w-[200px] truncate">
+                            {d.newValue !== null && d.newValue !== undefined ? String(d.newValue) : <span className="text-[rgba(5,14,36,0.3)] italic">empty</span>}
                           </td>
                         </tr>
                       ))}
@@ -815,10 +815,10 @@ function VersionHistory({ contractId }: { contractId: string }) {
       {/* Version list */}
       <div className="space-y-2">
         {versions.map(v => (
-          <div key={v.id} className="flex items-center justify-between px-3 py-2 bg-[#F9FAFB] rounded-md">
+          <div key={v.id} className="flex items-center justify-between px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md">
             <div className="flex items-center gap-2.5 min-w-0">
               <span className={`text-[0.66rem] font-bold px-1.5 py-0.5 rounded ${
-                v.version === currentVersion ? 'bg-[#2563EB] text-white' : 'bg-[#E5E7EB] text-[#6B7280]'
+                v.version === currentVersion ? 'bg-[#2563EB] text-white' : 'bg-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.4)]'
               }`}>
                 v{v.version}
               </span>
@@ -828,17 +828,17 @@ function VersionHistory({ contractId }: { contractId: string }) {
                     {changeTypeLabel(v.changeType)}
                   </span>
                   {v.changedFields.length > 0 && (
-                    <span className="text-[0.68rem] text-[#9CA3AF]">
+                    <span className="text-[12px] text-[rgba(5,14,36,0.4)]">
                       ({v.changedFields.length} field{v.changedFields.length !== 1 ? 's' : ''})
                     </span>
                   )}
                 </div>
                 {v.changeSummary && (
-                  <div className="text-[0.72rem] text-[#6B7280] mt-0.5 truncate max-w-[400px]">{v.changeSummary}</div>
+                  <div className="text-[12px] text-[rgba(5,14,36,0.4)] mt-0.5 truncate max-w-[400px]">{v.changeSummary}</div>
                 )}
               </div>
             </div>
-            <div className="text-[0.72rem] text-[#9CA3AF] flex-shrink-0 ml-3">
+            <div className="text-[12px] text-[rgba(5,14,36,0.4)] flex-shrink-0 ml-3">
               {new Date(v.createdAt).toLocaleDateString()} {new Date(v.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>
           </div>
@@ -880,11 +880,11 @@ function ContractDetail({
   if (loading || !contract) {
     return (
       <div>
-        <button onClick={onBack} className="flex items-center gap-1.5 text-[0.82rem] text-[#6B7280] hover:text-[#374151] mb-4 bg-transparent border-0 cursor-pointer transition-colors">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-[14px] text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] mb-4 bg-transparent border-0 cursor-pointer transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Contracts
         </button>
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-6 py-12 text-center animate-pulse">
-          <Loader2 className="w-6 h-6 text-[#9CA3AF] mx-auto animate-spin" />
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-6 py-12 text-center animate-pulse">
+          <Loader2 className="w-6 h-6 text-[rgba(5,14,36,0.4)] mx-auto animate-spin" />
         </div>
       </div>
     )
@@ -907,23 +907,23 @@ function ContractDetail({
 
   return (
     <div>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-[0.82rem] text-[#6B7280] hover:text-[#374151] mb-4 bg-transparent border-0 cursor-pointer transition-colors">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-[14px] text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] mb-4 bg-transparent border-0 cursor-pointer transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Contracts
       </button>
 
       {/* Header */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-6 py-5 mb-5 animate-fadeInUp">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-6 py-5 mb-5 animate-fadeInUp">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)]">
+            <h2 className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
               {contract.deal.address}, {contract.deal.city} {contract.deal.state}
             </h2>
             <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${contractTypeBadge(typeLabel)}`}>{typeLabel}</span>
             {contract.status === 'VOIDED' && (
-              <span className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full text-red-700 bg-red-50">Voided</span>
+              <span className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full text-[#EF4444] bg-[rgba(239,68,68,0.06)]">Voided</span>
             )}
             {contract.status === 'EXECUTED' && (
-              <span className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full text-emerald-700 bg-emerald-50 flex items-center gap-1">
+              <span className="text-[0.68rem] font-medium px-2 py-0.5 rounded-full text-[#2563EB] bg-[rgba(37,99,235,0.08)] flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> Executed
               </span>
             )}
@@ -933,7 +933,7 @@ function ContractDetail({
               </span>
             )}
           </div>
-          <span className="text-sm text-[#9CA3AF]">Created: {new Date(contract.createdAt).toLocaleDateString()}</span>
+          <span className="text-[12px] text-[rgba(5,14,36,0.4)]">Created: {new Date(contract.createdAt).toLocaleDateString()}</span>
         </div>
 
         {/* Missing fields warning */}
@@ -949,31 +949,31 @@ function ContractDetail({
 
       {/* Parties */}
       <div className="grid grid-cols-2 gap-4 mb-5 contracts-parties">
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Assignor (You)</div>
-          <div className="text-[0.9rem] font-medium text-[#374151] mb-2">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Assignor (You)</div>
+          <div className="text-[15px] font-semibold text-[#0B1224] mb-2">
             {fd.assignor_name || fd.assignorName || 'You'}
           </div>
-          <div className="space-y-1.5 text-[0.78rem] text-[#374151]">
+          <div className="space-y-1.5 text-[14px] text-[rgba(5,14,36,0.65)]">
             {(fd.assignor_phone || fd.assignorPhone) && (
-              <div className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#9CA3AF]" /> {fd.assignor_phone || fd.assignorPhone}</div>
+              <div className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-[rgba(5,14,36,0.4)]" /> {fd.assignor_phone || fd.assignorPhone}</div>
             )}
             {(fd.assignor_email || fd.assignorEmail) && (
-              <div className="flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#9CA3AF]" /> {fd.assignor_email || fd.assignorEmail}</div>
+              <div className="flex items-center gap-1.5"><Mail className="w-3 h-3 text-[rgba(5,14,36,0.4)]" /> {fd.assignor_email || fd.assignorEmail}</div>
             )}
           </div>
         </div>
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Buyer / Assignee</div>
-          <div className="text-[0.9rem] font-medium text-[#374151] mb-2">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Buyer / Assignee</div>
+          <div className="text-[15px] font-semibold text-[#0B1224] mb-2">
             {displayName(contract)}
           </div>
-          <div className="space-y-1.5 text-[0.78rem] text-[#374151]">
+          <div className="space-y-1.5 text-[14px] text-[rgba(5,14,36,0.65)]">
             {buyerPhone(contract) && (
-              <div className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#9CA3AF]" /> {buyerPhone(contract)}</div>
+              <div className="flex items-center gap-1.5"><Phone className="w-3 h-3 text-[rgba(5,14,36,0.4)]" /> {buyerPhone(contract)}</div>
             )}
             {buyerEmail(contract) && (
-              <div className="flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#9CA3AF]" /> {buyerEmail(contract)}</div>
+              <div className="flex items-center gap-1.5"><Mail className="w-3 h-3 text-[rgba(5,14,36,0.4)]" /> {buyerEmail(contract)}</div>
             )}
           </div>
         </div>
@@ -981,13 +981,13 @@ function ContractDetail({
 
       {/* Deal Terms + Actions */}
       <div className="grid grid-cols-2 gap-4 mb-5 contracts-terms">
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Deal Terms</div>
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Deal Terms</div>
           <div className="space-y-2">
             {terms.map(t => (
               <div key={t.label} className="flex items-start justify-between">
-                <span className="text-[0.78rem] text-[#9CA3AF]">{t.label}</span>
-                <span className={`text-[0.82rem] text-right max-w-[55%] ${t.bold ? `font-semibold ${t.color}` : 'text-[#374151]'}`}>
+                <span className="text-[12px] text-[rgba(5,14,36,0.4)]">{t.label}</span>
+                <span className={`text-[14px] text-right max-w-[55%] ${t.bold ? `font-semibold ${t.color}` : 'text-[rgba(5,14,36,0.65)]'}`}>
                   {t.value}
                 </span>
               </div>
@@ -995,19 +995,19 @@ function ContractDetail({
           </div>
         </div>
 
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Actions</div>
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Actions</div>
           <div className="space-y-2">
             <button
               onClick={() => onDownloadPdf(contract.id)}
-              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-[0.82rem] font-medium text-[#2563EB] hover:bg-blue-50 bg-white border border-[#E5E7EB] cursor-pointer transition-colors"
+              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[0.82rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-white border border-[rgba(5,14,36,0.08)] cursor-pointer transition-colors"
             >
               <Download className="w-4 h-4" /> Download PDF
             </button>
             {contract.status === 'DRAFT' && (
               <button
                 onClick={() => onSendContract(contract)}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
               >
                 <Send className="w-4 h-4" /> Send Contract
               </button>
@@ -1015,7 +1015,7 @@ function ContractDetail({
             {contract.status === 'SENT' && (
               <button
                 onClick={() => onStatusChange(contract.id, 'EXECUTED')}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-[0.82rem] font-medium text-white bg-emerald-600 hover:bg-emerald-700 border-0 cursor-pointer transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
               >
                 <CheckCircle2 className="w-4 h-4" /> Mark as Executed
               </button>
@@ -1026,7 +1026,7 @@ function ContractDetail({
                   const reason = prompt('Reason for voiding this contract:')
                   if (reason) onStatusChange(contract.id, 'VOIDED', { voidReason: reason })
                 }}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-md text-[0.82rem] font-medium text-red-600 hover:bg-red-50 bg-white border border-[#E5E7EB] cursor-pointer transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[0.82rem] font-medium text-[#EF4444] hover:bg-[rgba(239,68,68,0.06)] bg-white border border-[rgba(5,14,36,0.08)] cursor-pointer transition-colors"
               >
                 <Ban className="w-4 h-4" /> Void Contract
               </button>
@@ -1044,22 +1044,22 @@ function ContractDetail({
 
       {/* Signature Timeline + Contract History */}
       <div className="grid grid-cols-2 gap-4 mb-5 contracts-terms">
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Signature Timeline</div>
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Signature Timeline</div>
           <SignatureTimeline contract={contract} />
         </div>
 
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-2">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3 flex items-center gap-2">
             <History className="w-3.5 h-3.5" /> Contract History for This Deal
           </div>
           {contract.contractHistory && contract.contractHistory.length > 0 ? (
             <div className="space-y-2">
               {contract.contractHistory.map(h => (
-                <div key={h.id} className="flex items-center justify-between px-3 py-2 bg-[#F9FAFB] rounded-md">
+                <div key={h.id} className="flex items-center justify-between px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md">
                   <div>
-                    <div className="text-[0.78rem] text-[#374151] font-medium">{h.templateName}</div>
-                    <div className="text-[0.72rem] text-[#9CA3AF]">{new Date(h.createdAt).toLocaleDateString()}</div>
+                    <div className="text-[14px] text-[rgba(5,14,36,0.65)] font-medium">{h.templateName}</div>
+                    <div className="text-[12px] text-[rgba(5,14,36,0.4)]">{new Date(h.createdAt).toLocaleDateString()}</div>
                   </div>
                   <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full ${archiveStatusStyle(h.status)}`}>
                     {h.status}
@@ -1068,7 +1068,7 @@ function ContractDetail({
               ))}
             </div>
           ) : (
-            <p className="text-[0.78rem] text-[#9CA3AF]">No other contracts for this deal.</p>
+            <p className="text-[12px] text-[rgba(5,14,36,0.4)]">No other contracts for this deal.</p>
           )}
         </div>
       </div>
@@ -1079,20 +1079,20 @@ function ContractDetail({
           { type: string; recipients: string[]; success: boolean; timestamp: string; errors?: string[] }[] | undefined
         if (!notifications || notifications.length === 0) return null
         return (
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 mb-5 animate-fadeInUp">
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-2">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5 animate-fadeInUp">
+            <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3 flex items-center gap-2">
               <Bell className="w-3.5 h-3.5" /> Email Notifications
             </div>
             <div className="space-y-2">
               {notifications.slice().reverse().map((n, i) => (
-                <div key={i} className="flex items-center justify-between px-3 py-2 bg-[#F9FAFB] rounded-md">
+                <div key={i} className="flex items-center justify-between px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md">
                   <div className="flex items-center gap-2.5">
-                    <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${n.success ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${n.success ? 'bg-[#2563EB]' : 'bg-[#EF4444]'}`} />
                     <div>
-                      <div className="text-[0.78rem] text-[#374151] font-medium">
+                      <div className="text-[14px] text-[rgba(5,14,36,0.65)] font-medium">
                         Contract {n.type.charAt(0) + n.type.slice(1).toLowerCase()}
                       </div>
-                      <div className="text-[0.72rem] text-[#9CA3AF]">
+                      <div className="text-[12px] text-[rgba(5,14,36,0.4)]">
                         {n.recipients.length > 0 ? `To: ${n.recipients.join(', ')}` : 'No recipients'}
                         {n.errors && n.errors.length > 0 && (
                           <span className="text-red-500 ml-2">({n.errors.join('; ')})</span>
@@ -1100,7 +1100,7 @@ function ContractDetail({
                       </div>
                     </div>
                   </div>
-                  <div className="text-[0.72rem] text-[#9CA3AF] flex-shrink-0">
+                  <div className="text-[12px] text-[rgba(5,14,36,0.4)] flex-shrink-0">
                     {new Date(n.timestamp).toLocaleString()}
                   </div>
                 </div>
@@ -1204,17 +1204,17 @@ function CreateContractModal({
     }
   }
 
-  const inputCls = "w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors"
-  const labelCls = "block text-[0.78rem] font-medium text-[#374151] mb-1.5"
+  const inputCls = "w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors"
+  const labelCls = "block text-[14px] font-medium text-[rgba(5,14,36,0.65)] mb-1.5"
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-[520px] max-h-[90vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-[12px] shadow-xl w-full max-w-[520px] max-h-[90vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-[1.1rem] font-normal text-[var(--navy-heading,#0B1224)]" style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}>
+          <h2 className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             Create New Contract
           </h2>
-          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#374151] bg-transparent border-0 cursor-pointer">
+          <button onClick={onClose} className="text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] bg-transparent border-0 cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1234,14 +1234,14 @@ function CreateContractModal({
                   <option key={d.id} value={d.id}>{d.address}, {d.city} {d.state}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(5,14,36,0.4)] pointer-events-none" />
             </div>
           </div>
 
           {/* Buyer mode toggle */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[0.78rem] font-medium text-[#374151]">Buyer *</label>
+              <label className="text-[14px] font-medium text-[rgba(5,14,36,0.65)]">Buyer *</label>
               <button
                 onClick={() => { setManualMode(!manualMode); setSelectedBuyer('') }}
                 className="flex items-center gap-1 text-[0.72rem] font-medium text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer transition-colors"
@@ -1265,10 +1265,10 @@ function CreateContractModal({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(5,14,36,0.4)] pointer-events-none" />
               </div>
             ) : (
-              <div className="space-y-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg p-4">
+              <div className="space-y-3 bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
                 <div>
                   <label className={labelCls}>Entity / Company Name</label>
                   <input
@@ -1379,22 +1379,22 @@ function CreateContractModal({
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(5,14,36,0.4)] pointer-events-none" />
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-[#F3F4F6]">
+        <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-[rgba(5,14,36,0.04)]">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-[0.82rem] font-medium text-[#6B7280] hover:text-[#374151] bg-transparent border-0 cursor-pointer transition-colors"
+            className="px-4 py-2 text-[14px] font-medium text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] bg-transparent border-0 cursor-pointer transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleCreate}
             disabled={creating}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white border-0 rounded-md text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             {creating && <Loader2 className="w-4 h-4 animate-spin" />}
             {creating ? 'Creating...' : 'Create Contract'}
@@ -1419,20 +1419,20 @@ function TemplatePreview({
 }) {
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-[700px] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between z-10">
+      <div className="bg-white rounded-[12px] shadow-xl w-full max-w-[700px] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white border-b border-[rgba(5,14,36,0.08)] px-6 py-4 flex items-center justify-between z-10">
           <div>
-            <h2 className="text-[1.1rem] font-normal text-[var(--navy-heading,#0B1224)]" style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}>
+            <h2 className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
               {template.name}
             </h2>
-            <div className="flex items-center gap-2 mt-1 text-[0.76rem] text-[#9CA3AF]">
+            <div className="flex items-center gap-2 mt-1 text-[12px] text-[rgba(5,14,36,0.4)]">
               <span className={`font-medium px-1.5 py-0.5 rounded ${contractTypeBadge(template.type)} text-[0.64rem]`}>{template.type}</span>
               <span>{template.state === 'MULTI' ? 'Multi-State' : template.state}</span>
               <span>v{template.version}</span>
               <span>{template.fieldCount} fields</span>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#374151] bg-transparent border-0 cursor-pointer">
+          <button onClick={onClose} className="text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] bg-transparent border-0 cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1441,28 +1441,28 @@ function TemplatePreview({
           {/* Fields list */}
           {template.fields && template.fields.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Required Fields ({template.fields.filter(f => f.required).length})</h3>
+              <h3 className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Required Fields ({template.fields.filter(f => f.required).length})</h3>
               <div className="grid grid-cols-2 gap-2">
                 {template.fields.filter(f => f.required).map(f => (
-                  <div key={f.key} className="flex items-center gap-2 px-3 py-2 bg-[#F9FAFB] rounded-md">
+                  <div key={f.key} className="flex items-center gap-2 px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
-                    <span className="text-[0.78rem] text-[#374151]">{f.label}</span>
+                    <span className="text-[14px] text-[rgba(5,14,36,0.65)]">{f.label}</span>
                     {f.source && (
-                      <span className="ml-auto text-[0.66rem] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">auto-fill</span>
+                      <span className="ml-auto text-[0.66rem] text-[#2563EB] bg-[rgba(37,99,235,0.08)] px-1.5 py-0.5 rounded">auto-fill</span>
                     )}
                   </div>
                 ))}
               </div>
               {template.fields.filter(f => !f.required).length > 0 && (
                 <>
-                  <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 mt-4">Optional Fields ({template.fields.filter(f => !f.required).length})</h3>
+                  <h3 className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3 mt-4">Optional Fields ({template.fields.filter(f => !f.required).length})</h3>
                   <div className="grid grid-cols-2 gap-2">
                     {template.fields.filter(f => !f.required).map(f => (
-                      <div key={f.key} className="flex items-center gap-2 px-3 py-2 bg-[#F9FAFB] rounded-md">
+                      <div key={f.key} className="flex items-center gap-2 px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md">
                         <span className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
-                        <span className="text-[0.78rem] text-[#9CA3AF]">{f.label}</span>
+                        <span className="text-[12px] text-[rgba(5,14,36,0.4)]">{f.label}</span>
                         {f.source && (
-                          <span className="ml-auto text-[0.66rem] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">auto-fill</span>
+                          <span className="ml-auto text-[0.66rem] text-[#2563EB] bg-[rgba(37,99,235,0.08)] px-1.5 py-0.5 rounded">auto-fill</span>
                         )}
                       </div>
                     ))}
@@ -1475,13 +1475,13 @@ function TemplatePreview({
           {/* Sections */}
           {template.sections && template.sections.length > 0 && (
             <div>
-              <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Contract Sections ({template.sections.length})</h3>
+              <h3 className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Contract Sections ({template.sections.length})</h3>
               <div className="space-y-3">
                 {template.sections.map((s, i) => (
-                  <div key={i} className="border border-[#E5E7EB] rounded-lg p-4">
-                    <div className="text-[0.86rem] font-medium text-[#374151] mb-2">{s.heading}</div>
+                  <div key={i} className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
+                    <div className="text-[15px] font-semibold text-[#0B1224] mb-2">{s.heading}</div>
                     <div
-                      className="text-[0.76rem] text-[#6B7280] leading-relaxed line-clamp-4"
+                      className="text-[14px] text-[rgba(5,14,36,0.65)] leading-relaxed line-clamp-4"
                       dangerouslySetInnerHTML={{
                         __html: s.body.replace(
                           /\{\{(\w+)\}\}/g,
@@ -1496,16 +1496,16 @@ function TemplatePreview({
           )}
         </div>
 
-        <div className="sticky bottom-0 bg-white border-t border-[#E5E7EB] px-6 py-4 flex items-center justify-end gap-3">
+        <div className="sticky bottom-0 bg-white border-t border-[rgba(5,14,36,0.08)] px-6 py-4 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-[0.82rem] font-medium text-[#6B7280] hover:text-[#374151] bg-transparent border-0 cursor-pointer transition-colors"
+            className="px-4 py-2 text-[14px] font-medium text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] bg-transparent border-0 cursor-pointer transition-colors"
           >
             Close
           </button>
           <button
             onClick={() => onUseTemplate(template.id)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             <FileSignature className="w-4 h-4" /> Use This Template
           </button>
@@ -1533,12 +1533,12 @@ function TemplateComparison({
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-[900px] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between z-10">
-          <h2 className="text-[1.1rem] font-normal text-[var(--navy-heading,#0B1224)]" style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}>
+      <div className="bg-white rounded-[12px] shadow-xl w-full max-w-[900px] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white border-b border-[rgba(5,14,36,0.08)] px-6 py-4 flex items-center justify-between z-10">
+          <h2 className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             Compare Templates
           </h2>
-          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#374151] bg-transparent border-0 cursor-pointer">
+          <button onClick={onClose} className="text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] bg-transparent border-0 cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1549,25 +1549,25 @@ function TemplateComparison({
               <select
                 value={leftId}
                 onChange={e => setLeftId(e.target.value)}
-                className="w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] appearance-none cursor-pointer"
+                className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] appearance-none cursor-pointer"
               >
                 {templates.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(5,14,36,0.4)] pointer-events-none" />
             </div>
             <div className="relative">
               <select
                 value={rightId}
                 onChange={e => setRightId(e.target.value)}
-                className="w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] appearance-none cursor-pointer"
+                className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] appearance-none cursor-pointer"
               >
                 {templates.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(5,14,36,0.4)] pointer-events-none" />
             </div>
           </div>
 
@@ -1576,42 +1576,42 @@ function TemplateComparison({
               {/* Overview comparison */}
               <table className="w-full mb-6">
                 <thead>
-                  <tr className="border-b border-[#F3F4F6]">
-                    <th className="px-4 py-2 text-left text-xs uppercase tracking-wider text-[#6B7280] font-medium">Attribute</th>
-                    <th className="px-4 py-2 text-left text-xs uppercase tracking-wider text-[#6B7280] font-medium">{left.name}</th>
-                    <th className="px-4 py-2 text-left text-xs uppercase tracking-wider text-[#6B7280] font-medium">{right.name}</th>
+                  <tr className="border-b border-[rgba(5,14,36,0.04)]">
+                    <th className="px-4 py-2 text-left text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Attribute</th>
+                    <th className="px-4 py-2 text-left text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{left.name}</th>
+                    <th className="px-4 py-2 text-left text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{right.name}</th>
                   </tr>
                 </thead>
                 <tbody className="text-[0.78rem]">
-                  <tr className="border-b border-[#F3F4F6]">
-                    <td className="px-4 py-2 text-[#9CA3AF]">State</td>
-                    <td className="px-4 py-2 text-[#374151] font-medium">{left.state}</td>
-                    <td className="px-4 py-2 text-[#374151] font-medium">{right.state}</td>
+                  <tr className="border-b border-[rgba(5,14,36,0.04)]">
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.4)]">State</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)] font-medium">{left.state}</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)] font-medium">{right.state}</td>
                   </tr>
-                  <tr className="border-b border-[#F3F4F6]">
-                    <td className="px-4 py-2 text-[#9CA3AF]">Type</td>
-                    <td className="px-4 py-2 text-[#374151]">{left.type}</td>
-                    <td className="px-4 py-2 text-[#374151]">{right.type}</td>
+                  <tr className="border-b border-[rgba(5,14,36,0.04)]">
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.4)]">Type</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)]">{left.type}</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)]">{right.type}</td>
                   </tr>
-                  <tr className="border-b border-[#F3F4F6]">
-                    <td className="px-4 py-2 text-[#9CA3AF]">Version</td>
-                    <td className="px-4 py-2 text-[#374151]">v{left.version}</td>
-                    <td className="px-4 py-2 text-[#374151]">v{right.version}</td>
+                  <tr className="border-b border-[rgba(5,14,36,0.04)]">
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.4)]">Version</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)]">v{left.version}</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)]">v{right.version}</td>
                   </tr>
-                  <tr className="border-b border-[#F3F4F6]">
-                    <td className="px-4 py-2 text-[#9CA3AF]">Total Fields</td>
-                    <td className="px-4 py-2 text-[#374151] font-medium">{left.fieldCount}</td>
-                    <td className="px-4 py-2 text-[#374151] font-medium">{right.fieldCount}</td>
+                  <tr className="border-b border-[rgba(5,14,36,0.04)]">
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.4)]">Total Fields</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)] font-medium">{left.fieldCount}</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)] font-medium">{right.fieldCount}</td>
                   </tr>
-                  <tr className="border-b border-[#F3F4F6]">
-                    <td className="px-4 py-2 text-[#9CA3AF]">Required Fields</td>
-                    <td className="px-4 py-2 text-[#374151] font-medium">{left.fields?.filter(f => f.required).length ?? '—'}</td>
-                    <td className="px-4 py-2 text-[#374151] font-medium">{right.fields?.filter(f => f.required).length ?? '—'}</td>
+                  <tr className="border-b border-[rgba(5,14,36,0.04)]">
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.4)]">Required Fields</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)] font-medium">{left.fields?.filter(f => f.required).length ?? '—'}</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)] font-medium">{right.fields?.filter(f => f.required).length ?? '—'}</td>
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 text-[#9CA3AF]">Sections</td>
-                    <td className="px-4 py-2 text-[#374151] font-medium">{left.sections?.length ?? '—'}</td>
-                    <td className="px-4 py-2 text-[#374151] font-medium">{right.sections?.length ?? '—'}</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.4)]">Sections</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)] font-medium">{left.sections?.length ?? '—'}</td>
+                    <td className="px-4 py-2 text-[rgba(5,14,36,0.65)] font-medium">{right.sections?.length ?? '—'}</td>
                   </tr>
                 </tbody>
               </table>
@@ -1619,16 +1619,16 @@ function TemplateComparison({
               {/* Section headings comparison */}
               {left.sections && right.sections && (
                 <div>
-                  <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Section Comparison</h3>
+                  <h3 className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Section Comparison</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       {left.sections.map((s, i) => (
-                        <div key={i} className="px-3 py-2 bg-[#F9FAFB] rounded-md text-[0.78rem] text-[#374151]">{s.heading}</div>
+                        <div key={i} className="px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md text-[14px] text-[rgba(5,14,36,0.65)]">{s.heading}</div>
                       ))}
                     </div>
                     <div className="space-y-2">
                       {right.sections.map((s, i) => (
-                        <div key={i} className="px-3 py-2 bg-[#F9FAFB] rounded-md text-[0.78rem] text-[#374151]">{s.heading}</div>
+                        <div key={i} className="px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md text-[14px] text-[rgba(5,14,36,0.65)]">{s.heading}</div>
                       ))}
                     </div>
                   </div>
@@ -1666,19 +1666,19 @@ function TemplatesSection({ onUseTemplate }: { onUseTemplate: (templateId: strin
   return (
     <div>
       {/* State coverage + compare button */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 mb-5 flex items-center justify-between">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
             {coveredStates.map(s => (
-              <span key={s} className="text-[0.66rem] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5">{s}</span>
+              <span key={s} className="text-[0.66rem] font-bold text-[#2563EB] bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.2)] rounded px-1.5 py-0.5">{s}</span>
             ))}
           </div>
-          <span className="text-[0.82rem] text-[#374151] font-medium">{coveredStates.length} States Covered</span>
+          <span className="text-[14px] text-[rgba(5,14,36,0.65)] font-medium">{coveredStates.length} States Covered</span>
         </div>
         {templates.length >= 2 && (
           <button
             onClick={() => setShowComparison(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium text-[#2563EB] hover:bg-blue-50 bg-transparent border border-[#E5E7EB] rounded-md cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-transparent border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer transition-colors"
           >
             <Copy className="w-3.5 h-3.5" /> Compare Templates
           </button>
@@ -1688,15 +1688,15 @@ function TemplatesSection({ onUseTemplate }: { onUseTemplate: (templateId: strin
       {/* Grid */}
       <div className="grid grid-cols-2 gap-3 contracts-template-grid">
         {templates.map(t => (
-          <div key={t.id} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 hover:bg-[#F9FAFB] transition-colors">
+          <div key={t.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 hover:bg-[rgba(37,99,235,0.02)] transition-colors">
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-5 h-5 text-[#9CA3AF]" />
+                <div className="w-10 h-10 rounded-lg bg-[rgba(5,14,36,0.04)] border border-[rgba(5,14,36,0.08)] flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-[rgba(5,14,36,0.4)]" />
                 </div>
                 <div>
-                  <div className="text-[0.86rem] font-medium text-[#374151] mb-0.5">{t.name}</div>
-                  <div className="flex items-center gap-2 text-[0.72rem] text-[#9CA3AF]">
+                  <div className="text-[15px] font-semibold text-[#0B1224] mb-0.5">{t.name}</div>
+                  <div className="flex items-center gap-2 text-[12px] text-[rgba(5,14,36,0.4)]">
                     <span className={`font-medium px-1.5 py-0.5 rounded ${contractTypeBadge(t.type)} text-[0.64rem]`}>{t.type}</span>
                     <span>{t.state === 'MULTI' ? 'Multi-State' : t.state}</span>
                     <span>v{t.version}</span>
@@ -1823,70 +1823,70 @@ function ArchiveSection({
     <div>
       {/* Analytics cards */}
       <div className="grid grid-cols-4 gap-3 mb-5 contracts-archive-stats">
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-3">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            <span className="text-[0.72rem] text-[#9CA3AF] uppercase tracking-wider font-medium">Executed</span>
+            <CheckCircle2 className="w-4 h-4 text-[#2563EB]" />
+            <span className="text-[11px] text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Executed</span>
           </div>
-          <div className="text-[1.2rem] font-semibold text-[#374151]">{executedCount}</div>
+          <div className="text-[1.2rem] font-semibold text-[#0B1224]">{executedCount}</div>
         </div>
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-3">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="w-4 h-4 text-[#2563EB]" />
-            <span className="text-[0.72rem] text-[#9CA3AF] uppercase tracking-wider font-medium">Total Fees</span>
+            <span className="text-[11px] text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Total Fees</span>
           </div>
           <div className="text-[1.2rem] font-semibold text-[#2563EB]">${totalFees.toLocaleString()}</div>
         </div>
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-3">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
             <Timer className="w-4 h-4 text-amber-500" />
-            <span className="text-[0.72rem] text-[#9CA3AF] uppercase tracking-wider font-medium">Avg Days to Close</span>
+            <span className="text-[11px] text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Avg Days to Close</span>
           </div>
-          <div className="text-[1.2rem] font-semibold text-[#374151]">{avgTimeToExecution || '—'}</div>
+          <div className="text-[1.2rem] font-semibold text-[#0B1224]">{avgTimeToExecution || '—'}</div>
         </div>
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-3">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
-            <Ban className="w-4 h-4 text-red-400" />
-            <span className="text-[0.72rem] text-[#9CA3AF] uppercase tracking-wider font-medium">Voided</span>
+            <Ban className="w-4 h-4 text-[#EF4444]" />
+            <span className="text-[11px] text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Voided</span>
           </div>
-          <div className="text-[1.2rem] font-semibold text-[#374151]">{voidedCount}</div>
+          <div className="text-[1.2rem] font-semibold text-[#0B1224]">{voidedCount}</div>
         </div>
       </div>
 
       {/* Search + Export */}
       <div className="flex items-center gap-3 mb-4">
         <div className="relative flex-1 max-w-[280px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(5,14,36,0.4)]" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search archived contracts..."
-            className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-10 pr-4 py-2 text-[0.82rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] transition-colors"
+            className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] pl-10 pr-4 py-2 text-[14px] text-[rgba(5,14,36,0.65)] placeholder-[rgba(5,14,36,0.3)] outline-none focus:border-[#2563EB] transition-colors"
           />
         </div>
         <button
           onClick={handleCsvExport}
-          className="flex items-center gap-1.5 px-3 py-2 text-[0.78rem] font-medium text-[#374151] hover:bg-[#F9FAFB] bg-white border border-[#E5E7EB] rounded-lg cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-[0.78rem] font-medium text-[rgba(5,14,36,0.65)] hover:bg-[rgba(37,99,235,0.02)] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer transition-colors"
         >
           <FileDown className="w-4 h-4" /> Export CSV
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden overflow-x-auto">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden overflow-x-auto">
         <table className="w-full min-w-[700px]">
           <thead>
-            <tr className="border-b border-[#F3F4F6]">
+            <tr className="bg-[rgba(5,14,36,0.02)] border-b border-[rgba(5,14,36,0.04)]">
               {['Property Address', 'Type', 'Buyer', 'Fee', 'Status', 'Date', ''].map(h => (
-                <th key={h} className={`px-4 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium ${h === '' ? 'text-right' : 'text-left'}`}>{h}</th>
+                <th key={h} className={`px-4 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold ${h === '' ? 'text-right' : 'text-left'}`} style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-[0.82rem] text-[#9CA3AF]">
+                <td colSpan={7} className="px-4 py-8 text-center text-[14px] text-[rgba(5,14,36,0.4)]">
                   No archived contracts found.
                 </td>
               </tr>
@@ -1894,8 +1894,8 @@ function ArchiveSection({
               filtered.map((c, i) => {
                 const fee = feeFromContract(c)
                 return (
-                  <tr key={c.id} className={`${i < filtered.length - 1 ? 'border-b border-[#F3F4F6]' : ''} hover:bg-[#F9FAFB] transition-colors`}>
-                    <td className="px-4 py-2.5 text-[0.82rem] text-[#374151] font-medium">
+                  <tr key={c.id} className={`${i < filtered.length - 1 ? 'border-b border-[rgba(5,14,36,0.04)]' : ''} bg-white hover:bg-[rgba(37,99,235,0.02)] transition-colors`}>
+                    <td className="px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] font-medium">
                       {c.deal.address}, {c.deal.city} {c.deal.state}
                     </td>
                     <td className="px-4 py-2.5">
@@ -1903,14 +1903,14 @@ function ArchiveSection({
                         {contractTypeLabel(c.templateName)}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-[0.78rem] text-[#374151]">{displayName(c)}</td>
-                    <td className="px-4 py-2.5 text-[0.82rem] text-[#374151] font-medium">
+                    <td className="px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)]">{displayName(c)}</td>
+                    <td className="px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] font-medium">
                       {fee ? `$${fee.toLocaleString()}` : '—'}
                     </td>
                     <td className="px-4 py-2.5">
                       <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full ${archiveStatusStyle(c.status)}`}>{c.status}</span>
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-[#9CA3AF]">{new Date(c.createdAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-2.5 text-[12px] text-[rgba(5,14,36,0.4)]">{new Date(c.createdAt).toLocaleDateString()}</td>
                     <td className="px-4 py-2.5 text-right">
                       <button
                         onClick={() => onViewDetail(c.id)}
@@ -2030,19 +2030,19 @@ export default function ContractsPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-            className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1"
+          <h1 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", letterSpacing: '-0.02em' }}
+            className="text-[24px] font-bold text-[#0B1224] mb-1"
           >
             Contracts
           </h1>
-          <p className="text-[0.86rem] text-[var(--body-text,#4B5563)]">
+          <p className="text-[14px] text-[rgba(5,14,36,0.5)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             Generate, sign, and track assignment contracts.
           </p>
         </div>
         {!showDetail && (
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             <Plus className="w-4 h-4" /> Create New Contract
           </button>
@@ -2052,27 +2052,27 @@ export default function ContractsPage() {
       {!showDetail && (
         <>
           {/* Stats bar */}
-          <div className="flex items-center gap-6 bg-white border border-[#E5E7EB] rounded-lg px-5 py-3 mb-5 flex-wrap">
+          <div className="flex items-center gap-6 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-3 mb-5 flex-wrap">
             <div className="flex items-center gap-2">
-              <span className="text-[0.82rem] text-[#374151] font-medium">{activeContracts.length}</span>
-              <span className="text-[0.78rem] text-[#9CA3AF]">Active Contracts</span>
+              <span className="text-[14px] text-[#0B1224] font-medium">{activeContracts.length}</span>
+              <span className="text-[12px] text-[rgba(5,14,36,0.4)]">Active Contracts</span>
             </div>
-            <div className="w-px h-4 bg-[#E5E7EB]" />
+            <div className="w-px h-4 bg-[rgba(5,14,36,0.08)]" />
             <div className="flex items-center gap-2">
-              <span className="text-[0.82rem] text-amber-600 font-medium">{awaitingSig}</span>
-              <span className="text-[0.78rem] text-[#9CA3AF]">Awaiting Signature</span>
+              <span className="text-[14px] text-amber-600 font-medium">{awaitingSig}</span>
+              <span className="text-[12px] text-[rgba(5,14,36,0.4)]">Awaiting Signature</span>
             </div>
-            <div className="w-px h-4 bg-[#E5E7EB]" />
+            <div className="w-px h-4 bg-[rgba(5,14,36,0.08)]" />
             <div className="flex items-center gap-2">
-              <span className="text-[0.82rem] text-emerald-600 font-medium">{executedThisMonth}</span>
-              <span className="text-[0.78rem] text-[#9CA3AF]">Executed This Month</span>
+              <span className="text-[14px] text-[#2563EB] font-medium">{executedThisMonth}</span>
+              <span className="text-[12px] text-[rgba(5,14,36,0.4)]">Executed This Month</span>
             </div>
             {totalFees > 0 && (
               <>
-                <div className="w-px h-4 bg-[#E5E7EB]" />
+                <div className="w-px h-4 bg-[rgba(5,14,36,0.08)]" />
                 <div className="flex items-center gap-2">
-                  <span className="text-[0.82rem] text-[#2563EB] font-medium">${totalFees.toLocaleString()}</span>
-                  <span className="text-[0.78rem] text-[#9CA3AF]">in Assignment Fees</span>
+                  <span className="text-[14px] text-[#2563EB] font-medium">${totalFees.toLocaleString()}</span>
+                  <span className="text-[12px] text-[rgba(5,14,36,0.4)]">in Assignment Fees</span>
                 </div>
               </>
             )}
@@ -2088,7 +2088,7 @@ export default function ContractsPage() {
           )}
 
           {/* Tabs */}
-          <div className="flex items-center gap-1 mb-6 border-b border-[#E5E7EB] pb-0">
+          <div className="flex items-center gap-1 mb-6 border-b border-[rgba(5,14,36,0.08)] pb-0">
             {tabs.map(tab => {
               const Icon = tab.icon
               const isActive = activeTab === tab.key
@@ -2102,7 +2102,7 @@ export default function ContractsPage() {
                   className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
                     isActive
                       ? 'border-[#2563EB] text-[#2563EB]'
-                      : 'border-transparent text-[#9CA3AF] hover:text-[#374151]'
+                      : 'border-transparent text-[rgba(5,14,36,0.4)] hover:text-[#0B1224]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />

@@ -198,9 +198,18 @@ export default function NewDealPage() {
   }
 
   // Input styling
-  const inputBase = 'w-full bg-gray-50 border rounded-lg px-3 py-2.5 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB] transition-colors'
+  const inputBase = 'w-full bg-white rounded-[10px] px-3 py-2.5 text-[0.82rem] text-gray-700 outline-none transition-colors'
+  const inputBorderStyle = { border: '1px solid rgba(5,14,36,0.15)' }
+  const inputErrorBorderStyle = { border: '1px solid #fca5a5' }
+  const inputFocusHandlers = {
+    onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' },
+    onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' },
+  }
   function inputCls(field?: string) {
-    return `${inputBase} ${field && errors[field] ? 'border-red-300' : 'border-[#E5E7EB]'}`
+    return inputBase
+  }
+  function inputStyle(field?: string) {
+    return field && errors[field] ? inputErrorBorderStyle : inputBorderStyle
   }
 
   return (
@@ -215,56 +224,61 @@ export default function NewDealPage() {
 
       <div className="mb-6">
         <h1
-          style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-          className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] tracking-[-0.022em] mb-1"
+          style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em' }}
+          className="mb-1"
         >
           Submit New Deal
         </h1>
-        <p className="text-[0.86rem] text-[var(--body-text,#4B5563)]">
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>
           Enter a property you have under contract to match it with buyers.
         </p>
       </div>
 
       {/* Form card */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg">
+      <div className="bg-white rounded-[12px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
 
         {/* Section 1: Property Address */}
         <div className="px-5 py-5">
-          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
             <Home className="w-3.5 h-3.5" /> Property Address
           </div>
 
           <div className="mb-3">
-            <label className="text-[0.72rem] text-gray-500 mb-1 block">Address <span className="text-red-400">*</span></label>
+            <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Address <span className="text-red-400">*</span></label>
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="123 Main St"
               className={inputCls('address')}
+              style={inputStyle('address')}
+              {...inputFocusHandlers}
             />
             {errors.address && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.address}</span>}
           </div>
 
           <div className="grid gap-3 new-deal-address-grid" style={{ gridTemplateColumns: '2fr 1fr 1fr' }}>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">City <span className="text-red-400">*</span></label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">City <span className="text-red-400">*</span></label>
               <input
                 type="text"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="Dallas"
                 className={inputCls('city')}
+                style={inputStyle('city')}
+                {...inputFocusHandlers}
               />
               {errors.city && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.city}</span>}
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">State <span className="text-red-400">*</span></label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">State <span className="text-red-400">*</span></label>
               <div className="relative">
                 <select
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   className={`appearance-none ${inputCls('state')} pr-8 cursor-pointer`}
+                  style={inputStyle('state')}
                 >
                   <option value="">—</option>
                   {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -274,7 +288,7 @@ export default function NewDealPage() {
               {errors.state && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.state}</span>}
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Zip <span className="text-red-400">*</span></label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Zip <span className="text-red-400">*</span></label>
               <input
                 type="text"
                 value={zip}
@@ -282,18 +296,21 @@ export default function NewDealPage() {
                 placeholder="75216"
                 maxLength={10}
                 className={inputCls('zip')}
+                style={inputStyle('zip')}
+                {...inputFocusHandlers}
               />
               {errors.zip && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.zip}</span>}
             </div>
           </div>
 
           <div className="mt-3" style={{ maxWidth: 220 }}>
-            <label className="text-[0.72rem] text-gray-500 mb-1 block">Property Type</label>
+            <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Property Type</label>
             <div className="relative">
               <select
                 value={propertyType}
                 onChange={(e) => setPropertyType(e.target.value)}
-                className={`appearance-none ${inputBase} border-[#E5E7EB] pr-8 cursor-pointer`}
+                className={`appearance-none ${inputBase} pr-8 cursor-pointer`}
+                style={inputBorderStyle}
               >
                 {PROPERTY_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
@@ -310,7 +327,7 @@ export default function NewDealPage() {
             onClick={() => setDetailsOpen(!detailsOpen)}
             className="w-full flex items-center justify-between px-5 py-4 bg-transparent border-0 cursor-pointer text-left"
           >
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] flex items-center gap-1.5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] flex items-center gap-1.5">
               <Home className="w-3.5 h-3.5" /> Property Details
             </div>
             {detailsOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
@@ -319,18 +336,20 @@ export default function NewDealPage() {
             <div className="px-5 pb-5 pt-0">
               <div className="grid gap-3 new-deal-details-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
                 <div>
-                  <label className="text-[0.72rem] text-gray-500 mb-1 block">Beds</label>
+                  <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Beds</label>
                   <input
                     type="number"
                     value={beds}
                     onChange={(e) => setBeds(e.target.value)}
                     placeholder="3"
                     min="0"
-                    className={`${inputBase} border-[#E5E7EB]`}
+                    className={`${inputBase}`}
+                    style={inputBorderStyle}
+                    {...inputFocusHandlers}
                   />
                 </div>
                 <div>
-                  <label className="text-[0.72rem] text-gray-500 mb-1 block">Baths</label>
+                  <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Baths</label>
                   <input
                     type="number"
                     value={baths}
@@ -338,22 +357,26 @@ export default function NewDealPage() {
                     placeholder="2"
                     min="0"
                     step="0.5"
-                    className={`${inputBase} border-[#E5E7EB]`}
+                    className={`${inputBase}`}
+                    style={inputBorderStyle}
+                    {...inputFocusHandlers}
                   />
                 </div>
                 <div>
-                  <label className="text-[0.72rem] text-gray-500 mb-1 block">Sq Ft</label>
+                  <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Sq Ft</label>
                   <input
                     type="number"
                     value={sqft}
                     onChange={(e) => setSqft(e.target.value)}
                     placeholder="1750"
                     min="0"
-                    className={`${inputBase} border-[#E5E7EB]`}
+                    className={`${inputBase}`}
+                    style={inputBorderStyle}
+                    {...inputFocusHandlers}
                   />
                 </div>
                 <div>
-                  <label className="text-[0.72rem] text-gray-500 mb-1 block">Year Built</label>
+                  <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Year Built</label>
                   <input
                     type="number"
                     value={yearBuilt}
@@ -361,17 +384,20 @@ export default function NewDealPage() {
                     placeholder="1978"
                     min="1800"
                     max="2030"
-                    className={`${inputBase} border-[#E5E7EB]`}
+                    className={`${inputBase}`}
+                    style={inputBorderStyle}
+                    {...inputFocusHandlers}
                   />
                 </div>
               </div>
               <div className="mt-3" style={{ maxWidth: 220 }}>
-                <label className="text-[0.72rem] text-gray-500 mb-1 block">Condition</label>
+                <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Condition</label>
                 <div className="relative">
                   <select
                     value={condition}
                     onChange={(e) => setCondition(e.target.value)}
-                    className={`appearance-none ${inputBase} border-[#E5E7EB] pr-8 cursor-pointer`}
+                    className={`appearance-none ${inputBase} pr-8 cursor-pointer`}
+                    style={inputBorderStyle}
                   >
                     <option value="">Not specified</option>
                     {CONDITIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -387,13 +413,13 @@ export default function NewDealPage() {
 
         {/* Section 3: Deal Financials */}
         <div className="px-5 py-5">
-          <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
             <DollarSign className="w-3.5 h-3.5" /> Deal Financials
           </div>
 
           <div className="grid grid-cols-2 gap-3 new-deal-financials-grid">
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Asking Price <span className="text-red-400">*</span></label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Asking Price <span className="text-red-400">*</span></label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.82rem] text-gray-400">$</span>
                 <input
@@ -403,12 +429,14 @@ export default function NewDealPage() {
                   onChange={handleCurrencyInput(setAskingPrice)}
                   placeholder="142,000"
                   className={`${inputCls('askingPrice')} pl-7`}
+                  style={inputStyle('askingPrice')}
+                  {...inputFocusHandlers}
                 />
               </div>
               {errors.askingPrice && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.askingPrice}</span>}
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Assignment Fee</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Assignment Fee</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.82rem] text-gray-400">$</span>
                 <input
@@ -417,12 +445,14 @@ export default function NewDealPage() {
                   value={assignFee}
                   onChange={handleCurrencyInput(setAssignFee)}
                   placeholder="25,000"
-                  className={`${inputBase} border-[#E5E7EB] pl-7`}
+                  className={`${inputBase} pl-7`}
+                  style={inputBorderStyle}
+                  {...inputFocusHandlers}
                 />
               </div>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">ARV (After Repair Value)</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">ARV (After Repair Value)</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.82rem] text-gray-400">$</span>
                 <input
@@ -431,13 +461,15 @@ export default function NewDealPage() {
                   value={arv}
                   onChange={handleCurrencyInput(setArv)}
                   placeholder="245,000"
-                  className={`${inputBase} border-[#E5E7EB] pl-7`}
+                  className={`${inputBase} pl-7`}
+                  style={inputBorderStyle}
+                  {...inputFocusHandlers}
                 />
               </div>
               <span className="text-[0.66rem] text-gray-400 mt-0.5 block">What you estimate the property is worth after repairs</span>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Repair Cost Estimate</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Repair Cost Estimate</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.82rem] text-gray-400">$</span>
                 <input
@@ -446,19 +478,23 @@ export default function NewDealPage() {
                   value={repairCost}
                   onChange={handleCurrencyInput(setRepairCost)}
                   placeholder="38,000"
-                  className={`${inputBase} border-[#E5E7EB] pl-7`}
+                  className={`${inputBase} pl-7`}
+                  style={inputBorderStyle}
+                  {...inputFocusHandlers}
                 />
               </div>
             </div>
             <div className="col-span-2 new-deal-date-field" style={{ maxWidth: 220 }}>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block flex items-center gap-1">
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block flex items-center gap-1">
                 <Calendar className="w-3 h-3" /> Close-by Date
               </label>
               <input
                 type="date"
                 value={closeByDate}
                 onChange={(e) => setCloseByDate(e.target.value)}
-                className={`${inputBase} border-[#E5E7EB] cursor-pointer`}
+                className={`${inputBase} cursor-pointer`}
+                style={inputBorderStyle}
+                {...inputFocusHandlers}
               />
             </div>
           </div>
@@ -470,7 +506,7 @@ export default function NewDealPage() {
                 {spread != null && (
                   <div className="bg-gray-50 rounded-lg px-3.5 py-3">
                     <div className="text-[0.68rem] text-gray-400 uppercase tracking-wide mb-1">Spread</div>
-                    <div className={`text-[0.92rem] font-semibold flex items-center gap-1 ${spread >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <div className={`text-[0.92rem] font-semibold flex items-center gap-1 ${spread >= 0 ? 'text-[#2563EB]' : 'text-[#EF4444]'}`}>
                       {spread >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                       ${fmtNumber(Math.abs(spread))}
                     </div>
@@ -479,7 +515,7 @@ export default function NewDealPage() {
                 {spreadPct != null && (
                   <div className="bg-gray-50 rounded-lg px-3.5 py-3">
                     <div className="text-[0.68rem] text-gray-400 uppercase tracking-wide mb-1">Spread %</div>
-                    <div className={`text-[0.92rem] font-semibold ${parseFloat(spreadPct) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <div className={`text-[0.92rem] font-semibold ${parseFloat(spreadPct) >= 0 ? 'text-[#2563EB]' : 'text-[#EF4444]'}`}>
                       {spreadPct}%
                     </div>
                   </div>
@@ -487,7 +523,7 @@ export default function NewDealPage() {
                 {flipProfit != null && (
                   <div className="bg-gray-50 rounded-lg px-3.5 py-3">
                     <div className="text-[0.68rem] text-gray-400 uppercase tracking-wide mb-1">Est. Flip Profit</div>
-                    <div className={`text-[0.92rem] font-semibold ${flipProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <div className={`text-[0.92rem] font-semibold ${flipProfit >= 0 ? 'text-[#2563EB]' : 'text-[#EF4444]'}`}>
                       {flipProfit >= 0 ? '' : '-'}${fmtNumber(Math.abs(flipProfit))}
                     </div>
                   </div>
@@ -505,7 +541,7 @@ export default function NewDealPage() {
             onClick={() => setNotesOpen(!notesOpen)}
             className="w-full flex items-center justify-between px-5 py-4 bg-transparent border-0 cursor-pointer text-left"
           >
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] flex items-center gap-1.5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5" /> Notes
             </div>
             {notesOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
@@ -517,7 +553,9 @@ export default function NewDealPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
                 placeholder="Any additional notes about this deal — motivation, timeline, seller context..."
-                className={`${inputBase} border-[#E5E7EB] resize-y`}
+                className={`${inputBase} resize-y`}
+                style={inputBorderStyle}
+                {...inputFocusHandlers}
               />
             </div>
           )}
@@ -572,7 +610,7 @@ export default function NewDealPage() {
         <button
           onClick={() => submit('ACTIVE')}
           disabled={submitting}
-          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-5 py-2.5 text-[0.84rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.84rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
           Submit Deal
@@ -580,7 +618,8 @@ export default function NewDealPage() {
         <button
           onClick={() => submit('DRAFT')}
           disabled={submitting}
-          className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-5 py-2.5 text-[0.84rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 bg-white hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-5 py-2.5 text-[0.84rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          style={{ border: '1px solid rgba(5,14,36,0.15)' }}
         >
           Save as Draft
         </button>

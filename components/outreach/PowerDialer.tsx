@@ -46,7 +46,7 @@ export interface PowerDialerProps {
 }
 
 const OUTCOMES = [
-  { value: 'QUALIFIED', label: 'Qualified', color: 'bg-emerald-500 text-white', shortcut: 'Q' },
+  { value: 'QUALIFIED', label: 'Qualified', color: 'bg-blue-500 text-white', shortcut: 'Q' },
   { value: 'NOT_BUYING', label: 'Not Buying', color: 'bg-gray-500 text-white', shortcut: 'N' },
   { value: 'NO_ANSWER', label: 'No Answer', color: 'bg-yellow-500 text-white', shortcut: 'A' },
   { value: 'VOICEMAIL', label: 'Voicemail', color: 'bg-blue-500 text-white', shortcut: 'V' },
@@ -268,7 +268,7 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
 
   const outcomeColor = (outcome?: string) => {
     switch (outcome) {
-      case 'QUALIFIED': return 'bg-emerald-100 text-emerald-700'
+      case 'QUALIFIED': return 'bg-blue-100 text-blue-700'
       case 'NOT_BUYING': return 'bg-gray-200 text-gray-600'
       case 'NO_ANSWER': case 'VOICEMAIL': return 'bg-yellow-100 text-yellow-700'
       case 'DO_NOT_CALL': return 'bg-red-100 text-red-700'
@@ -289,8 +289,8 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
               <div className="text-xl font-bold text-gray-900">{sessionResults.length}</div>
               <div className="text-xs text-gray-500">Calls</div>
             </div>
-            <div className="bg-emerald-50 rounded-lg p-3 text-center">
-              <div className="text-xl font-bold text-emerald-600">{qualifiedCount}</div>
+            <div className="bg-blue-50 rounded-lg p-3 text-center">
+              <div className="text-xl font-bold text-blue-600">{qualifiedCount}</div>
               <div className="text-xs text-gray-500">Qualified</div>
             </div>
             <div className="bg-blue-50 rounded-lg p-3 text-center">
@@ -345,7 +345,7 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
         {/* Session stats */}
         <div className="flex items-center gap-4 text-xs text-gray-500">
           <span>{completedCount} / {queue.length} calls</span>
-          <span className="text-emerald-600 font-medium">{qualifiedCount} qualified</span>
+          <span className="text-blue-600 font-medium">{qualifiedCount} qualified</span>
           <span>{formatDuration(avgDuration)} avg</span>
           <span>{formatTotalTime(totalDuration)} total</span>
           <button
@@ -375,8 +375,8 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
             >
               {/* State indicator */}
               <div className={`flex-shrink-0 w-2 h-2 rounded-full ${
-                entry.state === 'calling' ? 'bg-emerald-500 animate-pulse' :
-                entry.state === 'done' ? (entry.outcome === 'QUALIFIED' ? 'bg-emerald-500' : 'bg-gray-400') :
+                entry.state === 'calling' ? 'bg-blue-500 animate-pulse' :
+                entry.state === 'done' ? (entry.outcome === 'QUALIFIED' ? 'bg-blue-500' : 'bg-gray-400') :
                 entry.state === 'skipped' ? 'bg-yellow-400' :
                 entry.state === 'compliance_skip' ? 'bg-red-400' :
                 entry.state === 'logging' ? 'bg-blue-500' :
@@ -415,7 +415,7 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
               <div className="flex items-center gap-3">
                 <button
                   onClick={dialCurrent}
-                  className="rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white hover:bg-emerald-500 transition-colors shadow-lg"
+                  className="rounded-full bg-blue-600 px-8 py-3 text-sm font-bold text-white hover:bg-blue-500 transition-colors shadow-lg"
                 >
                   Start Calling
                 </button>
@@ -452,12 +452,12 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
 
           {phase === 'calling' && current && (
             <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4 ring-4 ring-emerald-200 animate-pulse">
-                <span className="text-2xl font-bold text-emerald-600">{current.buyer.name.charAt(0)}</span>
+              <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4 ring-4 ring-blue-200 animate-pulse">
+                <span className="text-2xl font-bold text-blue-600">{current.buyer.name.charAt(0)}</span>
               </div>
               <div className="text-lg font-bold text-gray-900 mb-1">{current.buyer.name}</div>
               <div className="text-3xl font-mono font-bold text-gray-900 mb-1 tabular-nums">{formatDuration(duration)}</div>
-              <div className="text-sm text-emerald-600 font-medium mb-6">In Progress</div>
+              <div className="text-sm text-blue-600 font-medium mb-6">In Progress</div>
               <button
                 onClick={handleEndCall}
                 className="rounded-full bg-red-500 px-8 py-3 text-sm font-bold text-white hover:bg-red-600 transition-colors shadow-lg"
@@ -526,7 +526,7 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">Score</span>
                     <span className={`text-xs font-bold rounded-full px-2 py-0.5 ${
-                      current.buyer.score >= 70 ? 'bg-emerald-100 text-emerald-700' :
+                      current.buyer.score >= 70 ? 'bg-blue-100 text-blue-700' :
                       current.buyer.score >= 50 ? 'bg-blue-100 text-blue-700' :
                       'bg-gray-100 text-gray-600'
                     }`}>{current.buyer.score}</span>

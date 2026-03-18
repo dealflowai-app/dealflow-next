@@ -66,22 +66,22 @@ function fmt(v: number | null | undefined): string {
 }
 
 function gradeColor(grade: string): string {
-  if (grade.startsWith('A')) return 'text-emerald-700 bg-emerald-50 border-emerald-200'
-  if (grade.startsWith('B')) return 'text-[#2563EB] bg-[#EFF6FF] border-[#BFDBFE]'
-  if (grade.startsWith('C')) return 'text-amber-700 bg-amber-50 border-amber-200'
-  return 'text-red-700 bg-red-50 border-red-200'
+  if (grade.startsWith('A')) return 'text-white bg-[#2563EB] border-[#2563EB]'
+  if (grade.startsWith('B')) return 'text-white bg-[#60A5FA] border-[#60A5FA]'
+  if (grade.startsWith('C')) return 'text-white bg-[#F59E0B] border-[#F59E0B]'
+  return 'text-white bg-[rgba(5,14,36,0.3)] border-[rgba(5,14,36,0.3)]'
 }
 
 function confidenceBadge(level: string): string {
-  if (level === 'high') return 'text-emerald-700 bg-emerald-50'
+  if (level === 'high') return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
   if (level === 'medium') return 'text-amber-700 bg-amber-50'
   return 'text-red-700 bg-red-50'
 }
 
 function recLabel(rec: string): { text: string; className: string } {
   switch (rec) {
-    case 'strong_buy': return { text: 'Strong Buy', className: 'text-emerald-700 bg-emerald-50 border-emerald-200' }
-    case 'buy': return { text: 'Buy', className: 'text-[#2563EB] bg-[#EFF6FF] border-[#BFDBFE]' }
+    case 'strong_buy': return { text: 'Strong Buy', className: 'text-white bg-[#2563EB] border-[#2563EB]' }
+    case 'buy': return { text: 'Buy', className: 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]' }
     case 'hold': return { text: 'Hold', className: 'text-amber-700 bg-amber-50 border-amber-200' }
     case 'pass': return { text: 'Pass', className: 'text-red-700 bg-red-50 border-red-200' }
     default: return { text: 'Needs Review', className: 'text-gray-700 bg-gray-50 border-gray-200' }
@@ -210,8 +210,8 @@ function FeatureIcon({ icon, className }: { icon: string; className?: string }) 
 
 function featureIconBg(icon: string): string {
   switch (icon) {
-    case 'home': return 'bg-blue-50 text-blue-600'
-    case 'target': return 'bg-emerald-50 text-emerald-600'
+    case 'home': return 'bg-[rgba(37,99,235,0.08)] text-[#2563EB]'
+    case 'target': return 'bg-[rgba(37,99,235,0.08)] text-[#2563EB]'
     case 'dollar': return 'bg-amber-50 text-amber-600'
     case 'wrench': return 'bg-orange-50 text-orange-600'
     case 'trending': return 'bg-purple-50 text-purple-600'
@@ -398,12 +398,12 @@ function InputState({
                 }}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleAnalyze() }}
                 placeholder="Enter any US property address"
-                className="w-full bg-white border border-[#E5E7EB] rounded-xl pl-12 pr-[140px] py-4 text-[1rem] text-[#1F2937] placeholder-gray-400 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] transition-all"
+                className="w-full bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] pl-12 pr-[140px] py-4 text-[1rem] text-[#1F2937] placeholder-gray-400 outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] transition-all"
               />
               <button
                 onClick={handleAnalyze}
                 disabled={!query.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#2563EB] hover:bg-[#1D4ED8] hover:scale-[1.02] active:scale-[0.98] text-white border-0 rounded-lg px-5 py-2.5 text-[0.86rem] font-semibold cursor-pointer transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#2563EB] hover:bg-[#1D4ED8] hover:scale-[1.02] active:scale-[0.98] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.86rem] font-semibold cursor-pointer transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 <Zap className="w-4 h-4" />
                 Analyze
@@ -411,7 +411,7 @@ function InputState({
             </div>
             {/* Autocomplete dropdown */}
             {showDropdown && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-20 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[rgba(5,14,36,0.08)] rounded-xl shadow-lg z-20 overflow-hidden">
                 {suggestions.map((s, i) => (
                   <button
                     key={`${s.full}-${i}`}
@@ -430,11 +430,11 @@ function InputState({
           </div>
 
           {/* Options card */}
-          <div className="bg-white border border-[#E5E7EB] rounded-xl px-5 py-4">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4">
             {/* Three fields row */}
             <div className="grid grid-cols-3 gap-3 analyzer-options-grid">
               <div>
-                <label className="text-[0.7rem] font-medium text-gray-500 uppercase tracking-[0.04em] mb-1.5 block">Contract Price</label>
+                <label className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-1.5 block">Contract Price</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.82rem] text-gray-400">$</span>
                   <input
@@ -442,17 +442,17 @@ function InputState({
                     value={askingPrice}
                     onChange={(e) => setAskingPrice(e.target.value)}
                     placeholder="142,000"
-                    className="w-full bg-[#FAFAFA] border border-[#E5E7EB] rounded-lg pl-7 pr-3 py-2.5 text-[0.88rem] text-gray-800 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:bg-white transition-all"
+                    className="w-full bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] pl-7 pr-3 py-2.5 text-[0.88rem] text-gray-800 outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] transition-all"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-[0.7rem] font-medium text-gray-500 uppercase tracking-[0.04em] mb-1.5 block">Condition</label>
+                <label className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-1.5 block">Condition</label>
                 <div className="relative">
                   <select
                     value={condition}
                     onChange={(e) => setCondition(e.target.value)}
-                    className="appearance-none w-full bg-[#FAFAFA] border border-[#E5E7EB] rounded-lg pl-3 pr-8 py-2.5 text-[0.88rem] text-gray-800 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:bg-white cursor-pointer transition-all"
+                    className="appearance-none w-full bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] pl-3 pr-8 py-2.5 text-[0.88rem] text-gray-800 outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] cursor-pointer transition-all"
                   >
                     <option value="">Auto-detect</option>
                     <option value="distressed">Distressed</option>
@@ -463,7 +463,7 @@ function InputState({
                   <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-1.5">
                     {condition && (
                       <span className={`w-2 h-2 rounded-full ${
-                        condition === 'excellent' ? 'bg-emerald-500' :
+                        condition === 'excellent' ? 'bg-[#2563EB]' :
                         condition === 'good' ? 'bg-amber-500' :
                         condition === 'fair' ? 'bg-orange-500' :
                         condition === 'distressed' ? 'bg-red-500' : 'bg-gray-400'
@@ -474,7 +474,7 @@ function InputState({
                 </div>
               </div>
               <div>
-                <label className="text-[0.7rem] font-medium text-gray-500 uppercase tracking-[0.04em] mb-1.5 block">Repair Override</label>
+                <label className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-1.5 block">Repair Override</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.82rem] text-gray-400">$</span>
                   <input
@@ -482,7 +482,7 @@ function InputState({
                     value={repairCost}
                     onChange={(e) => setRepairCost(e.target.value)}
                     placeholder="Optional"
-                    className="w-full bg-[#FAFAFA] border border-[#E5E7EB] rounded-lg pl-7 pr-3 py-2.5 text-[0.88rem] text-gray-800 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:bg-white transition-all"
+                    className="w-full bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] pl-7 pr-3 py-2.5 text-[0.88rem] text-gray-800 outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] transition-all"
                   />
                 </div>
               </div>
@@ -555,27 +555,27 @@ function InputState({
                 <div className="pt-3">
                   <div className="grid grid-cols-2 gap-3 mb-3 analyzer-manual-grid">
                     <div className="col-span-2">
-                      <label className="text-[0.7rem] font-medium text-gray-500 uppercase tracking-[0.04em] mb-1 block">Address</label>
-                      <input type="text" value={manualAddress} onChange={(e) => setManualAddress(e.target.value)} placeholder="123 Main St" className="w-full bg-[#FAFAFA] border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.86rem] text-gray-800 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:bg-white transition-all" />
+                      <label className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-1 block">Address</label>
+                      <input type="text" value={manualAddress} onChange={(e) => setManualAddress(e.target.value)} placeholder="123 Main St" className="w-full bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] px-3 py-2 text-[0.86rem] text-gray-800 outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] transition-all" />
                     </div>
                     <div>
-                      <label className="text-[0.7rem] font-medium text-gray-500 uppercase tracking-[0.04em] mb-1 block">City</label>
-                      <input type="text" value={manualCity} onChange={(e) => setManualCity(e.target.value)} placeholder="Dallas" className="w-full bg-[#FAFAFA] border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.86rem] text-gray-800 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:bg-white transition-all" />
+                      <label className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-1 block">City</label>
+                      <input type="text" value={manualCity} onChange={(e) => setManualCity(e.target.value)} placeholder="Dallas" className="w-full bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] px-3 py-2 text-[0.86rem] text-gray-800 outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] transition-all" />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-[0.7rem] font-medium text-gray-500 uppercase tracking-[0.04em] mb-1 block">State</label>
-                        <input type="text" value={manualState} onChange={(e) => setManualState(e.target.value)} placeholder="TX" className="w-full bg-[#FAFAFA] border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.86rem] text-gray-800 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:bg-white transition-all" />
+                        <label className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-1 block">State</label>
+                        <input type="text" value={manualState} onChange={(e) => setManualState(e.target.value)} placeholder="TX" className="w-full bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] px-3 py-2 text-[0.86rem] text-gray-800 outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] transition-all" />
                       </div>
                       <div>
-                        <label className="text-[0.7rem] font-medium text-gray-500 uppercase tracking-[0.04em] mb-1 block">Zip</label>
-                        <input type="text" value={manualZip} onChange={(e) => setManualZip(e.target.value)} placeholder="75216" className="w-full bg-[#FAFAFA] border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.86rem] text-gray-800 outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 focus:bg-white transition-all" />
+                        <label className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-1 block">Zip</label>
+                        <input type="text" value={manualZip} onChange={(e) => setManualZip(e.target.value)} placeholder="75216" className="w-full bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] px-3 py-2 text-[0.86rem] text-gray-800 outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] transition-all" />
                       </div>
                     </div>
                   </div>
                   <button
                     onClick={handleManualAnalyze}
-                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-lg py-2.5 text-[0.86rem] font-semibold cursor-pointer transition-all flex items-center justify-center gap-1.5 hover:scale-[1.01] active:scale-[0.99]"
+                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] py-2.5 text-[0.86rem] font-semibold cursor-pointer transition-all flex items-center justify-center gap-1.5 hover:scale-[1.01] active:scale-[0.99]"
                   >
                     <Zap className="w-4 h-4" />
                     Analyze Deal
@@ -588,8 +588,8 @@ function InputState({
 
         {/* ═══ RIGHT: What you'll get ═══ */}
         <div className="analyzer-preview-card">
-          <div className="bg-white border border-[#E5E7EB] rounded-xl px-5 py-5">
-            <div className="text-[0.72rem] font-medium text-gray-400 uppercase tracking-[0.06em] mb-4">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+            <div style={{ fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'rgba(5,14,36,0.4)' }} className="mb-4">
               Your analysis will include
             </div>
             <div className="space-y-3">
@@ -627,10 +627,10 @@ function InputState({
 
       {/* ── History Section ── */}
       {history.length > 0 && (
-        <div className="mt-8 pt-6 border-t border-[#E5E7EB]">
+        <div className="mt-8 pt-6 border-t border-[rgba(5,14,36,0.08)]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)]">
                 Recent Analyses
               </span>
               <span className="text-[0.68rem] text-gray-400">({history.length})</span>
@@ -639,7 +639,7 @@ function InputState({
               {selectedForCompare.length === 2 && (
                 <button
                   onClick={onCompare}
-                  className="flex items-center gap-1 text-[0.76rem] text-[#2563EB] hover:text-[#1D4ED8] bg-[#EFF6FF] border border-[#BFDBFE] rounded-md px-3 py-1.5 font-medium cursor-pointer transition-colors"
+                  className="flex items-center gap-1 text-[0.76rem] text-[#2563EB] hover:text-[#1D4ED8] bg-[#EFF6FF] border border-[#BFDBFE] rounded-[10px] px-3 py-1.5 font-medium cursor-pointer transition-colors"
                 >
                   <Columns2 className="w-3.5 h-3.5" /> Compare ({selectedForCompare.length})
                 </button>
@@ -660,8 +660,8 @@ function InputState({
               return (
                 <div
                   key={item.id}
-                  className={`bg-white border rounded-lg px-4 py-3.5 cursor-pointer transition-all hover:shadow-sm group relative ${
-                    isSelected ? 'border-[#2563EB] ring-1 ring-[#2563EB]/20' : 'border-[#E5E7EB] hover:border-gray-300'
+                  className={`bg-white border rounded-xl px-4 py-3.5 cursor-pointer transition-all group relative ${
+                    isSelected ? 'border-[#2563EB] ring-1 ring-[#2563EB]/20' : 'border-[rgba(5,14,36,0.08)] hover:border-gray-300'
                   }`}
                   onClick={() => onLoadHistory(item.id)}
                 >
@@ -714,7 +714,7 @@ function InputState({
                       <Link
                         href={`/deals/${item.dealId}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="text-[0.62rem] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded no-underline hover:bg-emerald-100"
+                        className="text-[0.62rem] font-medium text-[#2563EB] bg-[rgba(37,99,235,0.08)] px-1.5 py-0.5 rounded no-underline hover:bg-[#EFF6FF]"
                       >
                         Saved
                       </Link>
@@ -781,7 +781,7 @@ function HistoryCardMenu({
         <MoreVertical className="w-3.5 h-3.5 text-gray-400" />
       </button>
       {open && (
-        <div className="absolute right-0 top-7 bg-white border border-[#E5E7EB] rounded-lg shadow-lg z-30 py-1 min-w-[140px]">
+        <div className="absolute right-0 top-7 bg-white border border-[rgba(5,14,36,0.08)] rounded-xl shadow-lg z-30 py-1 min-w-[140px]">
           <button
             onClick={() => { setOpen(false); onReanalyze() }}
             className="w-full text-left px-3 py-2 text-[0.78rem] text-gray-700 hover:bg-[#F9FAFB] bg-transparent border-0 cursor-pointer transition-colors flex items-center gap-2"
@@ -799,7 +799,7 @@ function HistoryCardMenu({
           {savedAsDeal && dealId && (
             <Link
               href={`/deals/${dealId}`}
-              className="block px-3 py-2 text-[0.78rem] text-emerald-700 hover:bg-[#F9FAFB] no-underline transition-colors flex items-center gap-2"
+              className="block px-3 py-2 text-[0.78rem] text-[#2563EB] hover:bg-[#F9FAFB] no-underline transition-colors flex items-center gap-2"
             >
               <ArrowRight className="w-3 h-3" /> View Deal
             </Link>
@@ -843,13 +843,13 @@ function LoadingState({ address }: { address: string }) {
       {/* Disabled address bar (context) */}
       <div className="relative mb-4 opacity-60 pointer-events-none">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
-        <div className="w-full bg-white border border-[#E5E7EB] rounded-xl pl-12 pr-4 py-4 text-[1rem] text-gray-500 truncate">
+        <div className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-xl pl-12 pr-4 py-4 text-[1rem] text-gray-500 truncate">
           {address}
         </div>
       </div>
 
       {/* Progress card */}
-      <div className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden mb-5">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl overflow-hidden mb-5">
         {/* Progress bar */}
         <div className="h-1 bg-gray-100 relative overflow-hidden">
           <div
@@ -872,14 +872,14 @@ function LoadingState({ address }: { address: string }) {
               <div
                 key={s.label}
                 className={`flex flex-col items-center gap-1.5 py-2 px-1 rounded-lg transition-all duration-500 ${
-                  i < step ? 'bg-emerald-50' : i === step ? 'bg-[#EFF6FF]' : 'bg-gray-50 opacity-50'
+                  i < step ? 'bg-[rgba(37,99,235,0.08)]' : i === step ? 'bg-[#EFF6FF]' : 'bg-gray-50 opacity-50'
                 }`}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                  i < step ? 'bg-emerald-100' : i === step ? 'bg-[#DBEAFE]' : 'bg-gray-100'
+                  i < step ? 'bg-[#DBEAFE]' : i === step ? 'bg-[#DBEAFE]' : 'bg-gray-100'
                 }`}>
                   {i < step ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <CheckCircle2 className="w-4 h-4 text-[#2563EB]" />
                   ) : i === step ? (
                     <Loader2 className="w-4 h-4 text-[#2563EB] animate-spin" />
                   ) : (
@@ -887,7 +887,7 @@ function LoadingState({ address }: { address: string }) {
                   )}
                 </div>
                 <span className={`text-[0.64rem] text-center leading-tight ${
-                  i < step ? 'text-emerald-700 font-medium' : i === step ? 'text-[#2563EB] font-medium' : 'text-gray-400'
+                  i < step ? 'text-[#2563EB] font-medium' : i === step ? 'text-[#2563EB] font-medium' : 'text-gray-400'
                 }`}>
                   {s.label.replace('...', '')}
                 </span>
@@ -901,7 +901,7 @@ function LoadingState({ address }: { address: string }) {
       <div className="grid analyzer-results-grid gap-4 opacity-30" style={{ gridTemplateColumns: '1.5fr 1fr' }}>
         <div className="space-y-4">
           {/* AI Summary skeleton */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
             <div className="w-24 h-3 bg-gray-200 rounded mb-4 animate-pulse" />
             <div className="space-y-2">
               <div className="w-full h-3 bg-gray-100 rounded animate-pulse" />
@@ -910,7 +910,7 @@ function LoadingState({ address }: { address: string }) {
             </div>
           </div>
           {/* Comps skeleton */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
             <div className="w-32 h-3 bg-gray-200 rounded mb-4 animate-pulse" />
             <div className="space-y-3">
               {[1, 2, 3].map((n) => (
@@ -927,7 +927,7 @@ function LoadingState({ address }: { address: string }) {
         </div>
         <div className="space-y-4">
           {/* Financials skeleton */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
             <div className="w-28 h-3 bg-gray-200 rounded mb-4 animate-pulse" />
             <div className="space-y-2.5">
               {[1, 2, 3, 4].map((n) => (
@@ -939,7 +939,7 @@ function LoadingState({ address }: { address: string }) {
             </div>
           </div>
           {/* Score skeleton */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
             <div className="w-20 h-3 bg-gray-200 rounded mb-4 animate-pulse" />
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-gray-100 animate-pulse" />
@@ -1226,41 +1226,44 @@ function ResultsState({
       </div>
 
       {/* Property Header */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-6 py-5 mb-5">
+      <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white px-6 py-5 mb-5">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h2 className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">
+            <h2 style={{ fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">
               {p.address}
             </h2>
-            <p className="text-sm text-[#9CA3AF] flex items-center gap-1 mb-3">
+            <p style={{ fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="flex items-center gap-1 mb-3">
               <MapPin className="w-3.5 h-3.5" /> {p.city}, {p.state} {p.zip}
             </p>
-            <div className="flex items-center gap-4 text-[0.8rem] text-gray-500 flex-wrap">
+            <div className="flex items-center gap-4 flex-wrap" style={{ fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }}>
               {p.propertyType && (
-                <span className="flex items-center gap-1"><Home className="w-3.5 h-3.5 text-gray-400" /> {p.propertyType}</span>
+                <span className="flex items-center gap-1"><Home className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} /> {p.propertyType}</span>
               )}
               {p.beds != null && (
-                <span className="flex items-center gap-1"><BedDouble className="w-3.5 h-3.5 text-gray-400" /> {p.beds} Beds</span>
+                <span className="flex items-center gap-1"><BedDouble className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} /> {p.beds} Beds</span>
               )}
               {p.baths != null && (
-                <span className="flex items-center gap-1"><Bath className="w-3.5 h-3.5 text-gray-400" /> {p.baths} Baths</span>
+                <span className="flex items-center gap-1"><Bath className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} /> {p.baths} Baths</span>
               )}
               {p.sqft != null && (
-                <span className="flex items-center gap-1"><Ruler className="w-3.5 h-3.5 text-gray-400" /> {p.sqft.toLocaleString()} sqft</span>
+                <span className="flex items-center gap-1"><Ruler className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} /> {p.sqft.toLocaleString()} sqft</span>
               )}
               {p.yearBuilt != null && (
-                <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-gray-400" /> Built {p.yearBuilt}</span>
+                <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} /> Built {p.yearBuilt}</span>
               )}
             </div>
           </div>
           {dealScore && (
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-1">Deal Score</div>
-                <div className="text-[0.76rem] text-gray-500 max-w-[200px] leading-snug">{dealScore.summary}</div>
+                <div style={{ fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'rgba(5,14,36,0.4)' }} className="mb-1">Deal Score</div>
+                <div style={{ fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="max-w-[200px] leading-snug">{dealScore.summary}</div>
               </div>
-              <div className={`w-[72px] h-[72px] rounded-2xl border flex items-center justify-center flex-shrink-0 ${gradeColor(dealScore.grade)}`}>
-                <span className="text-[1.6rem] font-bold">{dealScore.grade}</span>
+              <div
+                className="w-[72px] h-[72px] rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: '#2563EB' }}
+              >
+                <span className="text-[1.6rem] font-bold text-white">{dealScore.grade}</span>
               </div>
             </div>
           )}
@@ -1273,9 +1276,9 @@ function ResultsState({
         <div className="space-y-4">
           {/* Card 1: AI Summary */}
           {aiSummary && (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
               <div className="flex items-center justify-between mb-4">
-                <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] flex items-center gap-1.5">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] flex items-center gap-1.5">
                   <Brain className="w-3.5 h-3.5" /> AI Analysis
                 </div>
                 <button
@@ -1312,8 +1315,8 @@ function ResultsState({
           )}
 
           {/* Card 2: Comparable Sales */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
               <Target className="w-3.5 h-3.5" /> Comparable Sales
             </div>
             <div className="space-y-2">
@@ -1323,7 +1326,8 @@ function ResultsState({
                 .map((c, i, arr) => (
                   <div
                     key={`${c.address}-${i}`}
-                    className={`flex items-center gap-3 py-2 ${i < arr.length - 1 ? 'border-b border-gray-50' : ''}`}
+                    className="flex items-center gap-3 py-2 bg-white hover:bg-[rgba(37,99,235,0.02)]"
+                    style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="text-[0.8rem] text-gray-800 font-medium truncate">{c.address}</div>
@@ -1340,9 +1344,9 @@ function ResultsState({
                     <div
                       className={`text-[0.64rem] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${
                         c.relevanceScore >= 80
-                          ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                          ? 'text-white bg-[#2563EB] border-[#2563EB]'
                           : c.relevanceScore >= 60
-                            ? 'text-[#2563EB] bg-[#EFF6FF] border-[#BFDBFE]'
+                            ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]'
                             : 'text-amber-700 bg-amber-50 border-amber-200'
                       }`}
                     >
@@ -1352,7 +1356,7 @@ function ResultsState({
                 ))}
             </div>
             <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
               <span className="text-[0.76rem] text-gray-600">Comp Confidence:</span>
               <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded-full ${confidenceBadge(arv.confidence.level)}`}>
                 {arv.confidence.level.charAt(0).toUpperCase() + arv.confidence.level.slice(1)}
@@ -1376,8 +1380,8 @@ function ResultsState({
 
           {/* Add Photos (post-analysis) */}
           {!photoAnalysis && !photoAnalysisLoading && (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-              <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-3 flex items-center gap-1.5">
                 <Camera className="w-3.5 h-3.5" /> Photo Condition Analysis
               </div>
               {photos.length > 0 ? (
@@ -1385,7 +1389,7 @@ function ResultsState({
                   <PhotoUploadZone photos={photos} onAdd={onAddPhotos} onRemove={onRemovePhoto} />
                   <button
                     onClick={onRunPhotoAnalysis}
-                    className="w-full mt-3 flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+                    className="w-full mt-3 flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
                   >
                     <Eye className="w-4 h-4" /> Analyze Photos
                   </button>
@@ -1400,8 +1404,8 @@ function ResultsState({
           )}
 
           {/* Card 3: Repair Estimate */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
               <Wrench className="w-3.5 h-3.5" /> Repair Estimate
             </div>
             <div className="flex items-center justify-between mb-4">
@@ -1433,8 +1437,8 @@ function ResultsState({
         {/* ═══ RIGHT COLUMN ═══ */}
         <div className="space-y-4">
           {/* Card 4: Deal Financials */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
               <DollarSign className="w-3.5 h-3.5" /> Deal Financials
             </div>
             <div className="space-y-2.5 mb-4">
@@ -1455,7 +1459,7 @@ function ResultsState({
               {spread != null && spreadPct != null && (
                 <div className="flex items-center justify-between">
                   <span className="text-[0.8rem] text-gray-500">Spread</span>
-                  <span className="text-[0.92rem] font-semibold text-emerald-600">{fmt(spread)} ({spreadPct}%)</span>
+                  <span className="text-[0.92rem] font-semibold text-[#2563EB]">{fmt(spread)} ({spreadPct}%)</span>
                 </div>
               )}
               {arv.breakdown.rentCastAVM != null && (
@@ -1464,7 +1468,7 @@ function ResultsState({
                   <span className="text-[0.82rem] text-gray-700">
                     {fmt(arv.breakdown.rentCastAVM)}
                     {arv.breakdown.avmDifferencePercent != null && (
-                      <span className={arv.breakdown.avmDifferencePercent > 0 ? 'text-emerald-600' : 'text-amber-600'}>
+                      <span className={arv.breakdown.avmDifferencePercent > 0 ? 'text-[#2563EB]' : 'text-amber-600'}>
                         {' '}({arv.breakdown.avmDifferencePercent > 0 ? '+' : ''}{arv.breakdown.avmDifferencePercent}%)
                       </span>
                     )}
@@ -1489,7 +1493,7 @@ function ResultsState({
             {/* Spread bar */}
             {flip && arv.arv != null && arv.arv > 0 && (
               <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-2">Contract vs ARV</div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-2">Contract vs ARV</div>
                 <div className="relative h-6 rounded-full bg-gray-200 overflow-hidden">
                   <div
                     className="absolute inset-y-0 left-0 bg-[#2563EB] rounded-full"
@@ -1498,7 +1502,7 @@ function ResultsState({
                 </div>
                 <div className="flex items-center justify-between mt-1.5">
                   <span className="text-[0.66rem] text-gray-400">Contract {fmt(flip.purchasePrice)}</span>
-                  <span className="text-[0.66rem] text-emerald-600 font-medium">{fmt(spread)} spread</span>
+                  <span className="text-[0.66rem] text-[#2563EB] font-medium">{fmt(spread)} spread</span>
                   <span className="text-[0.66rem] text-gray-400">ARV {fmt(arv.arv)}</span>
                 </div>
               </div>
@@ -1516,7 +1520,7 @@ function ResultsState({
                 {dealScore.strengths.length > 0 && (
                   <div className="mt-2 space-y-1">
                     {dealScore.strengths.slice(0, 3).map((s, i) => (
-                      <div key={i} className="flex items-start gap-1.5 text-[0.72rem] text-emerald-700">
+                      <div key={i} className="flex items-start gap-1.5 text-[0.72rem] text-[#2563EB]">
                         <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" /> {s}
                       </div>
                     ))}
@@ -1537,8 +1541,8 @@ function ResultsState({
 
           {/* Card 5: Flip Analysis */}
           {flip ? (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-              <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
                 <TrendingUp className="w-3.5 h-3.5" /> Flip Analysis
               </div>
               <div className="space-y-2 mb-3">
@@ -1560,7 +1564,7 @@ function ResultsState({
                 </div>
                 <div className="flex justify-between text-[0.8rem] pt-2 border-t border-gray-100">
                   <span className="text-gray-700 font-medium">Net Profit</span>
-                  <span className={`font-bold ${flip.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <span className={`font-bold ${flip.netProfit >= 0 ? 'text-[#2563EB]' : 'text-red-600'}`}>
                     {fmt(flip.netProfit)}
                   </span>
                 </div>
@@ -1569,7 +1573,7 @@ function ResultsState({
                 </div>
                 <div className="flex justify-between text-[0.8rem]">
                   <span className="text-gray-500">ROI</span>
-                  <span className={`font-bold ${flip.roi >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{flip.roi}%</span>
+                  <span className={`font-bold ${flip.roi >= 0 ? 'text-[#2563EB]' : 'text-red-600'}`}>{flip.roi}%</span>
                 </div>
                 <div className="flex justify-between text-[0.8rem]">
                   <span className="text-gray-500">Annualized ROI</span>
@@ -1588,20 +1592,20 @@ function ResultsState({
               </div>
               {/* Threshold badges */}
               <div className="flex gap-2 flex-wrap">
-                <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full border ${flip.meetsMinSpread ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 border-red-200'}`}>
+                <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full border ${flip.meetsMinSpread ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]' : 'text-red-700 bg-red-50 border-red-200'}`}>
                   {flip.meetsMinSpread ? '\u2713' : '\u2717'} Min Spread
                 </span>
-                <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full border ${flip.meetsMinProfit ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 border-red-200'}`}>
+                <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full border ${flip.meetsMinProfit ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]' : 'text-red-700 bg-red-50 border-red-200'}`}>
                   {flip.meetsMinProfit ? '\u2713' : '\u2717'} Min Profit
                 </span>
-                <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full border ${flip.meetsMinROI ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 border-red-200'}`}>
+                <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full border ${flip.meetsMinROI ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]' : 'text-red-700 bg-red-50 border-red-200'}`}>
                   {flip.meetsMinROI ? '\u2713' : '\u2717'} Min ROI
                 </span>
               </div>
             </div>
           ) : (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-              <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-2 flex items-center gap-1.5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-2 flex items-center gap-1.5">
                 <TrendingUp className="w-3.5 h-3.5" /> Flip Analysis
               </div>
               <p className="text-[0.8rem] text-gray-400">Enter an asking price to see flip projections.</p>
@@ -1610,8 +1614,8 @@ function ResultsState({
 
           {/* Card 6: Rental Analysis */}
           {rental ? (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-              <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
                 <Home className="w-3.5 h-3.5" /> Rental Analysis
               </div>
               <div className="space-y-2">
@@ -1636,13 +1640,13 @@ function ResultsState({
                 </div>
                 <div className="flex justify-between text-[0.8rem] pt-2 border-t border-gray-100">
                   <span className="text-gray-700 font-medium">Monthly Cash Flow</span>
-                  <span className={`font-bold ${rental.monthlyCashFlow >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <span className={`font-bold ${rental.monthlyCashFlow >= 0 ? 'text-[#2563EB]' : 'text-red-600'}`}>
                     {fmt(rental.monthlyCashFlow)}/mo
                   </span>
                 </div>
                 <div className="flex justify-between text-[0.8rem]">
                   <span className="text-gray-500">Annual Cash Flow</span>
-                  <span className={`font-bold ${rental.annualCashFlow >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <span className={`font-bold ${rental.annualCashFlow >= 0 ? 'text-[#2563EB]' : 'text-red-600'}`}>
                     {fmt(rental.annualCashFlow)}
                   </span>
                 </div>
@@ -1661,8 +1665,8 @@ function ResultsState({
               </div>
             </div>
           ) : (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4">
-              <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-2 flex items-center gap-1.5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-2 flex items-center gap-1.5">
                 <Home className="w-3.5 h-3.5" /> Rental Analysis
               </div>
               <p className="text-[0.8rem] text-gray-400">Enter an asking price to see rental projections.</p>
@@ -1671,8 +1675,8 @@ function ResultsState({
 
           {/* Card 7: Market Intelligence */}
           {market && (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-              <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
                 <BarChart3 className="w-3.5 h-3.5" /> Market Intelligence
               </div>
               <div className="space-y-2.5">
@@ -1698,14 +1702,14 @@ function ResultsState({
                   <div className="flex items-center justify-between">
                     <span className="text-[0.8rem] text-gray-500 flex items-center gap-1.5">
                       {market.priceTrends.trend === 'rising' ? (
-                        <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                        <TrendingUp className="w-3.5 h-3.5 text-[#2563EB]" />
                       ) : market.priceTrends.trend === 'falling' ? (
                         <TrendingDown className="w-3.5 h-3.5 text-red-500" />
                       ) : null}
                       6-Month Trend
                     </span>
                     <span className={`text-[0.88rem] font-semibold ${
-                      market.priceTrends.priceChange6Month >= 0 ? 'text-emerald-600' : 'text-red-600'
+                      market.priceTrends.priceChange6Month >= 0 ? 'text-[#2563EB]' : 'text-red-600'
                     }`}>
                       {market.priceTrends.priceChange6Month >= 0 ? '+' : ''}{market.priceTrends.priceChange6Month}%
                     </span>
@@ -1735,12 +1739,12 @@ function ResultsState({
               {market.priceTrends.monthlyMedians.length >= 2 && (
                 <div className="mt-4 pt-3 border-t border-gray-100">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">Price Trend</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)]">Price Trend</span>
                     <span className="text-[0.68rem] text-gray-400">{market.priceTrends.dataPoints} data points</span>
                   </div>
                   <Sparkline
                     data={market.priceTrends.monthlyMedians.map((m) => m.median)}
-                    color={market.priceTrends.trend === 'falling' ? '#EF4444' : '#10b981'}
+                    color={market.priceTrends.trend === 'falling' ? '#EF4444' : '#2563EB'}
                   />
                 </div>
               )}
@@ -1749,7 +1753,7 @@ function ResultsState({
                 <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
                   {market.assessment.signals.slice(0, 4).map((s, i) => (
                     <div key={i} className={`flex items-start gap-2 text-[0.72rem] ${
-                      s.type === 'positive' ? 'text-emerald-700' :
+                      s.type === 'positive' ? 'text-[#2563EB]' :
                       s.type === 'negative' ? 'text-red-700' : 'text-gray-500'
                     }`}>
                       <span className="mt-0.5">
@@ -1786,13 +1790,13 @@ function ResultsState({
       />
 
       {/* Action Bar */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-3.5 flex items-center gap-2.5 flex-wrap">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-3.5 flex items-center gap-2.5 flex-wrap">
         <button
           onClick={listingCreated ? undefined : listOnMarketplace}
           disabled={listingLoading || listingCreated}
-          className={`flex items-center gap-1.5 border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
+          className={`flex items-center gap-1.5 border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
             listingCreated
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border border-[#2563EB]'
               : 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white disabled:opacity-60'
           }`}
         >
@@ -1802,7 +1806,7 @@ function ResultsState({
         <button
           onClick={matchBuyers}
           disabled={matching}
-          className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {matching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
           {matchCount !== null ? `Matched ${matchCount} Buyers` : 'Match to Buyers'}
@@ -1810,9 +1814,9 @@ function ResultsState({
         <button
           onClick={contractCreated ? undefined : generateContract}
           disabled={contractLoading || contractCreated}
-          className={`flex items-center gap-1.5 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
+          className={`flex items-center gap-1.5 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
             contractCreated
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border border-[#2563EB]'
               : 'bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] disabled:opacity-60'
           }`}
         >
@@ -1821,14 +1825,14 @@ function ResultsState({
         </button>
         <button
           onClick={() => toast('Coming soon\u2026')}
-          className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
         >
           <Download className="w-4 h-4" /> Export PDF
         </button>
         {savedDealId ? (
           <Link
             href={`/deals/${savedDealId}`}
-            className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-md px-4 py-2.5 text-[0.82rem] font-medium no-underline hover:bg-emerald-100 transition-colors ml-auto"
+            className="flex items-center gap-1.5 bg-[rgba(37,99,235,0.08)] border border-[#2563EB] text-[#2563EB] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium no-underline hover:bg-[#EFF6FF] transition-colors ml-auto"
           >
             <Check className="w-4 h-4" /> View Deal <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -1836,7 +1840,7 @@ function ResultsState({
           <button
             onClick={saveDeal}
             disabled={saving}
-            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors ml-auto disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors ml-auto disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bookmark className="w-4 h-4" />}
             Save as Deal
@@ -1852,8 +1856,8 @@ function ResultsState({
    ═══════════════════════════════════════════════ */
 
 function matchScoreColor(score: number): string {
-  if (score >= 80) return 'text-emerald-700 bg-emerald-50 border-emerald-200'
-  if (score >= 60) return 'text-[#2563EB] bg-[#EFF6FF] border-[#BFDBFE]'
+  if (score >= 80) return 'text-white bg-[#2563EB] border-[#2563EB]'
+  if (score >= 60) return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]'
   if (score >= 40) return 'text-amber-700 bg-amber-50 border-amber-200'
   return 'text-gray-700 bg-gray-50 border-gray-200'
 }
@@ -1879,8 +1883,8 @@ function BuyerPreviewCard({
 }) {
   if (loading) {
     return (
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-        <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
           <Users className="w-3.5 h-3.5" /> Matching Buyers in Your CRM
         </div>
         <div className="flex items-center gap-2 text-[0.82rem] text-gray-400 py-4">
@@ -1893,8 +1897,8 @@ function BuyerPreviewCard({
   if (!data) return null
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-      <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-1 flex items-center gap-1.5">
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-1 flex items-center gap-1.5">
         <Users className="w-3.5 h-3.5" /> Matching Buyers in Your CRM
       </div>
       {data.matchedCount > 0 ? (
@@ -1921,7 +1925,7 @@ function BuyerPreviewCard({
                     }`}>{strategyLabel(m.strategy)}</span>
                     <span>{m.priceRange}</span>
                     {m.closeSpeed && <span>&middot; {m.closeSpeed}</span>}
-                    {m.proofOfFunds && <span className="text-emerald-500" title="Proof of funds verified"><Shield className="w-3 h-3 inline" /></span>}
+                    {m.proofOfFunds && <span className="text-[#2563EB]" title="Proof of funds verified"><Shield className="w-3 h-3 inline" /></span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -1936,7 +1940,7 @@ function BuyerPreviewCard({
           <button
             onClick={onSaveAndMatch}
             disabled={savingAndMatching}
-            className="w-full mt-4 flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full mt-4 flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {savingAndMatching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             {savingAndMatching ? 'Saving & Matching...' : 'Save & Match All'}
@@ -2051,7 +2055,7 @@ function PhotoUploadZone({
 
 function conditionColor(condition: string): string {
   switch (condition.toLowerCase()) {
-    case 'excellent': case 'good': return 'text-emerald-700 bg-emerald-50 border-emerald-200'
+    case 'excellent': case 'good': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]'
     case 'fair': return 'text-amber-700 bg-amber-50 border-amber-200'
     case 'poor': case 'distressed': return 'text-red-700 bg-red-50 border-red-200'
     default: return 'text-gray-700 bg-gray-50 border-gray-200'
@@ -2061,7 +2065,7 @@ function conditionColor(condition: string): string {
 function urgencyDot(urgency: string): string {
   if (urgency === 'high') return 'bg-red-500'
   if (urgency === 'medium') return 'bg-amber-500'
-  return 'bg-emerald-500'
+  return 'bg-[#2563EB]'
 }
 
 function PhotoAnalysisCard({
@@ -2088,8 +2092,8 @@ function PhotoAnalysisCard({
 
   if (loading) {
     return (
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-        <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
           <Camera className="w-3.5 h-3.5" /> Photo Condition Analysis
         </div>
         <div className="flex items-center gap-2 text-[0.82rem] text-gray-400 py-4">
@@ -2108,8 +2112,8 @@ function PhotoAnalysisCard({
     : null
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-      <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
         <Camera className="w-3.5 h-3.5" /> Photo Condition Analysis
       </div>
 
@@ -2234,33 +2238,33 @@ function PhotoAnalysisCard({
    ═══════════════════════════════════════════════ */
 
 function signalDot(type: string): string {
-  if (type === 'opportunity') return 'bg-emerald-500'
+  if (type === 'opportunity') return 'bg-[#2563EB]'
   if (type === 'caution') return 'bg-amber-500'
   return 'bg-blue-400'
 }
 
 function trendIcon(trend: string) {
-  if (trend === 'rising') return <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+  if (trend === 'rising') return <TrendingUp className="w-3.5 h-3.5 text-[#2563EB]" />
   if (trend === 'falling') return <TrendingDown className="w-3.5 h-3.5 text-red-500" />
   return null
 }
 
 function demandBadge(level: string): string {
-  if (level === 'undersupplied') return 'text-emerald-700 bg-emerald-50'
+  if (level === 'undersupplied') return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
   if (level === 'oversupplied') return 'text-red-700 bg-red-50'
   return 'text-gray-700 bg-gray-50'
 }
 
 function competitionBadge(level: string): string {
-  if (level === 'low') return 'text-emerald-700 bg-emerald-50'
+  if (level === 'low') return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
   if (level === 'high') return 'text-red-700 bg-red-50'
   return 'text-amber-700 bg-amber-50'
 }
 
 function NeighborhoodCard({ data }: { data: NeighborhoodIntelligence }) {
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-      <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
         <MapPin className="w-3.5 h-3.5" /> Neighborhood &mdash; {data.zip}
       </div>
 
@@ -2299,7 +2303,7 @@ function NeighborhoodCard({ data }: { data: NeighborhoodIntelligence }) {
               <span className="flex items-center gap-1 text-[0.72rem] text-gray-500">
                 {trendIcon(data.zipPricing.trend)}
                 {data.zipPricing.priceChange6Month != null && (
-                  <span className={data.zipPricing.priceChange6Month >= 0 ? 'text-emerald-600' : 'text-red-600'}>
+                  <span className={data.zipPricing.priceChange6Month >= 0 ? 'text-[#2563EB]' : 'text-red-600'}>
                     {data.zipPricing.priceChange6Month >= 0 ? '+' : ''}{data.zipPricing.priceChange6Month}% (6mo)
                   </span>
                 )}
@@ -2397,7 +2401,7 @@ function NeighborhoodCard({ data }: { data: NeighborhoodIntelligence }) {
             {data.surroundingProperties.priceVsNeighborhood != null && (
               <div className="flex justify-between">
                 <span className="text-gray-400">This property vs neighbors</span>
-                <span className={`font-medium ${data.surroundingProperties.priceVsNeighborhood < 0 ? 'text-emerald-600' : data.surroundingProperties.priceVsNeighborhood > 10 ? 'text-red-600' : 'text-gray-600'}`}>
+                <span className={`font-medium ${data.surroundingProperties.priceVsNeighborhood < 0 ? 'text-[#2563EB]' : data.surroundingProperties.priceVsNeighborhood > 10 ? 'text-red-600' : 'text-gray-600'}`}>
                   {data.surroundingProperties.priceVsNeighborhood > 0 ? '+' : ''}{data.surroundingProperties.priceVsNeighborhood}%
                 </span>
               </div>
@@ -2416,7 +2420,7 @@ function NeighborhoodCard({ data }: { data: NeighborhoodIntelligence }) {
                 <span className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${signalDot(s.type)}`} />
                 <div>
                   <span className={
-                    s.type === 'opportunity' ? 'text-emerald-700' :
+                    s.type === 'opportunity' ? 'text-[#2563EB]' :
                     s.type === 'caution' ? 'text-amber-700' : 'text-gray-600'
                   }>{s.signal}</span>
                   {s.detail && <span className="text-gray-400 ml-1">&mdash; {s.detail}</span>}
@@ -2457,7 +2461,7 @@ function urgencyIndicator(u: string) {
 }
 
 function ctaStyle(actionType: string): string {
-  if (actionType === 'list_marketplace') return 'bg-emerald-600 hover:bg-emerald-700 text-white'
+  if (actionType === 'list_marketplace') return 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
   if (actionType === 'analyze_property') return 'bg-[#0B1224] hover:bg-[#1a2744] text-white'
   return 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
 }
@@ -2474,7 +2478,7 @@ function insightIcon(category: string) {
 }
 
 function insightConfidenceBadge(c: string): string {
-  if (c === 'high') return 'text-emerald-700 bg-emerald-50'
+  if (c === 'high') return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
   if (c === 'medium') return 'text-amber-700 bg-amber-50'
   return 'text-gray-700 bg-gray-50'
 }
@@ -2494,7 +2498,7 @@ function RecommendationsPanel({
 
   if (loading) {
     return (
-      <div className="bg-[#F8FAFF] border border-[#D4E0FF] rounded-lg px-6 py-5 mb-5">
+      <div className="bg-[#F8FAFF] border border-[#D4E0FF] rounded-xl px-6 py-5 mb-5">
         <div className="text-xs font-medium text-[#2563EB] uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5">
           <Zap className="w-3.5 h-3.5" /> Recommendations
         </div>
@@ -2515,7 +2519,7 @@ function RecommendationsPanel({
   if (!hasActions && !hasBuyers && !hasNearby && !hasInsights) return null
 
   return (
-    <div className="bg-[#F8FAFF] border border-[#D4E0FF] rounded-lg px-6 py-5 mb-5">
+    <div className="bg-[#F8FAFF] border border-[#D4E0FF] rounded-xl px-6 py-5 mb-5">
       <div className="text-xs font-medium text-[#2563EB] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
         <Zap className="w-3.5 h-3.5" /> Recommended Next Steps
       </div>
@@ -2525,7 +2529,7 @@ function RecommendationsPanel({
         <div className="mb-5">
           <div className="space-y-2.5">
             {data.actions.map((a, i) => (
-              <div key={i} className="flex items-start gap-3 bg-white rounded-lg px-4 py-3 border border-[#E5E7EB]">
+              <div key={i} className="flex items-start gap-3 bg-white rounded-xl px-4 py-3 border border-[rgba(5,14,36,0.08)]">
                 <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5 ${priorityDot(a.priority)}`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-[0.84rem] text-gray-800 font-medium">{a.action}</div>
@@ -2533,7 +2537,7 @@ function RecommendationsPanel({
                 </div>
                 <button
                   onClick={() => onCta(a.cta.actionType)}
-                  className={`flex items-center gap-1.5 border-0 rounded-md px-3.5 py-2 text-[0.78rem] font-medium cursor-pointer transition-colors flex-shrink-0 ${ctaStyle(a.cta.actionType)}`}
+                  className={`flex items-center gap-1.5 border-0 rounded-[10px] px-3.5 py-2 text-[0.78rem] font-medium cursor-pointer transition-colors flex-shrink-0 ${ctaStyle(a.cta.actionType)}`}
                 >
                   {a.cta.label}
                 </button>
@@ -2551,7 +2555,7 @@ function RecommendationsPanel({
           </div>
           <div className="space-y-1.5">
             {data.buyerActions.map((b) => (
-              <div key={b.buyerId} className="flex items-center gap-3 bg-white rounded-lg px-4 py-2.5 border border-[#E5E7EB]">
+              <div key={b.buyerId} className="flex items-center gap-3 bg-white rounded-xl px-4 py-2.5 border border-[rgba(5,14,36,0.08)]">
                 {urgencyIndicator(b.urgency)}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -2564,7 +2568,7 @@ function RecommendationsPanel({
                     <span className={`text-[0.64rem] font-bold px-1.5 py-0.5 rounded-full border ${matchScoreColor(b.matchScore)}`}>
                       {b.matchScore}
                     </span>
-                    {b.proofOfFunds && <Shield className="w-3 h-3 text-emerald-500" />}
+                    {b.proofOfFunds && <Shield className="w-3 h-3 text-[#2563EB]" />}
                     {b.strategy && (
                       <span className={`text-[0.62rem] font-medium px-1.5 py-0.5 rounded ${
                         b.strategy === 'FLIP' ? 'text-purple-700 bg-purple-50' :
@@ -2601,7 +2605,7 @@ function RecommendationsPanel({
           {nearbyOpen && (
             <div className="space-y-2">
               {data.nearbyOpportunities.map((opp, i) => (
-                <div key={i} className="flex items-start gap-3 bg-white rounded-lg px-4 py-3 border border-[#E5E7EB]">
+                <div key={i} className="flex items-start gap-3 bg-white rounded-xl px-4 py-3 border border-[rgba(5,14,36,0.08)]">
                   <div className="flex-1 min-w-0">
                     <div className="text-[0.82rem] text-gray-800 font-medium">{opp.address}</div>
                     <div className="text-[0.7rem] text-gray-400 mb-1">
@@ -2617,7 +2621,7 @@ function RecommendationsPanel({
                   </div>
                   <div className="flex flex-col items-end gap-2 flex-shrink-0">
                     <span className={`text-[0.64rem] font-bold px-2 py-0.5 rounded-full border ${
-                      opp.score >= 70 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' :
+                      opp.score >= 70 ? 'text-white bg-[#2563EB] border-[#2563EB]' :
                       opp.score >= 50 ? 'text-amber-700 bg-amber-50 border-amber-200' :
                       'text-gray-700 bg-gray-50 border-gray-200'
                     }`}>
@@ -2645,7 +2649,7 @@ function RecommendationsPanel({
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {data.strategicInsights.map((ins, i) => (
-              <div key={i} className="bg-white rounded-lg px-4 py-3 border border-[#E5E7EB]">
+              <div key={i} className="bg-white rounded-xl px-4 py-3 border border-[rgba(5,14,36,0.08)]">
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-gray-400">{insightIcon(ins.category)}</span>
                   <span className="text-[0.66rem] font-medium text-gray-400 uppercase tracking-wider">{ins.category}</span>
@@ -2680,7 +2684,7 @@ function ComparisonView({
     if (aVal == null || bVal == null) return ['', '']
     if (aVal === bVal) return ['', '']
     const aWins = higher ? aVal > bVal : aVal < bVal
-    return aWins ? ['text-emerald-600 font-semibold', ''] : ['', 'text-emerald-600 font-semibold']
+    return aWins ? ['text-[#2563EB] font-semibold', ''] : ['', 'text-[#2563EB] font-semibold']
   }
 
   const rows: Array<{ label: string; aVal: string; bVal: string; aClass: string; bClass: string }> = [
@@ -2694,9 +2698,9 @@ function ComparisonView({
   ]
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5 mb-6">
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] flex items-center gap-1.5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] flex items-center gap-1.5">
           <Columns2 className="w-3.5 h-3.5" /> Deal Comparison
         </div>
         <button
@@ -2708,18 +2712,18 @@ function ComparisonView({
       </div>
       <table className="w-full text-[0.8rem]">
         <thead>
-          <tr className="border-b border-gray-100">
-            <th className="text-left text-[0.72rem] text-gray-500 font-medium py-2 w-[140px]">&nbsp;</th>
-            <th className="text-left text-[0.78rem] text-gray-800 font-medium py-2 truncate max-w-[200px]">{a.address}</th>
-            <th className="text-left text-[0.78rem] text-gray-800 font-medium py-2 truncate max-w-[200px]">{b.address}</th>
+          <tr style={{ backgroundColor: 'rgba(5,14,36,0.02)' }}>
+            <th className="text-left py-2 px-2 w-[140px]" style={{ fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'rgba(5,14,36,0.4)' }}>&nbsp;</th>
+            <th className="text-left py-2 px-2 truncate max-w-[200px]" style={{ fontWeight: 600, fontSize: '13px', color: '#0B1224' }}>{a.address}</th>
+            <th className="text-left py-2 px-2 truncate max-w-[200px]" style={{ fontWeight: 600, fontSize: '13px', color: '#0B1224' }}>{b.address}</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.label} className="border-b border-gray-50">
-              <td className="text-gray-500 py-2 text-[0.76rem]">{row.label}</td>
-              <td className={`py-2 ${row.aClass}`}>{row.aVal}</td>
-              <td className={`py-2 ${row.bClass}`}>{row.bVal}</td>
+            <tr key={row.label} className="bg-white hover:bg-[rgba(37,99,235,0.02)]" style={{ borderBottom: '1px solid rgba(5,14,36,0.04)' }}>
+              <td className="py-2 px-2" style={{ fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>{row.label}</td>
+              <td className={`py-2 px-2 ${row.aClass}`}>{row.aVal}</td>
+              <td className={`py-2 px-2 ${row.bClass}`}>{row.bVal}</td>
             </tr>
           ))}
         </tbody>
@@ -2756,13 +2760,13 @@ function ExpiredPrompt({
         <div className="flex gap-2">
           <button
             onClick={onViewAnyway}
-            className="flex-1 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex-1 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             View Anyway
           </button>
           <button
             onClick={onReanalyze}
-            className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             Re-analyze
           </button>
@@ -3131,17 +3135,17 @@ export default function PropertyAnalyzerPage() {
     : null
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)]">
+    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       {/* Header + API Usage */}
       <div className="flex items-start justify-between mb-5">
         <div>
           <h1
-            style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-            className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1"
+            style={{ fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }}
+            className="mb-1"
           >
             Analyze Deal
           </h1>
-          <p className="text-sm text-[#9CA3AF]">
+          <p style={{ fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>
             Instant ARV, comps, and deal scoring for any property.
           </p>
         </div>
@@ -3157,7 +3161,7 @@ export default function PropertyAnalyzerPage() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 flex items-center gap-2 text-[0.84rem]">
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-5 flex items-center gap-2 text-[0.84rem]">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           {error}
         </div>

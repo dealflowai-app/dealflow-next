@@ -107,21 +107,21 @@ interface Deal {
    ═══════════════════════════════════════════════ */
 
 const statusColors: Record<string, { bg: string; text: string }> = {
-  DRAFT: { bg: 'rgba(156,163,175,0.1)', text: '#6b7280' },
-  ACTIVE: { bg: 'rgba(22,163,74,0.08)', text: '#16a34a' },
-  UNDER_OFFER: { bg: 'rgba(37,99,235,0.08)', text: '#2563eb' },
-  CLOSED: { bg: 'rgba(124,58,237,0.08)', text: '#7c3aed' },
+  DRAFT: { bg: 'rgba(5,14,36,0.04)', text: 'rgba(5,14,36,0.4)' },
+  ACTIVE: { bg: 'rgba(37,99,235,0.08)', text: '#2563EB' },
+  UNDER_OFFER: { bg: 'rgba(139,92,246,0.08)', text: '#8B5CF6' },
+  CLOSED: { bg: 'rgba(37,99,235,0.08)', text: '#2563EB' },
   CANCELLED: { bg: 'rgba(239,68,68,0.08)', text: '#ef4444' },
-  EXPIRED: { bg: 'rgba(156,163,175,0.08)', text: '#9ca3af' },
+  EXPIRED: { bg: 'rgba(5,14,36,0.04)', text: 'rgba(5,14,36,0.4)' },
 }
 
 const offerStatusColors: Record<string, { bg: string; text: string }> = {
   PENDING: { bg: 'rgba(245,158,11,0.08)', text: '#d97706' },
-  ACCEPTED: { bg: 'rgba(22,163,74,0.08)', text: '#16a34a' },
+  ACCEPTED: { bg: 'rgba(37,99,235,0.08)', text: '#2563EB' },
   REJECTED: { bg: 'rgba(239,68,68,0.08)', text: '#ef4444' },
-  COUNTERED: { bg: 'rgba(37,99,235,0.08)', text: '#2563eb' },
-  WITHDRAWN: { bg: 'rgba(156,163,175,0.08)', text: '#6b7280' },
-  EXPIRED: { bg: 'rgba(156,163,175,0.08)', text: '#9ca3af' },
+  COUNTERED: { bg: 'rgba(139,92,246,0.08)', text: '#8B5CF6' },
+  WITHDRAWN: { bg: 'rgba(5,14,36,0.04)', text: 'rgba(5,14,36,0.4)' },
+  EXPIRED: { bg: 'rgba(5,14,36,0.04)', text: 'rgba(5,14,36,0.4)' },
 }
 
 const typeLabels: Record<string, string> = {
@@ -145,7 +145,7 @@ const conditionColors: Record<string, string> = {
   distressed: 'text-red-700 bg-red-50',
   fair: 'text-amber-700 bg-amber-50',
   good: 'text-blue-700 bg-blue-50',
-  excellent: 'text-emerald-700 bg-emerald-50',
+  excellent: 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]',
 }
 
 // Valid status transitions
@@ -179,14 +179,14 @@ function fmtDate(d: string | null | undefined) {
 }
 
 function matchScoreColor(score: number) {
-  if (score >= 80) return 'text-emerald-700'
+  if (score >= 80) return 'text-[#2563EB]'
   if (score >= 60) return 'text-blue-700'
   if (score >= 40) return 'text-amber-700'
   return 'text-red-700'
 }
 
 function subScoreStyle(score: number) {
-  if (score >= 80) return 'text-emerald-700 bg-emerald-50 border-emerald-200'
+  if (score >= 80) return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-blue-200'
   if (score >= 60) return 'text-blue-700 bg-blue-50 border-blue-200'
   if (score >= 40) return 'text-amber-700 bg-amber-50 border-amber-200'
   return 'text-red-700 bg-red-50 border-red-200'
@@ -194,7 +194,7 @@ function subScoreStyle(score: number) {
 
 function buyerStatusStyle(s: string) {
   switch (s) {
-    case 'HIGH_CONFIDENCE': return 'text-emerald-700 bg-emerald-50'
+    case 'HIGH_CONFIDENCE': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
     case 'RECENTLY_VERIFIED': return 'text-blue-700 bg-blue-50'
     case 'ACTIVE': return 'text-gray-700 bg-gray-100'
     case 'DORMANT': return 'text-amber-700 bg-amber-50'
@@ -644,8 +644,8 @@ export default function DealDetailPage() {
           <div className="h-8 w-72 bg-gray-200 rounded" />
           <div className="h-4 w-56 bg-gray-200 rounded" />
           <div className="grid grid-cols-2 gap-5 deal-detail-grid">
-            <div className="bg-white border border-gray-200 rounded-lg h-[420px]" />
-            <div className="bg-white border border-gray-200 rounded-lg h-[420px]" />
+            <div className="bg-white rounded-[12px] h-[420px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }} />
+            <div className="bg-white rounded-[12px] h-[420px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }} />
           </div>
         </div>
       </div>
@@ -661,7 +661,7 @@ export default function DealDetailPage() {
         >
           <ArrowLeft className="w-4 h-4" /> My Deals
         </button>
-        <div className="bg-white border border-gray-200 rounded-lg px-6 py-16 text-center">
+        <div className="bg-white rounded-[12px] px-6 py-16 text-center" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
           <div className="text-[0.92rem] text-gray-600 mb-2">{error || 'Deal not found'}</div>
           <Link href="/deals" className="text-[0.82rem] text-[#2563eb] no-underline hover:underline">
             Back to deals
@@ -691,12 +691,12 @@ export default function DealDetailPage() {
       <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
         <div>
           <h1
-            style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-            className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] tracking-[-0.022em] mb-1"
+            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em' }}
+            className="mb-1"
           >
             {deal.address}
           </h1>
-          <div className="flex items-center gap-2 text-[0.82rem] text-[#9CA3AF] flex-wrap">
+          <div className="flex items-center gap-2 text-[0.82rem] flex-wrap" style={{ color: 'rgba(5,14,36,0.4)', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{deal.city}, {deal.state} {deal.zip}</span>
             <span>·</span>
             <span className="flex items-center gap-1"><Home className="w-3.5 h-3.5" />{typeLabels[deal.propertyType] || deal.propertyType}</span>
@@ -719,7 +719,7 @@ export default function DealDetailPage() {
           <button
             onClick={runMatching}
             disabled={matching}
-            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {matching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
             {matching ? 'Matching...' : 'Run Matching'}
@@ -728,7 +728,7 @@ export default function DealDetailPage() {
           {!editMode ? (
             <button
               onClick={startEdit}
-              className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
             >
               <Pencil className="w-4 h-4" /> Edit Deal
             </button>
@@ -737,7 +737,7 @@ export default function DealDetailPage() {
               <button
                 onClick={saveEdit}
                 disabled={savingEdit}
-                className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60"
+                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60"
               >
                 {savingEdit ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 Save
@@ -754,7 +754,7 @@ export default function DealDetailPage() {
           <button
             onClick={reanalyzeDeal}
             disabled={reanalyzing}
-            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {reanalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             {reanalyzing ? 'Analyzing...' : 'Re-analyze'}
@@ -763,9 +763,9 @@ export default function DealDetailPage() {
           <button
             onClick={listingCreated ? undefined : listOnMarketplace}
             disabled={listingLoading || listingCreated}
-            className={`flex items-center gap-1.5 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
+            className={`flex items-center gap-1.5 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
               listingCreated
-                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border border-blue-200'
                 : 'bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] disabled:opacity-60'
             }`}
           >
@@ -776,9 +776,9 @@ export default function DealDetailPage() {
           <button
             onClick={contractCreated ? undefined : generateContractForDeal}
             disabled={contractLoading || contractCreated}
-            className={`flex items-center gap-1.5 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
+            className={`flex items-center gap-1.5 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:cursor-not-allowed ${
               contractCreated
-                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border border-blue-200'
                 : 'bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] disabled:opacity-60'
             }`}
           >
@@ -791,14 +791,14 @@ export default function DealDetailPage() {
             <div className="relative">
               <button
                 onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
-                className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+                className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
               >
                 Change Status <ChevronDown className="w-3.5 h-3.5" />
               </button>
               {statusDropdownOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setStatusDropdownOpen(false)} />
-                  <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1 min-w-[160px]">
+                  <div className="absolute right-0 mt-1 bg-white rounded-[12px] shadow-lg z-20 py-1 min-w-[160px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
                     {allowedTransitions.map((s) => {
                       const c = statusColors[s] || statusColors.DRAFT
                       return (
@@ -849,8 +849,8 @@ export default function DealDetailPage() {
         {/* ── LEFT: Deal Details ──────────────────── */}
         <div className="space-y-5">
           {/* Financials card */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+          <div className="bg-white rounded-[12px] px-5 py-5" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
               <DollarSign className="w-3.5 h-3.5" /> Financials
             </div>
             <div className="grid grid-cols-2 gap-x-6 gap-y-3">
@@ -867,8 +867,8 @@ export default function DealDetailPage() {
                   <FinancialRow label="Assignment Fee" value={fmtCurrency(deal.assignFee)} />
                   <FinancialRow label="ARV" value={fmtCurrency(deal.arv)} />
                   <FinancialRow label="Repair Cost" value={fmtCurrency(deal.repairCost)} />
-                  <FinancialRow label="Flip Profit" value={fmtCurrency(deal.flipProfit)} valueColor={deal.flipProfit && deal.flipProfit > 0 ? 'text-emerald-600' : undefined} />
-                  <FinancialRow label="Rental Cash Flow" value={deal.rentalCashFlow != null ? `${fmtCurrency(deal.rentalCashFlow)}/mo` : '—'} valueColor={deal.rentalCashFlow && deal.rentalCashFlow > 0 ? 'text-emerald-600' : undefined} />
+                  <FinancialRow label="Flip Profit" value={fmtCurrency(deal.flipProfit)} valueColor={deal.flipProfit && deal.flipProfit > 0 ? 'text-[#2563EB]' : undefined} />
+                  <FinancialRow label="Rental Cash Flow" value={deal.rentalCashFlow != null ? `${fmtCurrency(deal.rentalCashFlow)}/mo` : '—'} valueColor={deal.rentalCashFlow && deal.rentalCashFlow > 0 ? 'text-[#2563EB]' : undefined} />
                 </>
               )}
             </div>
@@ -878,7 +878,7 @@ export default function DealDetailPage() {
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[0.76rem] text-gray-500">Spread</span>
-                  <span className={`text-[0.84rem] font-semibold ${spreadPct >= 30 ? 'text-emerald-600' : spreadPct >= 15 ? 'text-blue-600' : 'text-amber-600'}`}>
+                  <span className={`text-[0.84rem] font-semibold ${spreadPct >= 30 ? 'text-[#2563EB]' : spreadPct >= 15 ? 'text-blue-600' : 'text-amber-600'}`}>
                     {fmtCurrency(spread)} ({spreadPct}%)
                   </span>
                 </div>
@@ -904,7 +904,7 @@ export default function DealDetailPage() {
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[0.76rem] text-gray-500">Confidence Score</span>
                   <span className={`text-[0.82rem] font-semibold ${
-                    deal.confidenceScore >= 70 ? 'text-emerald-600' : deal.confidenceScore >= 40 ? 'text-amber-600' : 'text-red-600'
+                    deal.confidenceScore >= 70 ? 'text-[#2563EB]' : deal.confidenceScore >= 40 ? 'text-amber-600' : 'text-red-600'
                   }`}>
                     {deal.confidenceScore}%
                   </span>
@@ -914,7 +914,7 @@ export default function DealDetailPage() {
                     className="h-full rounded-full transition-all"
                     style={{
                       width: `${deal.confidenceScore}%`,
-                      background: deal.confidenceScore >= 70 ? '#16a34a' : deal.confidenceScore >= 40 ? '#d97706' : '#ef4444',
+                      background: deal.confidenceScore >= 70 ? '#2563EB' : deal.confidenceScore >= 40 ? '#d97706' : '#ef4444',
                     }}
                   />
                 </div>
@@ -923,8 +923,8 @@ export default function DealDetailPage() {
           </div>
 
           {/* Property details card */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4 flex items-center gap-1.5">
+          <div className="bg-white rounded-[12px] px-5 py-5" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
               <Home className="w-3.5 h-3.5" /> Property Details
             </div>
             <div className="grid grid-cols-2 gap-x-6 gap-y-3">
@@ -940,7 +940,10 @@ export default function DealDetailPage() {
                       <select
                         value={editValues.condition}
                         onChange={(e) => setEditValues({ ...editValues, condition: e.target.value })}
-                        className="appearance-none w-full bg-gray-50 border border-[#E5E7EB] rounded-lg pl-3 pr-8 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB] cursor-pointer"
+                        className="appearance-none w-full bg-white rounded-[10px] pl-3 pr-8 py-2 text-[0.82rem] text-gray-700 outline-none cursor-pointer"
+                        style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+                        onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+                        onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
                       >
                         <option value="">Not specified</option>
                         <option value="distressed">Distressed</option>
@@ -994,9 +997,9 @@ export default function DealDetailPage() {
           </div>
 
           {/* Notes card */}
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
+          <div className="bg-white rounded-[12px] px-5 py-5" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
             <div className="flex items-center justify-between mb-3">
-              <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] flex items-center gap-1.5">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5" /> Notes
               </div>
               {!editingNotes && (
@@ -1014,7 +1017,10 @@ export default function DealDetailPage() {
                   value={notesValue}
                   onChange={(e) => setNotesValue(e.target.value)}
                   rows={4}
-                  className="w-full bg-gray-50 border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB] resize-y"
+                  className="w-full bg-white rounded-[10px] px-3 py-2 text-[0.82rem] text-gray-700 outline-none resize-y"
+                  style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
                   placeholder="Add notes about this deal..."
                 />
                 <div className="flex items-center gap-2 mt-2">
@@ -1044,10 +1050,10 @@ export default function DealDetailPage() {
 
         {/* ── RIGHT: Matched Buyers ──────────────── */}
         <div className="space-y-5">
-          <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
+          <div className="bg-white rounded-[12px] px-5 py-5" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] flex items-center gap-1.5">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5" /> Matched Buyers
                 </div>
                 {deal.matches.length > 0 && (
@@ -1065,7 +1071,7 @@ export default function DealDetailPage() {
                       <Megaphone className="w-3 h-3" /> Blast All
                     </button>
                     {blastOpen && (
-                      <div className="absolute left-0 top-full mt-1 z-20 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[260px]">
+                      <div className="absolute left-0 top-full mt-1 z-20 bg-white rounded-[12px] shadow-lg p-4 min-w-[260px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
                         <div className="text-[0.82rem] font-medium text-gray-800 mb-3">
                           Send to all {deal.matches.filter(m => !m.outreachSent).length} unsent buyers
                         </div>
@@ -1116,7 +1122,7 @@ export default function DealDetailPage() {
                   {showSortDropdown && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setShowSortDropdown(false)} />
-                      <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1 min-w-[140px]">
+                      <div className="absolute right-0 mt-1 bg-white rounded-[12px] shadow-lg z-20 py-1 min-w-[140px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
                         {([
                           ['matchScore', 'Overall'],
                           ['buyBoxScore', 'Buy Box'],
@@ -1157,7 +1163,7 @@ export default function DealDetailPage() {
                 <button
                   onClick={runMatching}
                   disabled={matching}
-                  className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60"
                 >
                   {matching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
                   {matching ? 'Matching...' : 'Run Matching'}
@@ -1175,7 +1181,7 @@ export default function DealDetailPage() {
                         <div className="flex items-center gap-2 mb-1">
                           <Link
                             href={`/crm/${match.buyer.id}`}
-                            className="text-[0.84rem] font-medium text-[var(--navy-heading,#0B1224)] no-underline hover:text-[#2563eb] transition-colors truncate"
+                            className="text-[0.84rem] font-medium text-[#0B1224] no-underline hover:text-[#2563eb] transition-colors truncate"
                           >
                             {buyerName(match.buyer)}
                           </Link>
@@ -1213,7 +1219,7 @@ export default function DealDetailPage() {
                           <div className="text-[0.62rem] text-gray-400 uppercase tracking-wide">Match</div>
                         </div>
                         {match.outreachSent ? (
-                          <span className="flex items-center gap-1 text-[0.72rem] text-emerald-600 font-medium px-2.5 py-1.5" title={match.outreachSentAt ? `Sent ${new Date(match.outreachSentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Sent'}>
+                          <span className="flex items-center gap-1 text-[0.72rem] text-[#2563EB] font-medium px-2.5 py-1.5" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} title={match.outreachSentAt ? `Sent ${new Date(match.outreachSentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Sent'}>
                             <CheckCircle2 className="w-3 h-3" /> Sent
                           </span>
                         ) : (
@@ -1237,10 +1243,10 @@ export default function DealDetailPage() {
       </div>
 
       {/* ── OFFERS SECTION ────────────────────────── */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5">
+      <div className="bg-white rounded-[12px] px-5 py-5" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] flex items-center gap-1.5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5" /> Offers
             </div>
             {deal.offers.length > 0 && (
@@ -1262,7 +1268,7 @@ export default function DealDetailPage() {
 
         {/* Record Offer form */}
         {offerFormOpen && (
-          <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
+          <div className="mb-4 p-4 bg-gray-50 rounded-[12px] space-y-3" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
             <div className="text-[0.82rem] font-medium text-gray-800 mb-1">Record a new offer</div>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
@@ -1271,7 +1277,10 @@ export default function DealDetailPage() {
                   <select
                     value={offerForm.buyerId}
                     onChange={(e) => setOfferForm({ ...offerForm, buyerId: e.target.value })}
-                    className="appearance-none w-full bg-white border border-[#E5E7EB] rounded-lg pl-3 pr-8 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB] cursor-pointer"
+                    className="appearance-none w-full bg-white rounded-[10px] pl-3 pr-8 py-2 text-[0.82rem] text-gray-700 outline-none cursor-pointer"
+                    style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
                   >
                     <option value="">Select a matched buyer...</option>
                     {deal.matches.map((m) => (
@@ -1292,7 +1301,10 @@ export default function DealDetailPage() {
                     value={offerForm.amount}
                     onChange={(e) => setOfferForm({ ...offerForm, amount: e.target.value })}
                     placeholder="0"
-                    className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-7 pr-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]"
+                    className="w-full bg-white rounded-[10px] pl-7 pr-3 py-2 text-[0.82rem] text-gray-700 outline-none"
+                    style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
                   />
                 </div>
               </div>
@@ -1302,7 +1314,10 @@ export default function DealDetailPage() {
                   type="date"
                   value={offerForm.closeDate}
                   onChange={(e) => setOfferForm({ ...offerForm, closeDate: e.target.value })}
-                  className="w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white rounded-[10px] px-3 py-2 text-[0.82rem] text-gray-700 outline-none"
+                  style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
                 />
               </div>
               <div className="col-span-2">
@@ -1312,7 +1327,10 @@ export default function DealDetailPage() {
                   value={offerForm.terms}
                   onChange={(e) => setOfferForm({ ...offerForm, terms: e.target.value })}
                   placeholder="e.g. Cash, as-is, 14-day close"
-                  className="w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]"
+                  className="w-full bg-white rounded-[10px] px-3 py-2 text-[0.82rem] text-gray-700 outline-none"
+                  style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
                 />
               </div>
               <div className="col-span-2">
@@ -1322,7 +1340,10 @@ export default function DealDetailPage() {
                   onChange={(e) => setOfferForm({ ...offerForm, message: e.target.value })}
                   rows={2}
                   placeholder="Any notes from the buyer..."
-                  className="w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB] resize-y"
+                  className="w-full bg-white rounded-[10px] px-3 py-2 text-[0.82rem] text-gray-700 outline-none resize-y"
+                  style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
                 />
               </div>
             </div>
@@ -1355,7 +1376,7 @@ export default function DealDetailPage() {
             {deal.matches.length > 0 && deal.status !== 'CLOSED' && deal.status !== 'CANCELLED' && (
               <button
                 onClick={() => setOfferFormOpen(true)}
-                className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
               >
                 <DollarSign className="w-4 h-4" /> Record Offer
               </button>
@@ -1386,7 +1407,7 @@ export default function DealDetailPage() {
                       </span>
                       {offer.matchScore != null && (
                         <span className={`text-[0.64rem] font-semibold px-1.5 py-0.5 rounded-full border ${
-                          offer.matchScore >= 80 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' :
+                          offer.matchScore >= 80 ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-blue-200' :
                           offer.matchScore >= 60 ? 'text-blue-700 bg-blue-50 border-blue-200' :
                           'text-amber-700 bg-amber-50 border-amber-200'
                         }`}>
@@ -1397,7 +1418,7 @@ export default function DealDetailPage() {
                         {fmtCurrency(offer.amount)}
                       </span>
                       {askingPct != null && (
-                        <span className={`text-[0.68rem] font-medium ${askingDiff! >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                        <span className={`text-[0.68rem] font-medium ${askingDiff! >= 0 ? 'text-[#2563EB]' : 'text-red-500'}`}>
                           {askingPct}% of ask
                         </span>
                       )}
@@ -1446,7 +1467,7 @@ export default function DealDetailPage() {
 
                       {/* Counter form */}
                       {isCountering && (
-                        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-[12px] space-y-2">
                           <div className="text-[0.78rem] font-medium text-blue-800">Counter Offer</div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
@@ -1458,7 +1479,7 @@ export default function DealDetailPage() {
                                   value={counterForm.amount}
                                   onChange={(e) => setCounterForm({ ...counterForm, amount: e.target.value })}
                                   placeholder={String(offer.amount)}
-                                  className="w-full bg-white border border-blue-200 rounded-lg pl-6 pr-2 py-1.5 text-[0.78rem] text-gray-700 outline-none focus:border-[#2563EB]"
+                                  className="w-full bg-white border border-blue-200 rounded-[10px] pl-6 pr-2 py-1.5 text-[0.78rem] text-gray-700 outline-none focus:border-[#2563EB]"
                                 />
                               </div>
                             </div>
@@ -1469,7 +1490,7 @@ export default function DealDetailPage() {
                                 value={counterForm.terms}
                                 onChange={(e) => setCounterForm({ ...counterForm, terms: e.target.value })}
                                 placeholder="Counter terms..."
-                                className="w-full bg-white border border-blue-200 rounded-lg px-2 py-1.5 text-[0.78rem] text-gray-700 outline-none focus:border-[#2563EB]"
+                                className="w-full bg-white border border-blue-200 rounded-[10px] px-2 py-1.5 text-[0.78rem] text-gray-700 outline-none focus:border-[#2563EB]"
                               />
                             </div>
                           </div>
@@ -1515,7 +1536,7 @@ export default function DealDetailPage() {
                             <button
                               onClick={() => updateOfferStatus(offer.id, 'ACCEPTED')}
                               disabled={isLoading}
-                              className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-md px-3 py-1.5 text-[0.74rem] font-medium cursor-pointer transition-colors disabled:opacity-60"
+                              className="flex items-center gap-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-3 py-1.5 text-[0.74rem] font-medium cursor-pointer transition-colors disabled:opacity-60"
                             >
                               {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
                               Accept
@@ -1583,8 +1604,8 @@ export default function DealDetailPage() {
 function FinancialRow({ label, value, valueColor }: { label: string; value: string; valueColor?: string }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[0.8rem] text-gray-500">{label}</span>
-      <span className={`text-[0.92rem] font-semibold ${valueColor || 'text-gray-900'}`}>{value}</span>
+      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>{label}</span>
+      <span className={`text-[0.92rem] font-semibold ${valueColor || 'text-[#0B1224]'}`}>{value}</span>
     </div>
   )
 }
@@ -1592,8 +1613,8 @@ function FinancialRow({ label, value, valueColor }: { label: string; value: stri
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[0.8rem] text-gray-500">{label}</span>
-      <span className="text-[0.84rem] text-gray-700">{value}</span>
+      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>{label}</span>
+      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.65)' }}>{value}</span>
     </div>
   )
 }
@@ -1601,14 +1622,17 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 function EditField({ label, value, onChange, prefix }: { label: string; value: string; onChange: (v: string) => void; prefix?: string }) {
   return (
     <div>
-      <label className="text-[0.72rem] text-gray-500 mb-1 block">{label}</label>
+      <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: 12, color: 'rgba(5,14,36,0.4)' }} className="mb-1 block">{label}</label>
       <div className="relative">
         {prefix && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.82rem] text-gray-400">{prefix}</span>}
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full bg-gray-50 border border-[#E5E7EB] rounded-lg ${prefix ? 'pl-7' : 'pl-3'} pr-3 py-2 text-[0.82rem] text-gray-700 outline-none focus:border-[#2563EB]`}
+          className={`w-full bg-white rounded-[10px] ${prefix ? 'pl-7' : 'pl-3'} pr-3 py-2 text-[0.82rem] text-gray-700 outline-none`}
+          style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
         />
       </div>
     </div>

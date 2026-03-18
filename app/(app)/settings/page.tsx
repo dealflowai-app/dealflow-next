@@ -365,14 +365,14 @@ export default function SettingsPage() {
     const pct = (used / total) * 100
     if (pct >= 90) return 'bg-red-500'
     if (pct >= 70) return 'bg-yellow-500'
-    return 'bg-green-500'
+    return 'bg-[#2563EB]'
   }
 
   return (
     <div className="flex h-[calc(100vh-0px)] overflow-hidden bg-[var(--cream,#FAF9F6)]">
       {/* ── Settings side nav ── */}
-      <div className="w-[220px] bg-white border-r border-gray-200 flex flex-col py-6 flex-shrink-0">
-        <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="px-5 text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-5">
+      <div style={{ borderRight: '1px solid rgba(5,14,36,0.08)' }} className="w-[220px] bg-white flex flex-col py-6 flex-shrink-0">
+        <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="px-5 mb-5">
           Settings
         </h2>
         <nav className="flex-1 px-3 space-y-0.5">
@@ -383,10 +383,11 @@ export default function SettingsPage() {
               <button
                 key={s.key}
                 onClick={() => setActiveSection(s.key)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
+                style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: isActive ? 600 : 400, borderRadius: '10px' }}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 transition-colors text-left ${
                   isActive
-                    ? 'bg-[#EFF6FF] text-[#2563EB] font-medium'
-                    : 'text-[#6B7280] hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB]'
+                    : 'text-[rgba(5,14,36,0.45)] hover:bg-gray-50 hover:text-[#0B1224]'
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-[#2563EB]' : 'text-gray-400'}`} />
@@ -403,14 +404,14 @@ export default function SettingsPage() {
           {/* ════════════ PROFILE ════════════ */}
           {activeSection === 'profile' && (
             <div>
-              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Profile</h2>
-              <p className="text-sm text-[#9CA3AF] mb-6">Manage your personal and business information.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Profile</h2>
+              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Manage your personal and business information.</p>
 
               {/* Avatar */}
               <div className="flex items-center gap-5 mb-8">
                 <div className="relative group">
-                  <div className="w-20 h-20 rounded-full bg-[#F3F4F6] flex items-center justify-center">
-                    <span className="text-2xl font-semibold text-[#6B7280]">JR</span>
+                  <div className="w-20 h-20 rounded-full bg-[#0B1224] flex items-center justify-center">
+                    <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600 }} className="text-2xl text-white">JR</span>
                   </div>
                   <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                     <Camera className="w-5 h-5 text-white" />
@@ -418,61 +419,61 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">{profile.firstName} {profile.lastName}</p>
-                  <p className="text-xs text-gray-500">{profile.company}</p>
+                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>{profile.firstName} {profile.lastName}</p>
+                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>{profile.company}</p>
                 </div>
               </div>
 
               {/* Personal info */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Personal Information</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Personal Information</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">First Name</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">First Name</label>
                     <input
                       value={profile.firstName}
                       onChange={e => setProfile(p => ({ ...p, firstName: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Last Name</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Last Name</label>
                     <input
                       value={profile.lastName}
                       onChange={e => setProfile(p => ({ ...p, lastName: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Company Name</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Company Name</label>
                     <input
                       value={profile.company}
                       onChange={e => setProfile(p => ({ ...p, company: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Email</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Email</label>
                     <input
                       value={profile.email}
                       onChange={e => setProfile(p => ({ ...p, email: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Phone Number</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Phone Number</label>
                     <input
                       value={profile.phone}
                       onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Time Zone</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Time Zone</label>
                     <select
                       value={profile.timezone}
                       onChange={e => setProfile(p => ({ ...p, timezone: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     >
                       <option value="America/New_York">Eastern (ET)</option>
                       <option value="America/Chicago">Central (CT)</option>
@@ -484,7 +485,7 @@ export default function SettingsPage() {
                 </div>
                 {/* Markets */}
                 <div className="mt-4">
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Markets Active In</label>
+                  <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Markets Active In</label>
                   <div className="flex items-center gap-2 flex-wrap">
                     {profile.markets.map((m, i) => (
                       <span key={i} className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#EFF6FF] text-[#2563EB] text-xs font-medium border border-blue-100">
@@ -506,15 +507,15 @@ export default function SettingsPage() {
               </div>
 
               {/* Business details */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Business Details</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Business Details</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Company Type</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Company Type</label>
                     <select
                       value={profile.companyType}
                       onChange={e => setProfile(p => ({ ...p, companyType: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     >
                       <option>Solo Wholesaler</option>
                       <option>Small Team</option>
@@ -523,33 +524,33 @@ export default function SettingsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Years in Business</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Years in Business</label>
                     <input
                       value={profile.yearsInBusiness}
                       onChange={e => setProfile(p => ({ ...p, yearsInBusiness: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Average Deals per Month</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Average Deals per Month</label>
                     <input
                       value={profile.dealsPerMonth}
                       onChange={e => setProfile(p => ({ ...p, dealsPerMonth: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Website URL</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Website URL</label>
                     <input
                       value={profile.website}
                       onChange={e => setProfile(p => ({ ...p, website: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                 </div>
               </div>
 
-              <button onClick={showSaved} className="px-5 py-2.5 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors">
+              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save Changes'}
               </button>
             </div>
@@ -558,23 +559,23 @@ export default function SettingsPage() {
           {/* ════════════ BILLING & PLAN ════════════ */}
           {activeSection === 'billing' && (
             <div>
-              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Billing & Plan</h2>
-              <p className="text-sm text-[#9CA3AF] mb-6">Manage your subscription, payment methods, and view invoices.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Billing & Plan</h2>
+              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Manage your subscription, payment methods, and view invoices.</p>
 
               {/* Current plan card */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-[#111827]">Pro Plan - $349/month</h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">Active</span>
+                      <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>Pro Plan - $349/month</h3>
+                      <span style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: '#2563EB' }} className="px-2 py-0.5 rounded-full text-[10px] font-semibold">Active</span>
                     </div>
-                    <p className="text-sm text-gray-500 mb-1">Next billing date: <span className="font-medium text-gray-700">April 1, 2026</span></p>
-                    <p className="text-sm text-gray-500">Payment method: <span className="font-medium text-gray-700">Visa ending in 4821</span></p>
+                    <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="mb-1">Next billing date: <span style={{ fontWeight: 600, color: '#0B1224' }}>April 1, 2026</span></p>
+                    <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }}>Payment method: <span style={{ fontWeight: 600, color: '#0B1224' }}>Visa ending in 4821</span></p>
                   </div>
                   <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-sm text-[#374151] hover:bg-gray-50 transition-colors">Change Plan</button>
-                    <button className="px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-sm text-[#374151] hover:bg-gray-50 transition-colors">Update Payment Method</button>
+                    <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">Change Plan</button>
+                    <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">Update Payment Method</button>
                   </div>
                 </div>
               </div>
@@ -584,21 +585,20 @@ export default function SettingsPage() {
                 {plans.map((plan, i) => (
                   <div
                     key={i}
-                    className={`bg-white rounded-lg border-2 p-5 relative ${
-                      plan.current ? 'border-[#2563EB]' : 'border-[#E5E7EB]'
-                    }`}
+                    style={{ border: plan.current ? '2px solid #2563EB' : '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }}
+                    className="bg-white relative"
                   >
                     {plan.current && (
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#2563EB] text-white">
                         Current Plan
                       </span>
                     )}
-                    <h4 className="text-lg font-semibold text-[#111827] mb-1">{plan.name}</h4>
+                    <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">{plan.name}</h4>
                     <p className="mb-4">
-                      <span className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)]">{plan.price}</span>
-                      <span className="text-sm text-gray-500">{plan.period}</span>
+                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }}>{plan.price}</span>
+                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>{plan.period}</span>
                     </p>
-                    <div className="space-y-2 text-sm mb-5">
+                    <div className="space-y-2 mb-5" style={{ fontSize: '14px' }}>
                       {[
                         ['Markets Active', plan.limits.markets],
                         ['AI Calls / mo', plan.limits.aiCalls],
@@ -609,38 +609,38 @@ export default function SettingsPage() {
                         ['Per-Deal Fee', plan.limits.dealFee],
                       ].map(([label, val], j) => (
                         <div key={j} className="flex justify-between">
-                          <span className="text-gray-500">{label}</span>
-                          <span className="font-medium text-gray-800">{val}</span>
+                          <span style={{ color: 'rgba(5,14,36,0.65)' }}>{label}</span>
+                          <span style={{ fontWeight: 600, color: '#0B1224' }}>{val}</span>
                         </div>
                       ))}
                     </div>
                     {plan.current ? (
-                      <button className="w-full py-2 rounded-lg bg-gray-100 text-gray-500 text-sm font-medium cursor-default">Current Plan</button>
+                      <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-gray-100 text-gray-500 cursor-default">Current Plan</button>
                     ) : plan.name === 'Enterprise' ? (
-                      <button className="w-full py-2 rounded-md bg-[#2563EB] text-white text-sm font-medium hover:bg-[#1D4ED8] transition-colors">Contact Sales</button>
+                      <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">Contact Sales</button>
                     ) : (
-                      <button className="w-full py-2 rounded-md bg-white border border-[#D1D5DB] text-[#374151] text-sm font-medium hover:bg-gray-50 transition-colors">Downgrade</button>
+                      <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid rgba(5,14,36,0.15)' }} className="w-full bg-white text-[#0B1224] hover:bg-gray-50 transition-colors">Downgrade</button>
                     )}
                   </div>
                 ))}
               </div>
 
               {/* Usage this month */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Usage This Month</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Usage This Month</h3>
                 <div className="grid grid-cols-4 gap-6">
                   {usageStats.map((stat, i) => {
                     const pct = Math.round((stat.used / stat.total) * 100)
                     return (
                       <div key={i}>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs text-gray-600">{stat.label}</span>
-                          <span className="text-xs font-medium text-gray-800">{stat.used.toLocaleString()} / {stat.total.toLocaleString()}</span>
+                          <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>{stat.label}</span>
+                          <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '12px', color: '#0B1224' }}>{stat.used.toLocaleString()} / {stat.total.toLocaleString()}</span>
                         </div>
                         <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div className={`h-full rounded-full transition-all ${getUsageColor(stat.used, stat.total)}`} style={{ width: `${pct}%` }} />
                         </div>
-                        <p className="text-[10px] text-gray-400 mt-1">{pct}% used</p>
+                        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="mt-1">{pct}% used</p>
                       </div>
                     )
                   })}
@@ -648,18 +648,18 @@ export default function SettingsPage() {
               </div>
 
               {/* Billing history */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] overflow-hidden">
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-100">
-                  <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">Billing History</h3>
+                  <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>Billing History</h3>
                 </div>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 text-left">
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Date</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Description</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Amount</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Status</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500"></th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Date</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Description</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Amount</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Status</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -669,7 +669,7 @@ export default function SettingsPage() {
                         <td className="px-6 py-3 text-gray-700">{row.desc}</td>
                         <td className="px-6 py-3 font-medium text-gray-900">{row.amount}</td>
                         <td className="px-6 py-3">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">{row.status}</span>
+                          <span style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: '#2563EB' }} className="px-2 py-0.5 rounded-full text-[10px] font-semibold">{row.status}</span>
                         </td>
                         <td className="px-6 py-3">
                           <button className="text-xs text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1">
@@ -690,12 +690,12 @@ export default function SettingsPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Team</h2>
-                  <p className="text-sm text-[#9CA3AF]">Manage team members and permissions.</p>
+                  <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Team</h2>
+                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>Manage team members and permissions.</p>
                 </div>
                 <button
                   onClick={() => setShowInviteForm(!showInviteForm)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors"
+                  style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   Invite Team Member
@@ -704,31 +704,31 @@ export default function SettingsPage() {
 
               {/* Invite form */}
               {showInviteForm && (
-                <div className="bg-[#EFF6FF] border border-blue-200 rounded-lg p-5 mb-6">
-                  <h4 className="text-sm font-semibold text-[#1E3A8A] mb-3">Invite a new team member</h4>
+                <div style={{ backgroundColor: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: '12px', padding: '20px 24px' }} className="mb-6">
+                  <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Invite a new team member</h4>
                   <div className="flex items-end gap-3">
                     <div className="flex-1">
-                      <label className="block text-xs font-medium text-[#1E40AF] mb-1">Email Address</label>
+                      <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1">Email Address</label>
                       <input
                         value={inviteEmail}
                         onChange={e => setInviteEmail(e.target.value)}
                         placeholder="colleague@company.com"
-                        className="w-full px-3 py-2 rounded-md border border-blue-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       />
                     </div>
                     <div className="w-40">
-                      <label className="block text-xs font-medium text-[#1E40AF] mb-1">Role</label>
+                      <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1">Role</label>
                       <select
                         value={inviteRole}
                         onChange={e => setInviteRole(e.target.value)}
-                        className="w-full px-3 py-2 rounded-md border border-blue-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       >
                         <option>Admin</option>
                         <option>Manager</option>
                         <option>Member</option>
                       </select>
                     </div>
-                    <button className="px-5 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors whitespace-nowrap">
+                    <button style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors whitespace-nowrap">
                       Send Invite
                     </button>
                     <button onClick={() => setShowInviteForm(false)} className="px-3 py-2 text-[#2563EB] hover:text-[#1D4ED8]">
@@ -739,16 +739,16 @@ export default function SettingsPage() {
               )}
 
               {/* Team table */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] overflow-hidden mb-4">
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white overflow-hidden mb-4">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 text-left">
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Name</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Email</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Role</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Status</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Date Added</th>
-                      <th className="px-6 py-3 text-xs font-medium text-gray-500">Actions</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Name</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Email</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Role</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Status</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Date Added</th>
+                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -756,10 +756,10 @@ export default function SettingsPage() {
                       <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
                         <td className="px-6 py-3">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-full bg-[#F3F4F6] flex items-center justify-center">
-                              <span className="text-[10px] font-medium text-[#6B7280]">{m.name.split(' ').map(n => n[0]).join('')}</span>
+                            <div className="w-8 h-8 rounded-full bg-[#0B1224] flex items-center justify-center">
+                              <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '10px' }} className="text-white">{m.name.split(' ').map(n => n[0]).join('')}</span>
                             </div>
-                            <span className="font-medium text-gray-900">{m.name}</span>
+                            <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }}>{m.name}</span>
                           </div>
                         </td>
                         <td className="px-6 py-3 text-gray-600">{m.email}</td>
@@ -771,8 +771,8 @@ export default function SettingsPage() {
                           }`}>{m.role}</span>
                         </td>
                         <td className="px-6 py-3">
-                          <span className={`flex items-center gap-1 text-xs ${m.status === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${m.status === 'Active' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                          <span className={`flex items-center gap-1 text-xs ${m.status === 'Active' ? 'text-[#2563EB]' : 'text-yellow-600'}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${m.status === 'Active' ? 'bg-[#2563EB]' : 'bg-yellow-500'}`} />
                             {m.status === 'Invited' ? 'Pending' : m.status}
                           </span>
                         </td>
@@ -791,7 +791,7 @@ export default function SettingsPage() {
                 </table>
               </div>
 
-              <p className="text-xs text-gray-500 bg-gray-100 px-4 py-2.5 rounded-lg">
+              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)', borderRadius: '12px' }} className="bg-gray-100 px-4 py-2.5">
                 Your plan allows up to <strong>3 team members</strong>. Upgrade to Enterprise for unlimited.
               </p>
             </div>
@@ -800,23 +800,23 @@ export default function SettingsPage() {
           {/* ════════════ NOTIFICATIONS ════════════ */}
           {activeSection === 'notifications' && (
             <div>
-              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Notifications</h2>
-              <p className="text-sm text-[#9CA3AF] mb-6">Choose what you want to be notified about and how.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Notifications</h2>
+              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Choose what you want to be notified about and how.</p>
 
               <div className="space-y-6">
                 {notifications.map((cat, ci) => (
-                  <div key={ci} className="bg-white rounded-lg border border-[#E5E7EB] overflow-hidden">
+                  <div key={ci} style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white overflow-hidden">
                     <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
-                      <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">{cat.category}</h3>
+                      <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>{cat.category}</h3>
                     </div>
                     <div className="divide-y divide-gray-50">
                       {cat.items.map((item, ii) => (
                         <div key={ii} className="flex items-center justify-between px-6 py-3.5">
-                          <span className="text-sm text-gray-700">{item.label}</span>
+                          <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }}>{item.label}</span>
                           <div className="flex items-center gap-6">
                             {/* In-App */}
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] text-gray-400 w-10 text-right">In-App</span>
+                              <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className=" w-10 text-right">In-App</span>
                               <button
                                 onClick={() => toggleNotification(ci, ii)}
                                 className={`w-9 h-5 rounded-full transition-colors relative ${item.on ? 'bg-[#2563EB]' : 'bg-gray-200'}`}
@@ -826,14 +826,14 @@ export default function SettingsPage() {
                             </div>
                             {/* Email */}
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] text-gray-400 w-8 text-right">Email</span>
+                              <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className=" w-8 text-right">Email</span>
                               <button className={`w-9 h-5 rounded-full transition-colors relative ${item.on ? 'bg-[#2563EB]' : 'bg-gray-200'}`}>
                                 <div className={`w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all ${item.on ? 'right-[3px]' : 'left-[3px]'}`} />
                               </button>
                             </div>
                             {/* SMS */}
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] text-gray-400 w-6 text-right">SMS</span>
+                              <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className=" w-6 text-right">SMS</span>
                               <button className={`w-9 h-5 rounded-full transition-colors relative ${item.sms ? 'bg-[#2563EB]' : 'bg-gray-200'}`}>
                                 <div className={`w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all ${item.sms ? 'right-[3px]' : 'left-[3px]'}`} />
                               </button>
@@ -846,7 +846,7 @@ export default function SettingsPage() {
                 ))}
               </div>
 
-              <button onClick={showSaved} className="mt-6 px-5 py-2.5 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors">
+              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="mt-6 bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save Notification Preferences'}
               </button>
             </div>
@@ -855,25 +855,25 @@ export default function SettingsPage() {
           {/* ════════════ INTEGRATIONS ════════════ */}
           {activeSection === 'integrations' && (
             <div>
-              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Integrations</h2>
-              <p className="text-sm text-[#9CA3AF] mb-6">Connect your favorite tools and services.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Integrations</h2>
+              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Connect your favorite tools and services.</p>
 
               {/* Connected */}
-              <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Connected</h3>
+              <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Connected</h3>
               <div className="grid grid-cols-3 gap-4 mb-8">
                 {integrationsData.connected.map((int, i) => (
-                  <div key={i} className="bg-white rounded-lg border border-[#E5E7EB] p-5">
+                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white">
                     <div className="flex items-start justify-between mb-3">
                       <div className={`w-10 h-10 rounded-lg ${int.color} flex items-center justify-center`}>
                         <span className="text-white font-bold text-sm">{int.letter}</span>
                       </div>
-                      <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: '#2563EB' }} className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
                         Connected
                       </span>
                     </div>
-                    <h4 className="text-sm font-semibold text-[#111827] mb-0.5">{int.name}</h4>
-                    <p className="text-xs text-[#9CA3AF] mb-4">{int.desc}</p>
+                    <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }} className="mb-0.5">{int.name}</h4>
+                    <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="mb-4">{int.desc}</p>
                     <div className="flex gap-2">
                       <button className="text-xs text-[#2563EB] hover:text-[#1D4ED8] font-medium">Manage</button>
                       <button className="text-xs text-gray-500 hover:text-red-600 font-medium">Disconnect</button>
@@ -883,18 +883,18 @@ export default function SettingsPage() {
               </div>
 
               {/* Available */}
-              <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Available</h3>
+              <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Available</h3>
               <div className="grid grid-cols-3 gap-4 mb-8">
                 {integrationsData.available.map((int, i) => (
-                  <div key={i} className="bg-white rounded-lg border border-[#E5E7EB] p-5">
+                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white">
                     <div className="flex items-start justify-between mb-3">
                       <div className={`w-10 h-10 rounded-lg ${int.color} flex items-center justify-center`}>
                         <span className="text-white font-bold text-sm">{int.letter}</span>
                       </div>
                     </div>
-                    <h4 className="text-sm font-semibold text-[#111827] mb-0.5">{int.name}</h4>
-                    <p className="text-xs text-[#9CA3AF] mb-4">{int.desc}</p>
-                    <button className="px-4 py-1.5 rounded-md border border-[#2563EB] text-[#2563EB] text-xs font-medium hover:bg-[#EFF6FF] transition-colors">
+                    <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }} className="mb-0.5">{int.name}</h4>
+                    <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="mb-4">{int.desc}</p>
+                    <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid #2563EB' }} className="text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] transition-colors">
                       Connect
                     </button>
                   </div>
@@ -902,17 +902,17 @@ export default function SettingsPage() {
               </div>
 
               {/* Coming Soon */}
-              <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Coming Soon</h3>
+              <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Coming Soon</h3>
               <div className="grid grid-cols-4 gap-4">
                 {integrationsData.comingSoon.map((int, i) => (
-                  <div key={i} className="bg-white rounded-lg border border-[#E5E7EB] p-5 opacity-50">
+                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white opacity-50">
                     <div className="flex items-start justify-between mb-3">
                       <div className={`w-10 h-10 rounded-lg ${int.color} flex items-center justify-center`}>
                         <span className="text-white font-bold text-sm">{int.letter}</span>
                       </div>
-                      <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Coming Soon</span>
+                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="bg-gray-100 px-2 py-0.5 rounded-full">Coming Soon</span>
                     </div>
-                    <h4 className="text-sm font-semibold text-gray-900">{int.name}</h4>
+                    <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }}>{int.name}</h4>
                   </div>
                 ))}
               </div>
@@ -922,49 +922,50 @@ export default function SettingsPage() {
           {/* ════════════ AI SETTINGS ════════════ */}
           {activeSection === 'ai' && (
             <div>
-              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">AI Settings</h2>
-              <p className="text-sm text-[#9CA3AF] mb-6">Configure how the AI voice agent behaves on calls.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">AI Settings</h2>
+              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Configure how the AI voice agent behaves on calls.</p>
 
               {/* Company Identity */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Company Identity</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Company Identity</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Company Name for Calls</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Company Name for Calls</label>
                     <input
                       defaultValue="RiverPoint Capital"
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Caller ID Name</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Caller ID Name</label>
                     <input
                       defaultValue="RiverPoint Capital"
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Call-back Number</label>
+                    <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Call-back Number</label>
                     <input
                       defaultValue="(214) 555-0187"
-                      className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Voice Settings */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Voice Settings</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Voice Settings</h3>
                 <div className="grid grid-cols-5 gap-3 mb-4">
                   {voiceOptions.map((v, i) => (
                     <button
                       key={i}
                       onClick={() => setSelectedVoice(v.name)}
-                      className={`p-3 rounded-lg border-2 text-center transition-all ${
+                      style={{ borderRadius: '12px', padding: '12px' }}
+                      className={`border-2 text-center transition-all ${
                         selectedVoice === v.name
-                          ? 'border-[#2563EB] bg-[#EFF6FF]'
-                          : 'border-[#E5E7EB] hover:border-gray-300'
+                          ? 'border-[#2563EB] bg-[rgba(37,99,235,0.08)]'
+                          : 'border-[rgba(5,14,36,0.08)] hover:border-gray-300'
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${
@@ -972,19 +973,19 @@ export default function SettingsPage() {
                       }`}>
                         <Play className={`w-4 h-4 ${selectedVoice === v.name ? 'text-white' : 'text-gray-500'}`} />
                       </div>
-                      <p className="text-xs font-semibold text-gray-900">{v.name}</p>
-                      <p className="text-[10px] text-gray-500">{v.desc}</p>
+                      <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }}>{v.name}</p>
+                      <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>{v.desc}</p>
                     </button>
                   ))}
                 </div>
-                <button className="px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-xs text-[#374151] hover:bg-gray-50 transition-colors">
+                <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
                   Preview Voice
                 </button>
               </div>
 
               {/* Call Behavior */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Call Behavior</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Call Behavior</h3>
                 <div className="space-y-5">
                   {/* Duration slider */}
                   <div>
@@ -1010,11 +1011,11 @@ export default function SettingsPage() {
                   {/* Retry attempts & time restrictions */}
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1.5">Max Retry Attempts</label>
+                      <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Max Retry Attempts</label>
                       <select
                         value={retryAttempts}
                         onChange={e => setRetryAttempts(e.target.value)}
-                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       >
                         <option>1</option>
                         <option>2</option>
@@ -1022,21 +1023,21 @@ export default function SettingsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1.5">Calling Hours Start</label>
+                      <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Calling Hours Start</label>
                       <select
                         value={callStart}
                         onChange={e => setCallStart(e.target.value)}
-                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       >
                         {['8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', '10:00 AM'].map(t => <option key={t}>{t}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1.5">Calling Hours End</label>
+                      <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Calling Hours End</label>
                       <select
                         value={callEnd}
                         onChange={e => setCallEnd(e.target.value)}
-                        className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       >
                         {['5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '8:00 PM'].map(t => <option key={t}>{t}</option>)}
                       </select>
@@ -1067,7 +1068,7 @@ export default function SettingsPage() {
                       <Lock className="w-4 h-4 text-gray-500" />
                       <div>
                         <span className="text-sm text-gray-700">Respect DNC List</span>
-                        <p className="text-[10px] text-gray-500">Required for TCPA compliance</p>
+                        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>Required for TCPA compliance</p>
                       </div>
                     </div>
                     <div className="w-9 h-5 rounded-full bg-[#2563EB] relative cursor-not-allowed">
@@ -1078,22 +1079,22 @@ export default function SettingsPage() {
               </div>
 
               {/* Qualification Script */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">Qualification Script</h3>
-                  <button className="px-3 py-1.5 bg-white border border-[#D1D5DB] rounded-md text-xs text-[#374151] hover:bg-gray-50 transition-colors">
+                  <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>Qualification Script</h3>
+                  <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
                     Edit Script
                   </button>
                 </div>
                 <textarea
                   defaultValue={aiScript}
                   rows={10}
-                  className="w-full px-4 py-3 rounded-md border border-[#E5E7EB] text-sm text-[#374151] font-mono leading-relaxed bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] focus:bg-white resize-none"
+                  style={{ backgroundColor: '#fafafa', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: 'monospace', color: '#0B1224' }} className="w-full leading-relaxed focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] focus:bg-white resize-none"
                 />
                 <p className="text-[10px] text-gray-500 mt-2">Changes to the script will apply to all future campaigns.</p>
               </div>
 
-              <button onClick={showSaved} className="px-5 py-2.5 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] transition-colors">
+              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save AI Settings'}
               </button>
             </div>
@@ -1102,12 +1103,12 @@ export default function SettingsPage() {
           {/* ════════════ DATA & PRIVACY ════════════ */}
           {activeSection === 'privacy' && (
             <div>
-              <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Data & Privacy</h2>
-              <p className="text-sm text-[#9CA3AF] mb-6">Manage your data, exports, and privacy settings.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Data & Privacy</h2>
+              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Manage your data, exports, and privacy settings.</p>
 
               {/* Export Data */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Export Data</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Export Data</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
                     'Export Buyer CRM as CSV',
@@ -1117,7 +1118,7 @@ export default function SettingsPage() {
                   ].map((label, i) => (
                     <button
                       key={i}
-                      className="flex items-center gap-2 px-4 py-3 rounded-md bg-white border border-[#E5E7EB] text-sm text-[#374151] hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
                     >
                       <Download className="w-4 h-4 text-gray-400" />
                       {label}
@@ -1127,14 +1128,14 @@ export default function SettingsPage() {
               </div>
 
               {/* Data Retention */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Data Retention</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Data Retention</h3>
                 <div className="max-w-xs">
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Keep call recordings for</label>
+                  <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Keep call recordings for</label>
                   <select
                     value={dataRetention}
                     onChange={e => setDataRetention(e.target.value)}
-                    className="w-full px-3 py-2 rounded-md border border-[#E5E7EB] text-sm text-[#374151] bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]"
+                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                   >
                     <option>30 days</option>
                     <option>90 days</option>
@@ -1146,12 +1147,12 @@ export default function SettingsPage() {
               </div>
 
               {/* DNC Management */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Do Not Call Management</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Do Not Call Management</h3>
                 <div className="flex items-center gap-3 mb-3">
                   <button
                     onClick={openDNCList}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-sm text-[#374151] hover:bg-gray-50 transition-colors"
+                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
                   >
                     <Shield className="w-4 h-4 text-gray-400" />
                     View DNC List
@@ -1159,7 +1160,7 @@ export default function SettingsPage() {
                   </button>
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D1D5DB] rounded-md text-sm text-[#374151] hover:bg-gray-50 transition-colors"
+                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
                   >
                     <Upload className="w-4 h-4 text-gray-400" />
                     Upload DNC List
@@ -1172,20 +1173,20 @@ export default function SettingsPage() {
                     className="hidden"
                   />
                 </div>
-                <p className="text-[10px] text-gray-500">Numbers on this list will be automatically excluded from all AI outreach campaigns.</p>
+                <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>Numbers on this list will be automatically excluded from all AI outreach campaigns.</p>
 
                 {/* DNC Message */}
                 {dncMessage && (
-                  <div className={`mt-3 px-3 py-2 rounded-md text-sm ${
-                    dncMessage.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
-                  }`}>
+                  <div className={`mt-3 px-3 py-2 rounded-[10px] text-sm ${
+                    dncMessage.type === 'success' ? 'border' : 'bg-red-50 text-red-700 border border-red-200'
+                  }`} style={dncMessage.type === 'success' ? { backgroundColor: 'rgba(37,99,235,0.08)', color: '#2563EB', borderColor: 'rgba(37,99,235,0.2)' } : undefined}>
                     {dncMessage.text}
                   </div>
                 )}
 
                 {/* DNC Panel */}
                 {dncOpen && (
-                  <div className="mt-4 border border-[#E5E7EB] rounded-lg overflow-hidden">
+                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="mt-4 overflow-hidden">
                     {/* Search & Add */}
                     <div className="p-4 bg-gray-50 border-b border-[#E5E7EB] space-y-3">
                       <div className="flex gap-2">
@@ -1200,7 +1201,7 @@ export default function SettingsPage() {
                               setDncOffset(0)
                               fetchDNCList(e.target.value, 0)
                             }}
-                            className="w-full pl-9 pr-3 py-2 rounded-md border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                            style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', paddingLeft: '36px', paddingRight: '14px', paddingTop: '10px', paddingBottom: '10px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                           />
                         </div>
                         <button
@@ -1216,19 +1217,19 @@ export default function SettingsPage() {
                           placeholder="Phone number"
                           value={addPhoneInput}
                           onChange={e => setAddPhoneInput(e.target.value)}
-                          className="flex-1 px-3 py-2 rounded-md border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                          style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex-1 focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                         />
                         <input
                           type="text"
                           placeholder="Reason (optional)"
                           value={addPhoneReason}
                           onChange={e => setAddPhoneReason(e.target.value)}
-                          className="flex-1 px-3 py-2 rounded-md border border-[#E5E7EB] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                          style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex-1 focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                         />
                         <button
                           onClick={addPhoneToDNC}
                           disabled={addingPhone || !addPhoneInput.trim()}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-[#2563EB] text-white text-sm font-medium rounded-md hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
+                          style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-1.5 bg-[#2563EB] text-white hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
                         >
                           {addingPhone ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                           Add
@@ -1314,14 +1315,14 @@ export default function SettingsPage() {
                           <button
                             disabled={dncOffset === 0}
                             onClick={() => { const n = Math.max(0, dncOffset - 50); setDncOffset(n); fetchDNCList(dncSearch, n) }}
-                            className="px-3 py-1 text-xs border border-[#D1D5DB] rounded hover:bg-gray-100 disabled:opacity-50"
+                            style={{ border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', color: '#0B1224' }} className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
                           >
                             Previous
                           </button>
                           <button
                             disabled={dncOffset + 50 >= dncTotal}
                             onClick={() => { const n = dncOffset + 50; setDncOffset(n); fetchDNCList(dncSearch, n) }}
-                            className="px-3 py-1 text-xs border border-[#D1D5DB] rounded hover:bg-gray-100 disabled:opacity-50"
+                            style={{ border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', color: '#0B1224' }} className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
                           >
                             Next
                           </button>
@@ -1333,26 +1334,26 @@ export default function SettingsPage() {
               </div>
 
               {/* Account Actions */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6 mb-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Account Actions</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Account Actions</h3>
                 <div className="space-y-3">
-                  <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-yellow-300 bg-yellow-50 text-yellow-800 text-sm font-medium hover:bg-yellow-100 transition-colors">
+                  <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 border border-yellow-300 bg-yellow-50 text-yellow-800 hover:bg-yellow-100 transition-colors">
                     <AlertTriangle className="w-4 h-4" />
                     Deactivate Account
                   </button>
-                  <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-300 bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100 transition-colors">
+                  <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 bg-[#EF4444] text-white hover:bg-red-600 transition-colors">
                     <Trash2 className="w-4 h-4" />
                     Delete Account and All Data
                   </button>
-                  <p className="text-[10px] text-gray-500">
+                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>
                     Account deletion is permanent and cannot be undone. All your data, buyers, deals, contracts, and call recordings will be permanently removed.
                   </p>
                 </div>
               </div>
 
               {/* Legal Links */}
-              <div className="bg-white rounded-lg border border-[#E5E7EB] p-6">
-                <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-4">Legal</h3>
+              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Legal</h3>
                 <div className="space-y-2.5">
                   {[
                     'Terms of Service',
@@ -1374,7 +1375,7 @@ export default function SettingsPage() {
 
       {/* Save toast */}
       {saved && (
-        <div className="fixed bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-green-600 text-white text-sm font-medium rounded-xl shadow-lg z-50">
+        <div style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px' }} className="fixed bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-[#2563EB] text-white rounded-xl shadow-lg z-50">
           <Check className="w-4 h-4" />
           Settings saved successfully
         </div>

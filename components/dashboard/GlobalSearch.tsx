@@ -18,20 +18,20 @@ interface SearchResult {
 function scoreGrade(s: number) { return s >= 90 ? 'A' : s >= 70 ? 'B' : s >= 50 ? 'C' : 'D' }
 function scoreColor(g: string) {
   switch (g) {
-    case 'A': return { color: '#16a34a', bg: 'rgba(22,163,74,0.08)' }
-    case 'B': return { color: '#2563EB', bg: 'rgba(37,99,235,0.08)' }
-    case 'C': return { color: '#d97706', bg: 'rgba(217,119,6,0.08)' }
-    default: return { color: '#ef4444', bg: 'rgba(239,68,68,0.08)' }
+    case 'A': return { color: '#ffffff', bg: '#2563EB' }
+    case 'B': return { color: '#ffffff', bg: '#60A5FA' }
+    case 'C': return { color: '#ffffff', bg: '#F59E0B' }
+    default: return { color: '#ffffff', bg: 'rgba(5,14,36,0.3)' }
   }
 }
 function statusStyle(s: string) {
   switch (s) {
-    case 'HIGH_CONFIDENCE': return { color: '#16a34a', bg: 'rgba(22,163,74,0.08)' }
+    case 'HIGH_CONFIDENCE': return { color: '#2563EB', bg: 'rgba(37,99,235,0.08)' }
     case 'RECENTLY_VERIFIED': return { color: '#2563EB', bg: 'rgba(37,99,235,0.08)' }
-    case 'ACTIVE': return { color: 'var(--body-text)', bg: 'rgba(5,14,36,0.04)' }
-    case 'DORMANT': return { color: '#d97706', bg: 'rgba(217,119,6,0.08)' }
-    case 'DO_NOT_CALL': return { color: '#ef4444', bg: 'rgba(239,68,68,0.08)' }
-    default: return { color: 'var(--body-text)', bg: 'rgba(5,14,36,0.04)' }
+    case 'ACTIVE': return { color: 'rgba(5,14,36,0.5)', bg: 'rgba(5,14,36,0.04)' }
+    case 'DORMANT': return { color: 'rgba(5,14,36,0.4)', bg: 'rgba(5,14,36,0.04)' }
+    case 'DO_NOT_CALL': return { color: '#ef4444', bg: 'rgba(239,68,68,0.06)' }
+    default: return { color: 'rgba(5,14,36,0.5)', bg: 'rgba(5,14,36,0.04)' }
   }
 }
 function displayStatus(s: string) { return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) }
@@ -149,7 +149,7 @@ export default function GlobalSearch() {
             alignItems: 'center',
             gap: 12,
             padding: '14px 18px',
-            borderBottom: '1px solid var(--border-light, #F0F0F0)',
+            borderBottom: '1px solid rgba(5,14,36,0.08)',
           }}
         >
           <Search style={{ width: 18, height: 18, color: 'var(--muted-text, #9CA3AF)', flexShrink: 0 }} />
@@ -174,7 +174,7 @@ export default function GlobalSearch() {
               fontSize: '0.6rem',
               color: 'var(--muted-text, #9CA3AF)',
               background: 'rgba(5,14,36,0.04)',
-              border: '1px solid var(--border-light, #F0F0F0)',
+              border: '1px solid rgba(5,14,36,0.08)',
               borderRadius: 4,
               padding: '2px 6px',
             }}
@@ -224,17 +224,17 @@ export default function GlobalSearch() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                   <div
                     style={{
-                      width: 36,
-                      height: 36,
+                      width: 32,
+                      height: 32,
                       borderRadius: '50%',
-                      background: 'rgba(5,14,36,0.04)',
+                      background: '#0B1224',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
                     }}
                   >
-                    <span style={{ fontSize: '0.6rem', fontWeight: 500, color: 'var(--body-text, #4B5563)' }}>
+                    <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'white' }}>
                       {(r.firstName?.[0] || r.entityName?.[0] || '?').toUpperCase()}
                     </span>
                   </div>
@@ -264,7 +264,7 @@ export default function GlobalSearch() {
                 style={{
                   width: 20,
                   height: 20,
-                  border: '2px solid var(--border-light, #F0F0F0)',
+                  border: '2px solid rgba(5,14,36,0.08)',
                   borderTopColor: '#2563EB',
                   borderRadius: '50%',
                   animation: 'spin 0.7s linear infinite',

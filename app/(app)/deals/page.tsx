@@ -52,12 +52,12 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
 }
 
 const statusColors: Record<string, { bg: string; text: string }> = {
-  DRAFT: { bg: 'rgba(156,163,175,0.1)', text: '#6b7280' },
-  ACTIVE: { bg: 'rgba(22,163,74,0.08)', text: '#16a34a' },
-  UNDER_OFFER: { bg: 'rgba(37,99,235,0.08)', text: '#2563eb' },
-  CLOSED: { bg: 'rgba(124,58,237,0.08)', text: '#7c3aed' },
+  DRAFT: { bg: 'rgba(5,14,36,0.04)', text: 'rgba(5,14,36,0.4)' },
+  ACTIVE: { bg: 'rgba(37,99,235,0.08)', text: '#2563EB' },
+  UNDER_OFFER: { bg: 'rgba(139,92,246,0.08)', text: '#8B5CF6' },
+  CLOSED: { bg: 'rgba(37,99,235,0.08)', text: '#2563EB' },
   CANCELLED: { bg: 'rgba(239,68,68,0.08)', text: '#ef4444' },
-  EXPIRED: { bg: 'rgba(156,163,175,0.08)', text: '#9ca3af' },
+  EXPIRED: { bg: 'rgba(5,14,36,0.04)', text: 'rgba(5,14,36,0.4)' },
 }
 
 const typeLabels: Record<string, string> = {
@@ -156,7 +156,8 @@ function RowMenu({
         <>
           <div className="fixed inset-0 z-[100]" onClick={(e) => { e.stopPropagation(); onClose() }} />
           <div
-            className="fixed z-[101] bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[180px]"
+            className="fixed z-[101] bg-white rounded-[12px] shadow-lg py-1 min-w-[180px]"
+            style={{ border: '1px solid rgba(5,14,36,0.08)' }}
             style={{ top: pos.top, left: pos.left }}
           >
             <button
@@ -410,7 +411,7 @@ export default function DealsPage() {
     { label: 'Active Deals', value: stats.active, color: '#2563EB', icon: Zap },
     { label: 'Under Offer', value: stats.underOffer, color: '#7c3aed', icon: Handshake },
     { label: 'Pending Offers', value: stats.pendingOffers, color: '#d97706', icon: DollarSign },
-    { label: 'Closed This Month', value: stats.closedThisMonth, color: '#16a34a', icon: TrendingUp },
+    { label: 'Closed This Month', value: stats.closedThisMonth, color: '#2563EB', icon: TrendingUp },
   ]
 
   return (
@@ -419,16 +420,16 @@ export default function DealsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1
-            style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-            className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] tracking-[-0.022em] mb-1"
+            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em' }}
+            className="mb-1"
           >
             My Deals
           </h1>
-          <p className="text-[0.86rem] text-[var(--body-text,#4B5563)]">Manage and track submitted properties.</p>
+          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>Manage and track submitted properties.</p>
         </div>
         <Link
           href="/deals/new"
-          className="inline-flex items-center gap-1.5 bg-gray-900 text-white rounded-md px-3.5 py-2 text-[0.84rem] no-underline hover:bg-gray-800 transition-colors flex-shrink-0"
+          className="inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-[10px] px-3.5 py-2 text-[0.84rem] no-underline hover:bg-[#1D4ED8] transition-colors flex-shrink-0"
         >
           <Plus className="w-3.5 h-3.5" /> New deal
         </Link>
@@ -439,15 +440,14 @@ export default function DealsPage() {
         {kpis.map((k) => (
           <div
             key={k.label}
-            className="bg-white border border-[#F0F0F0] rounded-[14px] px-5 py-[18px]"
-            style={{ borderLeft: `3px solid ${k.color}` }}
+            className="bg-white rounded-[12px] px-5 py-[18px]"
+            style={{ border: '1px solid rgba(5,14,36,0.08)' }}
           >
-            <div className="text-[0.68rem] font-semibold tracking-[0.06em] uppercase text-[#9CA3AF] mb-2.5">
+            <div style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase' as const, color: 'rgba(5,14,36,0.4)' }} className="mb-2.5">
               {k.label}
             </div>
             <div
-              style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-              className="text-[2rem] font-normal text-[var(--navy-heading,#0B1224)] tracking-[-0.04em] leading-none"
+              style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '2rem', color: '#0B1224', letterSpacing: '-0.04em', lineHeight: 1 }}
             >
               {k.value}
             </div>
@@ -488,7 +488,10 @@ export default function DealsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search deals..."
-              className="bg-white border border-[#E5E7EB] rounded-lg pl-9 pr-3 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none focus:border-[#2563EB] transition-colors w-[180px]"
+              className="bg-white rounded-[10px] pl-9 pr-3 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none transition-colors w-[180px]"
+              style={{ border: '1px solid rgba(5,14,36,0.15)' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
             />
           </div>
 
@@ -496,13 +499,14 @@ export default function DealsPage() {
           <div ref={sortRef} className="relative">
             <button
               onClick={() => setSortOpen(!sortOpen)}
-              className="flex items-center gap-1.5 bg-white border border-[#E5E7EB] rounded-lg px-3 py-2 text-[0.82rem] text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-1.5 bg-white rounded-[10px] px-3 py-2 text-[0.82rem] text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
+              style={{ border: '1px solid rgba(5,14,36,0.15)' }}
             >
               {sortOptions.find((o) => o.key === sortKey)?.label}
               <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
             </button>
             {sortOpen && (
-              <div className="absolute right-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[170px]">
+              <div className="absolute right-0 top-full mt-1 z-50 bg-white rounded-[12px] shadow-lg py-1 min-w-[170px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
                 {sortOptions.map((opt) => (
                   <button
                     key={opt.key}
@@ -521,25 +525,25 @@ export default function DealsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white rounded-[12px] overflow-hidden" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
         {/* Table header */}
         <div
-          className="grid px-5 py-3 border-b border-gray-100 bg-gray-50 deal-table-header"
-          style={{ gridTemplateColumns: '2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px' }}
+          className="grid px-5 py-3 deal-table-header"
+          style={{ gridTemplateColumns: '2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px', background: 'rgba(5,14,36,0.02)', borderBottom: '1px solid rgba(5,14,36,0.04)' }}
         >
           {['Property', 'Price', 'ARV', 'Spread', 'Matches', 'Offers', 'Status', ''].map((h) => (
-            <div key={h || 'actions'} className="text-[0.68rem] text-gray-400 tracking-wide uppercase">{h}</div>
+            <div key={h || 'actions'} style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: 11, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(5,14,36,0.4)' }}>{h}</div>
           ))}
         </div>
 
         {loading ? (
           <div className="py-16 px-6 text-center">
             <Loader2 className="w-5 h-5 text-gray-300 animate-spin mx-auto mb-2" />
-            <div className="text-[0.84rem] text-[#9ca3af]">Loading deals...</div>
+            <div className="text-[0.84rem] text-[rgba(5,14,36,0.4)]">Loading deals...</div>
           </div>
         ) : visibleDeals.length === 0 && deals.length === 0 ? (
           <div className="py-16 px-6 text-center">
-            <div className="text-[0.86rem] text-[var(--body-text,#4B5563)] mb-5 max-w-[340px] mx-auto">
+            <div className="text-[0.86rem] text-[rgba(5,14,36,0.65)] mb-5 max-w-[340px] mx-auto">
               No deals yet. Submit a property and the AI will start finding matched cash buyers.
             </div>
             <Link
@@ -551,7 +555,7 @@ export default function DealsPage() {
           </div>
         ) : visibleDeals.length === 0 ? (
           <div className="py-12 px-6 text-center">
-            <div className="text-[0.84rem] text-[#9ca3af]">No deals match your filters.</div>
+            <div className="text-[0.84rem] text-[rgba(5,14,36,0.4)]">No deals match your filters.</div>
           </div>
         ) : (
           <div>
@@ -563,42 +567,45 @@ export default function DealsPage() {
                 <div
                   key={deal.id}
                   onClick={() => router.push(`/deals/${deal.id}`)}
-                  className="grid px-5 py-3.5 border-b border-gray-100 items-center hover:bg-gray-50/50 transition-colors cursor-pointer deal-table-row"
-                  style={{ gridTemplateColumns: '2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px' }}
+                  className="grid px-5 py-3.5 items-center transition-colors cursor-pointer deal-table-row"
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(37,99,235,0.02)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
+                  data-row-border
+                  style={{ gridTemplateColumns: '2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px', background: 'white', borderBottom: '1px solid rgba(5,14,36,0.04)' }}
                 >
                   {/* Property */}
                   <div className="min-w-0">
-                    <div className="text-[0.84rem] font-medium text-[var(--navy-heading,#0B1224)] truncate">
+                    <div style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: 14, color: '#0B1224' }} className="truncate">
                       {deal.address}
                     </div>
-                    <div className="text-[0.74rem] text-[#9ca3af] truncate">
+                    <div style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: 12, color: 'rgba(5,14,36,0.4)' }} className="truncate">
                       {deal.city}, {deal.state} {deal.zip} · {typeLabels[deal.propertyType] || deal.propertyType} · {relativeTime(deal.createdAt)}
                     </div>
                   </div>
 
                   {/* Price */}
-                  <div className="text-[0.84rem] text-[var(--body-text,#4B5563)]">
+                  <div className="text-[0.84rem] text-[rgba(5,14,36,0.65)]">
                     ${deal.askingPrice.toLocaleString()}
                   </div>
 
                   {/* ARV */}
-                  <div className="text-[0.84rem] text-[var(--body-text,#4B5563)] deal-arv-col">
+                  <div className="text-[0.84rem] text-[rgba(5,14,36,0.65)] deal-arv-col">
                     {deal.arv != null ? `$${deal.arv.toLocaleString()}` : '—'}
                   </div>
 
                   {/* Spread */}
                   <div className="deal-spread-col">
                     {spread != null ? (
-                      <span className={`text-[0.84rem] font-medium ${spread > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      <span className={`text-[0.84rem] font-medium ${spread > 0 ? 'text-[#2563EB]' : 'text-red-500'}`}>
                         ${Math.abs(spread).toLocaleString()}
                       </span>
                     ) : (
-                      <span className="text-[0.84rem] text-[var(--body-text,#4B5563)]">—</span>
+                      <span className="text-[0.84rem] text-[rgba(5,14,36,0.65)]">—</span>
                     )}
                   </div>
 
                   {/* Matches */}
-                  <div className="text-[0.84rem] text-[var(--body-text,#4B5563)]">
+                  <div className="text-[0.84rem] text-[rgba(5,14,36,0.65)]">
                     {isMatching ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2563EB]" />
                     ) : deal.matches.length > 0 ? (
@@ -609,7 +616,7 @@ export default function DealsPage() {
                   </div>
 
                   {/* Offers */}
-                  <div className="text-[0.84rem] text-[var(--body-text,#4B5563)] deal-offers-col">
+                  <div className="text-[0.84rem] text-[rgba(5,14,36,0.65)] deal-offers-col">
                     {deal.offers.length > 0 ? (
                       <span className="flex items-center gap-1">
                         {deal.offers.length}
@@ -656,21 +663,22 @@ export default function DealsPage() {
       {confirmDelete && (
         <>
           <div className="fixed inset-0 bg-black/30 z-[200]" onClick={() => setConfirmDelete(null)} />
-          <div className="fixed z-[201] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl border border-gray-200 p-6 w-[360px]">
-            <div className="text-[0.92rem] font-medium text-[var(--navy-heading,#0B1224)] mb-2">Delete this deal?</div>
+          <div className="fixed z-[201] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-[12px] shadow-xl p-6 w-[360px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+            <div style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: 15, color: '#0B1224' }} className="mb-2">Delete this deal?</div>
             <p className="text-[0.82rem] text-gray-500 mb-5">
               This will cancel the deal and remove it from your active list. This cannot be undone.
             </p>
             <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="px-4 py-2 text-[0.82rem] text-gray-600 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 text-[0.82rem] text-gray-600 bg-white rounded-[10px] cursor-pointer hover:bg-gray-50 transition-colors"
+                style={{ border: '1px solid rgba(5,14,36,0.15)' }}
               >
                 Cancel
               </button>
               <button
                 onClick={() => deleteDeal(confirmDelete)}
-                className="px-4 py-2 text-[0.82rem] text-white bg-red-500 border-0 rounded-lg cursor-pointer hover:bg-red-600 transition-colors"
+                className="px-4 py-2 text-[0.82rem] text-white bg-red-500 border-0 rounded-[10px] cursor-pointer hover:bg-red-600 transition-colors"
               >
                 Delete
               </button>

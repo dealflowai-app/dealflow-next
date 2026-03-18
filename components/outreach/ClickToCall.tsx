@@ -27,7 +27,7 @@ export interface ClickToCallProps {
 }
 
 const OUTCOMES = [
-  { value: 'QUALIFIED', label: 'Qualified', color: 'bg-emerald-500/20 text-emerald-700 border-emerald-300' },
+  { value: 'QUALIFIED', label: 'Qualified', color: 'bg-blue-500/20 text-blue-700 border-blue-300' },
   { value: 'NOT_BUYING', label: 'Not Buying', color: 'bg-gray-200 text-gray-700 border-gray-300' },
   { value: 'NO_ANSWER', label: 'No Answer', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
   { value: 'VOICEMAIL', label: 'Voicemail', color: 'bg-blue-100 text-blue-700 border-blue-300' },
@@ -258,7 +258,7 @@ export default function ClickToCall({
         {compact ? (
           <button
             onClick={handleCall}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
             title={`Call ${buyerName}`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -268,7 +268,7 @@ export default function ClickToCall({
         ) : (
           <button
             onClick={handleCall}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -298,7 +298,7 @@ export default function ClickToCall({
       {/* Floating call panel — bottom-right, doesn't block the UI */}
       <div className="fixed bottom-4 right-4 z-50 w-[360px] rounded-xl bg-white shadow-lg border border-gray-200 overflow-hidden">
         {/* Call header */}
-        <div className={`px-4 py-3 ${phase === 'in-progress' ? 'bg-emerald-50' : phase === 'ended' ? 'bg-gray-50' : 'bg-blue-50'}`}>
+        <div className={`px-4 py-3 ${phase === 'in-progress' ? 'bg-blue-50' : phase === 'ended' ? 'bg-gray-50' : 'bg-blue-50'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm text-sm font-bold text-gray-600">
@@ -311,7 +311,7 @@ export default function ClickToCall({
             </div>
             <div className="text-right">
               <div className={`text-xs font-medium ${
-                phase === 'in-progress' ? 'text-emerald-600' :
+                phase === 'in-progress' ? 'text-blue-600' :
                 phase === 'ringing' ? 'text-blue-600' :
                 phase === 'ended' ? 'text-gray-500' :
                 'text-gray-500'

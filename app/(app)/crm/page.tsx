@@ -76,21 +76,21 @@ function scoreGrade(score: number): string {
 
 function scoreColor(s: string) {
   switch (s) {
-    case 'A': return 'text-emerald-700 bg-emerald-50 border-emerald-200'
-    case 'B': return 'text-[#2563EB] bg-[#EFF6FF] border-[#BFDBFE]'
-    case 'C': return 'text-amber-700 bg-amber-50 border-amber-200'
-    case 'D': return 'text-red-700 bg-red-50 border-red-200'
-    default: return 'text-gray-600 bg-gray-100 border-gray-200'
+    case 'A': return 'text-white bg-[#2563EB] border-[#2563EB]'
+    case 'B': return 'text-white bg-[#60A5FA] border-[#60A5FA]'
+    case 'C': return 'text-white bg-[#F59E0B] border-[#F59E0B]'
+    case 'D': return 'text-white bg-[rgba(5,14,36,0.3)] border-[rgba(5,14,36,0.3)]'
+    default: return 'text-white bg-[rgba(5,14,36,0.3)] border-[rgba(5,14,36,0.3)]'
   }
 }
 
 function scoreDot(s: string) {
   switch (s) {
-    case 'A': return '#10b981'
-    case 'B': return '#2563EB'
-    case 'C': return '#f59e0b'
-    case 'D': return '#ef4444'
-    default: return '#9ca3af'
+    case 'A': return '#2563EB'
+    case 'B': return '#60A5FA'
+    case 'C': return '#F59E0B'
+    case 'D': return 'rgba(5,14,36,0.3)'
+    default: return 'rgba(5,14,36,0.3)'
   }
 }
 
@@ -108,11 +108,11 @@ function displayStatus(s: string): string {
 
 function motivationBadge(m: string | null) {
   switch (m) {
-    case 'HOT': return { label: 'Hot', style: 'text-red-700 bg-red-50', dot: 'bg-red-500' }
-    case 'WARM': return { label: 'Warm', style: 'text-orange-700 bg-orange-50', dot: 'bg-orange-400' }
-    case 'COLD': return { label: 'Cold', style: 'text-blue-700 bg-blue-50', dot: 'bg-blue-400' }
-    case 'NOT_INTERESTED': return { label: 'Not Int.', style: 'text-gray-600 bg-gray-100', dot: 'bg-gray-400' }
-    case 'DNC': return { label: 'DNC', style: 'text-red-800 bg-red-100', dot: 'bg-red-700' }
+    case 'HOT': return { label: 'Hot', style: 'text-[#EF4444] bg-[rgba(239,68,68,0.08)]', dot: 'bg-[#EF4444]' }
+    case 'WARM': return { label: 'Warm', style: 'text-[#F59E0B] bg-[rgba(245,158,11,0.08)]', dot: 'bg-[#F59E0B]' }
+    case 'COLD': return { label: 'Cold', style: 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]', dot: 'bg-[#2563EB]' }
+    case 'NOT_INTERESTED': return { label: 'Not Int.', style: 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]', dot: 'bg-[rgba(5,14,36,0.3)]' }
+    case 'DNC': return { label: 'DNC', style: 'text-[#EF4444] bg-[rgba(239,68,68,0.08)]', dot: 'bg-[#EF4444]' }
     default: return null
   }
 }
@@ -120,12 +120,12 @@ function motivationBadge(m: string | null) {
 function statusStyle(s: string) {
   const display = displayStatus(s)
   switch (display) {
-    case 'Active': return 'text-emerald-700 bg-emerald-50'
-    case 'Dormant': return 'text-[#6B7280] bg-gray-100'
-    case 'High-Confidence': return 'text-amber-700 bg-amber-50'
-    case 'Recently Verified': return 'text-violet-700 bg-violet-50'
-    case 'Do Not Call': return 'text-red-700 bg-red-50'
-    default: return 'text-gray-500 bg-gray-100'
+    case 'Active': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
+    case 'Dormant': return 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
+    case 'High-Confidence': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
+    case 'Recently Verified': return 'text-[#8B5CF6] bg-[rgba(139,92,246,0.08)]'
+    case 'Do Not Call': return 'text-[#EF4444] bg-[rgba(239,68,68,0.08)]'
+    default: return 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
   }
 }
 
@@ -225,8 +225,8 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-sm font-medium animate-slideInRight ${
-            t.type === 'success' ? 'bg-emerald-600 text-white'
+          className={`flex items-center gap-2 px-4 py-3 rounded-[12px] shadow-lg text-sm font-medium animate-slideInRight ${
+            t.type === 'success' ? 'bg-[#2563EB] text-white'
               : t.type === 'error' ? 'bg-red-600 text-white'
                 : 'bg-gray-800 text-white'
           }`}
@@ -266,7 +266,7 @@ function useToasts() {
    ═══════════════════════════════════════════════ */
 function SkeletonRow() {
   return (
-    <tr className="border-b border-[#F3F4F6]">
+    <tr className="border-b border-[rgba(5,14,36,0.04)]">
       <td className="px-3 py-3"><div className="w-3.5 h-3.5 bg-gray-200 rounded animate-pulse" /></td>
       <td className="px-3 py-3"><div className="flex items-center gap-2">
         <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse" />
@@ -288,10 +288,10 @@ function SkeletonRow() {
 
 function TableSkeleton() {
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-none overflow-hidden">
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] shadow-none overflow-hidden">
       <table className="w-full min-w-[1000px]">
         <thead>
-          <tr className="border-b border-[#F3F4F6]">
+          <tr className="border-b border-[rgba(5,14,36,0.04)]" style={{ background: 'rgba(5,14,36,0.02)' }}>
             {Array.from({ length: 12 }).map((_, i) => (
               <th key={i} className="px-3 py-3"><div className="w-12 h-3 bg-gray-200 rounded animate-pulse" /></th>
             ))}
@@ -367,7 +367,8 @@ function FilterSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none bg-white border border-gray-200 rounded-lg pl-3 pr-7 py-2 text-[0.78rem] text-gray-600 outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
+        style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
+        className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] pl-3 pr-7 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
       >
         <option value="">{label}</option>
         {options.map((o) => (
@@ -418,8 +419,8 @@ function AddBuyerModal({ onClose, onCreated }: { onClose: () => void; onCreated:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
-      <form onSubmit={handleSubmit} className="relative bg-white rounded-xl shadow-xl p-6 w-[520px] max-h-[90vh] overflow-y-auto crm-modal-content">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Buyer</h3>
+      <form onSubmit={handleSubmit} className="relative bg-white rounded-[12px] shadow-xl p-6 w-[520px] max-h-[90vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+        <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-4">Add Buyer</h3>
         {err && <div className="text-red-600 text-sm mb-3">{err}</div>}
 
         {/* Score Slider */}
@@ -523,8 +524,8 @@ function AddBuyerModal({ onClose, onCreated }: { onClose: () => void; onCreated:
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">Cancel</button>
-          <button type="submit" disabled={saving} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-md border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-gray-50">Cancel</button>
+          <button type="submit" disabled={saving} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-[10px] border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
             {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             {saving ? 'Saving...' : 'Create Buyer'}
           </button>
@@ -614,8 +615,8 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-xl p-6 w-[580px] max-h-[85vh] overflow-y-auto crm-modal-content">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">Import Buyers (CSV)</h3>
+      <div className="relative bg-white rounded-[12px] shadow-xl p-6 w-[580px] max-h-[85vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+        <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Import Buyers (CSV)</h3>
         <div className="flex items-center gap-3 mb-4">
           <p className="text-xs text-gray-400">Upload a CSV or paste data below.</p>
           <button onClick={downloadTemplate} className="text-xs text-[#2563EB] hover:underline bg-transparent border-0 cursor-pointer flex items-center gap-1">
@@ -650,7 +651,7 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
             {/* Column mapping */}
             <div className="flex flex-wrap gap-1 mb-2">
               {preview.headers.map((h, i) => (
-                <span key={i} className={`text-[0.64rem] px-1.5 py-0.5 rounded ${preview.mapped[h] ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
+                <span key={i} className={`text-[0.64rem] px-1.5 py-0.5 rounded ${preview.mapped[h] ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border border-[rgba(37,99,235,0.2)]' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
                   {h}{preview.mapped[h] ? ' ✓' : ' ?'}
                 </span>
               ))}
@@ -680,7 +681,7 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
 
         {/* Results */}
         {result && (
-          <div className={`text-sm p-3 rounded-md mb-3 ${result.imported > 0 ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}>
+          <div className={`text-sm p-3 rounded-md mb-3 ${result.imported > 0 ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB]' : 'bg-red-50 text-red-800'}`}>
             {result.imported > 0 && <div className="font-medium">{result.imported} imported, {result.skipped} skipped</div>}
             {result.errors.length > 0 && result.errors.slice(0, 5).map((e, i) => (
               <div key={i} className="text-xs mt-1">{e.index >= 0 ? `Row ${e.index + 1}: ` : ''}{e.reason}</div>
@@ -689,11 +690,11 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
         )}
 
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-gray-50">
             {result ? 'Done' : 'Cancel'}
           </button>
           {!result && (
-            <button onClick={handleImport} disabled={importing || !csvText.trim()} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-md border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+            <button onClick={handleImport} disabled={importing || !csvText.trim()} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-[10px] border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
               {importing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {importing ? 'Importing...' : 'Import'}
             </button>
@@ -765,8 +766,8 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-xl p-6 w-[560px] max-h-[85vh] overflow-y-auto crm-modal-content">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">Duplicate Detection</h3>
+      <div className="relative bg-white rounded-[12px] shadow-xl p-6 w-[560px] max-h-[85vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+        <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Duplicate Detection</h3>
         {summary && (
           <div className="flex gap-3 text-xs text-gray-500 mb-4">
             <span className="text-red-600 font-medium">{summary.high} high</span>
@@ -783,7 +784,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
 
         {!loading && groups.length === 0 && (
           <div className="text-center py-12 text-gray-400">
-            <CheckCircle2 className="w-10 h-10 mx-auto mb-2 text-emerald-400" />
+            <CheckCircle2 className="w-10 h-10 mx-auto mb-2 text-[#2563EB]" />
             <p className="text-sm font-medium text-gray-600">No duplicates found</p>
             <p className="text-xs mt-1">Your buyer list looks clean!</p>
           </div>
@@ -791,7 +792,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
 
         {/* Merge sub-view */}
         {mergeTarget && (
-          <div className="border border-blue-200 bg-blue-50 rounded-lg p-4 mb-4">
+          <div className="border border-[rgba(37,99,235,0.15)] bg-[rgba(37,99,235,0.05)] rounded-[12px] p-4 mb-4">
             <div className="text-sm font-medium text-gray-800 mb-2">Select primary buyer (keeps this record):</div>
             <div className="space-y-1.5 mb-3">
               {mergeTarget.group.buyers.map((b) => (
@@ -809,11 +810,11 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
               ))}
             </div>
             <div className="flex gap-2">
-              <button onClick={handleMerge} disabled={!!merging} className="px-3 py-1.5 text-sm bg-[#2563EB] text-white rounded-md border-0 cursor-pointer hover:bg-[#1D4ED8] disabled:opacity-50 flex items-center gap-1">
+              <button onClick={handleMerge} disabled={!!merging} className="px-3 py-1.5 text-sm bg-[#2563EB] text-white rounded-[10px] border-0 cursor-pointer hover:bg-[#1D4ED8] disabled:opacity-50 flex items-center gap-1">
                 {merging && <Loader2 className="w-3 h-3 animate-spin" />}
                 Confirm Merge
               </button>
-              <button onClick={() => setMergeTarget(null)} className="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">Cancel</button>
+              <button onClick={() => setMergeTarget(null)} className="px-3 py-1.5 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-gray-50">Cancel</button>
             </div>
           </div>
         )}
@@ -821,7 +822,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
         {/* Groups list */}
         <div className="space-y-3">
           {groups.map((g, gi) => (
-            <div key={gi} className="border border-gray-200 rounded-lg p-3">
+            <div key={gi} className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3">
               <div className="flex items-center gap-2 mb-2">
                 <span className={`text-[0.64rem] font-medium px-1.5 py-0.5 rounded-full border ${confBadge(g.confidence)}`}>
                   {g.confidence}
@@ -849,7 +850,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
         </div>
 
         <div className="flex justify-end mt-4">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">Close</button>
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-gray-50">Close</button>
         </div>
       </div>
     </div>
@@ -872,21 +873,21 @@ function PaginationBar({
 }) {
   if (totalPages <= 1) return null
   return (
-    <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+    <div className="flex items-center justify-between mt-4" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, color: 'rgba(5,14,36,0.4)' }}>
       <span>{total} buyer{total !== 1 ? 's' : ''}</span>
       <div className="flex items-center gap-1">
         <button
           disabled={page <= 1}
           onClick={() => onPage(page - 1)}
-          className="p-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+          className="p-1.5 rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="px-3 text-[0.78rem]">Page {page} of {totalPages}</span>
+        <span className="px-3" style={{ fontSize: '12px' }}>Page {page} of {totalPages}</span>
         <button
           disabled={page >= totalPages}
           onClick={() => onPage(page + 1)}
-          className="p-1.5 rounded-md border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+          className="p-1.5 rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -927,7 +928,7 @@ function RowMenu({ isOpen, onToggle, onClose, actions }: {
         <>
           <div className="fixed inset-0 z-[100]" onClick={onClose} />
           <div
-            className="fixed z-[101] bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px] crm-dropdown"
+            className="fixed z-[101] bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] shadow-lg py-1 min-w-[160px] crm-dropdown"
             style={{ top: pos.top, left: pos.left }}
           >
             {actions.map((a) => (
@@ -1022,15 +1023,15 @@ function ListView({
   // Empty state: no buyers at all
   if (buyers.length === 0 && !hasFilters) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[#E5E7EB] rounded-lg">
+      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px]">
         <Users className="w-14 h-14 mb-3 text-gray-300" />
-        <p className="text-base font-medium text-gray-600 mb-1">Your buyer list is empty</p>
-        <p className="text-sm text-gray-400 mb-5">Add buyers manually or import from a CSV file.</p>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">Your buyer list is empty</p>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="mb-5">Add buyers manually or import from a CSV file.</p>
         <div className="flex gap-2">
-          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openAddModal'))} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
+          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openAddModal'))} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
             <UserPlus className="w-4 h-4" /> Add Buyer
           </button>
-          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openImportModal'))} className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
+          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openImportModal'))} className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[10px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
             <Upload className="w-4 h-4" /> Import CSV
           </button>
         </div>
@@ -1041,9 +1042,9 @@ function ListView({
   // Empty state: no search results
   if (buyers.length === 0 && hasFilters) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[#E5E7EB] rounded-lg">
+      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px]">
         <Search className="w-12 h-12 mb-3 text-gray-300" />
-        <p className="text-sm font-medium text-gray-500">No buyers match your filters</p>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }}>No buyers match your filters</p>
         <button onClick={onClearFilters} className="mt-3 text-sm text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer">Clear all filters</button>
       </div>
     )
@@ -1053,12 +1054,12 @@ function ListView({
     <div>
       {/* Bulk action bar */}
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg px-4 py-2.5 mb-3">
+        <div className="flex items-center gap-3 bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.15)] rounded-[12px] px-4 py-2.5 mb-3">
           <span className="text-[0.8rem] text-[#2563EB] font-medium">{selected.size} selected</span>
           <div className="flex items-center gap-1.5 ml-auto">
             <button
               onClick={() => setShowDialer(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-bold text-emerald-700 hover:bg-emerald-100 bg-emerald-50 border border-emerald-200 cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-bold text-[#2563EB] hover:bg-[rgba(37,99,235,0.12)] bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.2)] cursor-pointer transition-colors"
             >
               <Phone className="w-3.5 h-3.5" />
               Power Dial
@@ -1087,12 +1088,12 @@ function ListView({
       )}
 
       {/* Table */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg shadow-none overflow-x-auto">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] shadow-none overflow-x-auto">
         <table className="w-full min-w-[1000px]">
           <thead>
-            <tr className="border-b border-[#F3F4F6]">
+            <tr className="border-b border-[rgba(5,14,36,0.04)]" style={{ background: 'rgba(5,14,36,0.02)' }}>
               <th className="w-10 px-3 py-3">
-                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#2563EB] w-3.5 h-3.5 cursor-pointer" />
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="accent-[#2563EB] cursor-pointer" style={{ width: '16px', height: '16px', borderRadius: '4px' }} />
               </th>
               {[
                 { key: 'name', label: 'Buyer Name', align: 'left' },
@@ -1110,9 +1111,10 @@ function ListView({
                 <th
                   key={col.key}
                   onClick={() => col.key !== 'actions' ? setSortCol(col.key) : null}
-                  className={`px-3 py-3 text-xs uppercase tracking-wider text-[#6B7280] font-medium whitespace-nowrap ${
+                  style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '11px', letterSpacing: '0.05em', color: 'rgba(5,14,36,0.4)' }}
+                  className={`px-3 py-3 uppercase whitespace-nowrap ${
                     col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'
-                  } ${col.key !== 'actions' ? 'cursor-pointer hover:text-gray-600 select-none' : ''}`}
+                  } ${col.key !== 'actions' ? 'cursor-pointer hover:text-[rgba(5,14,36,0.6)] select-none' : ''}`}
                 >
                   <span className="inline-flex items-center gap-1">
                     {col.label}
@@ -1128,21 +1130,21 @@ function ListView({
               return (
                 <tr
                   key={b.id}
-                  className={`${i < buyers.length - 1 ? 'border-b border-[#F3F4F6]' : ''} bg-white hover:bg-[#F9FAFB] cursor-pointer crm-row`}
+                  className={`border-b border-[rgba(5,14,36,0.04)] bg-white hover:bg-[rgba(37,99,235,0.02)] cursor-pointer crm-row`}
                   onDoubleClick={() => onOpenDetail(b.id)}
                 >
                   <td className="px-3 py-3">
-                    <input type="checkbox" checked={selected.has(b.id)} onChange={() => toggle(b.id)} className="accent-[#2563EB] w-3.5 h-3.5 cursor-pointer" />
+                    <input type="checkbox" checked={selected.has(b.id)} onChange={() => toggle(b.id)} className="accent-[#2563EB] cursor-pointer" style={{ width: '16px', height: '16px', borderRadius: '4px', border: '1px solid rgba(5,14,36,0.2)' }} />
                   </td>
                   <td className="px-3 py-3">
                     <button onClick={() => onOpenDetail(b.id)} className="flex items-center gap-2 bg-transparent border-0 cursor-pointer text-left p-0 group">
-                      <div className="w-7 h-7 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
-                        <span className="text-[0.52rem] font-medium text-[#6B7280]">{buyerInitials(b)}</span>
+                      <div className="w-8 h-8 rounded-full bg-[#0B1224] flex items-center justify-center flex-shrink-0">
+                        <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '11px', color: 'white' }}>{buyerInitials(b)}</span>
                       </div>
-                      <span className="text-[0.82rem] font-medium text-gray-800 group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
+                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }} className="group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
                     </button>
                   </td>
-                  <td className="px-3 py-3 text-[0.78rem] text-gray-600 whitespace-nowrap">
+                  <td className="px-3 py-3 whitespace-nowrap" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }}>
                     <span className="inline-flex items-center gap-1.5">
                       {b.phone || '—'}
                       {b.phone && <ClickToCall buyerId={b.id} buyerName={buyerName(b)} phone={b.phone} compact />}
@@ -1151,12 +1153,12 @@ function ListView({
                   <td className="px-3 py-3">
                     <div className="flex flex-wrap gap-1">
                       {(b.preferredMarkets || []).map((m) => (
-                        <span key={m} className="text-[0.66rem] text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{m}</span>
+                        <span key={m} className="text-[11px] rounded-full px-1.5 py-0.5" style={{ color: 'rgba(5,14,36,0.65)', backgroundColor: 'rgba(5,14,36,0.04)' }}>{m}</span>
                       ))}
-                      {(!b.preferredMarkets || b.preferredMarkets.length === 0) && <span className="text-[0.66rem] text-gray-400">—</span>}
+                      {(!b.preferredMarkets || b.preferredMarkets.length === 0) && <span className="text-[11px]" style={{ color: 'rgba(5,14,36,0.4)' }}>—</span>}
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-[0.76rem] text-gray-600 max-w-[160px] truncate">{buyBox(b)}</td>
+                  <td className="px-3 py-3 max-w-[160px] truncate" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }}>{buyBox(b)}</td>
                   <td className="px-3 py-3 text-center">
                     <span className={`text-[0.72rem] font-bold px-2 py-0.5 rounded-full border ${scoreColor(grade)}`}>{grade}</span>
                   </td>
@@ -1175,8 +1177,8 @@ function ListView({
                   <td className="px-3 py-3">
                     <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${statusStyle(b.status)}`}>{displayStatus(b.status)}</span>
                   </td>
-                  <td className="px-3 py-3 text-[0.78rem] text-gray-500 whitespace-nowrap">{relativeDate(b.lastContactedAt)}</td>
-                  <td className="px-3 py-3 text-center text-[0.82rem] text-gray-700 font-medium">{b.cashPurchaseCount}</td>
+                  <td className="px-3 py-3 whitespace-nowrap" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>{relativeDate(b.lastContactedAt)}</td>
+                  <td className="px-3 py-3 text-center" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }}>{b.cashPurchaseCount}</td>
                   <td className="px-3 py-3">
                     <div className="flex flex-wrap gap-1 max-w-[140px]">
                       {(b.tags || []).slice(0, 3).map((bt) => (
@@ -1260,11 +1262,11 @@ function ListView({
    PIPELINE VIEW
    ═══════════════════════════════════════════════ */
 const PIPELINE_STATUSES = [
-  { key: 'ACTIVE', label: 'Active', borderColor: 'border-t-emerald-400' },
-  { key: 'RECENTLY_VERIFIED', label: 'Recently Verified', borderColor: 'border-t-violet-400' },
-  { key: 'HIGH_CONFIDENCE', label: 'High-Confidence', borderColor: 'border-t-amber-400' },
-  { key: 'DORMANT', label: 'Dormant', borderColor: 'border-t-gray-400' },
-  { key: 'DO_NOT_CALL', label: 'Do Not Call', borderColor: 'border-t-red-400' },
+  { key: 'ACTIVE', label: 'Active', borderColor: 'border-t-[#2563EB]' },
+  { key: 'RECENTLY_VERIFIED', label: 'Recently Verified', borderColor: 'border-t-[#8B5CF6]' },
+  { key: 'HIGH_CONFIDENCE', label: 'High-Confidence', borderColor: 'border-t-[#F59E0B]' },
+  { key: 'DORMANT', label: 'Dormant', borderColor: 'border-t-[rgba(5,14,36,0.2)]' },
+  { key: 'DO_NOT_CALL', label: 'Do Not Call', borderColor: 'border-t-[#EF4444]' },
 ]
 
 function PipelineView({
@@ -1284,7 +1286,7 @@ function PipelineView({
             <div className={`bg-gray-50 rounded-xl border-t-[3px] ${s.borderColor} p-3 min-h-[400px]`}>
               <div className="w-20 h-4 bg-gray-200 rounded animate-pulse mb-3" />
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-lg p-3 mb-2">
+                <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3 mb-2">
                   <div className="w-24 h-4 bg-gray-200 rounded animate-pulse mb-2" />
                   <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
                 </div>
@@ -1313,8 +1315,8 @@ function PipelineView({
           <div key={stage.key} className="flex-shrink-0 w-[210px]">
             <div className={`bg-gray-50 rounded-xl border-t-[3px] ${stage.borderColor} p-3 min-h-[400px]`}>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[0.76rem] font-medium text-gray-700">{stage.label}</span>
-                <span className="text-[0.68rem] font-medium text-gray-400 bg-white rounded-full px-2 py-0.5">{cards.length}</span>
+                <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>{stage.label}</span>
+                <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="bg-white rounded-full px-2 py-0.5">{cards.length}</span>
               </div>
               <div className="space-y-2">
                 {cards.map((b) => {
@@ -1323,18 +1325,21 @@ function PipelineView({
                     <button
                       key={b.id}
                       onClick={() => onOpenDetail(b.id)}
-                      className="w-full bg-white border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-left cursor-pointer hover:bg-[#F9FAFB] shadow-none group crm-card"
+                      className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-3 py-2.5 text-left cursor-pointer shadow-none group crm-card"
+                      style={{ transition: 'box-shadow 0.15s ease' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
                     >
                       <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
-                          <span className="text-[0.46rem] font-medium text-[#6B7280]">{buyerInitials(b)}</span>
+                        <div className="w-8 h-8 rounded-full bg-[#0B1224] flex items-center justify-center flex-shrink-0">
+                          <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '10px', color: 'white' }}>{buyerInitials(b)}</span>
                         </div>
-                        <span className="text-[0.78rem] font-medium text-gray-800 truncate group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
+                        <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }} className="truncate group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
                       </div>
-                      <div className="text-[0.68rem] text-gray-400 mb-1.5 flex gap-1 flex-wrap">
+                      <div className="mb-1.5 flex gap-1 flex-wrap" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, color: 'rgba(5,14,36,0.4)' }}>
                         {(b.preferredMarkets || []).map((m) => <span key={m}>{m}</span>)}
                       </div>
-                      <div className="text-[0.7rem] text-gray-500 truncate mb-2">{buyBox(b)}</div>
+                      <div className="truncate mb-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, color: 'rgba(5,14,36,0.65)' }}>{buyBox(b)}</div>
                       <div className="flex items-center justify-between">
                         <span className={`text-[0.64rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(grade)}`}>{grade}</span>
                       </div>
@@ -1380,10 +1385,10 @@ function MapView({
 
       {heatmap && (
         <div className="absolute inset-0">
-          <div className="absolute w-[180px] h-[180px] rounded-full bg-emerald-500/12 blur-3xl" style={{ left: '35%', top: '30%' }} />
+          <div className="absolute w-[180px] h-[180px] rounded-full bg-blue-500/12 blur-3xl" style={{ left: '35%', top: '30%' }} />
           <div className="absolute w-[220px] h-[220px] rounded-full bg-blue-500/10 blur-3xl" style={{ left: '55%', top: '40%' }} />
           <div className="absolute w-[140px] h-[140px] rounded-full bg-amber-500/10 blur-3xl" style={{ left: '20%', top: '50%' }} />
-          <div className="absolute w-[160px] h-[160px] rounded-full bg-emerald-400/08 blur-3xl" style={{ left: '70%', top: '55%' }} />
+          <div className="absolute w-[160px] h-[160px] rounded-full bg-blue-400/08 blur-3xl" style={{ left: '70%', top: '55%' }} />
         </div>
       )}
 
@@ -1397,8 +1402,8 @@ function MapView({
             {hoverBuyer === b.id && (
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#12141a] border border-gray-700 rounded-lg px-3 py-2.5 shadow-xl z-10 min-w-[180px] crm-tooltip">
                 <div className="flex items-center gap-2 mb-1.5">
-                  <div className="w-6 h-6 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
-                    <span className="text-[0.46rem] font-medium text-[#6B7280]">{buyerInitials(b)}</span>
+                  <div className="w-8 h-8 rounded-full bg-[#0B1224] flex items-center justify-center flex-shrink-0">
+                    <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '10px', color: 'white' }}>{buyerInitials(b)}</span>
                   </div>
                   <span className="text-[0.8rem] font-medium text-white">{buyerName(b)}</span>
                   <span className={`text-[0.6rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(grade)}`}>{grade}</span>
@@ -1420,10 +1425,10 @@ function MapView({
         <div className="text-[0.62rem] text-gray-400 uppercase tracking-wide mb-1.5">Buyer Score</div>
         <div className="space-y-1">
           {[
-            { label: 'A: Top Buyer', color: '#10b981' },
-            { label: 'B: Good', color: '#2563EB' },
-            { label: 'C: Fair', color: '#f59e0b' },
-            { label: 'D: Low', color: '#ef4444' },
+            { label: 'A: Top Buyer', color: '#2563EB' },
+            { label: 'B: Good', color: '#60A5FA' },
+            { label: 'C: Fair', color: '#F59E0B' },
+            { label: 'D: Low', color: 'rgba(5,14,36,0.3)' },
           ].map((l) => (
             <div key={l.label} className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ background: l.color }} />
@@ -1567,16 +1572,16 @@ export default function BuyerCrmPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">Buyer List</h1>
-          <p className="text-sm text-[#9CA3AF]">Manage your cash buyer relationships and pipeline.</p>
+          <h1 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Buyer List</h1>
+          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>Manage your cash buyer relationships and pipeline.</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setShowArchived(!showArchived); setPage(1) }}
-            className={`flex items-center gap-1.5 border rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors ${
+            className={`flex items-center gap-1.5 border rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors ${
               showArchived
-                ? 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
-                : 'bg-white border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151]'
+                ? 'bg-[rgba(245,158,11,0.08)] border-[rgba(245,158,11,0.2)] text-[#F59E0B] hover:bg-[rgba(245,158,11,0.12)]'
+                : 'bg-white border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224]'
             }`}
           >
             <Archive className="w-4 h-4" />
@@ -1584,21 +1589,21 @@ export default function BuyerCrmPage() {
           </button>
           <button
             onClick={() => setShowDuplicatesModal(true)}
-            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+            className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
           >
             <Copy className="w-4 h-4" />
             Check Duplicates
           </button>
           <button
             onClick={() => setShowImportModal(true)}
-            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+            className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
           >
             <Upload className="w-4 h-4" />
             Import CSV
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
           >
             <UserPlus className="w-4 h-4" />
             Add Buyer
@@ -1616,7 +1621,8 @@ export default function BuyerCrmPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search name, phone, market... (/ to focus)"
-            className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-16 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none focus:border-[#2563EB] transition-colors"
+            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
+            className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] pl-10 pr-16 py-2 text-[14px] text-[#0B1224] placeholder-[rgba(5,14,36,0.3)] outline-none focus:border-[#2563EB] transition-colors"
           />
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.58rem] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5">Cmd+K</kbd>
         </div>
@@ -1643,7 +1649,7 @@ export default function BuyerCrmPage() {
         )}
 
         {/* View toggle */}
-        <div className="ml-auto flex items-center bg-gray-100 rounded-lg p-0.5">
+        <div className="ml-auto flex items-center border-b border-[rgba(5,14,36,0.08)]">
           {[
             { key: 'list' as const, icon: List, label: 'List' },
             { key: 'pipeline' as const, icon: Columns3, label: 'Pipeline' },
@@ -1652,9 +1658,8 @@ export default function BuyerCrmPage() {
             <button
               key={v.key}
               onClick={() => setView(v.key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium border-0 cursor-pointer crm-view-btn ${
-                view === v.key ? 'bg-white text-gray-800 shadow-sm' : 'bg-transparent text-gray-400 hover:text-gray-600'
-              }`}
+              style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: view === v.key ? 600 : 400, color: view === v.key ? '#2563EB' : 'rgba(5,14,36,0.45)', borderBottom: view === v.key ? '2px solid #2563EB' : '2px solid transparent', padding: '12px 16px' }}
+              className="flex items-center gap-1.5 bg-transparent border-0 border-b-2 cursor-pointer crm-view-btn transition-colors"
             >
               <v.icon className="w-3.5 h-3.5" /> {v.label}
             </button>
@@ -1663,16 +1668,16 @@ export default function BuyerCrmPage() {
       </div>
 
       {/* Stats bar */}
-      <div className="flex items-center gap-5 text-[0.78rem] text-gray-500 mb-5">
+      <div className="flex items-center gap-5 mb-5" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: 400, color: 'rgba(5,14,36,0.65)' }}>
         {isLoading ? (
           <span className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading...</span>
         ) : (
           <>
-            <span><strong className="text-gray-700">{pagination.total}</strong> buyers</span>
+            <span><strong style={{ color: '#0B1224', fontWeight: 700 }}>{pagination.total}</strong> buyers</span>
             {Object.entries(stats).map(([key, val]) => (
               <span key={key}>
-                <span className="text-gray-300 mr-5">|</span>
-                <strong className="text-gray-700">{val}</strong> {displayStatus(key)}
+                <span style={{ color: 'rgba(5,14,36,0.1)' }} className="mr-5">|</span>
+                <strong style={{ color: '#0B1224', fontWeight: 700 }}>{val}</strong> {displayStatus(key)}
               </span>
             ))}
           </>
@@ -1681,7 +1686,7 @@ export default function BuyerCrmPage() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4 text-sm text-red-700">
+        <div className="flex items-center gap-2 bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.15)] rounded-[12px] px-4 py-3 mb-4 text-sm text-[#EF4444]">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span className="flex-1">{error}</span>
           <button onClick={refetch} className="text-red-600 hover:text-red-800 bg-transparent border-0 cursor-pointer text-sm font-medium">Try Again</button>
@@ -1690,10 +1695,10 @@ export default function BuyerCrmPage() {
 
       {/* Archived banner */}
       {showArchived && (
-        <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 mb-3">
-          <Archive className="w-4 h-4 text-amber-600" />
-          <span className="text-[0.82rem] text-amber-700 font-medium">Viewing archived buyers</span>
-          <button onClick={() => { setShowArchived(false); setPage(1) }} className="ml-auto text-[0.78rem] text-amber-600 hover:text-amber-800 bg-transparent border-0 cursor-pointer underline">
+        <div className="flex items-center gap-2 bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.15)] rounded-[12px] px-4 py-2.5 mb-3">
+          <Archive className="w-4 h-4 text-[#F59E0B]" />
+          <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: '14px', color: '#F59E0B' }}>Viewing archived buyers</span>
+          <button onClick={() => { setShowArchived(false); setPage(1) }} className="ml-auto text-[0.78rem] text-[#F59E0B] hover:text-[#D97706] bg-transparent border-0 cursor-pointer underline">
             Back to active buyers
           </button>
         </div>

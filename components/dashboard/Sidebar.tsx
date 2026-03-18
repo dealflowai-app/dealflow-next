@@ -73,7 +73,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         width: collapsed ? 68 : 240,
         transition: 'width 0.2s ease',
         background: 'var(--white, #ffffff)',
-        borderRight: '1px solid var(--border-light, #F0F0F0)',
+        borderRight: '1px solid rgba(5,14,36,0.08)',
       }}
     >
       {/* Logo */}
@@ -81,7 +81,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         className="flex items-center px-4"
         style={{
           height: 58,
-          borderBottom: '1px solid var(--border-light, #F0F0F0)',
+          borderBottom: '1px solid rgba(5,14,36,0.08)',
         }}
       >
         <Link href="/dashboard" className="flex items-center no-underline" style={{ gap: 9 }}>
@@ -140,7 +140,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           height: 24,
           zIndex: 10,
           background: 'var(--white, #ffffff)',
-          border: '1px solid var(--border-light, #F0F0F0)',
+          border: '1px solid rgba(5,14,36,0.08)',
           borderRadius: '50%',
           transition: 'background 0.15s ease',
         }}
@@ -189,7 +189,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                   borderRadius: 10,
                   fontSize: '0.82rem',
                   fontWeight: isActive ? 500 : 400,
-                  fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif",
+                  fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
                   letterSpacing: '-0.005em',
                   textDecoration: 'none',
                   justifyContent: collapsed ? 'center' : 'flex-start',
@@ -217,7 +217,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       </nav>
 
       {/* Settings + User */}
-      <div style={{ padding: '8px 10px 14px', borderTop: '1px solid var(--border-light, #F0F0F0)' }}>
+      <div style={{ padding: '8px 10px 14px', borderTop: '1px solid rgba(5,14,36,0.08)' }}>
         {/* Settings link */}
         <Link
           href="/settings"
@@ -230,7 +230,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             padding: collapsed ? '9px 0' : '9px 12px',
             borderRadius: 10,
             fontSize: '0.82rem',
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif",
+            fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
             letterSpacing: '-0.005em',
             fontWeight: pathname.startsWith('/settings') ? 500 : 400,
             textDecoration: 'none',
@@ -272,12 +272,12 @@ export default function Sidebar({ profile }: { profile: Profile }) {
               width: 30,
               height: 30,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+              background: '#0B1224',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              boxShadow: '0 1px 3px rgba(37, 99, 235, 0.25)',
+              boxShadow: 'none',
             }}
           >
             <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'white', letterSpacing: '0.02em' }}>{initials}</span>
@@ -288,7 +288,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                 <p style={{
                   fontSize: '0.78rem',
                   fontWeight: 500,
-                  fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif",
+                  fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
                   color: 'var(--navy-heading, #0B1224)',
                   margin: 0,
                   overflow: 'hidden',

@@ -24,7 +24,6 @@ import {
   Users,
   Home,
   AlertTriangle,
-  ArrowUpRight,
   Briefcase,
   Activity,
 } from 'lucide-react'
@@ -245,12 +244,12 @@ function getGreeting() {
 }
 
 /* ── Constants ── */
-const SERIF = "'DM Serif Display', Georgia, serif"
+const FONT = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
 
 /* ── Status & Pipeline Maps ── */
 const PIPELINE_COLORS: Record<string, string> = {
-  DRAFT: '#E5E7EB', ACTIVE: '#3B82F6', UNDER_OFFER: '#F59E0B',
-  CLOSED: '#22C55E', CANCELLED: '#EF4444', EXPIRED: '#9CA3AF',
+  DRAFT: 'rgba(5,14,36,0.15)', ACTIVE: '#2563EB', UNDER_OFFER: '#F59E0B',
+  CLOSING: '#8B5CF6', CLOSED: '#2563EB', CANCELLED: '#EF4444', EXPIRED: '#9CA3AF',
 }
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: 'Draft', ACTIVE: 'Active', UNDER_OFFER: 'Under Offer', CLOSED: 'Closed', CANCELLED: 'Cancelled', EXPIRED: 'Expired',
@@ -261,101 +260,119 @@ const OUTCOME_LABELS: Record<string, string> = {
   CALLBACK_REQUESTED: 'Callback',
 }
 const BUYER_STATUS_COLORS: Record<string, string> = {
-  ACTIVE: '#3B82F6', HIGH_CONFIDENCE: '#22C55E', RECENTLY_VERIFIED: '#8B5CF6', DORMANT: '#9CA3AF', DO_NOT_CALL: '#EF4444',
+  ACTIVE: '#2563EB', HIGH_CONFIDENCE: '#2563EB', RECENTLY_VERIFIED: '#8B5CF6', DORMANT: '#9CA3AF', DO_NOT_CALL: '#EF4444',
 }
 const BUYER_STATUS_LABELS: Record<string, string> = {
   ACTIVE: 'Active', HIGH_CONFIDENCE: 'High Confidence', RECENTLY_VERIFIED: 'Verified', DORMANT: 'Dormant', DO_NOT_CALL: 'DNC',
 }
 const CONTRACT_PIPELINE_COLORS: Record<string, string> = {
-  DRAFT: '#E5E7EB', SENT: '#3B82F6', EXECUTED: '#22C55E', VOIDED: '#EF4444',
+  DRAFT: 'rgba(5,14,36,0.15)', SENT: '#2563EB', EXECUTED: '#2563EB', VOIDED: '#EF4444',
 }
 const CONTRACT_LABELS: Record<string, string> = {
   DRAFT: 'Draft', SENT: 'Sent', EXECUTED: 'Executed', VOIDED: 'Voided',
 }
-const CHANNEL_COLORS: Record<string, string> = { VOICE: '#3B82F6', SMS: '#22C55E', EMAIL: '#8B5CF6', MULTI_CHANNEL: '#F59E0B' }
+const CHANNEL_COLORS: Record<string, string> = { VOICE: '#2563EB', SMS: '#2563EB', EMAIL: '#8B5CF6', MULTI_CHANNEL: '#F59E0B' }
 const CHANNEL_LABELS: Record<string, string> = { VOICE: 'Voice', SMS: 'SMS', EMAIL: 'Email', MULTI_CHANNEL: 'Multi' }
 
 /* ── Badge helpers ── */
 function statusBadgeCls(status: string): string {
   const m: Record<string, string> = {
-    ACTIVE: 'text-blue-700 bg-blue-50 border-blue-100',
-    CLOSED: 'text-green-700 bg-green-50 border-green-100',
-    DRAFT: 'text-gray-500 bg-gray-50 border-gray-100',
-    CANCELLED: 'text-red-600 bg-red-50 border-red-100',
-    VOIDED: 'text-red-600 bg-red-50 border-red-100',
-    SENT: 'text-indigo-700 bg-indigo-50 border-indigo-100',
-    UNDER_OFFER: 'text-amber-700 bg-amber-50 border-amber-100',
-    EXPIRED: 'text-gray-500 bg-gray-50 border-gray-100',
-    EXECUTED: 'text-green-700 bg-green-50 border-green-100',
-    RUNNING: 'text-green-700 bg-green-50 border-green-100',
-    COMPLETED: 'text-blue-700 bg-blue-50 border-blue-100',
-    PAUSED: 'text-amber-700 bg-amber-50 border-amber-100',
-    PENDING: 'text-amber-700 bg-amber-50 border-amber-100',
-    COUNTERED: 'text-purple-700 bg-purple-50 border-purple-100',
+    ACTIVE: 'border-transparent',
+    CLOSED: 'border-transparent',
+    DRAFT: 'border-transparent',
+    CANCELLED: 'text-red-600 bg-red-50 border-transparent',
+    VOIDED: 'text-red-600 bg-red-50 border-transparent',
+    SENT: 'border-transparent',
+    UNDER_OFFER: 'text-amber-700 bg-amber-50 border-transparent',
+    EXPIRED: 'border-transparent',
+    EXECUTED: 'border-transparent',
+    RUNNING: 'border-transparent',
+    COMPLETED: 'border-transparent',
+    PAUSED: 'text-amber-700 bg-amber-50 border-transparent',
+    PENDING: 'text-amber-700 bg-amber-50 border-transparent',
+    COUNTERED: 'text-purple-700 bg-purple-50 border-transparent',
   }
-  return `inline-flex text-[0.68rem] font-medium px-2 py-0.5 rounded-full border ${m[status] || 'text-gray-500 bg-gray-50 border-gray-100'}`
+  return `inline-flex text-[0.68rem] font-medium px-2 py-0.5 rounded-full border ${m[status] || 'border-transparent'}`
+}
+
+function statusBadgeStyle(status: string): React.CSSProperties {
+  const m: Record<string, React.CSSProperties> = {
+    ACTIVE: { color: '#2563EB', background: 'rgba(37,99,235,0.08)' },
+    CLOSED: { color: 'rgba(5,14,36,0.5)', background: 'rgba(5,14,36,0.04)' },
+    DRAFT: { color: 'rgba(5,14,36,0.4)', background: 'rgba(5,14,36,0.04)' },
+    EXPIRED: { color: 'rgba(5,14,36,0.4)', background: 'rgba(5,14,36,0.04)' },
+    EXECUTED: { color: '#2563EB', background: 'rgba(37,99,235,0.08)' },
+    RUNNING: { color: '#2563EB', background: 'rgba(37,99,235,0.08)' },
+    COMPLETED: { color: 'rgba(5,14,36,0.5)', background: 'rgba(5,14,36,0.04)' },
+    SENT: { color: '#2563EB', background: 'rgba(37,99,235,0.08)' },
+  }
+  return m[status] || {}
 }
 
 function outcomeBadgeCls(outcome: string): string {
   const m: Record<string, string> = {
-    QUALIFIED: 'text-green-700 bg-green-50 border-green-100',
-    NOT_BUYING: 'text-gray-500 bg-gray-50 border-gray-100',
-    NO_ANSWER: 'text-amber-700 bg-amber-50 border-amber-100',
-    VOICEMAIL: 'text-purple-700 bg-purple-50 border-purple-100',
-    WRONG_NUMBER: 'text-red-600 bg-red-50 border-red-100',
-    DO_NOT_CALL: 'text-red-600 bg-red-50 border-red-100',
-    CALLBACK_REQUESTED: 'text-purple-700 bg-purple-50 border-purple-100',
+    QUALIFIED: 'border-transparent',
+    NOT_BUYING: 'border-transparent',
+    NO_ANSWER: 'text-amber-700 bg-amber-50 border-transparent',
+    VOICEMAIL: 'text-purple-700 bg-purple-50 border-transparent',
+    WRONG_NUMBER: 'text-red-600 bg-red-50 border-transparent',
+    DO_NOT_CALL: 'text-red-600 bg-red-50 border-transparent',
+    CALLBACK_REQUESTED: 'text-purple-700 bg-purple-50 border-transparent',
   }
-  return `inline-flex text-[0.68rem] font-medium px-2 py-0.5 rounded-full border ${m[outcome] || 'text-gray-500 bg-gray-50 border-gray-100'}`
+  return `inline-flex text-[0.68rem] font-medium px-2 py-0.5 rounded-full border ${m[outcome] || 'border-transparent'}`
+}
+
+function outcomeBadgeStyle(outcome: string): React.CSSProperties {
+  const m: Record<string, React.CSSProperties> = {
+    QUALIFIED: { color: '#2563EB', background: 'rgba(37,99,235,0.08)' },
+    NOT_BUYING: { color: 'rgba(5,14,36,0.4)', background: 'rgba(5,14,36,0.04)' },
+  }
+  return m[outcome] || {}
 }
 
 /* ── Icon tint helper ── */
-function iconTint(color: string): [string, string] {
-  const m: Record<string, [string, string]> = {
-    '#2563EB': ['bg-blue-50', 'text-blue-500'],
-    '#3B82F6': ['bg-blue-50', 'text-blue-500'],
-    '#16a34a': ['bg-green-50', 'text-green-500'],
-    '#22C55E': ['bg-green-50', 'text-green-500'],
-    '#7c3aed': ['bg-purple-50', 'text-purple-500'],
-    '#8B5CF6': ['bg-purple-50', 'text-purple-500'],
-    '#d97706': ['bg-amber-50', 'text-amber-500'],
-    '#F59E0B': ['bg-amber-50', 'text-amber-500'],
-    '#ef4444': ['bg-red-50', 'text-red-500'],
-    '#EF4444': ['bg-red-50', 'text-red-500'],
-    '#9CA3AF': ['bg-gray-100', 'text-gray-400'],
-    '#0891b2': ['bg-cyan-50', 'text-cyan-500'],
-  }
-  return m[color] || ['bg-gray-100', 'text-gray-400']
+function iconTintStyle(): React.CSSProperties {
+  return { background: 'rgba(37,99,235,0.08)' }
+}
+function iconTintTextStyle(): React.CSSProperties {
+  return { color: '#2563EB' }
 }
 
 /* ══════════════════════════════════════════════
    REUSABLE COMPONENTS
    ══════════════════════════════════════════════ */
 
-function StatCard({ label, value, subtitle, icon: Icon, color, onClick }: {
-  label: string; value: string; subtitle?: string; icon: typeof Home; color: string; onClick?: () => void
+function StatCard({ label, value, subtitle, icon: Icon, onClick }: {
+  label: string; value: string; subtitle?: string; icon: typeof Home; color?: string; onClick?: () => void
 }) {
-  const [bg, text] = iconTint(color)
   return (
     <div
-      className={`bg-white rounded-xl border border-[#EAEAEA] p-5 relative overflow-hidden ${
+      className={`bg-white relative overflow-hidden ${
         onClick
-          ? 'cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]'
-          : 'transition-shadow duration-200 hover:shadow-sm'
+          ? 'cursor-pointer transition-all duration-200'
+          : ''
       }`}
+      style={{
+        borderRadius: 12,
+        border: '1px solid rgba(5,14,36,0.08)',
+        padding: '20px 24px',
+        fontFamily: FONT,
+      }}
+      onMouseEnter={e => { if (onClick) (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
       onClick={onClick}
     >
-      <div className={`absolute top-4 right-4 w-9 h-9 rounded-lg ${bg} flex items-center justify-center`}>
-        <Icon className={`w-4 h-4 ${text}`} />
+      <div className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center" style={iconTintStyle()}>
+        <Icon className="w-4 h-4" style={iconTintTextStyle()} />
       </div>
-      <div className="text-[0.72rem] font-semibold tracking-[0.04em] uppercase text-[#9CA3AF] mb-3">
+      <div style={{ fontWeight: 500, fontSize: 12, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: 'rgba(5,14,36,0.45)', marginBottom: 10, fontFamily: FONT }}>
         {label}
       </div>
-      <div className="text-[2rem] font-semibold text-[#0B1224] tracking-tight leading-none">
+      <div style={{ fontWeight: 700, fontSize: 28, color: '#0B1224', lineHeight: 1, fontFamily: FONT }}>
         {value}
       </div>
       {subtitle && (
-        <div className="text-[0.7rem] text-[#9CA3AF] mt-1.5">{subtitle}</div>
+        <div style={{ fontWeight: 500, fontSize: 12, color: '#2563EB', marginTop: 6, fontFamily: FONT }}>{subtitle}</div>
       )}
     </div>
   )
@@ -365,7 +382,8 @@ function ViewAllLink({ href, router }: { href: string; router: ReturnType<typeof
   return (
     <button
       onClick={() => router.push(href)}
-      className="flex items-center gap-0.5 text-[0.75rem] text-[#2563EB] font-medium bg-transparent border-none cursor-pointer font-[inherit] hover:underline"
+      className="flex items-center gap-0.5 text-[#2563EB] bg-transparent border-none cursor-pointer hover:underline"
+      style={{ fontSize: 12, fontWeight: 500, fontFamily: FONT }}
     >
       View all <ChevronRight className="w-3 h-3" />
     </button>
@@ -379,8 +397,8 @@ function SectionHeader({ title, viewAllHref, router, rightSlot }: {
   rightSlot?: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#F3F4F6]">
-      <h3 className="text-base text-[#0B1224] font-normal" style={{ fontFamily: SERIF }}>
+    <div className="flex items-center justify-between pb-3 mb-4 border-b border-[rgba(5,14,36,0.04)]">
+      <h3 style={{ fontWeight: 600, fontSize: 15, color: '#0B1224', fontFamily: FONT, margin: 0 }}>
         {title}
       </h3>
       {viewAllHref && router && <ViewAllLink href={viewAllHref} router={router} />}
@@ -394,14 +412,14 @@ function EmptyState({ message, actionLabel, onAction, compact }: {
 }) {
   if (compact) {
     return (
-      <div className="flex items-center justify-center h-[120px] rounded-lg border border-dashed border-[#E5E7EB]">
-        <span className="text-sm text-[#9CA3AF]">{message}</span>
+      <div className="flex items-center justify-center h-[120px]" style={{ borderRadius: 12, border: '1px dashed rgba(5,14,36,0.08)' }}>
+        <span className="text-sm text-[rgba(5,14,36,0.4)]">{message}</span>
       </div>
     )
   }
   return (
     <div className="text-center py-6">
-      <p className="text-[0.82rem] text-[#9CA3AF]">{message}</p>
+      <p className="text-[0.82rem] text-[rgba(5,14,36,0.4)]">{message}</p>
       {actionLabel && onAction && (
         <button
           onClick={onAction}
@@ -428,7 +446,7 @@ function PipelineBar({ statuses, pipeline, colors, labels, onClick }: {
 
   return (
     <div>
-      <div className="flex items-center bg-[#F5F5F5] rounded-full h-[10px] overflow-hidden gap-[2px] px-[1px]">
+      <div className="flex items-center overflow-hidden gap-[2px]" style={{ background: 'rgba(5,14,36,0.04)', borderRadius: 6, height: 12, padding: '0 1px' }}>
         {active.map((st, i) => {
           const count = pipeline[st] || 0
           const pct = (count / total) * 100
@@ -439,19 +457,17 @@ function PipelineBar({ statuses, pipeline, colors, labels, onClick }: {
               title={`${labels[st]}: ${count}`}
               className={`h-full transition-opacity hover:opacity-80 ${
                 onClick ? 'cursor-pointer' : ''
-              } ${i === 0 ? 'rounded-l-full' : ''} ${
-                i === active.length - 1 ? 'rounded-r-full' : ''
               }`}
-              style={{ width: `${pct}%`, minWidth: 8, background: colors[st] }}
+              style={{ width: `${pct}%`, minWidth: 8, background: colors[st], borderRadius: i === 0 && i === active.length - 1 ? 6 : i === 0 ? '6px 0 0 6px' : i === active.length - 1 ? '0 6px 6px 0' : 0 }}
             />
           )
         })}
       </div>
       <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3">
         {active.map(st => (
-          <div key={st} className="flex items-center gap-1.5 text-[0.7rem] text-[#4B5563]">
+          <div key={st} className="flex items-center gap-1.5" style={{ fontSize: 12, color: 'rgba(5,14,36,0.65)', fontFamily: FONT }}>
             <span className="w-2 h-2 rounded-full shrink-0" style={{ background: colors[st] }} />
-            {labels[st]} <span className="text-[#9CA3AF] ml-0.5">{pipeline[st]}</span>
+            {labels[st]} <span style={{ color: 'rgba(5,14,36,0.4)', marginLeft: 2 }}>{pipeline[st]}</span>
           </div>
         ))}
       </div>
@@ -460,7 +476,7 @@ function PipelineBar({ statuses, pipeline, colors, labels, onClick }: {
 }
 
 /* ── SVG Line Chart ── */
-function LineChart({ data, height = 120, color = '#3B82F6', areaColor, showGrid = false }: {
+function LineChart({ data, height = 120, color = '#2563EB', areaColor, showGrid = false }: {
   data: { label?: string; value: number }[]
   height?: number
   color?: string
@@ -506,7 +522,7 @@ function LineChart({ data, height = 120, color = '#3B82F6', areaColor, showGrid 
         <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="#fff" stroke={color} strokeWidth="1.5" />
       ))}
       {data[0].label && data.map((d, i) => (
-        <text key={i} x={i * stepX} y={h - 4} textAnchor="middle" fill="#9CA3AF" fontSize="10" fontFamily="inherit">
+        <text key={i} x={i * stepX} y={h - 4} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize="10" fontFamily="inherit">
           {d.label}
         </text>
       ))}
@@ -556,13 +572,13 @@ function DonutChart({ segments, size = 140, showTotal = false }: {
         {showTotal && (
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-lg font-semibold text-[#0B1224] leading-none">{total}</span>
-            <span className="text-[0.65rem] text-[#9CA3AF] mt-0.5">total</span>
+            <span className="text-[0.65rem] text-[rgba(5,14,36,0.4)] mt-0.5">total</span>
           </div>
         )}
       </div>
       <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 justify-center">
         {segments.filter(s => s.value > 0).map(s => (
-          <div key={s.label} className="flex items-center gap-1.5 text-[0.72rem] text-[#4B5563]">
+          <div key={s.label} className="flex items-center gap-1.5 text-[0.72rem] text-[rgba(5,14,36,0.65)]">
             <span className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
             {s.label}: {s.value}
           </div>
@@ -584,7 +600,7 @@ function Skeleton({ height = 16, width, className = '' }: { height?: number; wid
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+    <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)]">
       <div className="flex items-start justify-between mb-3">
         <Skeleton height={10} width="40%" />
         <div className="w-9 h-9 rounded-lg animate-pulse bg-[#F3F4F6]" />
@@ -600,11 +616,11 @@ function SkeletonCard() {
    ══════════════════════════════════════════════ */
 
 function AlertBadges({ data, router }: { data: DashboardData; router: ReturnType<typeof useRouter> }) {
-  const alerts: { label: string; count: number; borderCls: string; dotCls: string; href: string }[] = []
-  if (data.overdueCallbacks > 0) alerts.push({ label: 'Overdue callbacks', count: data.overdueCallbacks, borderCls: 'border-red-200 hover:bg-red-50', dotCls: 'bg-red-400', href: '/outreach' })
-  if (data.kpis.pendingOffers > 0) alerts.push({ label: 'Pending offers', count: data.kpis.pendingOffers, borderCls: 'border-amber-200 hover:bg-amber-50', dotCls: 'bg-amber-400', href: '/deals' })
-  if (data.unreadSmsCount > 0) alerts.push({ label: 'Unread SMS', count: data.unreadSmsCount, borderCls: 'border-blue-200 hover:bg-blue-50', dotCls: 'bg-blue-400', href: '/outreach?tab=sms' })
-  if (data.kpis.newInquiries > 0) alerts.push({ label: 'New inquiries', count: data.kpis.newInquiries, borderCls: 'border-purple-200 hover:bg-purple-50', dotCls: 'bg-purple-400', href: '/marketplace' })
+  const alerts: { label: string; count: number; href: string }[] = []
+  if (data.overdueCallbacks > 0) alerts.push({ label: 'Overdue callbacks', count: data.overdueCallbacks, href: '/outreach' })
+  if (data.kpis.pendingOffers > 0) alerts.push({ label: 'Pending offers', count: data.kpis.pendingOffers, href: '/deals' })
+  if (data.unreadSmsCount > 0) alerts.push({ label: 'Unread SMS', count: data.unreadSmsCount, href: '/outreach?tab=sms' })
+  if (data.kpis.newInquiries > 0) alerts.push({ label: 'New inquiries', count: data.kpis.newInquiries, href: '/marketplace' })
 
   if (alerts.length === 0) return null
 
@@ -614,11 +630,13 @@ function AlertBadges({ data, router }: { data: DashboardData; router: ReturnType
         <button
           key={a.label}
           onClick={() => router.push(a.href)}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border ${a.borderCls} cursor-pointer font-[inherit] transition-colors`}
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white cursor-pointer transition-colors"
+          style={{ border: '1px solid rgba(5,14,36,0.08)', fontFamily: FONT }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(37,99,235,0.02)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'white' }}
         >
-          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.dotCls}`} />
-          <span className="text-[0.76rem] font-medium text-[#374151]">{a.count} {a.label}</span>
-          <ArrowUpRight className="w-3 h-3 text-[#9CA3AF]" />
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#2563EB' }} />
+          <span style={{ fontSize: 12, fontWeight: 500, color: 'rgba(5,14,36,0.65)', fontFamily: FONT }}>{a.count} {a.label}</span>
         </button>
       ))}
     </div>
@@ -640,15 +658,15 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
   return (
     <>
       {/* KPI Row */}
-      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
-        <StatCard label="Active Deals" value={k.activeDeals.toLocaleString()} subtitle={`${k.dealsThisMonth} new this month`} icon={Briefcase} color="#3B82F6" onClick={() => router.push('/deals')} />
-        <StatCard label="Total Revenue" value={fmtMoney(k.totalSpread)} subtitle={monthRevenue > 0 ? `${fmtMoney(monthRevenue)} this month` : 'From closed deals'} icon={DollarSign} color="#22C55E" />
-        <StatCard label="Buyer Network" value={k.buyerCount.toLocaleString()} subtitle={`${k.qualifiedThisWeek} qualified this week`} icon={Users} color="#8B5CF6" onClick={() => router.push('/crm')} />
-        <StatCard label="AI Outreach" value={k.callsThisWeek.toLocaleString()} subtitle={`${k.activeCampaigns} active campaign${k.activeCampaigns !== 1 ? 's' : ''}`} icon={PhoneOutgoing} color="#3B82F6" onClick={() => router.push('/outreach')} />
+      <div className="dash-grid-4 grid grid-cols-4 gap-4 mb-5">
+        <StatCard label="Active Deals" value={k.activeDeals.toLocaleString()} subtitle={`${k.dealsThisMonth} new this month`} icon={Briefcase} onClick={() => router.push('/deals')} />
+        <StatCard label="Total Revenue" value={fmtMoney(k.totalSpread)} subtitle={monthRevenue > 0 ? `${fmtMoney(monthRevenue)} this month` : 'From closed deals'} icon={DollarSign} />
+        <StatCard label="Buyer Network" value={k.buyerCount.toLocaleString()} subtitle={`${k.qualifiedThisWeek} qualified this week`} icon={Users} onClick={() => router.push('/crm')} />
+        <StatCard label="AI Outreach" value={k.callsThisWeek.toLocaleString()} subtitle={`${k.activeCampaigns} active campaign${k.activeCampaigns !== 1 ? 's' : ''}`} icon={PhoneOutgoing} onClick={() => router.push('/outreach')} />
       </div>
 
       {/* Deal Pipeline */}
-      <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+      <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] mb-5">
         <SectionHeader title="Deal Pipeline" viewAllHref="/deals" router={router} />
         {Object.keys(data.dealPipeline).length > 0 ? (
           <PipelineBar
@@ -664,9 +682,9 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
       </div>
 
       {/* Two columns: Recent Deals + Pending Offers */}
-      <div className="dash-grid-2 grid grid-cols-2 gap-3.5 mb-5">
+      <div className="dash-grid-2 grid grid-cols-2 gap-4 mb-5">
         {/* Recent Deals */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Recent Deals" viewAllHref="/deals" router={router} />
           {data.recentDeals.length === 0 ? (
             <EmptyState message="No deals yet." />
@@ -679,17 +697,17 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
                     key={deal.id}
                     onClick={() => router.push(`/deals/${deal.id}`)}
                     className="dash-row flex items-center justify-between py-2.5 cursor-pointer"
-                    style={{ borderBottom: i < data.recentDeals.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                    style={{ borderBottom: i < data.recentDeals.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{deal.address}</div>
-                      <div className="text-[0.72rem] text-[#9CA3AF] mt-0.5">{deal.city}, {deal.state} &middot; {fmtMoneyFull(deal.askingPrice)}</div>
+                      <div className="text-[0.72rem] text-[rgba(5,14,36,0.4)] mt-0.5">{deal.city}, {deal.state} &middot; {fmtMoneyFull(deal.askingPrice)}</div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 ml-3">
                       {activeOffers > 0 && (
-                        <span className={statusBadgeCls('PENDING')}>{activeOffers} offer{activeOffers > 1 ? 's' : ''}</span>
+                        <span className={statusBadgeCls('PENDING')} style={statusBadgeStyle('PENDING')}>{activeOffers} offer{activeOffers > 1 ? 's' : ''}</span>
                       )}
-                      <span className={statusBadgeCls(deal.status)}>{STATUS_LABELS[deal.status] || deal.status}</span>
+                      <span className={statusBadgeCls(deal.status)} style={statusBadgeStyle(deal.status)}>{STATUS_LABELS[deal.status] || deal.status}</span>
                     </div>
                   </div>
                 )
@@ -699,7 +717,7 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
         </div>
 
         {/* Pending Offers */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader
             title="Pending Offers"
             rightSlot={k.pendingOffers > 0 ? <span className="text-[0.68rem] font-semibold text-amber-600">{k.pendingOffers} pending</span> : undefined}
@@ -712,35 +730,39 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
                 const pctOfAsking = offer.deal.askingPrice > 0 ? Math.round((offer.amount / offer.deal.askingPrice) * 100) : null
                 const isLoading = offerLoading === offer.id
                 return (
-                  <div key={offer.id} className="py-2.5" style={{ borderBottom: i < data.pendingOffersList.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                  <div key={offer.id} className="py-2.5" style={{ borderBottom: i < data.pendingOffersList.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="min-w-0 flex-1">
                         <div className="text-[0.82rem] font-medium text-[#0B1224]">
                           {fmtMoneyFull(offer.amount)}
-                          {pctOfAsking && <span className="text-[0.7rem] text-[#9CA3AF] font-normal ml-1.5">({pctOfAsking}%)</span>}
+                          {pctOfAsking && <span className="text-[0.7rem] text-[rgba(5,14,36,0.4)] font-normal ml-1.5">({pctOfAsking}%)</span>}
                         </div>
-                        <div className="text-[0.72rem] text-[#9CA3AF] mt-0.5">{bName(offer.buyer)} &middot; {offer.deal.address}</div>
+                        <div className="text-[0.72rem] text-[rgba(5,14,36,0.4)] mt-0.5">{bName(offer.buyer)} &middot; {offer.deal.address}</div>
                       </div>
                       <div className="flex gap-1.5 shrink-0 ml-2">
                         <button
                           onClick={() => onOfferAction(offer.id, 'ACCEPTED')}
                           disabled={isLoading}
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-green-600 text-white text-[0.68rem] font-semibold cursor-pointer font-[inherit] border-none transition-colors hover:bg-green-700 disabled:opacity-50"
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-md text-white text-[0.68rem] font-semibold cursor-pointer border-none transition-colors disabled:opacity-50"
+                          style={{ background: '#2563EB', fontFamily: FONT }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1d4ed8' }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#2563EB' }}
                         >
                           <CheckCircle className="w-[10px] h-[10px]" /> Accept
                         </button>
                         <button
                           onClick={() => onOfferAction(offer.id, 'REJECTED')}
                           disabled={isLoading}
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-red-500 bg-transparent text-red-500 text-[0.68rem] font-semibold cursor-pointer font-[inherit] transition-colors hover:bg-red-50 disabled:opacity-50"
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-transparent text-[0.68rem] font-semibold cursor-pointer transition-colors hover:bg-red-50 disabled:opacity-50"
+                          style={{ border: '1px solid #EF4444', color: '#EF4444', fontFamily: FONT }}
                         >
                           <XCircle className="w-[10px] h-[10px]" /> Reject
                         </button>
                       </div>
                     </div>
-                    <div className="text-[0.68rem] text-[#9CA3AF]">
+                    <div className="text-[0.68rem] text-[rgba(5,14,36,0.4)]">
                       {timeAgo(offer.createdAt)}
-                      {offer.status === 'COUNTERED' && <span className={`ml-1.5 ${statusBadgeCls('COUNTERED')}`}>COUNTERED</span>}
+                      {offer.status === 'COUNTERED' && <span className={`ml-1.5 ${statusBadgeCls('COUNTERED')}`} style={statusBadgeStyle('COUNTERED')}>COUNTERED</span>}
                     </div>
                   </div>
                 )
@@ -751,8 +773,8 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
       </div>
 
       {/* Two columns: Activity + Quick Actions */}
-      <div className="dash-grid-2 grid grid-cols-[3fr_2fr] gap-3.5">
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+      <div className="dash-grid-2 grid grid-cols-[3fr_2fr] gap-4">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Recent Activity" />
           {(() => {
             const outreachEvts = data.outreach?.outreachEvents || []
@@ -761,35 +783,37 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
               .slice(0, 8)
             if (merged.length === 0) return <EmptyState message="No recent activity." />
             return merged.map((a, i) => (
-              <div key={a.id} className="flex items-start gap-2.5 py-2" style={{ borderBottom: i < merged.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#3B82F6] mt-[7px] shrink-0" />
+              <div key={a.id} className="flex items-start gap-2.5 py-2" style={{ borderBottom: i < merged.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#2563EB] mt-[7px] shrink-0" />
                 <p className="flex-1 text-[0.82rem] text-[#0B1224] leading-[1.45] m-0">{a.title}</p>
-                <span className="text-[0.68rem] text-[#9CA3AF] whitespace-nowrap shrink-0">{timeAgo(a.createdAt)}</span>
+                <span className="text-[0.68rem] text-[rgba(5,14,36,0.4)] whitespace-nowrap shrink-0">{timeAgo(a.createdAt)}</span>
               </div>
             ))
           })()}
         </div>
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Quick Actions" />
           <div className="grid grid-cols-2 gap-2.5">
             {[
-              { label: 'New Campaign', icon: PhoneOutgoing, color: '#3B82F6', href: '/outreach' },
-              { label: 'Upload Deal', icon: Upload, color: '#22C55E', href: '/deals/new' },
-              { label: 'Add Buyer', icon: UserPlus, color: '#8B5CF6', href: '/crm' },
-              { label: 'Run Analysis', icon: Search, color: '#F59E0B', href: '/analyzer' },
+              { label: 'New Campaign', icon: PhoneOutgoing, href: '/outreach' },
+              { label: 'Upload Deal', icon: Upload, href: '/deals/new' },
+              { label: 'Add Buyer', icon: UserPlus, href: '/crm' },
+              { label: 'Run Analysis', icon: Search, href: '/analyzer' },
             ].map(a => {
               const Icon = a.icon
-              const [bg, text] = iconTint(a.color)
               return (
                 <button
                   key={a.label}
                   onClick={() => router.push(a.href)}
-                  className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-[#EAEAEA] bg-white cursor-pointer font-[inherit] transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]"
+                  className="flex flex-col items-center gap-2.5 p-4 bg-white cursor-pointer transition-all duration-200"
+                  style={{ borderRadius: 12, border: '1px solid rgba(5,14,36,0.08)', fontFamily: FONT }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
                 >
-                  <div className={`w-9 h-9 rounded-lg ${bg} flex items-center justify-center`}>
-                    <Icon className={`w-4 h-4 ${text}`} />
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={iconTintStyle()}>
+                    <Icon className="w-4 h-4" style={iconTintTextStyle()} />
                   </div>
-                  <span className="text-[0.74rem] text-[#4B5563] font-medium text-center leading-tight">{a.label}</span>
+                  <span style={{ fontSize: 12, color: 'rgba(5,14,36,0.65)', fontWeight: 500, textAlign: 'center', lineHeight: 1.3, fontFamily: FONT }}>{a.label}</span>
                 </button>
               )
             })}
@@ -810,15 +834,15 @@ function DealsTab({ data, router }: { data: DashboardData; router: ReturnType<ty
   return (
     <>
       {/* KPI Row */}
-      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
-        <StatCard label="Active Deals" value={k.activeDeals.toLocaleString()} subtitle={`${k.dealsThisMonth} new this month`} icon={Briefcase} color="#3B82F6" />
-        <StatCard label="Deals Closed" value={k.closedDeals.toLocaleString()} subtitle={fmtMoney(k.totalSpread) + ' total spread'} icon={CheckCircle} color="#22C55E" />
-        <StatCard label="Pending Offers" value={k.pendingOffers.toLocaleString()} icon={DollarSign} color="#F59E0B" />
-        <StatCard label="Matches Sent" value={k.matchesSent.toLocaleString()} subtitle="Last 30 days" icon={Handshake} color="#8B5CF6" />
+      <div className="dash-grid-4 grid grid-cols-4 gap-4 mb-5">
+        <StatCard label="Active Deals" value={k.activeDeals.toLocaleString()} subtitle={`${k.dealsThisMonth} new this month`} icon={Briefcase} />
+        <StatCard label="Deals Closed" value={k.closedDeals.toLocaleString()} subtitle={fmtMoney(k.totalSpread) + ' total spread'} icon={CheckCircle} />
+        <StatCard label="Pending Offers" value={k.pendingOffers.toLocaleString()} icon={DollarSign} />
+        <StatCard label="Matches Sent" value={k.matchesSent.toLocaleString()} subtitle="Last 30 days" icon={Handshake} />
       </div>
 
       {/* Pipeline */}
-      <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+      <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] mb-5">
         <SectionHeader title="Deal Pipeline" viewAllHref="/deals" router={router} />
         {Object.keys(data.dealPipeline).length > 0 ? (
           <PipelineBar
@@ -835,7 +859,7 @@ function DealsTab({ data, router }: { data: DashboardData; router: ReturnType<ty
 
       {/* Deal Values by Stage */}
       {data.dealValuesByStage.length > 0 && (
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] mb-5">
           <SectionHeader title="Pipeline Value by Stage" />
           <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
             {data.dealValuesByStage
@@ -845,13 +869,13 @@ function DealsTab({ data, router }: { data: DashboardData; router: ReturnType<ty
                 return order.indexOf(a.status) - order.indexOf(b.status)
               })
               .map(d => (
-                <div key={d.status} className="p-3.5 rounded-lg border border-[#EAEAEA]">
+                <div key={d.status} className="p-3.5 rounded-lg border border-[rgba(5,14,36,0.08)]">
                   <div className="flex items-center gap-1.5 mb-2">
                     <span className="w-2 h-2 rounded-full" style={{ background: PIPELINE_COLORS[d.status] || '#9CA3AF' }} />
-                    <span className="text-[0.72rem] font-semibold text-[#4B5563]">{STATUS_LABELS[d.status] || d.status}</span>
+                    <span className="text-[0.72rem] font-semibold text-[rgba(5,14,36,0.65)]">{STATUS_LABELS[d.status] || d.status}</span>
                   </div>
                   <div className="text-[1.1rem] font-semibold text-[#0B1224] tracking-tight">{fmtMoney(d.totalValue)}</div>
-                  <div className="text-[0.68rem] text-[#9CA3AF] mt-0.5">
+                  <div className="text-[0.68rem] text-[rgba(5,14,36,0.4)] mt-0.5">
                     {d.count} deal{d.count !== 1 ? 's' : ''}
                     {d.totalFees > 0 && ` · ${fmtMoney(d.totalFees)} fees`}
                   </div>
@@ -862,12 +886,12 @@ function DealsTab({ data, router }: { data: DashboardData; router: ReturnType<ty
       )}
 
       {/* Top Matches + Recent Deals */}
-      <div className="dash-grid-2 grid grid-cols-2 gap-3.5">
+      <div className="dash-grid-2 grid grid-cols-2 gap-4">
         {/* Top Matches */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader
             title="Top Buyer Matches"
-            rightSlot={<span className="text-[0.68rem] font-semibold text-green-600">{k.matchesSent} sent (30d)</span>}
+            rightSlot={<span style={{ fontSize: 12, fontWeight: 600, color: '#2563EB', fontFamily: FONT }}>{k.matchesSent} sent (30d)</span>}
           />
           {data.topMatches.length === 0 ? (
             <EmptyState message="No matches yet." />
@@ -878,16 +902,17 @@ function DealsTab({ data, router }: { data: DashboardData; router: ReturnType<ty
                   key={match.id}
                   className="dash-row flex items-center justify-between py-2 cursor-pointer"
                   onClick={() => router.push(`/deals/${match.dealId}`)}
-                  style={{ borderBottom: i < data.topMatches.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                  style={{ borderBottom: i < data.topMatches.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="text-[0.82rem] font-medium text-[#0B1224]">{bName(match.buyer)}</div>
-                    <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">{match.deal.address}, {match.deal.city}</div>
+                    <div className="text-[0.7rem] text-[rgba(5,14,36,0.4)] mt-0.5">{match.deal.address}, {match.deal.city}</div>
                   </div>
-                  <span className={`text-[0.66rem] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2 ${
-                    match.matchScore >= 80 ? 'text-green-700 bg-green-50' :
-                    match.matchScore >= 60 ? 'text-amber-700 bg-amber-50' : 'text-gray-500 bg-gray-50'
-                  }`}>
+                  <span className="text-[0.66rem] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2"
+                    style={{
+                      color: match.matchScore >= 80 ? '#2563EB' : match.matchScore >= 60 ? '#F59E0B' : 'rgba(5,14,36,0.4)',
+                      background: match.matchScore >= 80 ? 'rgba(37,99,235,0.08)' : match.matchScore >= 60 ? 'rgba(245,158,11,0.08)' : 'rgba(5,14,36,0.04)',
+                    }}>
                     {match.matchScore}%
                   </span>
                 </div>
@@ -897,7 +922,7 @@ function DealsTab({ data, router }: { data: DashboardData; router: ReturnType<ty
         </div>
 
         {/* Recent Deals */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Recent Deals" viewAllHref="/deals" router={router} />
           {data.recentDeals.length === 0 ? (
             <EmptyState message="No deals yet." actionLabel="Create a deal" onAction={() => router.push('/deals/new')} />
@@ -908,13 +933,13 @@ function DealsTab({ data, router }: { data: DashboardData; router: ReturnType<ty
                   key={deal.id}
                   className="dash-row flex items-center justify-between py-2 cursor-pointer"
                   onClick={() => router.push(`/deals/${deal.id}`)}
-                  style={{ borderBottom: i < data.recentDeals.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                  style={{ borderBottom: i < data.recentDeals.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{deal.address}</div>
-                    <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">{deal.city}, {deal.state} &middot; {fmtMoneyFull(deal.askingPrice)}</div>
+                    <div className="text-[0.7rem] text-[rgba(5,14,36,0.4)] mt-0.5">{deal.city}, {deal.state} &middot; {fmtMoneyFull(deal.askingPrice)}</div>
                   </div>
-                  <span className={`${statusBadgeCls(deal.status)} shrink-0 ml-2`}>
+                  <span className={`${statusBadgeCls(deal.status)} shrink-0 ml-2`} style={statusBadgeStyle(deal.status)}>
                     {STATUS_LABELS[deal.status] || deal.status}
                   </span>
                 </div>
@@ -938,33 +963,32 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
   return (
     <>
       {/* KPI Row */}
-      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+      <div className="dash-grid-4 grid grid-cols-4 gap-4 mb-5">
         <StatCard
           label="Active Campaigns" value={k.activeCampaigns.toLocaleString()}
-          subtitle={`${k.callsToday} calls today`} icon={Activity} color={k.activeCampaigns > 0 ? '#22C55E' : '#9CA3AF'}
+          subtitle={`${k.callsToday} calls today`} icon={Activity}
           onClick={() => router.push('/outreach')}
         />
-        <StatCard label="Calls This Week" value={k.callsThisWeek.toLocaleString()} subtitle={`${k.qualifiedThisWeek} qualified`} icon={Phone} color="#3B82F6" />
+        <StatCard label="Calls This Week" value={k.callsThisWeek.toLocaleString()} subtitle={`${k.qualifiedThisWeek} qualified`} icon={Phone} />
         <StatCard
           label="Qualification Rate" value={`${k.qualificationRate}%`}
           subtitle={`Avg ${k.avgCallDuration}s per call`} icon={Target}
-          color={k.qualificationRate >= 20 ? '#22C55E' : k.qualificationRate >= 10 ? '#F59E0B' : '#EF4444'}
         />
-        <StatCard label="Total Talk Time" value={fmtMinutesAsHours(k.totalCallMinutes)} subtitle={`${k.aiCalls.toLocaleString()} calls all time`} icon={Clock} color="#8B5CF6" />
+        <StatCard label="Total Talk Time" value={fmtMinutesAsHours(k.totalCallMinutes)} subtitle={`${k.aiCalls.toLocaleString()} calls all time`} icon={Clock} />
       </div>
 
       {/* Sparkline + Buyer Distribution */}
-      <div className="dash-grid-2 grid grid-cols-[2fr_1fr] gap-3.5 mb-5">
+      <div className="dash-grid-2 grid grid-cols-[2fr_1fr] gap-4 mb-5">
         {/* 14-Day Calling Trend */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base text-[#0B1224] font-normal" style={{ fontFamily: SERIF }}>14-Day Calling Trend</h3>
+            <h3 style={{ fontWeight: 600, fontSize: 15, color: '#0B1224', fontFamily: FONT, margin: 0 }}>14-Day Calling Trend</h3>
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-[0.68rem] text-[#9CA3AF]">
-                <span className="w-2.5 h-0.5 bg-[#9CA3AF] rounded-sm" /> Calls
+              <span className="flex items-center gap-1" style={{ fontSize: 12, color: 'rgba(5,14,36,0.4)' }}>
+                <span className="w-2.5 h-0.5 rounded-sm" style={{ background: 'rgba(5,14,36,0.4)' }} /> Calls
               </span>
-              <span className="flex items-center gap-1 text-[0.68rem] text-[#9CA3AF]">
-                <span className="w-2.5 h-0.5 bg-[#22C55E] rounded-sm" /> Qualified
+              <span className="flex items-center gap-1" style={{ fontSize: 12, color: 'rgba(5,14,36,0.4)' }}>
+                <span className="w-2.5 h-0.5 rounded-sm" style={{ background: '#2563EB' }} /> Qualified
               </span>
             </div>
           </div>
@@ -987,14 +1011,14 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
             return (
               <div className="flex items-center gap-4">
                 <svg viewBox={`0 0 ${w} ${h}`} className="flex-1" style={{ height: 64 }} preserveAspectRatio="none">
-                  <path d={totalPath} fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d={qualPath} fill="none" stroke="#22C55E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={totalPath} fill="none" stroke="rgba(5,14,36,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={qualPath} fill="none" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <div className="shrink-0 text-right">
-                  <div className="text-[1.1rem] font-semibold text-[#0B1224] leading-tight">{totalSum}</div>
-                  <div className="text-[0.64rem] text-[#9CA3AF]">calls</div>
-                  <div className="text-[1.1rem] font-semibold text-[#22C55E] leading-tight mt-1">{qualSum}</div>
-                  <div className="text-[0.64rem] text-[#9CA3AF]">qualified</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#0B1224', lineHeight: 1.2, fontFamily: FONT }}>{totalSum}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>calls</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#2563EB', lineHeight: 1.2, marginTop: 4, fontFamily: FONT }}>{qualSum}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>qualified</div>
                 </div>
               </div>
             )
@@ -1002,7 +1026,7 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
         </div>
 
         {/* Buyer Status Distribution */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Buyer Breakdown" />
           {Object.keys(data.buyersByStatus).length > 0 ? (() => {
             const statuses = ['ACTIVE', 'HIGH_CONFIDENCE', 'RECENTLY_VERIFIED', 'DORMANT', 'DO_NOT_CALL']
@@ -1015,9 +1039,9 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
       </div>
 
       {/* Recent Calls + Campaign Performance */}
-      <div className="dash-grid-2 grid grid-cols-2 gap-3.5 mb-5">
+      <div className="dash-grid-2 grid grid-cols-2 gap-4 mb-5">
         {/* Recent Calls */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Recent Calls" viewAllHref="/outreach?tab=calllog" router={router} />
           {o.recentCalls.length === 0 ? (
             <EmptyState message="No calls yet." actionLabel="Launch a campaign" onAction={() => router.push('/outreach')} />
@@ -1028,17 +1052,17 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
                   key={call.id}
                   className="dash-row flex items-center justify-between py-2 cursor-pointer"
                   onClick={() => router.push('/outreach')}
-                  style={{ borderBottom: i < o.recentCalls.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                  style={{ borderBottom: i < o.recentCalls.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="text-[0.82rem] font-medium text-[#0B1224]">{bName(call.buyer)}</div>
-                    <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">{call.campaign.name}</div>
+                    <div className="text-[0.7rem] text-[rgba(5,14,36,0.4)] mt-0.5">{call.campaign.name}</div>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                    <span className={outcomeBadgeCls(call.outcome || '')}>
+                    <span className={outcomeBadgeCls(call.outcome || '')} style={outcomeBadgeStyle(call.outcome || '')}>
                       {OUTCOME_LABELS[call.outcome || ''] || call.outcome || 'Pending'}
                     </span>
-                    <span className="text-[0.7rem] text-[#4B5563] tabular-nums">{fmtDuration(call.durationSecs)}</span>
+                    <span className="text-[0.7rem] text-[rgba(5,14,36,0.65)] tabular-nums">{fmtDuration(call.durationSecs)}</span>
                   </div>
                 </div>
               ))}
@@ -1047,14 +1071,14 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
         </div>
 
         {/* Campaign Performance */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Campaign Performance" viewAllHref="/outreach" router={router} />
           {o.campaignPerformance.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-3">
-                <PhoneOutgoing className="w-5 h-5 text-blue-400" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ background: 'rgba(37,99,235,0.08)' }}>
+                <PhoneOutgoing className="w-5 h-5" style={{ color: '#2563EB' }} />
               </div>
-              <p className="text-sm text-[#9CA3AF] mb-3">No campaigns yet</p>
+              <p className="text-sm text-[rgba(5,14,36,0.4)] mb-3">No campaigns yet</p>
               <button
                 onClick={() => router.push('/outreach')}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-[0.78rem] font-semibold cursor-pointer font-[inherit] border-none transition-colors hover:bg-[#1d4ed8]"
@@ -1067,22 +1091,23 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
               {o.campaignPerformance.map(c => {
                 const progress = c.totalBuyers > 0 ? (c.callsCompleted / c.totalBuyers) * 100 : 0
                 return (
-                  <div key={c.id} className="rounded-lg border border-[#EAEAEA] p-3.5">
+                  <div key={c.id} className="rounded-lg border border-[rgba(5,14,36,0.08)] p-3.5">
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-[0.8rem] font-medium text-[#0B1224] truncate flex-1">{c.name}</span>
-                      <span className={`${statusBadgeCls(c.status)} shrink-0 ml-2 flex items-center gap-1`}>
+                      <span className={`${statusBadgeCls(c.status)} shrink-0 ml-2 flex items-center gap-1`} style={statusBadgeStyle(c.status)}>
                         {c.status === 'RUNNING' && <Play className="w-[9px] h-[9px]" />}
                         {c.status}
                       </span>
                     </div>
                     <div className="h-1 bg-[#F3F4F6] rounded-full overflow-hidden mb-1.5">
-                      <div className="h-full bg-[#3B82F6] rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} />
+                      <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${Math.min(progress, 100)}%` }} />
                     </div>
                     <div className="flex items-center justify-between text-[0.72rem]">
-                      <span className="text-[#4B5563]">{c.callsCompleted}/{c.totalBuyers} &middot; {c.qualified} qualified</span>
-                      <span className={`font-semibold ${
-                        c.qualificationRate >= 20 ? 'text-green-600' : c.qualificationRate >= 10 ? 'text-amber-600' : 'text-gray-500'
-                      }`}>
+                      <span className="text-[rgba(5,14,36,0.65)]">{c.callsCompleted}/{c.totalBuyers} &middot; {c.qualified} qualified</span>
+                      <span style={{
+                        fontWeight: 600,
+                        color: c.qualificationRate >= 20 ? '#2563EB' : c.qualificationRate >= 10 ? '#F59E0B' : 'rgba(5,14,36,0.4)',
+                      }}>
                         {c.qualificationRate}%
                       </span>
                     </div>
@@ -1095,9 +1120,9 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
       </div>
 
       {/* Top Buyers + Markets */}
-      <div className="dash-grid-2 grid grid-cols-2 gap-3.5">
+      <div className="dash-grid-2 grid grid-cols-2 gap-4">
         {/* Top Buyers */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Top Buyers by Score" viewAllHref="/crm" router={router} />
           {data.topBuyers.length === 0 ? (
             <EmptyState message="No scored buyers yet." />
@@ -1108,18 +1133,19 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
                   key={buyer.id}
                   className="dash-row flex items-center justify-between py-2 cursor-pointer"
                   onClick={() => router.push(`/crm/${buyer.id}`)}
-                  style={{ borderBottom: i < data.topBuyers.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                  style={{ borderBottom: i < data.topBuyers.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="text-[0.82rem] font-medium text-[#0B1224]">{bName(buyer)}</div>
-                    <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">
+                    <div className="text-[0.7rem] text-[rgba(5,14,36,0.4)] mt-0.5">
                       {buyer.state || 'Unknown'} &middot;{' '}
                       <span style={{ color: BUYER_STATUS_COLORS[buyer.status] || '#9CA3AF' }}>{BUYER_STATUS_LABELS[buyer.status] || buyer.status}</span>
                     </div>
                   </div>
-                  <div className={`text-[0.82rem] font-bold tabular-nums shrink-0 ml-2 ${
-                    buyer.buyerScore >= 70 ? 'text-green-600' : buyer.buyerScore >= 40 ? 'text-amber-600' : 'text-gray-400'
-                  }`}>
+                  <div className="text-[0.82rem] font-bold tabular-nums shrink-0 ml-2"
+                    style={{
+                      color: buyer.buyerScore >= 70 ? '#2563EB' : buyer.buyerScore >= 40 ? '#F59E0B' : 'rgba(5,14,36,0.4)',
+                    }}>
                     {buyer.buyerScore}
                   </div>
                 </div>
@@ -1129,7 +1155,7 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
         </div>
 
         {/* Markets */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Buyer Markets" />
           {data.buyersByState.length === 0 ? (
             <EmptyState message="No buyer location data." />
@@ -1139,12 +1165,12 @@ function OutreachTab({ data, router }: { data: DashboardData; router: ReturnType
               <div>
                 {data.buyersByState.map((s, i) => (
                   <div key={s.state} className="flex items-center gap-2.5 py-1.5"
-                    style={{ borderBottom: i < data.buyersByState.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                    style={{ borderBottom: i < data.buyersByState.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}>
                     <span className="text-[0.78rem] font-medium text-[#0B1224] w-8 shrink-0">{s.state}</span>
                     <div className="flex-1 h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">
-                      <div className="h-full bg-[#3B82F6] rounded-full" style={{ width: `${(s.count / maxCount) * 100}%` }} />
+                      <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${(s.count / maxCount) * 100}%` }} />
                     </div>
-                    <span className="text-[0.72rem] font-semibold text-[#4B5563] tabular-nums w-7 text-right shrink-0">{s.count}</span>
+                    <span className="text-[0.72rem] font-semibold text-[rgba(5,14,36,0.65)] tabular-nums w-7 text-right shrink-0">{s.count}</span>
                   </div>
                 ))}
               </div>
@@ -1166,30 +1192,30 @@ function ContractsTab({ data, router }: { data: DashboardData; router: ReturnTyp
   return (
     <>
       {/* KPI Row */}
-      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+      <div className="dash-grid-4 grid grid-cols-4 gap-4 mb-5">
         <StatCard
           label="Contracts Pending" value={(k.contractsDraft + k.contractsPending).toLocaleString()}
           subtitle={`${k.contractsDraft} draft, ${k.contractsPending} awaiting`}
-          icon={FileSignature} color={(k.contractsDraft + k.contractsPending) > 0 ? '#F59E0B' : '#9CA3AF'}
+          icon={FileSignature}
         />
         <StatCard
           label="Executed" value={k.contractsExecutedThisMonth.toLocaleString()}
-          subtitle={`${k.contractsExecuted} all time`} icon={CheckCircle} color="#22C55E"
+          subtitle={`${k.contractsExecuted} all time`} icon={CheckCircle}
         />
         <StatCard
           label="Active Listings" value={k.activeListings.toLocaleString()}
           subtitle={`${k.totalListingViews.toLocaleString()} total views`}
-          icon={Store} color="#3B82F6"
+          icon={Store}
         />
         <StatCard
           label="New Inquiries" value={k.newInquiries.toLocaleString()}
-          icon={MessageSquare} color={k.newInquiries > 0 ? '#8B5CF6' : '#9CA3AF'}
+          icon={MessageSquare}
           onClick={() => router.push('/marketplace')}
         />
       </div>
 
       {/* Contract Pipeline */}
-      <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+      <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] mb-5">
         <SectionHeader title="Contract Pipeline" viewAllHref="/contracts" router={router} />
         {Object.keys(data.contractPipeline).length > 0 ? (
           <PipelineBar
@@ -1205,15 +1231,15 @@ function ContractsTab({ data, router }: { data: DashboardData; router: ReturnTyp
       </div>
 
       {/* Contracts + Marketplace */}
-      <div className="dash-grid-2 grid grid-cols-2 gap-3.5">
+      <div className="dash-grid-2 grid grid-cols-2 gap-4">
         {/* Recent Contracts */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader
             title="Contracts"
             viewAllHref="/contracts"
             router={router}
             rightSlot={k.contractsPending > 0
-              ? <span className={statusBadgeCls('PENDING')}>action needed</span>
+              ? <span className={statusBadgeCls('PENDING')} style={statusBadgeStyle('PENDING')}>action needed</span>
               : undefined
             }
           />
@@ -1230,18 +1256,18 @@ function ContractsTab({ data, router }: { data: DashboardData; router: ReturnTyp
                     key={c.id}
                     className="dash-row flex items-center justify-between py-2 cursor-pointer"
                     onClick={() => router.push('/contracts')}
-                    style={{ borderBottom: i < data.recentContracts.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                    style={{ borderBottom: i < data.recentContracts.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{c.deal.address}</div>
-                      <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">
+                      <div className="text-[0.7rem] text-[rgba(5,14,36,0.4)] mt-0.5">
                         {contractBuyer} &middot; {c.deal.city}, {c.deal.state}
                         {c.offer?.amount ? ` · ${fmtMoneyFull(c.offer.amount)}` : ''}
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      <span className={statusBadgeCls(c.status)}>{CONTRACT_LABELS[c.status] || c.status}</span>
-                      <span className="text-[0.66rem] text-[#9CA3AF]">{timeAgo(c.createdAt)}</span>
+                      <span className={statusBadgeCls(c.status)} style={statusBadgeStyle(c.status)}>{CONTRACT_LABELS[c.status] || c.status}</span>
+                      <span className="text-[0.66rem] text-[rgba(5,14,36,0.4)]">{timeAgo(c.createdAt)}</span>
                     </div>
                   </div>
                 )
@@ -1251,32 +1277,32 @@ function ContractsTab({ data, router }: { data: DashboardData; router: ReturnTyp
         </div>
 
         {/* Marketplace */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 transition-shadow duration-200 hover:shadow-sm">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] transition-shadow duration-200">
           <SectionHeader title="Marketplace" viewAllHref="/marketplace" router={router} />
           {k.activeListings > 0 && (
-            <div className="flex items-center gap-3.5 mb-3 p-2.5 bg-blue-50/40 rounded-lg">
+            <div className="flex items-center gap-4 mb-3 p-2.5 rounded-lg" style={{ background: 'rgba(37,99,235,0.08)' }}>
               <div className="flex items-center gap-1.5">
-                <div className="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center">
-                  <Store className="w-3 h-3 text-blue-500" />
+                <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'rgba(37,99,235,0.08)' }}>
+                  <Store className="w-3 h-3" style={{ color: '#2563EB' }} />
                 </div>
                 <span className="text-[0.78rem] font-semibold text-[#0B1224]">{k.activeListings}</span>
-                <span className="text-[0.72rem] text-[#9CA3AF]">listing{k.activeListings !== 1 ? 's' : ''}</span>
+                <span className="text-[0.72rem] text-[rgba(5,14,36,0.4)]">listing{k.activeListings !== 1 ? 's' : ''}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5 text-gray-400" />
+                <Eye className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
                 <span className="text-[0.78rem] font-semibold text-[#0B1224]">{k.totalListingViews.toLocaleString()}</span>
-                <span className="text-[0.72rem] text-[#9CA3AF]">views</span>
+                <span className="text-[0.72rem] text-[rgba(5,14,36,0.4)]">views</span>
               </div>
             </div>
           )}
           {data.recentInquiries.length > 0 ? (
             <div>
               {data.recentInquiries.map((inq, i) => (
-                <div key={inq.id} className="py-2" style={{ borderBottom: i < data.recentInquiries.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                <div key={inq.id} className="py-2" style={{ borderBottom: i < data.recentInquiries.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}>
                   <div className="flex items-center justify-between mb-0.5">
                     <div className="min-w-0 flex-1">
                       <div className="text-[0.82rem] font-medium text-[#0B1224]">{inq.buyerName}</div>
-                      <div className="text-[0.7rem] text-[#9CA3AF] mt-0.5">{inq.listing.address}, {inq.listing.city}</div>
+                      <div className="text-[0.7rem] text-[rgba(5,14,36,0.4)] mt-0.5">{inq.listing.address}, {inq.listing.city}</div>
                     </div>
                     <button
                       onClick={() => router.push('/marketplace')}
@@ -1286,9 +1312,9 @@ function ContractsTab({ data, router }: { data: DashboardData; router: ReturnTyp
                     </button>
                   </div>
                   {inq.message && (
-                    <div className="text-[0.72rem] text-[#4B5563] truncate max-w-[90%]">{inq.message}</div>
+                    <div className="text-[0.72rem] text-[rgba(5,14,36,0.65)] truncate max-w-[90%]">{inq.message}</div>
                   )}
-                  <div className="text-[0.66rem] text-[#9CA3AF] mt-0.5">{timeAgo(inq.createdAt)}</div>
+                  <div className="text-[0.66rem] text-[rgba(5,14,36,0.4)] mt-0.5">{timeAgo(inq.createdAt)}</div>
                 </div>
               ))}
             </div>
@@ -1318,18 +1344,18 @@ function AnalyticsTab({ data, router }: { data: DashboardData; router: ReturnTyp
   return (
     <>
       {/* Revenue Row */}
-      <div className="dash-grid-2 grid grid-cols-[2fr_1fr] gap-3.5 mb-5">
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+      <div className="dash-grid-2 grid grid-cols-[2fr_1fr] gap-4 mb-5">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)]">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-base text-[#0B1224] font-normal" style={{ fontFamily: SERIF }}>Revenue This Month</h3>
-              <div className="text-[1.5rem] font-semibold text-[#0B1224] tracking-tight mt-1">
+              <h3 style={{ fontWeight: 600, fontSize: 15, color: '#0B1224', fontFamily: FONT, margin: 0 }}>Revenue This Month</h3>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#0B1224', marginTop: 4, fontFamily: FONT }}>
                 {fmtMoneyFull(monthRevenue)}
               </div>
             </div>
             {k.totalSpread > 0 && (
               <div className="text-right">
-                <div className="text-[0.68rem] text-[#9CA3AF]">All time</div>
+                <div className="text-[0.68rem] text-[rgba(5,14,36,0.4)]">All time</div>
                 <div className="text-base font-semibold text-[#0B1224]">{fmtMoney(k.totalSpread)}</div>
               </div>
             )}
@@ -1338,8 +1364,8 @@ function AnalyticsTab({ data, router }: { data: DashboardData; router: ReturnTyp
             <LineChart
               data={data.dailyRevenue.slice(-14).map(d => ({ label: fmtShortDate(d.date), value: d.revenue }))}
               height={140}
-              color="#22C55E"
-              areaColor="#22C55E"
+              color="#2563EB"
+              areaColor="#2563EB"
               showGrid
             />
           ) : (
@@ -1348,7 +1374,7 @@ function AnalyticsTab({ data, router }: { data: DashboardData; router: ReturnTyp
         </div>
 
         {/* Channel Breakdown */}
-        <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)]">
           <SectionHeader title="Outreach Channels" />
           {channelTotal > 0 ? (
             <DonutChart
@@ -1367,20 +1393,20 @@ function AnalyticsTab({ data, router }: { data: DashboardData; router: ReturnTyp
       </div>
 
       {/* Summary Stats */}
-      <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
-        <StatCard label="Total Spread" value={fmtMoney(k.totalSpread)} icon={DollarSign} color="#22C55E" />
-        <StatCard label="Deals Closed" value={k.closedDeals.toLocaleString()} icon={CheckCircle} color="#3B82F6" />
-        <StatCard label="Fees Collected" value={fmtMoney(k.totalFeesCollected)} icon={DollarSign} color="#8B5CF6" />
-        <StatCard label="Contracts Executed" value={k.contractsExecuted.toLocaleString()} icon={FileSignature} color="#22C55E" />
+      <div className="dash-grid-4 grid grid-cols-4 gap-4 mb-5">
+        <StatCard label="Total Spread" value={fmtMoney(k.totalSpread)} icon={DollarSign} />
+        <StatCard label="Deals Closed" value={k.closedDeals.toLocaleString()} icon={CheckCircle} />
+        <StatCard label="Fees Collected" value={fmtMoney(k.totalFeesCollected)} icon={DollarSign} />
+        <StatCard label="Contracts Executed" value={k.contractsExecuted.toLocaleString()} icon={FileSignature} />
       </div>
 
       {/* Platform Performance (merged Outreach + Marketplace) */}
-      <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+      <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)]">
         <SectionHeader title="Platform Performance" />
         <div className="dash-grid-2 grid grid-cols-2 gap-8">
           {/* Outreach column */}
           <div>
-            <div className="text-[0.72rem] font-semibold tracking-[0.04em] uppercase text-[#9CA3AF] mb-3">Outreach</div>
+            <div style={{ fontWeight: 600, fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase' as const, color: 'rgba(5,14,36,0.4)', marginBottom: 12, fontFamily: FONT }}>Outreach</div>
             {[
               { label: 'Total Calls', value: k.aiCalls.toLocaleString() },
               { label: 'This Week', value: k.callsThisWeek.toLocaleString() },
@@ -1389,23 +1415,23 @@ function AnalyticsTab({ data, router }: { data: DashboardData; router: ReturnTyp
               { label: 'Talk Time', value: fmtMinutesAsHours(k.totalCallMinutes) },
               { label: 'Qualified', value: k.qualifiedThisWeek.toLocaleString() },
             ].map((s, i, arr) => (
-              <div key={s.label} className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? 'border-b border-[#F3F4F6]' : ''}`}>
-                <span className="text-[0.82rem] text-[#4B5563]">{s.label}</span>
+              <div key={s.label} className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? 'border-b border-[rgba(5,14,36,0.04)]' : ''}`}>
+                <span className="text-[0.82rem] text-[rgba(5,14,36,0.65)]">{s.label}</span>
                 <span className="text-[0.82rem] font-semibold text-[#0B1224] tabular-nums">{s.value}</span>
               </div>
             ))}
           </div>
           {/* Marketplace column */}
           <div>
-            <div className="text-[0.72rem] font-semibold tracking-[0.04em] uppercase text-[#9CA3AF] mb-3">Marketplace</div>
+            <div style={{ fontWeight: 600, fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase' as const, color: 'rgba(5,14,36,0.4)', marginBottom: 12, fontFamily: FONT }}>Marketplace</div>
             {[
               { label: 'Active Listings', value: k.activeListings.toLocaleString() },
               { label: 'Total Views', value: k.totalListingViews.toLocaleString() },
               { label: 'New Inquiries', value: k.newInquiries.toLocaleString() },
               { label: 'Matches Sent', value: k.matchesSent.toLocaleString() },
             ].map((s, i, arr) => (
-              <div key={s.label} className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? 'border-b border-[#F3F4F6]' : ''}`}>
-                <span className="text-[0.82rem] text-[#4B5563]">{s.label}</span>
+              <div key={s.label} className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? 'border-b border-[rgba(5,14,36,0.04)]' : ''}`}>
+                <span className="text-[0.82rem] text-[rgba(5,14,36,0.65)]">{s.label}</span>
                 <span className="text-[0.82rem] font-semibold text-[#0B1224] tabular-nums">{s.value}</span>
               </div>
             ))}
@@ -1500,13 +1526,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="px-9 py-7 max-w-[1200px]">
+    <div className="px-9 py-7 max-w-[1200px]" style={{ background: '#F9FAFB', fontFamily: FONT }}>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-[1.5rem] font-normal text-[#0B1224] tracking-[-0.022em] leading-[1.15] mb-1" style={{ fontFamily: SERIF }}>
+        <h1 style={{ fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 4, fontFamily: FONT }}>
           {data?.firstName ? `${getGreeting()}, ${data.firstName}` : 'Dashboard'}
         </h1>
-        <p className="text-[0.84rem] text-[#4B5563] leading-normal">
+        <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.4)', lineHeight: 1.5, margin: 0, fontFamily: FONT }}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </div>
@@ -1515,7 +1541,7 @@ export default function DashboardPage() {
       {data && <AlertBadges data={data} router={router} />}
 
       {/* Tab bar */}
-      <div className="flex gap-0 border-b border-[#F0F0F0] mb-6 overflow-auto">
+      <div className="flex gap-0 mb-6 overflow-auto" style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
         {TABS.map(tab => {
           const Icon = tab.icon
           const isActive = activeTab === tab.key
@@ -1523,11 +1549,12 @@ export default function DashboardPage() {
             <button
               key={tab.key}
               onClick={() => setTab(tab.key)}
-              className={`dash-tab flex items-center gap-1.5 px-[18px] py-2.5 border-none cursor-pointer bg-transparent font-[inherit] text-[0.8rem] whitespace-nowrap transition-colors duration-150 -mb-px ${
+              className={`dash-tab flex items-center gap-1.5 px-[18px] py-2.5 border-none cursor-pointer bg-transparent text-[0.8rem] whitespace-nowrap transition-colors duration-150 -mb-px ${
                 isActive
                   ? 'font-semibold text-[#2563EB] border-b-2 border-b-[#2563EB]'
-                  : 'font-medium text-[#9CA3AF] border-b-2 border-b-transparent hover:text-[#2563EB]'
+                  : 'font-medium text-[rgba(5,14,36,0.4)] border-b-2 border-b-transparent hover:text-[#2563EB]'
               }`}
+              style={{ fontFamily: FONT }}
             >
               <Icon className="w-3.5 h-3.5" />
               {tab.label}
@@ -1539,15 +1566,15 @@ export default function DashboardPage() {
       {/* Loading skeleton */}
       {loading && !data && (
         <div>
-          <div className="dash-grid-4 grid grid-cols-4 gap-3.5 mb-5">
+          <div className="dash-grid-4 grid grid-cols-4 gap-4 mb-5">
             <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
           </div>
-          <div className="bg-white rounded-xl border border-[#EAEAEA] p-5 mb-5">
+          <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)] mb-5">
             <Skeleton height={10} width="20%" className="mb-4" />
             <Skeleton height={10} width="100%" className="rounded-full" />
           </div>
-          <div className="dash-grid-2 grid grid-cols-2 gap-3.5">
-            <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+          <div className="dash-grid-2 grid grid-cols-2 gap-4">
+            <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)]">
               <Skeleton height={10} width="30%" className="mb-4" />
               <div className="flex flex-col gap-3">
                 <Skeleton height={14} width="85%" />
@@ -1556,7 +1583,7 @@ export default function DashboardPage() {
                 <Skeleton height={14} width="60%" />
               </div>
             </div>
-            <div className="bg-white rounded-xl border border-[#EAEAEA] p-5">
+            <div className="ds-card bg-white border border-[rgba(5,14,36,0.08)]">
               <Skeleton height={10} width="30%" className="mb-4" />
               <div className="flex flex-col gap-3">
                 <Skeleton height={14} width="80%" />
@@ -1570,10 +1597,10 @@ export default function DashboardPage() {
 
       {/* Error state */}
       {error && !data && (
-        <div className="bg-white rounded-xl border border-[#EAEAEA] text-center py-10 px-5">
+        <div className="bg-white rounded-xl border border-[rgba(5,14,36,0.08)] text-center py-10 px-5">
           <AlertTriangle className="w-7 h-7 text-amber-500 mx-auto mb-3" />
           <div className="text-[0.9rem] font-semibold text-[#0B1224] mb-1.5">Failed to load dashboard</div>
-          <div className="text-[0.78rem] text-[#9CA3AF] mb-4">{error}</div>
+          <div className="text-[0.78rem] text-[rgba(5,14,36,0.4)] mb-4">{error}</div>
           <button
             onClick={fetchDashboard}
             className="px-5 py-2 rounded-lg bg-[#2563EB] text-white text-[0.78rem] font-semibold cursor-pointer font-[inherit] border-none transition-colors hover:bg-[#1d4ed8]"
@@ -1597,8 +1624,9 @@ export default function DashboardPage() {
       )}
 
       <style>{`
+        .ds-card { border-radius: 12px; padding: 20px 24px; }
         .dash-row { transition: background 0.1s; }
-        .dash-row:hover { background: rgba(5,14,36,0.015); }
+        .dash-row:hover { background: rgba(37,99,235,0.02); }
         @media (max-width: 1000px) {
           .dash-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
           .dash-grid-2 { grid-template-columns: 1fr !important; }

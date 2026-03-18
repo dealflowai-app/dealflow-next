@@ -97,23 +97,23 @@ function buyerName(b: BuyerDetail) {
 }
 
 function scoreGrade(s: number) { return s >= 90 ? 'A' : s >= 70 ? 'B' : s >= 50 ? 'C' : 'D' }
-function scoreColor(g: string) {
+function scoreColorStyle(g: string): React.CSSProperties {
   switch (g) {
-    case 'A': return 'text-emerald-700 bg-emerald-50 border-emerald-200'
-    case 'B': return 'text-blue-700 bg-blue-50 border-blue-200'
-    case 'C': return 'text-amber-700 bg-amber-50 border-amber-200'
-    default: return 'text-red-700 bg-red-50 border-red-200'
+    case 'A': return { color: '#fff', backgroundColor: '#2563EB' }
+    case 'B': return { color: '#fff', backgroundColor: '#60A5FA' }
+    case 'C': return { color: '#fff', backgroundColor: '#F59E0B' }
+    default: return { color: '#fff', backgroundColor: 'rgba(5,14,36,0.3)' }
   }
 }
 
-function statusStyle(s: string) {
+function statusStyleObj(s: string): React.CSSProperties {
   switch (s) {
-    case 'HIGH_CONFIDENCE': return 'text-emerald-700 bg-emerald-50'
-    case 'RECENTLY_VERIFIED': return 'text-blue-700 bg-blue-50'
-    case 'ACTIVE': return 'text-gray-700 bg-gray-100'
-    case 'DORMANT': return 'text-amber-700 bg-amber-50'
-    case 'DO_NOT_CALL': return 'text-red-700 bg-red-50'
-    default: return 'text-gray-700 bg-gray-100'
+    case 'HIGH_CONFIDENCE': return { color: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)' }
+    case 'RECENTLY_VERIFIED': return { color: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.08)' }
+    case 'ACTIVE': return { color: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)' }
+    case 'DORMANT': return { color: 'rgba(5,14,36,0.4)', backgroundColor: 'rgba(5,14,36,0.04)' }
+    case 'DO_NOT_CALL': return { color: '#b91c1c', backgroundColor: 'rgb(254,242,242)' }
+    default: return { color: 'rgba(5,14,36,0.4)', backgroundColor: 'rgba(5,14,36,0.04)' }
   }
 }
 
@@ -220,13 +220,13 @@ function tlIcon(type: string) {
     case 'call': case 'call_completed': case 'phone': return <Phone className="w-3.5 h-3.5 text-blue-500" />
     case 'email': return <Mail className="w-3.5 h-3.5 text-violet-500" />
     case 'deal': case 'deal_matched': case 'deal_match': return <Home className="w-3.5 h-3.5 text-purple-500" />
-    case 'offer': case 'offer_made': return <Send className="w-3.5 h-3.5 text-emerald-500" />
+    case 'offer': case 'offer_made': return <Send className="w-3.5 h-3.5 text-[#2563EB]" />
     case 'status_changed': return <RefreshCw className="w-3.5 h-3.5 text-amber-500" />
-    case 'contract': return <FileSignature className="w-3.5 h-3.5 text-emerald-500" />
+    case 'contract': return <FileSignature className="w-3.5 h-3.5 text-[#2563EB]" />
     case 'score_updated': return <RefreshCw className="w-3.5 h-3.5 text-blue-500" />
     case 'merged': return <Users className="w-3.5 h-3.5 text-violet-500" />
     case 'tag_added': case 'tag_removed': return <Tag className="w-3.5 h-3.5 text-cyan-500" />
-    case 'created': return <UserPlus className="w-3.5 h-3.5 text-emerald-500" />
+    case 'created': return <UserPlus className="w-3.5 h-3.5 text-[#2563EB]" />
     case 'imported': return <Upload className="w-3.5 h-3.5 text-blue-500" />
     case 'note_added': return <MessageSquare className="w-3.5 h-3.5 text-gray-500" />
     case 'edited': return <Pencil className="w-3.5 h-3.5 text-gray-400" />
@@ -237,7 +237,7 @@ function tlIcon(type: string) {
 function tlColor(type: string) {
   if (['call', 'call_completed', 'phone'].includes(type)) return 'border-blue-300'
   if (['deal', 'deal_matched', 'deal_match'].includes(type)) return 'border-purple-300'
-  if (['offer', 'offer_made', 'contract'].includes(type)) return 'border-emerald-300'
+  if (['offer', 'offer_made', 'contract'].includes(type)) return 'border-blue-300'
   if (['status_changed'].includes(type)) return 'border-amber-300'
   return 'border-gray-200'
 }
@@ -253,7 +253,7 @@ function CopyBtn({ text }: { text: string }) {
       className="p-1 rounded hover:bg-gray-200 bg-transparent border-0 cursor-pointer transition-colors"
       title="Copy"
     >
-      {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-gray-400" />}
+      {copied ? <Check className="w-3 h-3 text-[#2563EB]" /> : <Copy className="w-3 h-3 text-gray-400" />}
     </button>
   )
 }
@@ -297,7 +297,7 @@ function NoteComposer({ buyerId, onNoteAdded }: { buyerId: string; onNoteAdded: 
   }
 
   return (
-    <div className={`rounded-lg border transition-all ${flash ? 'border-emerald-400 bg-emerald-50' : focused ? 'border-[#2563EB] bg-white' : 'border-gray-200 bg-gray-50'}`}>
+    <div className={`rounded-xl border transition-all ${flash ? 'border-[#2563EB] bg-[rgba(37,99,235,0.08)]' : focused ? 'border-[#2563EB] bg-white' : 'border-[rgba(5,14,36,0.08)] bg-gray-50'}`}>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -306,16 +306,18 @@ function NoteComposer({ buyerId, onNoteAdded }: { buyerId: string; onNoteAdded: 
         onKeyDown={handleKeyDown}
         rows={focused ? 4 : 1}
         placeholder="Add a note about this buyer..."
-        className="w-full px-3 py-2.5 text-[0.82rem] bg-transparent border-0 outline-none resize-none"
+        className="w-full px-3 py-2.5 text-[14px] bg-transparent border-0 outline-none resize-none"
+        style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: 'rgba(5,14,36,0.65)' }}
         maxLength={5000}
       />
       {focused && (
         <div className="flex items-center justify-between px-3 pb-2">
-          <span className="text-[0.68rem] text-gray-400">{text.length}/5000 &middot; Cmd+Enter to save</span>
+          <span className="text-[12px] text-[rgba(5,14,36,0.4)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{text.length}/5000 &middot; Cmd+Enter to save</span>
           <button
             onClick={save}
             disabled={saving || !text.trim()}
-            className="text-[0.74rem] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-md px-3 py-1.5 cursor-pointer disabled:opacity-50 flex items-center gap-1"
+            className="text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[10px] px-3 py-1.5 cursor-pointer disabled:opacity-50 flex items-center gap-1 font-semibold"
+            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
           >
             {saving && <Loader2 className="w-3 h-3 animate-spin" />}
             Save Note
@@ -334,13 +336,14 @@ type TabName = typeof TABS[number]
 
 function TabBar({ active, onChange }: { active: TabName; onChange: (t: TabName) => void }) {
   return (
-    <div className="flex border-b border-gray-200">
+    <div className="flex border-b border-[rgba(5,14,36,0.08)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       {TABS.map(t => (
         <button
           key={t}
           onClick={() => onChange(t)}
           data-active={active === t}
-          className={`px-4 py-2.5 text-[0.82rem] font-medium border-b-2 -mb-px bg-transparent cursor-pointer crm-tab ${active === t ? 'border-[#2563EB] text-[#2563EB]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+          className={`px-4 py-2.5 text-[14px] border-b-2 -mb-px bg-transparent cursor-pointer crm-tab ${active === t ? 'border-[#2563EB] text-[#2563EB] font-semibold' : 'border-transparent text-[rgba(5,14,36,0.45)] font-normal hover:text-[rgba(5,14,36,0.65)]'}`}
+          style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
         >
           {t}
         </button>
@@ -379,22 +382,22 @@ function AiInsightsCard({ buyerId, cached }: { buyerId: string; cached: { insigh
 
   if (noKey) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+      <div className="bg-gray-50 border border-[rgba(5,14,36,0.08)] rounded-xl p-5" style={{ padding: '20px 24px' }}>
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-4 h-4 text-gray-400" />
-          <span className="text-[0.82rem] font-medium text-gray-500">AI Insight</span>
+          <Sparkles className="w-4 h-4 text-[rgba(5,14,36,0.4)]" />
+          <span className="text-[14px] font-medium text-[rgba(5,14,36,0.5)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>AI Insight</span>
         </div>
-        <p className="text-[0.78rem] text-gray-400">Set up your Anthropic API key to enable AI insights.</p>
+        <p className="text-[12px] text-[rgba(5,14,36,0.4)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Set up your Anthropic API key to enable AI insights.</p>
       </div>
     )
   }
 
   if (loading) {
     return (
-      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 space-y-2">
+      <div className="border border-[rgba(5,14,36,0.08)] rounded-xl space-y-2" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-500" />
-          <span className="text-[0.82rem] font-medium text-blue-700">Generating AI Insight...</span>
+          <Sparkles className="w-4 h-4 text-[#2563EB]" />
+          <span className="text-[14px] font-medium text-[#2563EB]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Generating AI Insight...</span>
         </div>
         <div className="space-y-2 animate-pulse">
           <div className="h-3 bg-blue-100 rounded w-full" />
@@ -407,13 +410,13 @@ function AiInsightsCard({ buyerId, cached }: { buyerId: string; cached: { insigh
 
   if (!insight) {
     return (
-      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+      <div className="border border-[rgba(5,14,36,0.08)] rounded-xl" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-blue-500" />
-            <span className="text-[0.82rem] font-medium text-blue-700">AI Insight</span>
+            <Sparkles className="w-4 h-4 text-[#2563EB]" />
+            <span className="text-[14px] font-medium text-[#2563EB]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>AI Insight</span>
           </div>
-          <button onClick={() => generate(false)} className="text-[0.74rem] text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-md px-3 py-1.5 cursor-pointer">
+          <button onClick={() => generate(false)} className="text-[14px] text-[#2563EB] hover:text-[#1D4ED8] bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] px-3 py-1.5 cursor-pointer font-medium" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             Generate Insight
           </button>
         </div>
@@ -422,18 +425,18 @@ function AiInsightsCard({ buyerId, cached }: { buyerId: string; cached: { insigh
   }
 
   return (
-    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+    <div className="border border-[rgba(5,14,36,0.08)] rounded-xl" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-500" />
-          <span className="text-[0.82rem] font-medium text-blue-700">AI Insight</span>
-          {generatedAt && <span className="text-[0.66rem] text-blue-400">{relativeTime(generatedAt)}</span>}
+          <Sparkles className="w-4 h-4 text-[#2563EB]" />
+          <span className="text-[15px] font-semibold text-[#0B1224]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>AI Insight</span>
+          {generatedAt && <span className="text-[12px] text-[rgba(5,14,36,0.4)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{relativeTime(generatedAt)}</span>}
         </div>
-        <button onClick={() => generate(true)} className="text-[0.68rem] text-blue-500 hover:text-blue-700 bg-transparent border-0 cursor-pointer flex items-center gap-1">
+        <button onClick={() => generate(true)} className="text-[12px] text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer flex items-center gap-1" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <RefreshCw className="w-3 h-3" /> Regenerate
         </button>
       </div>
-      <p className="text-[0.82rem] text-blue-900 leading-relaxed whitespace-pre-wrap">{insight}</p>
+      <p className="text-[14px] text-[rgba(5,14,36,0.65)] leading-relaxed whitespace-pre-wrap" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{insight}</p>
     </div>
   )
 }
@@ -479,14 +482,14 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
   }
 
   const grade = scoreGrade(score)
-  const gradeColor = scoreColor(grade)
+  const gradeStyle = scoreColorStyle(grade)
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       {/* Score */}
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer Score</span>
-        <span className={`text-[0.72rem] font-bold px-2 py-0.5 rounded-full border ${gradeColor}`}>{grade}</span>
+        <span className="text-[11px] font-semibold uppercase text-[rgba(5,14,36,0.4)]" style={{ letterSpacing: '0.05em' }}>Buyer Score</span>
+        <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={gradeStyle}>{grade}</span>
       </div>
       <div className="flex items-center gap-3 mb-4">
         <input
@@ -499,22 +502,22 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
           type="number"
           min={0} max={100} value={score}
           onChange={e => handleScoreChange(Number(e.target.value))}
-          className="w-14 text-center text-lg font-bold text-gray-900 border border-gray-200 rounded-md py-1 outline-none focus:border-[#2563EB]"
+          className="w-14 text-center text-lg font-bold text-[#0B1224] border border-[rgba(5,14,36,0.08)] rounded-[10px] py-1 outline-none focus:border-[#2563EB]"
         />
       </div>
 
       {/* Motivation */}
       <div className="mb-4">
-        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider block mb-2">Motivation Level</span>
+        <span className="text-[11px] font-semibold uppercase text-[rgba(5,14,36,0.4)] block mb-2" style={{ letterSpacing: '0.05em' }}>Motivation Level</span>
         <div className="grid grid-cols-2 gap-1.5">
           {ENUM_OPTIONS.motivation.map(m => (
             <button
               key={m.value}
               onClick={() => handleMotivationChange(motivation === m.value ? '' : m.value)}
-              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-md text-[0.74rem] font-medium border cursor-pointer crm-btn ${
+              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-[10px] text-[14px] font-medium border cursor-pointer crm-btn ${
                 motivation === m.value
                   ? motivationStyle(m.value) + ' border-current'
-                  : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                  : 'bg-white border-[rgba(5,14,36,0.15)] text-[rgba(5,14,36,0.45)] hover:bg-gray-50'
               }`}
             >
               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${motivationDot(m.value)}`} />
@@ -525,7 +528,7 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
       </div>
 
       {dirty && (
-        <button onClick={save} disabled={saving} className="w-full text-[0.78rem] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-md py-2.5 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 font-medium crm-btn">
+        <button onClick={save} disabled={saving} className="w-full text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[10px] py-2.5 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 font-semibold crm-btn" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
           {saving ? 'Saving...' : 'Save Score & Motivation'}
         </button>
@@ -554,18 +557,18 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
   if (editing) {
     return (
       <div className="space-y-5">
-        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">
-          <span className="text-[0.78rem] text-blue-700 font-medium">Editing buyer profile</span>
+        <div className="flex items-center justify-between rounded-xl px-4 py-2.5" style={{ backgroundColor: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)' }}>
+          <span className="text-[14px] text-[#2563EB] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Editing buyer profile</span>
           <div className="flex gap-2">
-            <button onClick={onCancel} disabled={saving} className="text-[0.74rem] text-gray-600 bg-white border border-gray-200 rounded-md px-3 py-1.5 cursor-pointer hover:bg-gray-50">Cancel</button>
-            <button onClick={onSave} disabled={saving} className="text-[0.74rem] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-md px-3 py-1.5 cursor-pointer disabled:opacity-50 flex items-center gap-1">
+            <button onClick={onCancel} disabled={saving} className="text-[14px] text-[rgba(5,14,36,0.65)] bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] px-3 py-1.5 cursor-pointer hover:bg-gray-50" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Cancel</button>
+            <button onClick={onSave} disabled={saving} className="text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[10px] px-3 py-1.5 cursor-pointer disabled:opacity-50 flex items-center gap-1 font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
               {saving && <Loader2 className="w-3 h-3 animate-spin" />}
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Contact Info</div>
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Contact Info</div>
           <div className="grid grid-cols-2 gap-3">
             {[
               { key: 'firstName', label: 'First Name' },
@@ -579,20 +582,20 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               { key: 'zip', label: 'Zip' },
             ].map(f => (
               <div key={f.key}>
-                <label className="text-[0.72rem] text-gray-500 mb-1 block">{f.label}</label>
+                <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">{f.label}</label>
                 <input value={editForm[f.key] || ''} onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                  className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
               </div>
             ))}
           </div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Buy Box</div>
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buy Box</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Strategy</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Strategy</label>
               <select value={editForm.strategy || ''} onChange={e => setEditForm(p => ({ ...p, strategy: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">None</option>
                 <option value="FLIP">Flip</option><option value="HOLD">Hold</option>
                 <option value="BOTH">Both</option><option value="LAND">Land</option>
@@ -600,9 +603,9 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               </select>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Status</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Status</label>
               <select value={editForm.status || 'ACTIVE'} onChange={e => setEditForm(p => ({ ...p, status: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="ACTIVE">Active</option><option value="DORMANT">Dormant</option>
                 <option value="HIGH_CONFIDENCE">High Confidence</option><option value="RECENTLY_VERIFIED">Recently Verified</option>
                 <option value="DO_NOT_CALL">Do Not Call</option>
@@ -614,54 +617,54 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               { key: 'closeSpeedDays', label: 'Close Speed (days)', type: 'number' },
             ].map(f => (
               <div key={f.key}>
-                <label className="text-[0.72rem] text-gray-500 mb-1 block">{f.label}</label>
+                <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">{f.label}</label>
                 <input type={f.type} value={editForm[f.key] || ''} onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                  className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
               </div>
             ))}
           </div>
         </div>
 
         {/* Buyer Profile */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Buyer Profile</div>
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buyer Profile</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Buyer Type</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Buyer Type</label>
               <select value={editForm.buyerType || ''} onChange={e => setEditForm(p => ({ ...p, buyerType: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.buyerType.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Funding Source</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Funding Source</label>
               <select value={editForm.fundingSource || ''} onChange={e => setEditForm(p => ({ ...p, fundingSource: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.fundingSource.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Condition Preference</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Condition Preference</label>
               <select value={editForm.conditionPreference || ''} onChange={e => setEditForm(p => ({ ...p, conditionPreference: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.conditionPreference.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Communication Preference</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Communication Preference</label>
               <select value={editForm.communicationPref || ''} onChange={e => setEditForm(p => ({ ...p, communicationPref: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.communicationPref.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Entity Type</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Entity Type</label>
               <select value={editForm.entityType || ''} onChange={e => setEditForm(p => ({ ...p, entityType: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 <option value="individual">Individual</option>
                 <option value="llc">LLC</option>
@@ -670,45 +673,45 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               </select>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Portfolio Size</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Portfolio Size</label>
               <input type="number" value={editForm.portfolioSize || ''} onChange={e => setEditForm(p => ({ ...p, portfolioSize: e.target.value }))}
-                placeholder="# of properties" className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                placeholder="# of properties" className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Avg Purchase Price</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Avg Purchase Price</label>
               <input type="number" value={editForm.avgPurchasePrice || ''} onChange={e => setEditForm(p => ({ ...p, avgPurchasePrice: e.target.value }))}
-                placeholder="$" className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                placeholder="$" className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Lead Source</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Lead Source</label>
               <select value={editForm.source || ''} onChange={e => setEditForm(p => ({ ...p, source: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.source.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Preferred Zips</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Preferred Zips</label>
               <input value={editForm.preferredZips || ''} onChange={e => setEditForm(p => ({ ...p, preferredZips: e.target.value }))}
-                placeholder="75201, 75202, ..." className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                placeholder="75201, 75202, ..." className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Follow-Up Date</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Follow-Up Date</label>
               <input type="date" value={editForm.followUpDate || ''} onChange={e => setEditForm(p => ({ ...p, followUpDate: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div>
-              <label className="text-[0.72rem] text-gray-500 mb-1 block">Assigned To</label>
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Assigned To</label>
               <input value={editForm.assignedTo || ''} onChange={e => setEditForm(p => ({ ...p, assignedTo: e.target.value }))}
-                placeholder="Team member" className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                placeholder="Team member" className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Notes</div>
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Notes</div>
           <textarea value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))}
-            rows={4} className="w-full border border-gray-200 rounded-md px-3 py-2 text-[0.82rem] outline-none focus:border-[#2563EB] resize-y"
+            rows={4} className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-3 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] resize-y"
             placeholder="Notes about this buyer..." />
         </div>
       </div>
@@ -718,72 +721,72 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
   return (
     <div className="space-y-5">
       {/* Contact Info Card */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Contact Info</div>
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Contact Info</div>
         <div className="space-y-2.5">
           {buyer.phone && (
             <div className="flex items-center justify-between">
-              <span className="text-[0.82rem] text-gray-500 flex items-center gap-2"><Phone className="w-3.5 h-3.5" /> Phone</span>
-              <span className="text-[0.82rem] text-gray-900 flex items-center gap-1.5">{buyer.phone} <CopyBtn text={buyer.phone} /> <ClickToCall buyerId={buyer.id} buyerName={buyerName(buyer)} phone={buyer.phone} compact /></span>
+              <span className="text-[14px] text-[rgba(5,14,36,0.5)] flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-[#2563EB]" /> Phone</span>
+              <span className="text-[14px] text-[#0B1224] flex items-center gap-1.5">{buyer.phone} <CopyBtn text={buyer.phone} /> <ClickToCall buyerId={buyer.id} buyerName={buyerName(buyer)} phone={buyer.phone} compact /></span>
             </div>
           )}
           {buyer.email && (
             <div className="flex items-center justify-between">
-              <span className="text-[0.82rem] text-gray-500 flex items-center gap-2"><Mail className="w-3.5 h-3.5" /> Email</span>
-              <span className="text-[0.82rem] text-gray-900 flex items-center gap-1.5">{buyer.email} <CopyBtn text={buyer.email} /></span>
+              <span className="text-[14px] text-[rgba(5,14,36,0.5)] flex items-center gap-2"><Mail className="w-3.5 h-3.5" /> Email</span>
+              <span className="text-[14px] text-[#0B1224] flex items-center gap-1.5">{buyer.email} <CopyBtn text={buyer.email} /></span>
             </div>
           )}
           {(buyer.address || buyer.city) && (
             <div className="flex items-center justify-between">
-              <span className="text-[0.82rem] text-gray-500 flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Address</span>
-              <span className="text-[0.82rem] text-gray-700 text-right max-w-[60%]">
+              <span className="text-[14px] text-[rgba(5,14,36,0.5)] flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Address</span>
+              <span className="text-[14px] text-[rgba(5,14,36,0.65)] text-right max-w-[60%]">
                 {[buyer.address, buyer.city, buyer.state, buyer.zip].filter(Boolean).join(', ')}
               </span>
             </div>
           )}
           {!buyer.phone && !buyer.email && !buyer.address && (
-            <p className="text-[0.78rem] text-gray-400">No contact info on file.</p>
+            <p className="text-[14px] text-[rgba(5,14,36,0.4)]">No contact info on file.</p>
           )}
         </div>
       </div>
 
       {/* Buy Box Card */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Buy Box</div>
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buy Box</div>
         <div className="grid grid-cols-2 gap-y-2.5">
-          <div><span className="text-[0.74rem] text-gray-400">Types</span><div className="text-[0.82rem] text-gray-900">{buyer.preferredTypes?.join(', ') || '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Strategy</span><div className="text-[0.82rem] text-gray-900">{buyer.strategy || '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Price Range</span><div className="text-[0.82rem] text-gray-900 font-medium">{formatPrice(buyer.minPrice)} – {formatPrice(buyer.maxPrice)}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Close Speed</span><div className="text-[0.82rem] text-gray-900">{buyer.closeSpeedDays ? `${buyer.closeSpeedDays} days` : '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Markets</span><div className="text-[0.82rem] text-gray-900">{buyer.preferredMarkets?.join(', ') || '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Proof of Funds</span><div className={`text-[0.78rem] font-medium ${buyer.proofOfFundsVerified ? 'text-emerald-600' : 'text-gray-400'}`}>{buyer.proofOfFundsVerified ? 'Verified' : 'Unverified'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Types</span><div className="text-[14px] text-[#0B1224]">{buyer.preferredTypes?.join(', ') || '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Strategy</span><div className="text-[14px] text-[#0B1224]">{buyer.strategy || '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Price Range</span><div className="text-[14px] text-[#0B1224] font-medium">{formatPrice(buyer.minPrice)} – {formatPrice(buyer.maxPrice)}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Close Speed</span><div className="text-[14px] text-[#0B1224]">{buyer.closeSpeedDays ? `${buyer.closeSpeedDays} days` : '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Markets</span><div className="text-[14px] text-[#0B1224]">{buyer.preferredMarkets?.join(', ') || '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Proof of Funds</span><div className={`text-[14px] font-medium ${buyer.proofOfFundsVerified ? 'text-[#2563EB]' : 'text-[rgba(5,14,36,0.4)]'}`}>{buyer.proofOfFundsVerified ? 'Verified' : 'Unverified'}</div></div>
         </div>
       </div>
 
       {/* Buyer Profile Card */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Buyer Profile</div>
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buyer Profile</div>
         <div className="grid grid-cols-2 gap-y-2.5">
-          <div><span className="text-[0.74rem] text-gray-400">Buyer Type</span><div className="text-[0.82rem] text-gray-900">{buyer.buyerType ? displayStatus(buyer.buyerType) : '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Funding</span><div className="text-[0.82rem] text-gray-900">{buyer.fundingSource ? displayStatus(buyer.fundingSource) : '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Condition Pref</span><div className="text-[0.82rem] text-gray-900">{buyer.conditionPreference ? displayStatus(buyer.conditionPreference) : '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Contact Via</span><div className="text-[0.82rem] text-gray-900">{buyer.communicationPref ? displayStatus(buyer.communicationPref) : '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Portfolio Size</span><div className="text-[0.82rem] text-gray-900">{buyer.portfolioSize != null ? `${buyer.portfolioSize} properties` : '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Avg Purchase</span><div className="text-[0.82rem] text-gray-900 font-medium">{formatPrice(buyer.avgPurchasePrice)}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Lead Source</span><div className="text-[0.82rem] text-gray-900">{buyer.source || '—'}</div></div>
-          <div><span className="text-[0.74rem] text-gray-400">Assigned To</span><div className="text-[0.82rem] text-gray-900">{buyer.assignedTo || '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Buyer Type</span><div className="text-[14px] text-[#0B1224]">{buyer.buyerType ? displayStatus(buyer.buyerType) : '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Funding</span><div className="text-[14px] text-[#0B1224]">{buyer.fundingSource ? displayStatus(buyer.fundingSource) : '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Condition Pref</span><div className="text-[14px] text-[#0B1224]">{buyer.conditionPreference ? displayStatus(buyer.conditionPreference) : '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Contact Via</span><div className="text-[14px] text-[#0B1224]">{buyer.communicationPref ? displayStatus(buyer.communicationPref) : '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Portfolio Size</span><div className="text-[14px] text-[#0B1224]">{buyer.portfolioSize != null ? `${buyer.portfolioSize} properties` : '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Avg Purchase</span><div className="text-[14px] text-[#0B1224] font-medium">{formatPrice(buyer.avgPurchasePrice)}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Lead Source</span><div className="text-[14px] text-[#0B1224]">{buyer.source || '—'}</div></div>
+          <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Assigned To</span><div className="text-[14px] text-[#0B1224]">{buyer.assignedTo || '—'}</div></div>
           {buyer.preferredZips?.length > 0 && (
-            <div className="col-span-2"><span className="text-[0.74rem] text-gray-400">Target Zips</span>
+            <div className="col-span-2"><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Target Zips</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {buyer.preferredZips.map(z => (
-                  <span key={z} className="text-[0.68rem] text-gray-600 bg-gray-100 rounded-full px-2 py-0.5">{z}</span>
+                  <span key={z} className="text-[12px] text-[rgba(5,14,36,0.65)] bg-[rgba(5,14,36,0.04)] rounded-full px-2 py-0.5">{z}</span>
                 ))}
               </div>
             </div>
           )}
           {buyer.followUpDate && (
-            <div className="col-span-2"><span className="text-[0.74rem] text-gray-400">Next Follow-Up</span>
-              <div className="text-[0.82rem] text-gray-900 font-medium flex items-center gap-1.5">
+            <div className="col-span-2"><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Next Follow-Up</span>
+              <div className="text-[14px] text-[#0B1224] font-medium flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-amber-500" />
                 {new Date(buyer.followUpDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </div>
@@ -793,16 +796,16 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-3" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
         {[
           { label: 'Calls', value: totalCalls },
           { label: 'Matched', value: totalMatches },
           { label: 'Offers', value: totalOffers },
           { label: 'Closed', value: closedDeals },
         ].map(s => (
-          <div key={s.label} className="bg-white border border-gray-200 rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-gray-900">{s.value}</div>
-            <div className="text-[0.68rem] text-gray-400 uppercase tracking-wider">{s.label}</div>
+          <div key={s.label} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
+            <div className="text-xl font-bold text-[#0B1224]">{s.value}</div>
+            <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase" style={{ letterSpacing: '0.05em' }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -812,9 +815,9 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
 
       {/* Notes */}
       {buyer.notes && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Notes</div>
-          <p className="text-[0.82rem] text-gray-700 whitespace-pre-wrap">{buyer.notes}</p>
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Notes</div>
+          <p className="text-[14px] text-[rgba(5,14,36,0.65)] whitespace-pre-wrap">{buyer.notes}</p>
         </div>
       )}
     </div>
@@ -850,15 +853,15 @@ function TimelineTab({ buyerId }: { buyerId: string }) {
   useEffect(() => { load() }, [load])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       <NoteComposer buyerId={buyerId} onNoteAdded={() => load()} />
 
       {!loading && events.length === 0 && (
-        <p className="text-center text-sm text-gray-400 py-8">No activity yet</p>
+        <p className="text-center text-[14px] text-[rgba(5,14,36,0.4)] py-8">No activity yet</p>
       )}
 
       <div className="relative pl-6">
-        {events.length > 0 && <div className="absolute left-[9px] top-2 bottom-2 w-px bg-gray-200" />}
+        {events.length > 0 && <div className="absolute left-[9px] top-2 bottom-2 w-px bg-[rgba(5,14,36,0.08)]" />}
         <div className="space-y-4">
           {events.map(e => (
             <div key={e.id} className="relative">
@@ -866,9 +869,9 @@ function TimelineTab({ buyerId }: { buyerId: string }) {
                 {tlIcon(e.type)}
               </div>
               <div>
-                <div className="text-[0.68rem] text-gray-400 mb-0.5">{relativeTime(e.createdAt)}</div>
-                <div className="text-[0.82rem] text-gray-800 font-medium">{e.title}</div>
-                {e.detail && <div className="text-[0.78rem] text-gray-500 mt-0.5 whitespace-pre-wrap">{e.detail}</div>}
+                <div className="text-[12px] text-[rgba(5,14,36,0.4)] mb-0.5">{relativeTime(e.createdAt)}</div>
+                <div className="text-[14px] text-[#0B1224] font-medium">{e.title}</div>
+                {e.detail && <div className="text-[14px] text-[rgba(5,14,36,0.5)] mt-0.5 whitespace-pre-wrap">{e.detail}</div>}
               </div>
             </div>
           ))}
@@ -883,7 +886,7 @@ function TimelineTab({ buyerId }: { buyerId: string }) {
 
       {loading && events.length === 0 && (
         <div className="space-y-3 animate-pulse">
-          {[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-gray-100 rounded-lg" />)}
+          {[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-[rgba(5,14,36,0.04)] rounded-xl" />)}
         </div>
       )}
     </div>
@@ -901,24 +904,24 @@ function DealsTab({ matches }: { matches: BuyerDetail['dealMatches'] }) {
   return (
     <div className="space-y-3">
       {matches.map(m => (
-        <div key={m.id} className="bg-white border border-gray-200 rounded-lg p-4">
+        <div key={m.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="flex items-start justify-between mb-2">
             <div>
-              <div className="text-[0.88rem] font-medium text-gray-900">{m.deal.address}</div>
-              <div className="text-[0.74rem] text-gray-500">{m.deal.city}, {m.deal.state} &middot; {m.deal.propertyType}</div>
+              <div className="text-[15px] font-semibold text-[#0B1224]">{m.deal.address}</div>
+              <div className="text-[12px] text-[rgba(5,14,36,0.4)]">{m.deal.city}, {m.deal.state} &middot; {m.deal.propertyType}</div>
             </div>
             <div className="text-right">
-              <div className="text-[0.74rem] text-gray-400">Match Score</div>
+              <div className="text-[12px] text-[rgba(5,14,36,0.4)]">Match Score</div>
               <div className="text-[0.92rem] font-bold text-[#2563EB]">{m.matchScore}%</div>
             </div>
           </div>
-          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-3">
+          <div className="w-full h-2 bg-[rgba(5,14,36,0.04)] rounded-full overflow-hidden mb-3">
             <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${m.matchScore}%` }} />
           </div>
           <div className="flex items-center gap-4 text-[0.74rem] text-gray-500">
             <span>Ask: {formatPrice(m.deal.askingPrice)}</span>
             <span>ARV: {formatPrice(m.deal.arv)}</span>
-            {m.outreachSent && <span className="text-emerald-600">Outreach sent {m.outreachSentAt ? relativeTime(m.outreachSentAt) : ''}</span>}
+            {m.outreachSent && <span className="text-[#2563EB]">Outreach sent {m.outreachSentAt ? relativeTime(m.outreachSentAt) : ''}</span>}
             <span className="ml-auto">{relativeTime(m.createdAt)}</span>
           </div>
         </div>
@@ -955,13 +958,13 @@ function CallsTab({ calls, inboundCalls }: { calls: BuyerDetail['campaignCalls']
     setExpanded(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
   }
 
-  function outcomeColor(o: string | null) {
+  function outcomeColorStyle(o: string | null): React.CSSProperties {
     switch (o) {
-      case 'QUALIFIED': return 'text-emerald-700 bg-emerald-50'
-      case 'CALLBACK_REQUESTED': return 'text-blue-700 bg-blue-50'
-      case 'NO_ANSWER': case 'VOICEMAIL': return 'text-amber-700 bg-amber-50'
-      case 'NOT_INTERESTED': case 'WRONG_NUMBER': return 'text-red-700 bg-red-50'
-      default: return 'text-gray-700 bg-gray-100'
+      case 'QUALIFIED': return { color: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)' }
+      case 'CALLBACK_REQUESTED': return { color: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.08)' }
+      case 'NO_ANSWER': case 'VOICEMAIL': return { color: '#b45309', backgroundColor: 'rgb(255,251,235)' }
+      case 'NOT_INTERESTED': case 'WRONG_NUMBER': return { color: '#b91c1c', backgroundColor: 'rgb(254,242,242)' }
+      default: return { color: 'rgba(5,14,36,0.4)', backgroundColor: 'rgba(5,14,36,0.04)' }
     }
   }
 
@@ -970,7 +973,7 @@ function CallsTab({ calls, inboundCalls }: { calls: BuyerDetail['campaignCalls']
   return (
     <div className="space-y-3">
       {unified.map(c => (
-        <div key={c.id} className="bg-white border border-gray-200 rounded-lg p-4">
+        <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               {c.direction === 'inbound' ? (
@@ -979,7 +982,7 @@ function CallsTab({ calls, inboundCalls }: { calls: BuyerDetail['campaignCalls']
                 <span className="text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full text-sky-700 bg-sky-50">AI Call</span>
               )}
               {c.outcome && (
-                <span className={`text-[0.72rem] font-medium px-2 py-0.5 rounded-full ${outcomeColor(c.outcome)}`}>
+                <span className="text-[12px] font-medium px-2 py-0.5 rounded-full" style={outcomeColorStyle(c.outcome)}>
                   {c.outcome.replace(/_/g, ' ')}
                 </span>
               )}
@@ -1041,11 +1044,11 @@ function BuyerCallbacksTab({ buyerId }: { buyerId: string }) {
     buyer_request: 'Buyer Request', ai_detected: 'AI Detected', manual: 'Manual', auto_retry: 'Auto Retry',
   }
 
-  const STATUS_COLORS: Record<string, string> = {
-    scheduled: 'text-blue-700 bg-blue-50',
-    completed: 'text-emerald-700 bg-emerald-50',
-    missed: 'text-red-700 bg-red-50',
-    cancelled: 'text-gray-500 bg-gray-100',
+  const STATUS_COLOR_STYLES: Record<string, React.CSSProperties> = {
+    scheduled: { color: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.08)' },
+    completed: { color: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)' },
+    missed: { color: '#b91c1c', backgroundColor: 'rgb(254,242,242)' },
+    cancelled: { color: 'rgba(5,14,36,0.4)', backgroundColor: 'rgba(5,14,36,0.04)' },
   }
 
   if (loading) {
@@ -1065,15 +1068,15 @@ function BuyerCallbacksTab({ buyerId }: { buyerId: string }) {
   return (
     <div className="space-y-2 py-2">
       {callbacks.map((cb: any) => (
-        <div key={cb.id} className={`border rounded-lg p-3 ${cb.status === 'scheduled' && new Date(cb.scheduledAt) < new Date() ? 'border-red-200 bg-red-50/30' : 'border-gray-200 bg-white'}`}>
+        <div key={cb.id} className={`border rounded-xl p-3 ${cb.status === 'scheduled' && new Date(cb.scheduledAt) < new Date() ? 'border-red-200 bg-red-50/30' : 'border-[rgba(5,14,36,0.08)] bg-white'}`} style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className={`text-[0.68rem] font-medium px-1.5 py-0.5 rounded-full ${STATUS_COLORS[cb.status] || 'text-gray-500 bg-gray-100'}`}>
+              <span className="text-[12px] font-medium px-1.5 py-0.5 rounded-full" style={STATUS_COLOR_STYLES[cb.status] || { color: 'rgba(5,14,36,0.4)', backgroundColor: 'rgba(5,14,36,0.04)' }}>
                 {cb.status}
               </span>
               <span className="text-[0.78rem] text-gray-700">{formatTime(cb.scheduledAt)}</span>
               <span className={`text-[0.65rem] px-1.5 py-0.5 rounded-full ${
-                cb.source === 'ai_detected' ? 'text-violet-600 bg-violet-50' : 'text-gray-500 bg-gray-100'
+                cb.source === 'ai_detected' ? 'text-violet-600 bg-violet-50' : 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
               }`}>
                 {SOURCE_LABELS[cb.source] || cb.source}
               </span>
@@ -1171,34 +1174,34 @@ function BuyerIntelligenceTab({ buyerId }: { buyerId: string }) {
   const avgWords = Math.round(records.reduce((s, r) => s + (r.buyerTalkPercent || 50), 0) / records.length)
 
   return (
-    <div className="space-y-5 py-2">
+    <div className="space-y-5 py-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       {/* Summary row */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="border border-gray-200 rounded-lg p-3 text-center">
-          <div className={`text-[1.1rem] font-bold ${avgSentiment > 20 ? 'text-emerald-600' : avgSentiment < -20 ? 'text-red-600' : 'text-amber-600'}`}>
+        <div className="border border-[rgba(5,14,36,0.08)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
+          <div className={`text-[1.1rem] font-bold ${avgSentiment > 20 ? 'text-[#2563EB]' : avgSentiment < -20 ? 'text-red-600' : 'text-amber-600'}`}>
             {avgSentiment > 0 ? '+' : ''}{avgSentiment}
           </div>
-          <div className="text-[0.65rem] text-gray-400">Avg Sentiment</div>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase" style={{ letterSpacing: '0.05em' }}>Avg Sentiment</div>
         </div>
-        <div className="border border-gray-200 rounded-lg p-3 text-center">
-          <div className="text-[1.1rem] font-bold text-gray-900">{avgEngagement}</div>
-          <div className="text-[0.65rem] text-gray-400">Avg Engagement</div>
+        <div className="border border-[rgba(5,14,36,0.08)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
+          <div className="text-[1.1rem] font-bold text-[#0B1224]">{avgEngagement}</div>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase" style={{ letterSpacing: '0.05em' }}>Avg Engagement</div>
         </div>
-        <div className="border border-gray-200 rounded-lg p-3 text-center">
-          <div className="text-[1.1rem] font-bold text-gray-900">{records.length}</div>
-          <div className="text-[0.65rem] text-gray-400">Calls Analyzed</div>
+        <div className="border border-[rgba(5,14,36,0.08)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
+          <div className="text-[1.1rem] font-bold text-[#0B1224]">{records.length}</div>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase" style={{ letterSpacing: '0.05em' }}>Calls Analyzed</div>
         </div>
       </div>
 
       {/* Sentiment trend */}
       {sentimentTrend.length > 1 && (
         <div>
-          <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Sentiment Over Conversations</h4>
+          <h4 className="text-[15px] font-semibold text-[#0B1224] mb-2">Sentiment Over Conversations</h4>
           <div className="flex items-end gap-1 h-12">
             {sentimentTrend.map((pt, i) => (
               <div
                 key={i}
-                className={`flex-1 rounded-t ${pt.score > 10 ? 'bg-emerald-400' : pt.score < -10 ? 'bg-red-400' : 'bg-amber-300'}`}
+                className={`flex-1 rounded-t ${pt.score > 10 ? 'bg-blue-400' : pt.score < -10 ? 'bg-red-400' : 'bg-amber-300'}`}
                 style={{ height: `${Math.max(15, Math.min(100, ((pt.score + 100) / 200) * 100))}%` }}
                 title={`Call ${pt.call}: ${pt.score > 0 ? '+' : ''}${pt.score}`}
               />
@@ -1217,7 +1220,7 @@ function BuyerIntelligenceTab({ buyerId }: { buyerId: string }) {
       {/* Top objections */}
       {topObjections.length > 0 && (
         <div>
-          <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Common Objections</h4>
+          <h4 className="text-[15px] font-semibold text-[#0B1224] mb-2">Common Objections</h4>
           <div className="space-y-1">
             {topObjections.map(([objection, count], i) => (
               <div key={i} className="flex items-center justify-between text-[0.75rem]">
@@ -1232,7 +1235,7 @@ function BuyerIntelligenceTab({ buyerId }: { buyerId: string }) {
       {/* Buying signals */}
       {topSignals.length > 0 && (
         <div>
-          <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Buying Signals</h4>
+          <h4 className="text-[15px] font-semibold text-[#0B1224] mb-2">Buying Signals</h4>
           <div className="space-y-1">
             {topSignals.map(([signal, count], i) => (
               <div key={i} className="flex items-center justify-between text-[0.75rem]">
@@ -1246,13 +1249,13 @@ function BuyerIntelligenceTab({ buyerId }: { buyerId: string }) {
 
       {/* Talk pattern */}
       <div>
-        <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Talk Pattern</h4>
+        <h4 className="text-[15px] font-semibold text-[#0B1224] mb-2">Talk Pattern</h4>
         <div className="flex h-4 rounded-full overflow-hidden">
-          <div className="bg-blue-400 flex items-center justify-center" style={{ width: `${avgAiTalk}%` }}>
-            <span className="text-[0.55rem] text-white font-medium">AI {avgAiTalk}%</span>
+          <div className="flex items-center justify-center" style={{ width: `${avgAiTalk}%`, backgroundColor: '#2563EB' }}>
+            <span className="text-[0.55rem] text-white font-semibold">AI {avgAiTalk}%</span>
           </div>
-          <div className="bg-emerald-400 flex items-center justify-center" style={{ width: `${avgWords}%` }}>
-            <span className="text-[0.55rem] text-white font-medium">Buyer {avgWords}%</span>
+          <div className="flex items-center justify-center" style={{ width: `${avgWords}%`, backgroundColor: '#60A5FA' }}>
+            <span className="text-[0.55rem] text-white font-semibold">Buyer {avgWords}%</span>
           </div>
         </div>
         <p className="text-[0.68rem] text-gray-400 mt-1">
@@ -1301,12 +1304,12 @@ function NotesTab({ buyerId }: { buyerId: string }) {
 
       <div className="space-y-3">
         {notes.map(n => (
-          <div key={n.id} className="bg-white border border-gray-200 rounded-lg p-4">
+          <div key={n.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[0.74rem] font-medium text-gray-700">You</span>
-              <span className="text-[0.68rem] text-gray-400">{relativeTime(n.createdAt)}</span>
+              <span className="text-[14px] font-semibold text-[#0B1224]">You</span>
+              <span className="text-[12px] text-[rgba(5,14,36,0.4)]">{relativeTime(n.createdAt)}</span>
             </div>
-            <p className="text-[0.82rem] text-gray-700 whitespace-pre-wrap">{n.detail}</p>
+            <p className="text-[14px] text-[rgba(5,14,36,0.65)] whitespace-pre-wrap">{n.detail}</p>
           </div>
         ))}
       </div>
@@ -1320,7 +1323,7 @@ function NotesTab({ buyerId }: { buyerId: string }) {
 
       {loading && notes.length === 0 && (
         <div className="space-y-3 animate-pulse">
-          {[...Array(3)].map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded-lg" />)}
+          {[...Array(3)].map((_, i) => <div key={i} className="h-16 bg-[rgba(5,14,36,0.04)] rounded-xl" />)}
         </div>
       )}
     </div>
@@ -1353,14 +1356,14 @@ function TagsCard({ buyer, onRefetch }: { buyer: BuyerDetail; onRefetch: () => v
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
-      <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Tags</div>
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+      <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Tags</div>
       {(!buyer.tags || buyer.tags.length === 0) ? (
-        <p className="text-[0.74rem] text-gray-400 mb-3">No tags applied.</p>
+        <p className="text-[14px] text-[rgba(5,14,36,0.4)] mb-3">No tags applied.</p>
       ) : (
         <div className="flex flex-wrap gap-1.5 mb-3">
           {buyer.tags.map(bt => (
-            <span key={bt.id} className="text-[0.72rem] font-medium px-2 py-1 rounded-full border flex items-center gap-1 crm-chip"
+            <span key={bt.id} className="text-[12px] font-medium px-2 py-1 rounded-full border flex items-center gap-1 crm-chip"
               style={{ color: bt.tag.color, borderColor: bt.tag.color + '40', backgroundColor: bt.tag.color + '10' }}>
               {bt.tag.label}
               <button
@@ -1375,7 +1378,7 @@ function TagsCard({ buyer, onRefetch }: { buyer: BuyerDetail; onRefetch: () => v
           ))}
         </div>
       )}
-      <button onClick={runAutoTags} className="w-full text-[0.74rem] text-gray-600 hover:bg-gray-50 bg-transparent border border-gray-200 rounded-md py-1.5 cursor-pointer flex items-center justify-center gap-1 crm-btn">
+      <button onClick={runAutoTags} className="w-full text-[14px] text-[rgba(5,14,36,0.65)] hover:bg-gray-50 bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] py-1.5 cursor-pointer flex items-center justify-center gap-1 crm-btn">
         <Tag className="w-3 h-3" /> Run Auto-Tags
       </button>
     </div>
@@ -1536,17 +1539,17 @@ export default function BuyerDetailPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="p-6 max-w-[1200px] mx-auto animate-pulse">
-        <div className="h-8 w-48 bg-gray-200 rounded mb-6" />
-        <div className="h-24 bg-gray-100 rounded-lg mb-6" />
+      <div className="p-6 max-w-[1200px] mx-auto animate-pulse" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="h-8 w-48 bg-[rgba(5,14,36,0.06)] rounded-xl mb-6" />
+        <div className="h-24 bg-[rgba(5,14,36,0.04)] rounded-xl mb-6" />
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2 space-y-4">
-            <div className="h-48 bg-gray-100 rounded-lg" />
-            <div className="h-48 bg-gray-100 rounded-lg" />
+            <div className="h-48 bg-[rgba(5,14,36,0.04)] rounded-xl" />
+            <div className="h-48 bg-[rgba(5,14,36,0.04)] rounded-xl" />
           </div>
           <div className="space-y-4">
-            <div className="h-48 bg-gray-100 rounded-lg" />
-            <div className="h-32 bg-gray-100 rounded-lg" />
+            <div className="h-48 bg-[rgba(5,14,36,0.04)] rounded-xl" />
+            <div className="h-32 bg-[rgba(5,14,36,0.04)] rounded-xl" />
           </div>
         </div>
       </div>
@@ -1556,13 +1559,13 @@ export default function BuyerDetailPage() {
   // Error state
   if (error || !buyer) {
     return (
-      <div className="p-6 max-w-[1200px] mx-auto">
-        <button onClick={() => router.push('/crm')} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 bg-transparent border-0 cursor-pointer mb-6">
+      <div className="p-6 max-w-[1200px] mx-auto" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <button onClick={() => router.push('/crm')} className="flex items-center gap-1.5 text-[14px] text-[rgba(5,14,36,0.5)] hover:text-[rgba(5,14,36,0.65)] bg-transparent border-0 cursor-pointer mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to Buyer List
         </button>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <p className="text-red-600 font-medium">{error || 'Buyer not found'}</p>
-          <button onClick={fetchBuyer} className="mt-3 text-[0.82rem] text-red-600 bg-transparent border border-red-300 rounded-md px-4 py-2 cursor-pointer">Try Again</button>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <p className="text-red-600 font-medium text-[15px]">{error || 'Buyer not found'}</p>
+          <button onClick={fetchBuyer} className="mt-3 text-[14px] text-red-600 bg-transparent border border-red-300 rounded-[10px] px-4 py-2 cursor-pointer">Try Again</button>
         </div>
       </div>
     )
@@ -1571,9 +1574,9 @@ export default function BuyerDetailPage() {
   const grade = scoreGrade(buyer.buyerScore)
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto animate-fadeIn">
+    <div className="p-6 max-w-[1200px] mx-auto animate-fadeIn" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       {/* Back Button */}
-      <button onClick={() => router.push('/crm')} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 bg-transparent border-0 cursor-pointer mb-4">
+      <button onClick={() => router.push('/crm')} className="flex items-center gap-1.5 text-[14px] text-[rgba(5,14,36,0.5)] hover:text-[rgba(5,14,36,0.65)] bg-transparent border-0 cursor-pointer mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to Buyer List
       </button>
 
@@ -1581,25 +1584,25 @@ export default function BuyerDetailPage() {
       <div className="mb-6">
         <div className="flex items-start justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}>
+            <h1 className="text-[24px] font-bold text-[#0B1224]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", letterSpacing: '-0.02em' }}>
               {buyerName(buyer)}
             </h1>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {buyer.entityType && (
-                <span className="text-[0.72rem] text-gray-500 bg-gray-100 rounded-full px-2.5 py-0.5">{buyer.entityType}</span>
+                <span className="text-[12px] text-[rgba(5,14,36,0.5)] bg-[rgba(5,14,36,0.04)] rounded-full px-2.5 py-0.5">{buyer.entityType}</span>
               )}
-              <span className={`text-[0.72rem] font-bold px-2.5 py-0.5 rounded-full border crm-chip ${scoreColor(grade)}`}>
+              <span className="text-[12px] font-bold px-2.5 py-0.5 rounded-full crm-chip" style={scoreColorStyle(grade)}>
                 {grade} ({buyer.buyerScore})
               </span>
-              <span className={`text-[0.72rem] font-medium px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${motivationStyle(buyer.motivation)}`}>
+              <span className={`text-[12px] font-medium px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${motivationStyle(buyer.motivation)}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${motivationDot(buyer.motivation)}`} />
                 {motivationLabel(buyer.motivation)}
               </span>
-              <span className={`text-[0.72rem] font-medium px-2.5 py-0.5 rounded-full ${statusStyle(buyer.status)}`}>
+              <span className="text-[12px] font-medium px-2.5 py-0.5 rounded-full" style={statusStyleObj(buyer.status)}>
                 {displayStatus(buyer.status)}
               </span>
               {buyer.preferredMarkets?.map(m => (
-                <span key={m} className="text-[0.68rem] text-gray-500 bg-gray-50 border border-gray-200 rounded-full px-2 py-0.5 flex items-center gap-1">
+                <span key={m} className="text-[12px] text-[rgba(5,14,36,0.5)] bg-[rgba(5,14,36,0.04)] border border-[rgba(5,14,36,0.08)] rounded-full px-2 py-0.5 flex items-center gap-1">
                   <MapPin className="w-2.5 h-2.5" />{m}
                 </span>
               ))}
@@ -1607,7 +1610,7 @@ export default function BuyerDetailPage() {
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {(buyer.tags || []).map(bt => (
-              <span key={bt.id} className="text-[0.72rem] font-medium px-2.5 py-1 rounded-full border crm-chip"
+              <span key={bt.id} className="text-[12px] font-medium px-2.5 py-1 rounded-full border crm-chip"
                 style={{ color: bt.tag.color, borderColor: bt.tag.color + '40', backgroundColor: bt.tag.color + '10' }}>
                 {bt.tag.label}
               </span>
@@ -1642,31 +1645,31 @@ export default function BuyerDetailPage() {
 
           {/* Duplicate Warning */}
           {dupes && dupes.length > 0 && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl" style={{ padding: '20px 24px' }}>
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
-                <span className="text-[0.82rem] font-medium text-amber-800">Possible Duplicate Found</span>
+                <span className="text-[15px] font-semibold text-amber-800">Possible Duplicate Found</span>
               </div>
-              <p className="text-[0.74rem] text-amber-700">This buyer may be a duplicate. Review and merge from the CRM list.</p>
+              <p className="text-[14px] text-amber-700">This buyer may be a duplicate. Review and merge from the CRM list.</p>
             </div>
           )}
 
           {/* Quick Actions */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Quick Actions</div>
+          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px' }}>
+            <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Quick Actions</div>
             <div className="grid grid-cols-2 gap-2">
-              <button className="flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md py-2.5 text-[0.78rem] font-medium cursor-pointer transition-colors">
+              <button className="flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] py-2.5 text-[14px] font-semibold cursor-pointer transition-colors">
                 <PhoneOutgoing className="w-3.5 h-3.5" /> Outreach
               </button>
-              <button className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-md py-2.5 text-[0.78rem] font-medium cursor-pointer transition-colors">
+              <button className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[10px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
                 <Send className="w-3.5 h-3.5" /> Send Deal
               </button>
               <button onClick={startEditing}
-                className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-md py-2.5 text-[0.78rem] font-medium cursor-pointer transition-colors">
+                className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[10px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
                 <Pencil className="w-3.5 h-3.5" /> Edit
               </button>
               <button onClick={handleArchive}
-                className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-md py-2.5 text-[0.78rem] font-medium cursor-pointer transition-colors">
+                className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[10px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
                 <Archive className="w-3.5 h-3.5" /> Archive
               </button>
             </div>

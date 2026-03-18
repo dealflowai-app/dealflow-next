@@ -76,7 +76,7 @@ export interface CallDetailPanelProps {
 }
 
 const OUTCOME_LABELS: Record<string, { label: string; color: string }> = {
-  QUALIFIED: { label: 'Qualified', color: 'bg-emerald-500/20 text-emerald-400' },
+  QUALIFIED: { label: 'Qualified', color: 'bg-blue-500/20 text-blue-400' },
   NOT_BUYING: { label: 'Not Buying', color: 'bg-gray-500/20 text-gray-400' },
   NO_ANSWER: { label: 'No Answer', color: 'bg-yellow-500/20 text-yellow-400' },
   VOICEMAIL: { label: 'Voicemail', color: 'bg-blue-500/20 text-blue-400' },
@@ -292,7 +292,7 @@ export default function CallDetailPanel({
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-xs text-gray-500">Still Buying</span>
-                    <div className={`text-sm ${extracted.stillBuying === true ? 'text-emerald-400' : extracted.stillBuying === false ? 'text-red-400' : 'text-gray-400'}`}>
+                    <div className={`text-sm ${extracted.stillBuying === true ? 'text-blue-400' : extracted.stillBuying === false ? 'text-red-400' : 'text-gray-400'}`}>
                       {extracted.stillBuying === true ? 'Yes' : extracted.stillBuying === false ? 'No' : 'Unknown'}
                     </div>
                   </div>
@@ -439,7 +439,7 @@ export default function CallDetailPanel({
                 {/* Sentiment & engagement */}
                 <div className="grid grid-cols-3 gap-2">
                   <div className="bg-gray-900 rounded-lg p-3 text-center">
-                    <div className={`text-lg font-bold ${intel.sentimentScore > 20 ? 'text-emerald-400' : intel.sentimentScore < -20 ? 'text-red-400' : 'text-amber-400'}`}>
+                    <div className={`text-lg font-bold ${intel.sentimentScore > 20 ? 'text-blue-400' : intel.sentimentScore < -20 ? 'text-red-400' : 'text-amber-400'}`}>
                       {intel.sentimentScore > 0 ? '+' : ''}{intel.sentimentScore}
                     </div>
                     <div className="text-[0.65rem] text-gray-500">Sentiment</div>
@@ -450,7 +450,7 @@ export default function CallDetailPanel({
                   </div>
                   <div className="bg-gray-900 rounded-lg p-3 text-center">
                     <div className={`text-lg font-bold ${
-                      intel.overallBuyingIntent === 'high' ? 'text-emerald-400' :
+                      intel.overallBuyingIntent === 'high' ? 'text-blue-400' :
                       intel.overallBuyingIntent === 'medium' ? 'text-amber-400' : 'text-gray-400'
                     } capitalize`}>{intel.overallBuyingIntent}</div>
                     <div className="text-[0.65rem] text-gray-500">Intent</div>
@@ -465,7 +465,7 @@ export default function CallDetailPanel({
                       {(intel.sentimentArc as Array<{ segment: number; score: number }>).map((pt, i) => (
                         <div
                           key={i}
-                          className={`flex-1 rounded-sm ${pt.score > 2 ? 'bg-emerald-500' : pt.score < -2 ? 'bg-red-500' : 'bg-gray-600'}`}
+                          className={`flex-1 rounded-sm ${pt.score > 2 ? 'bg-blue-500' : pt.score < -2 ? 'bg-red-500' : 'bg-gray-600'}`}
                           style={{ height: `${Math.max(10, Math.abs(pt.score) * 10)}%` }}
                           title={`Segment ${pt.segment}: ${pt.score > 0 ? '+' : ''}${pt.score}`}
                         />
@@ -481,13 +481,13 @@ export default function CallDetailPanel({
                     <div className="bg-blue-500 flex items-center justify-center" style={{ width: `${intel.aiTalkPercent}%` }}>
                       <span className="text-[0.55rem] text-white font-medium">AI {Math.round(intel.aiTalkPercent)}%</span>
                     </div>
-                    <div className="bg-emerald-500 flex items-center justify-center" style={{ width: `${intel.buyerTalkPercent}%` }}>
+                    <div className="bg-blue-500 flex items-center justify-center" style={{ width: `${intel.buyerTalkPercent}%` }}>
                       <span className="text-[0.55rem] text-white font-medium">Buyer {Math.round(intel.buyerTalkPercent)}%</span>
                     </div>
                   </div>
                   <div className="flex justify-between text-[0.62rem] text-gray-500 mt-1">
                     <span>{intel.questionCount} questions asked</span>
-                    <span className={intel.idealRatio ? 'text-emerald-400' : 'text-amber-400'}>
+                    <span className={intel.idealRatio ? 'text-blue-400' : 'text-amber-400'}>
                       {intel.idealRatio ? 'Ideal ratio' : 'Adjust ratio'}
                     </span>
                   </div>
@@ -502,7 +502,7 @@ export default function CallDetailPanel({
                         <div key={i} className="bg-gray-900 rounded px-2.5 py-1.5">
                           <div className="flex items-center gap-1.5">
                             <span className={`text-[0.6rem] font-medium px-1 py-0.5 rounded ${
-                              sig.strength === 'strong' ? 'text-emerald-300 bg-emerald-900/50' :
+                              sig.strength === 'strong' ? 'text-blue-300 bg-blue-900/50' :
                               sig.strength === 'moderate' ? 'text-amber-300 bg-amber-900/50' : 'text-gray-400 bg-gray-800'
                             }`}>{sig.strength}</span>
                             <span className="text-[0.72rem] text-gray-300">{sig.signal}</span>
@@ -528,7 +528,7 @@ export default function CallDetailPanel({
                               obj.category === 'timing' ? 'text-blue-300 bg-blue-900/50' : 'text-gray-400 bg-gray-800'
                             }`}>{obj.category}</span>
                             <span className="text-[0.72rem] text-gray-300">{obj.objection}</span>
-                            <span className={`ml-auto text-[0.6rem] font-medium ${obj.handled ? 'text-emerald-400' : 'text-red-400'}`}>
+                            <span className={`ml-auto text-[0.6rem] font-medium ${obj.handled ? 'text-blue-400' : 'text-red-400'}`}>
                               {obj.handled ? 'Handled' : 'Not handled'}
                             </span>
                           </div>
@@ -583,7 +583,7 @@ export default function CallDetailPanel({
                     <div className="flex flex-wrap gap-1.5">
                       {(intel.engagementSignals as Array<{ signal: string; type: string }>).map((s, i) => (
                         <span key={i} className={`text-[0.65rem] px-2 py-0.5 rounded-full ${
-                          s.type === 'positive' ? 'text-emerald-300 bg-emerald-900/40' : 'text-red-300 bg-red-900/40'
+                          s.type === 'positive' ? 'text-blue-300 bg-blue-900/40' : 'text-red-300 bg-red-900/40'
                         }`}>{s.signal}</span>
                       ))}
                     </div>

@@ -159,7 +159,7 @@ interface ToastData { id: number; message: string; type: 'success' | 'error' | '
    HELPERS & FORMATTERS
    ═══════════════════════════════════════════════════════════════════════════ */
 const CHANNEL_CONFIG: Record<string, { icon: typeof Phone; label: string; color: string }> = {
-  VOICE: { icon: Phone, label: 'Voice', color: 'text-emerald-600 bg-emerald-50' },
+  VOICE: { icon: Phone, label: 'Voice', color: 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]' },
   SMS: { icon: MessageSquare, label: 'SMS', color: 'text-violet-600 bg-violet-50' },
   EMAIL: { icon: Mail, label: 'Email', color: 'text-blue-600 bg-blue-50' },
   MULTI_CHANNEL: { icon: Layers, label: 'Multi', color: 'text-amber-600 bg-amber-50' },
@@ -178,10 +178,10 @@ function channelBadge(ch: string) {
 function statusBadge(s: string) {
   const map: Record<string, string> = {
     DRAFT: 'text-gray-600 bg-gray-100',
-    RUNNING: 'text-emerald-700 bg-emerald-50',
-    PAUSED: 'text-amber-700 bg-amber-50',
-    COMPLETED: 'text-slate-600 bg-slate-100',
-    CANCELLED: 'text-red-600 bg-red-50',
+    RUNNING: 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]',
+    PAUSED: 'text-[#F59E0B] bg-[rgba(245,158,11,0.08)]',
+    COMPLETED: 'text-[rgba(5,14,36,0.5)] bg-[rgba(5,14,36,0.04)]',
+    CANCELLED: 'text-[#EF4444] bg-[rgba(239,68,68,0.06)]',
   }
   return map[s] || 'text-gray-600 bg-gray-100'
 }
@@ -189,7 +189,7 @@ function statusBadge(s: string) {
 function outcomeBadge(o: string | null) {
   if (!o) return 'text-gray-400 bg-gray-50'
   const map: Record<string, string> = {
-    QUALIFIED: 'text-emerald-700 bg-emerald-50',
+    QUALIFIED: 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]',
     NOT_BUYING: 'text-gray-600 bg-gray-100',
     NO_ANSWER: 'text-amber-600 bg-amber-50',
     VOICEMAIL: 'text-violet-600 bg-violet-50',
@@ -207,7 +207,7 @@ const OUTCOME_LABELS: Record<string, string> = {
 }
 
 const OUTCOME_COLORS: Record<string, string> = {
-  QUALIFIED: 'bg-emerald-500', NOT_BUYING: 'bg-gray-400', NO_ANSWER: 'bg-amber-400',
+  QUALIFIED: 'bg-[#2563EB]', NOT_BUYING: 'bg-gray-400', NO_ANSWER: 'bg-amber-400',
   VOICEMAIL: 'bg-violet-300', WRONG_NUMBER: 'bg-rose-400', DO_NOT_CALL: 'bg-red-500',
   CALLBACK_REQUESTED: 'bg-purple-400', PENDING: 'bg-gray-200',
 }
@@ -251,7 +251,7 @@ function CampaignSkeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3].map(i => (
-        <div key={i} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 animate-pulse">
+        <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 animate-pulse">
           <div className="flex items-center gap-3 mb-3">
             <div className="h-4 bg-gray-200 rounded w-56" />
             <div className="h-5 bg-gray-100 rounded-full w-16" />
@@ -270,7 +270,7 @@ function CampaignSkeleton() {
 
 function TableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden">
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
       <div className="border-b border-[#F3F4F6] px-4 py-3">
         <div className="flex gap-4">{[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-3 bg-gray-100 rounded w-20" />)}</div>
       </div>
@@ -301,7 +301,7 @@ function ToastContainer({ toasts, onDismiss }: { toasts: ToastData[]; onDismiss:
         <div
           key={t.id}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-lg text-[0.82rem] font-medium animate-fadeInUp ${
-            t.type === 'success' ? 'bg-emerald-600 text-white'
+            t.type === 'success' ? 'bg-[#2563EB] text-white'
             : t.type === 'error' ? 'bg-red-600 text-white'
             : 'bg-gray-800 text-white'
           }`}
@@ -361,10 +361,10 @@ function CampaignList({
             <button
               key={tab.key}
               onClick={() => setStatusFilter(tab.key)}
-              className={`px-3 py-1.5 rounded-md text-[0.78rem] font-medium cursor-pointer border-0 transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-[14px] cursor-pointer transition-colors ${
                 statusFilter === tab.key
-                  ? 'bg-[#2563EB] text-white'
-                  : 'bg-transparent text-gray-500 hover:bg-gray-100'
+                  ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]'
+                  : 'font-normal border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
               }`}
             >
               {tab.label}
@@ -386,7 +386,7 @@ function CampaignList({
       </div>
 
       {loading ? <CampaignSkeleton /> : campaigns.length === 0 ? (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-6 py-8 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-6 py-8 text-center">
           <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
             <LayoutTemplate className="w-6 h-6 text-gray-400" />
           </div>
@@ -402,7 +402,7 @@ function CampaignList({
               <button
                 key={t.name}
                 onClick={onNewCampaign}
-                className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-3.5 hover:border-[#BFDBFE] hover:bg-[#F9FAFB] cursor-pointer transition-all group text-left"
+                className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3.5 hover:border-[#BFDBFE] hover:bg-[#F9FAFB] cursor-pointer transition-all group text-left"
               >
                 <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-blue-50 flex items-center justify-center mb-2 transition-colors">
                   <t.icon className="w-4 h-4 text-gray-400 group-hover:text-[#2563EB] transition-colors" />
@@ -426,13 +426,13 @@ function CampaignList({
             const pct = c.totalBuyers > 0 ? Math.round((c.callsCompleted / c.totalBuyers) * 100) : 0
             const avgDur = c.callsCompleted > 0 ? Math.round(c.totalTalkTime / c.callsCompleted) : 0
             return (
-              <div key={c.id} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 hover:bg-[#F9FAFB] transition-colors">
+              <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-[24px] py-[20px] hover:bg-[#F9FAFB] transition-colors">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-[0.9rem] font-medium text-[#374151]">{c.name}</h3>
+                    <h3 className="text-[15px] font-semibold text-[#0B1224]">{c.name}</h3>
                     <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${statusBadge(c.status)} ${c.status === 'RUNNING' ? 'flex items-center gap-1' : ''}`}>
-                      {c.status === 'RUNNING' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+                      {c.status === 'RUNNING' && <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse" />}
                       {c.status}
                     </span>
                     {channelBadge(c.channel)}
@@ -441,7 +441,7 @@ function CampaignList({
                   <div className="flex items-center gap-1.5">
                     {c.status === 'DRAFT' && (
                       <>
-                        <button onClick={() => onAction(c.id, 'launch')} className="flex items-center gap-1 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-emerald-600 hover:bg-emerald-50 bg-transparent border-0 cursor-pointer transition-colors">
+                        <button onClick={() => onAction(c.id, 'launch')} className="flex items-center gap-1 px-3 py-1.5 rounded-[10px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
                           <Play className="w-3.5 h-3.5" /> Launch
                         </button>
                         <button onClick={() => onAction(c.id, 'delete')} className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[0.76rem] font-medium text-red-400 hover:bg-red-50 bg-transparent border-0 cursor-pointer transition-colors">
@@ -456,7 +456,7 @@ function CampaignList({
                     )}
                     {c.status === 'PAUSED' && (
                       <>
-                        <button onClick={() => onAction(c.id, 'resume')} className="flex items-center gap-1 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-emerald-600 hover:bg-emerald-50 bg-transparent border-0 cursor-pointer transition-colors">
+                        <button onClick={() => onAction(c.id, 'resume')} className="flex items-center gap-1 px-3 py-1.5 rounded-[10px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
                           <Play className="w-3.5 h-3.5" /> Resume
                         </button>
                         <button onClick={() => onAction(c.id, 'cancel')} className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[0.76rem] font-medium text-red-400 hover:bg-red-50 bg-transparent border-0 cursor-pointer transition-colors">
@@ -479,24 +479,22 @@ function CampaignList({
                 {/* Progress bar */}
                 <div className="mb-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[0.72rem] text-gray-400">{c.callsCompleted} / {c.totalBuyers} contacts</span>
-                    <span className="text-[0.72rem] font-medium text-gray-600">{pct}%</span>
+                    <span className="text-[12px] font-normal text-[rgba(5,14,36,0.4)]">{c.callsCompleted} / {c.totalBuyers} contacts</span>
+                    <span className="text-[12px] font-medium text-[rgba(5,14,36,0.65)]">{pct}%</span>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-[6px] bg-[rgba(5,14,36,0.06)] rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all ${
-                        c.status === 'RUNNING' ? 'bg-emerald-500' : c.status === 'PAUSED' ? 'bg-amber-400' : 'bg-[#2563EB]'
-                      }`}
+                      className="h-full rounded-full transition-all bg-[#2563EB]"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
                 </div>
 
                 {/* Metrics row */}
-                <div className="flex items-center gap-4 text-[0.74rem] flex-wrap">
-                  <span className="text-gray-500">Connect: <strong className="text-gray-700">{c.connectionRate}%</strong></span>
-                  <span className="text-gray-500">Qualification: <strong className="text-gray-700">{c.qualificationRate}%</strong></span>
-                  <span className="text-gray-500">Qualified: <strong className="text-emerald-600">{c.qualified}</strong></span>
+                <div className="flex items-center gap-4 text-[14px] flex-wrap">
+                  <span className="text-[rgba(5,14,36,0.5)]">Connect: <strong className="text-[rgba(5,14,36,0.65)]">{c.connectionRate}%</strong></span>
+                  <span className="text-[rgba(5,14,36,0.5)]">Qualification: <strong className="text-[rgba(5,14,36,0.65)]">{c.qualificationRate}%</strong></span>
+                  <span className="text-[rgba(5,14,36,0.5)]">Qualified: <strong className="text-[#2563EB]">{c.qualified}</strong></span>
                   <span className="text-gray-500">No Answer: <strong className="text-gray-600">{c.noAnswer}</strong></span>
                   {avgDur > 0 && <span className="text-gray-500">Avg: <strong className="text-gray-700">{formatDuration(avgDur)}</strong></span>}
                   <span className="text-gray-400 ml-auto text-[0.72rem]">
@@ -634,12 +632,12 @@ function CampaignDetailView({
   const metrics = [
     { label: 'Total', value: stats.total, cls: '' },
     { label: 'Completed', value: stats.completed, cls: '' },
-    { label: 'Qualified', value: stats.qualified, cls: 'text-emerald-700' },
+    { label: 'Qualified', value: stats.qualified, cls: 'text-[#2563EB]' },
     { label: 'Not Buying', value: outcomeGroups['NOT_BUYING'] || 0, cls: '' },
     { label: 'No Answer', value: outcomeGroups['NO_ANSWER'] || 0, cls: '' },
     { label: 'Callbacks', value: outcomeGroups['CALLBACK_REQUESTED'] || 0, cls: '' },
     { label: 'Connect Rate', value: `${stats.connectionRate}%`, cls: '' },
-    { label: 'Qual Rate', value: `${stats.qualificationRate}%`, cls: 'text-emerald-700' },
+    { label: 'Qual Rate', value: `${stats.qualificationRate}%`, cls: 'text-[#2563EB]' },
   ]
 
   return (
@@ -651,13 +649,13 @@ function CampaignDetailView({
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
         <div className="flex items-center gap-3 flex-wrap">
-          <h2 className="text-[1.3rem] font-medium text-[var(--navy-heading,#0B1224)]">{c.name}</h2>
+          <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]">{c.name}</h2>
           <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${statusBadge(c.status)} ${c.status === 'RUNNING' ? 'flex items-center gap-1' : ''}`}>
-            {c.status === 'RUNNING' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+            {c.status === 'RUNNING' && <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse" />}
             {c.status}
           </span>
           {channelBadge(c.channel as string)}
-          {c.market && <span className="text-[0.76rem] text-gray-400">{c.market as string}</span>}
+          {c.market && <span className="text-[0.76rem] text-[rgba(5,14,36,0.4)]">{c.market as string}</span>}
         </div>
         <div className="flex items-center gap-2">
           {c.status === 'RUNNING' && (
@@ -666,14 +664,14 @@ function CampaignDetailView({
             </button>
           )}
           {c.status === 'PAUSED' && (
-            <button onClick={() => onAction(c.id, 'resume')} className="flex items-center gap-1 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-emerald-600 hover:bg-emerald-50 bg-transparent border-0 cursor-pointer transition-colors">
+            <button onClick={() => onAction(c.id, 'resume')} className="flex items-center gap-1 px-3 py-1.5 rounded-[10px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
               <Play className="w-3.5 h-3.5" /> Resume
             </button>
           )}
           {unreachedBuyers.length > 0 && (
             <button
               onClick={() => onPowerDial(unreachedBuyers, c.id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-white bg-emerald-600 hover:bg-emerald-700 border-0 cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[0.76rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
             >
               <Zap className="w-3.5 h-3.5" /> Power Dial Remaining ({unreachedBuyers.length})
             </button>
@@ -716,7 +714,7 @@ function CampaignDetailView({
             {savingTemplate ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bookmark className="w-3.5 h-3.5" />} Save as Template
           </button>
           {c.status === 'RUNNING' && (
-            <span className="flex items-center gap-1.5 text-[0.72rem] text-emerald-600">
+            <span className="flex items-center gap-1.5 text-[0.72rem] text-[#2563EB]">
               <Radio className="w-3 h-3 animate-pulse" /> Live
             </span>
           )}
@@ -729,9 +727,9 @@ function CampaignDetailView({
           <span className="text-[0.78rem] text-gray-500">{stats.completed} of {stats.total} contacted</span>
           <span className="text-[0.78rem] font-medium text-gray-700">{stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%</span>
         </div>
-        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div className="w-full h-[6px] bg-[rgba(5,14,36,0.06)] rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all ${c.status === 'RUNNING' ? 'bg-emerald-500' : 'bg-[#2563EB]'}`}
+            className="h-full rounded-full transition-all bg-[#2563EB]"
             style={{ width: `${stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%` }}
           />
         </div>
@@ -740,16 +738,16 @@ function CampaignDetailView({
       {/* Metric cards */}
       <div className="grid grid-cols-4 gap-3 mb-5 outreach-metrics">
         {metrics.map(m => (
-          <div key={m.label} className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-3 text-center">
-            <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-1.5">{m.label}</div>
-            <div className={`text-[1.3rem] font-medium leading-none ${m.cls || 'text-[#111827]'}`}>{m.value}</div>
+          <div key={m.label} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3 text-center">
+            <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-1.5">{m.label}</div>
+            <div className={`text-[1.3rem] font-medium leading-none ${m.cls || 'text-[#0B1224]'}`}>{m.value}</div>
           </div>
         ))}
       </div>
 
       {/* Outcome breakdown bar */}
       {barSegments.length > 0 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 mb-5">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5">
           <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Outcome Breakdown</div>
           <div className="flex w-full h-4 rounded-full overflow-hidden mb-3">
             {barSegments.map(s => (
@@ -768,7 +766,7 @@ function CampaignDetailView({
       )}
 
       {/* Contact list */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
         <div className="px-5 py-3 border-b border-[#F3F4F6] flex items-center justify-between flex-wrap gap-2">
           <span className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">Campaign Contacts ({filteredCalls.length})</span>
           <div className="flex items-center gap-1">
@@ -776,8 +774,8 @@ function CampaignDetailView({
               <button
                 key={o}
                 onClick={() => setOutcomeFilter(o)}
-                className={`px-2 py-1 rounded text-[0.68rem] font-medium border-0 cursor-pointer transition-colors ${
-                  outcomeFilter === o ? 'bg-[#2563EB] text-white' : 'bg-transparent text-gray-400 hover:bg-gray-100'
+                className={`px-2 py-1 rounded-full text-[0.68rem] cursor-pointer transition-colors ${
+                  outcomeFilter === o ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
                 }`}
               >
                 {o === 'ALL' ? 'All' : OUTCOME_LABELS[o] || o}
@@ -788,14 +786,14 @@ function CampaignDetailView({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead>
-              <tr className="border-b border-[#F3F4F6]">
-                <th className="text-left px-5 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Buyer</th>
-                <th className="text-left px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Phone</th>
-                <th className="text-left px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Outcome</th>
-                <th className="text-right px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Duration</th>
-                <th className="text-left px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Attempt</th>
-                <th className="text-left px-3 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Time</th>
-                <th className="text-right px-5 py-2.5 text-xs uppercase tracking-wider text-[#6B7280] font-medium">Actions</th>
+              <tr className="border-b border-[rgba(5,14,36,0.08)]">
+                <th className="text-left px-5 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Buyer</th>
+                <th className="text-left px-3 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Phone</th>
+                <th className="text-left px-3 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Outcome</th>
+                <th className="text-right px-3 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Duration</th>
+                <th className="text-left px-3 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Attempt</th>
+                <th className="text-left px-3 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Time</th>
+                <th className="text-right px-5 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -847,7 +845,7 @@ function CampaignDetailView({
 
       {/* Campaign Analytics Section */}
       {campAnalyticsLoading ? (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg p-6 animate-pulse">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-6 animate-pulse">
           <div className="h-4 bg-gray-100 rounded w-40 mb-4" />
           <div className="h-32 bg-gray-50 rounded" />
         </div>
@@ -855,7 +853,7 @@ function CampaignDetailView({
         <div className="space-y-4">
           {/* Outcome timeline */}
           {campAnalytics.outcomeTimeline.length > 1 && (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg p-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
               <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Outcome Timeline</div>
               {(() => {
                 const tl = campAnalytics.outcomeTimeline
@@ -868,7 +866,7 @@ function CampaignDetailView({
                       return (
                         <div key={i} className="flex-1 flex flex-col items-center gap-0.5" title={`${d.date}: ${total} calls`}>
                           <div className="w-full flex flex-col-reverse rounded-sm overflow-hidden" style={{ height: `${Math.max(h, 4)}%` }}>
-                            {d.qualified > 0 && <div className="bg-emerald-500" style={{ height: `${(d.qualified / total) * 100}%` }} />}
+                            {d.qualified > 0 && <div className="bg-[#2563EB]" style={{ height: `${(d.qualified / total) * 100}%` }} />}
                             {d.notBuying > 0 && <div className="bg-gray-400" style={{ height: `${(d.notBuying / total) * 100}%` }} />}
                             {d.noAnswer > 0 && <div className="bg-amber-400" style={{ height: `${(d.noAnswer / total) * 100}%` }} />}
                             {d.voicemail > 0 && <div className="bg-violet-300" style={{ height: `${(d.voicemail / total) * 100}%` }} />}
@@ -889,7 +887,7 @@ function CampaignDetailView({
           {/* Best time slots + Buyer insights side by side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Best time slots */}
-            <div className="bg-white border border-[#E5E7EB] rounded-lg p-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
               <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Best Time Slots</div>
               <div className="space-y-1.5">
                 {campAnalytics.bestTimeSlots
@@ -916,7 +914,7 @@ function CampaignDetailView({
             </div>
 
             {/* Buyer insights */}
-            <div className="bg-white border border-[#E5E7EB] rounded-lg p-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
               <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Buyer Insights</div>
               {campAnalytics.buyerInsights.avgQualifiedScore > 0 && (
                 <div className="mb-3">
@@ -960,7 +958,7 @@ function CampaignDetailView({
 
           {/* Cost analysis */}
           {campAnalytics.costAnalysis.totalMinutes > 0 && (
-            <div className="bg-white border border-[#E5E7EB] rounded-lg p-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
               <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Cost Analysis</div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
@@ -973,7 +971,7 @@ function CampaignDetailView({
                 </div>
                 <div>
                   <div className="text-[0.72rem] text-gray-400">Per Qualified</div>
-                  <div className="text-[1rem] font-semibold text-emerald-600">${campAnalytics.costAnalysis.costPerQualified.toFixed(2)}</div>
+                  <div className="text-[1rem] font-semibold text-[#2563EB]">${campAnalytics.costAnalysis.costPerQualified.toFixed(2)}</div>
                 </div>
                 <div>
                   <div className="text-[0.72rem] text-gray-400">Total Minutes</div>
@@ -1160,7 +1158,7 @@ function CallLogTab({
               <button
                 key={r.call.id}
                 onClick={() => onOpenCall(r.call.id)}
-                className="w-full text-left bg-white border border-[#E5E7EB] rounded-lg px-4 py-3 hover:bg-[#F9FAFB] cursor-pointer transition-colors block"
+                className="w-full text-left bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3 hover:bg-[#F9FAFB] cursor-pointer transition-colors block"
               >
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[0.82rem] font-medium text-[#374151]">{r.call.buyerName}</span>
@@ -1188,7 +1186,7 @@ function CallLogTab({
 
       {/* Call log table */}
       {loading ? <TableSkeleton /> : (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px]">
               <thead>
@@ -1213,7 +1211,7 @@ function CallLogTab({
                     <td className="px-4 py-2.5">
                       {r.channel === 'sms' || r.channel === 'SMS' ? <MessageSquare className="w-3.5 h-3.5 text-violet-500" />
                         : r.channel === 'email' || r.channel === 'EMAIL' ? <Mail className="w-3.5 h-3.5 text-blue-500" />
-                        : <Phone className="w-3.5 h-3.5 text-emerald-500" />}
+                        : <Phone className="w-3.5 h-3.5 text-[#2563EB]" />}
                     </td>
                     <td className="px-4 py-2.5 text-[0.78rem] text-gray-500 font-mono">{formatDuration(r.durationSecs)}</td>
                     <td className="px-4 py-2.5">
@@ -1310,7 +1308,7 @@ function CallDetailSlideOver({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm animate-fadeIn" onClick={onClose} />
-      <div className="relative w-[560px] h-full bg-white border-l border-[#E5E7EB] overflow-y-auto outreach-slide-panel animate-slideInRight">
+      <div className="relative w-[560px] h-full bg-white border-l border-[rgba(5,14,36,0.08)] overflow-y-auto outreach-slide-panel animate-slideInRight">
         <div className="px-5 py-3 border-b border-[#F3F4F6] flex items-center justify-between sticky top-0 bg-white z-10">
           <h3 className="text-[0.94rem] font-medium text-[#111827]">Call Detail</h3>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer border-0 transition-colors">
@@ -1591,10 +1589,10 @@ function NewCampaignModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-lg border border-[#E5E7EB] w-[640px] max-h-[85vh] overflow-y-auto outreach-modal">
+      <div className="relative bg-white rounded-lg border border-[rgba(5,14,36,0.08)] w-[640px] max-h-[85vh] overflow-y-auto outreach-modal">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#F3F4F6] flex items-center justify-between">
-          <h2 className="text-[1.3rem] font-medium text-[var(--navy-heading,#0B1224)]">{step === 0 ? 'Choose a Template' : 'New Campaign'}</h2>
+          <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]">{step === 0 ? 'Choose a Template' : 'New Campaign'}</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer border-0 transition-colors">
             <X className="w-4 h-4 text-gray-500" />
           </button>
@@ -1625,8 +1623,8 @@ function NewCampaignModal({
                   <button
                     key={cat.key}
                     onClick={() => setTemplateCategory(cat.key)}
-                    className={`px-2.5 py-1 rounded-md text-[0.72rem] font-medium border-0 cursor-pointer transition-colors ${
-                      templateCategory === cat.key ? 'bg-[#2563EB] text-white' : 'bg-transparent text-gray-400 hover:bg-gray-100'
+                    className={`px-2.5 py-1 rounded-full text-[0.72rem] cursor-pointer transition-colors ${
+                      templateCategory === cat.key ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
                     }`}
                   >
                     {cat.label}
@@ -1636,7 +1634,7 @@ function NewCampaignModal({
               {templatesLoading ? (
                 <div className="space-y-2">
                   {[1, 2, 3].map(i => (
-                    <div key={i} className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-4 animate-pulse">
+                    <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-4 animate-pulse">
                       <div className="h-4 bg-gray-100 rounded w-40 mb-2" />
                       <div className="h-3 bg-gray-50 rounded w-64" />
                     </div>
@@ -1652,7 +1650,7 @@ function NewCampaignModal({
                       <button
                         key={t.id}
                         onClick={() => applyTemplate(t)}
-                        className="w-full text-left bg-white border border-[#E5E7EB] rounded-lg px-4 py-3.5 hover:bg-[#F9FAFB] hover:border-[#BFDBFE] cursor-pointer transition-all group"
+                        className="w-full text-left bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3.5 hover:bg-[#F9FAFB] hover:border-[#BFDBFE] cursor-pointer transition-all group"
                       >
                         <div className="flex items-start gap-3">
                           <div className="w-9 h-9 rounded-lg bg-gray-100 group-hover:bg-blue-50 flex items-center justify-center flex-shrink-0 transition-colors">
@@ -1709,7 +1707,7 @@ function NewCampaignModal({
                     return (
                       <button key={t.key} onClick={() => setChannel(t.key)}
                         className={`flex items-start gap-3 px-4 py-3.5 rounded-lg border text-left cursor-pointer transition-all ${
-                          selected ? 'border-[#2563EB] bg-[#EFF6FF] ring-1 ring-[#BFDBFE]' : 'border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]'
+                          selected ? 'border-[#2563EB] bg-[#EFF6FF] ring-1 ring-[#BFDBFE]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
                         }`}>
                         <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${selected ? 'bg-[#2563EB]' : 'bg-gray-100'}`}>
                           <Icon className={`w-4 h-4 ${selected ? 'text-white' : 'text-gray-500'}`} />
@@ -1809,7 +1807,7 @@ function NewCampaignModal({
               </div>
 
               {/* Live preview */}
-              <div className={`rounded-lg border px-4 py-3 ${preview ? 'border-[#BFDBFE] bg-[#EFF6FF]' : 'border-[#E5E7EB] bg-gray-50'}`}>
+              <div className={`rounded-lg border px-4 py-3 ${preview ? 'border-[#BFDBFE] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-gray-50'}`}>
                 {previewLoading ? (
                   <div className="flex items-center gap-2 text-[0.78rem] text-gray-500">
                     <Loader2 className="w-4 h-4 animate-spin" /> Building audience preview...
@@ -1863,7 +1861,7 @@ function NewCampaignModal({
                       {SCRIPT_TEMPLATES.map(t => (
                         <button key={t.key} onClick={() => setScriptTemplate(t.key)}
                           className={`w-full text-left px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                            scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]'
+                            scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
                           }`}>
                           <div className={`text-[0.82rem] font-medium ${scriptTemplate === t.key ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.label}</div>
                           <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
@@ -1903,7 +1901,7 @@ function NewCampaignModal({
                     ].map(t => (
                       <button key={t.key} onClick={() => setScriptTemplate(t.key)}
                         className={`w-full text-left px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                          scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]'
+                          scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
                         }`}>
                         <div className={`text-[0.82rem] font-medium ${scriptTemplate === t.key ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.label}</div>
                         <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
@@ -1925,7 +1923,7 @@ function NewCampaignModal({
                     ].map(t => (
                       <button key={t.key} onClick={() => setScriptTemplate(t.key)}
                         className={`w-full text-left px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                          scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[#E5E7EB] bg-white hover:bg-[#F9FAFB]'
+                          scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
                         }`}>
                         <div className={`text-[0.82rem] font-medium ${scriptTemplate === t.key ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.label}</div>
                         <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
@@ -1973,7 +1971,7 @@ function NewCampaignModal({
                     </div>
                   </div>
                   {/* Voicemail Settings */}
-                  <div className="border border-gray-200 rounded-lg p-3 space-y-3">
+                  <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3 space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" checked={leaveVoicemail} onChange={e => setLeaveVoicemail(e.target.checked)} className="rounded border-gray-300" />
@@ -2079,8 +2077,8 @@ function NewCampaignModal({
                   'Recording disclosure included (two-party states)',
                   'Opt-out mechanism included',
                 ].map(item => (
-                  <div key={item} className="flex items-center gap-2 text-[0.78rem] text-emerald-700">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> {item}
+                  <div key={item} className="flex items-center gap-2 text-[0.78rem] text-[#2563EB]">
+                    <CheckCircle2 className="w-4 h-4 text-[#2563EB]" /> {item}
                   </div>
                 ))}
               </div>
@@ -2100,7 +2098,7 @@ function NewCampaignModal({
               <button
                 onClick={() => setStep(step + 1)}
                 disabled={(step === 1 && !canProceedStep1) || (step === 2 && !canProceedStep2)}
-                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue <ChevronRight className="w-4 h-4" />
               </button>
@@ -2116,7 +2114,7 @@ function NewCampaignModal({
                 <button
                   onClick={() => handleCreate(true)}
                   disabled={submitting}
-                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
                   Launch Campaign
@@ -2439,13 +2437,13 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
             <ArrowLeft className="w-4 h-4" /> Back to all calls
           </button>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-[0.78rem] text-green-600 font-medium">Monitoring</span>
+            <span className="w-2 h-2 bg-[#2563EB] rounded-full animate-pulse" />
+            <span className="text-[0.78rem] text-[#2563EB] font-medium">Monitoring</span>
           </div>
         </div>
 
         {/* Call info bar */}
-        <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
               <span className="text-[0.92rem] font-semibold text-gray-800">{monitoredCall.buyerName}</span>
@@ -2463,11 +2461,11 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: 400 }}>
           {/* Left: Transcript */}
-          <div className="lg:col-span-2 bg-white border border-[#E5E7EB] rounded-xl flex flex-col overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#E5E7EB] flex items-center gap-2">
-              <Activity className="w-4 h-4 text-green-500" />
+          <div className="lg:col-span-2 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] flex flex-col overflow-hidden">
+            <div className="px-4 py-3 border-b border-[rgba(5,14,36,0.08)] flex items-center gap-2">
+              <Activity className="w-4 h-4 text-[#2563EB]" />
               <span className="text-[0.82rem] font-semibold text-gray-800">Live Transcript</span>
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse ml-auto" />
+              <span className="w-2 h-2 bg-[#2563EB] rounded-full animate-pulse ml-auto" />
             </div>
             <div className="flex-1 overflow-y-auto p-4 bg-gray-50" style={{ maxHeight: 350 }}>
               {liveTranscript ? (
@@ -2478,8 +2476,8 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
                     const content = line.replace(/^(AI|Buyer):\s*/, '')
                     return (
                       <div key={i} className={`flex ${isAI ? 'justify-start' : 'justify-end'}`}>
-                        <div className={`max-w-[80%] rounded-xl px-3 py-2 text-[0.8rem] ${
-                          isAI ? 'bg-blue-100 text-blue-900' : isBuyer ? 'bg-green-100 text-green-900' : 'bg-gray-100 text-gray-700'
+                        <div className={`max-w-[80%] rounded-[12px] px-3 py-2 text-[0.8rem] ${
+                          isAI ? 'bg-blue-100 text-blue-900' : isBuyer ? 'bg-[rgba(37,99,235,0.08)] text-[#0B1224]' : 'bg-gray-100 text-gray-700'
                         }`}>
                           <span className="text-[0.65rem] font-bold opacity-60 block mb-0.5">
                             {isAI ? 'AI Agent' : isBuyer ? 'Buyer' : ''}
@@ -2502,7 +2500,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
             </div>
 
             {/* Whisper input */}
-            <div className="px-4 py-3 border-t border-[#E5E7EB] bg-white">
+            <div className="px-4 py-3 border-t border-[rgba(5,14,36,0.08)] bg-white">
               {whispers.length > 0 && (
                 <div className="mb-2 space-y-1 max-h-[80px] overflow-y-auto">
                   {whispers.map((w, i) => (
@@ -2540,7 +2538,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
           {/* Right: Controls + Buyer context */}
           <div className="space-y-4">
             {/* Barge-in card */}
-            <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
               <h4 className="text-[0.82rem] font-semibold text-gray-800 mb-3">Call Actions</h4>
               <button
                 onClick={handleBargeIn}
@@ -2558,7 +2556,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
             </div>
 
             {/* Quick whispers */}
-            <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
               <h4 className="text-[0.82rem] font-semibold text-gray-800 mb-2">Quick Whispers</h4>
               <div className="space-y-1.5">
                 {['Ask about their timeline', 'Ask if they have proof of funds', 'Mention we can close in 7 days', 'Offer to send deal details by email'].map(q => (
@@ -2574,7 +2572,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
             </div>
 
             {/* Buyer context */}
-            <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
               <h4 className="text-[0.82rem] font-semibold text-gray-800 mb-2">Buyer Context</h4>
               <div className="space-y-1.5 text-[0.75rem]">
                 <div className="flex justify-between"><span className="text-gray-400">Score</span><span className="font-medium text-gray-700">{monitoredCall.buyerScore}/100</span></div>
@@ -2596,7 +2594,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
         <div className="flex items-center gap-3">
           {calls.length > 0 ? (
             <>
-              <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
+              <span className="w-2.5 h-2.5 bg-[#2563EB] rounded-full animate-pulse" />
               <span className="text-[0.88rem] font-semibold text-gray-800">{calls.length} call{calls.length !== 1 ? 's' : ''} active right now</span>
             </>
           ) : (
@@ -2620,7 +2618,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
           <Loader2 className="w-6 h-6 animate-spin" />
         </div>
       ) : calls.length === 0 ? (
-        <div className="bg-white border border-[#E5E7EB] rounded-xl p-12 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-12 text-center">
           <Radio className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <div className="text-[0.88rem] text-gray-500 font-medium mb-1">No calls in progress</div>
           <div className="text-[0.78rem] text-gray-400">Launch a voice campaign to start calling. Active calls will appear here in real-time.</div>
@@ -2628,11 +2626,11 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {calls.map(call => (
-            <div key={call.callId} className="bg-white border border-[#E5E7EB] rounded-xl p-4 hover:shadow-sm transition-shadow">
+            <div key={call.callId} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 hover:shadow-sm transition-shadow">
               {/* Card header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="w-2 h-2 bg-[#2563EB] rounded-full animate-pulse" />
                   <span className="text-[0.85rem] font-semibold text-gray-800">{call.buyerName}</span>
                 </div>
                 <span className="text-[0.68rem] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
@@ -2657,7 +2655,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
                   {Array.from({ length: 12 }).map((_, i) => (
                     <div
                       key={i}
-                      className="w-1 bg-green-400 rounded-full"
+                      className="w-1 bg-[#2563EB]/60 rounded-full"
                       style={{
                         height: `${8 + Math.random() * 16}px`,
                         animation: `waveform 0.6s ease-in-out ${i * 0.05}s infinite alternate`,
@@ -2846,7 +2844,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
   const classificationBadge = (cls: string | null) => {
     if (!cls) return null
     const colors: Record<string, string> = {
-      interested: 'bg-green-100 text-green-700',
+      interested: 'bg-[rgba(37,99,235,0.08)] text-[#2563EB]',
       opt_out: 'bg-red-100 text-red-700',
       not_interested: 'bg-orange-100 text-orange-700',
       question: 'bg-blue-100 text-blue-700',
@@ -2864,7 +2862,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
 
   const modeBadge = (mode: string) => {
     const m: Record<string, { bg: string; label: string }> = {
-      auto: { bg: 'bg-green-100 text-green-700', label: 'Auto' },
+      auto: { bg: 'bg-[rgba(37,99,235,0.08)] text-[#2563EB]', label: 'Auto' },
       manual: { bg: 'bg-blue-100 text-blue-700', label: 'Manual' },
       hybrid: { bg: 'bg-purple-100 text-purple-700', label: 'Hybrid' },
     }
@@ -2873,10 +2871,10 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
   }
 
   return (
-    <div className="flex border border-[#E5E7EB] rounded-xl overflow-hidden bg-white" style={{ height: 'calc(100vh - 320px)', minHeight: 500 }}>
+    <div className="flex border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden bg-white" style={{ height: 'calc(100vh - 320px)', minHeight: 500 }}>
       {/* ── Left panel: conversation list ─────────────────────────── */}
-      <div className="w-[340px] border-r border-[#E5E7EB] flex flex-col">
-        <div className="p-3 border-b border-[#E5E7EB] flex items-center justify-between">
+      <div className="w-[340px] border-r border-[rgba(5,14,36,0.08)] flex flex-col">
+        <div className="p-3 border-b border-[rgba(5,14,36,0.08)] flex items-center justify-between">
           <span className="text-[0.85rem] font-semibold text-gray-800">SMS Conversations</span>
           {totalUnread > 0 && (
             <span className="bg-red-500 text-white text-[0.65rem] font-bold px-2 py-0.5 rounded-full">{totalUnread}</span>
@@ -2941,7 +2939,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
         ) : (
           <>
             {/* Header */}
-            <div className="px-4 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
+            <div className="px-4 py-3 border-b border-[rgba(5,14,36,0.08)] flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[0.88rem] font-semibold text-gray-800">
@@ -2963,7 +2961,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
                 <select
                   value={selectedConvo?.mode || 'auto'}
                   onChange={e => handleModeChange(e.target.value)}
-                  className="text-[0.75rem] border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600"
+                  className="text-[0.75rem] border border-[rgba(5,14,36,0.08)] rounded-[12px] px-2 py-1.5 text-gray-600"
                 >
                   <option value="auto">Auto-reply</option>
                   <option value="manual">Manual only</option>
@@ -3011,7 +3009,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
 
             {/* Compose bar */}
             {selectedConvo?.status !== 'closed' && (
-              <div className="px-4 py-3 border-t border-[#E5E7EB] bg-white">
+              <div className="px-4 py-3 border-t border-[rgba(5,14,36,0.08)] bg-white">
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -3019,7 +3017,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
                     onChange={e => setDraft(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                     placeholder="Type a message..."
-                    className="flex-1 text-[0.82rem] px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 text-[0.82rem] px-3 py-2 border border-[rgba(5,14,36,0.08)] rounded-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <button
                     onClick={handleSend}
@@ -3137,13 +3135,13 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
       <div className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-white border border-[#E5E7EB] rounded-lg p-4 animate-pulse">
+            <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 animate-pulse">
               <div className="h-3 bg-gray-100 rounded w-24 mb-2" />
               <div className="h-7 bg-gray-200 rounded w-16" />
             </div>
           ))}
         </div>
-        <div className="bg-white border border-[#E5E7EB] rounded-lg p-6 animate-pulse">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-6 animate-pulse">
           <div className="h-4 bg-gray-100 rounded w-40 mb-4" />
           <div className="h-48 bg-gray-50 rounded" />
         </div>
@@ -3186,10 +3184,10 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
             <button
               key={d}
               onClick={() => setDays(d)}
-              className={`px-3 py-1 text-[0.75rem] rounded-md border cursor-pointer transition-colors ${
+              className={`px-3 py-1 text-[0.75rem] rounded-full cursor-pointer transition-colors ${
                 days === d
-                  ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                  ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]'
+                  : 'font-normal border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
               }`}
             >
               {d}d
@@ -3206,7 +3204,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
           { label: 'Connection Rate', value: `${overview.connectionRate}%`, sub: `${overview.avgCallDuration}s avg duration` },
           { label: 'Cost / Qualified', value: overview.costPerQualified > 0 ? `$${overview.costPerQualified.toFixed(2)}` : '$0.00', sub: `$${overview.totalActualCost.toFixed(2)} total` },
         ].map((kpi, i) => (
-          <div key={i} className="bg-white border border-[#E5E7EB] rounded-lg px-4 py-3">
+          <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
             <div className="text-[0.72rem] text-gray-400 mb-1">{kpi.label}</div>
             <div className="text-[1.4rem] font-semibold text-gray-900">{kpi.value}</div>
             <div className="text-[0.7rem] text-gray-400 mt-0.5">{kpi.sub}</div>
@@ -3216,7 +3214,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
 
       {/* Trend Chart */}
       {trends.length > 1 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg p-5">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
           <div className="flex items-center gap-4 mb-3">
             <span className="text-[0.82rem] font-medium text-gray-900">Activity Trend</span>
             <div className="flex items-center gap-3 ml-auto">
@@ -3224,7 +3222,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                 <span className="w-3 h-0.5 bg-[#2563EB] rounded" /> Calls
               </span>
               <span className="flex items-center gap-1.5 text-[0.7rem] text-gray-400">
-                <span className="w-3 h-0.5 bg-emerald-500 rounded" /> Qualified
+                <span className="w-3 h-0.5 bg-[#60A5FA] rounded" /> Qualified
               </span>
             </div>
           </div>
@@ -3234,12 +3232,12 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
               <line key={f} x1="0" y1={chartH * f} x2={chartW} y2={chartH * f} stroke="#F3F4F6" strokeWidth="1" />
             ))}
             {callsPath && <path d={callsPath} fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
-            {qualPath && <path d={qualPath} fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
+            {qualPath && <path d={qualPath} fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
             {/* Data points */}
             {trendPoints.map((p, i) => (
               <g key={i}>
                 <circle cx={p.x} cy={p.yCalls} r="3" fill="#2563EB" />
-                <circle cx={p.x} cy={p.yQual} r="3" fill="#10B981" />
+                <circle cx={p.x} cy={p.yQual} r="3" fill="#60A5FA" />
               </g>
             ))}
           </svg>
@@ -3252,7 +3250,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
 
       {/* Best Time to Call Heatmap */}
       {heatmap.length > 0 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg p-5">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
           <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Best Time to Call</div>
           <div className="overflow-x-auto">
             <div className="inline-grid gap-[2px]" style={{ gridTemplateColumns: `auto repeat(13, 1fr)` }}>
@@ -3271,9 +3269,9 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                     const intensity = heatmapMax > 0 ? rate / heatmapMax : 0
                     const bg = rate === 0
                       ? 'bg-gray-50'
-                      : intensity > 0.7 ? 'bg-emerald-500'
-                      : intensity > 0.4 ? 'bg-emerald-300'
-                      : intensity > 0.15 ? 'bg-emerald-100'
+                      : intensity > 0.7 ? 'bg-[#2563EB]'
+                      : intensity > 0.4 ? 'bg-[rgba(37,99,235,0.4)]'
+                      : intensity > 0.15 ? 'bg-[rgba(37,99,235,0.12)]'
                       : 'bg-gray-100'
                     return (
                       <div
@@ -3294,7 +3292,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
           <div className="flex items-center gap-2 mt-3 text-[0.65rem] text-gray-400">
             <span>Low</span>
             <div className="flex gap-0.5">
-              {['bg-gray-100', 'bg-emerald-100', 'bg-emerald-300', 'bg-emerald-500'].map((c, i) => (
+              {['bg-gray-100', 'bg-[rgba(37,99,235,0.12)]', 'bg-[rgba(37,99,235,0.4)]', 'bg-[#2563EB]'].map((c, i) => (
                 <div key={i} className={`w-4 h-3 rounded-sm ${c}`} />
               ))}
             </div>
@@ -3304,7 +3302,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
       )}
 
       {/* Outcome Breakdown */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg p-5">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
         <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Outcome Breakdown</div>
         <div className="flex gap-1 h-6 rounded-full overflow-hidden mb-3">
           {Object.entries(outcomeBreakdown)
@@ -3339,7 +3337,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
 
       {/* Campaign Comparison Table */}
       {campaignComparison.length > 0 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden">
+        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
           <div className="px-5 py-3 border-b border-[#F3F4F6]">
             <span className="text-[0.82rem] font-medium text-gray-900">Campaign Comparison</span>
           </div>
@@ -3368,7 +3366,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                     </td>
                     <td className="px-3 py-2.5">{channelBadge(c.channel)}</td>
                     <td className="px-3 py-2.5 text-right text-gray-600">{c.callsCompleted}</td>
-                    <td className="px-3 py-2.5 text-right text-emerald-600 font-medium">{c.qualified}</td>
+                    <td className="px-3 py-2.5 text-right text-[#2563EB] font-medium">{c.qualified}</td>
                     <td className="px-3 py-2.5 text-right text-gray-600">{c.connectionRate}%</td>
                     <td className="px-3 py-2.5 text-right text-gray-600">{c.qualificationRate}%</td>
                     <td className="px-3 py-2.5 text-right text-gray-600">{c.costPerQualified > 0 ? `$${c.costPerQualified.toFixed(2)}` : '—'}</td>
@@ -3381,7 +3379,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
       )}
 
       {/* A/B Testing Section */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg p-5">
+      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <span className="text-[0.82rem] font-medium text-gray-900">A/B Tests</span>
@@ -3496,9 +3494,9 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                   <div className="flex items-center gap-2">
                     <span className="text-[0.82rem] font-medium text-gray-900">{test.name}</span>
                     <span className={`text-[0.65rem] font-medium px-2 py-0.5 rounded-full ${
-                      test.status === 'RUNNING' ? 'text-emerald-700 bg-emerald-50'
-                      : test.status === 'COMPLETED' ? 'text-slate-600 bg-slate-100'
-                      : 'text-red-600 bg-red-50'
+                      test.status === 'RUNNING' ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
+                      : test.status === 'COMPLETED' ? 'text-[rgba(5,14,36,0.5)] bg-[rgba(5,14,36,0.04)]'
+                      : 'text-[#EF4444] bg-[rgba(239,68,68,0.06)]'
                     }`}>
                       {test.status}
                     </span>
@@ -3510,7 +3508,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                 {/* Variant comparison */}
                 {test.campaignA && test.campaignB && test.liveStats && (
                   <div className="grid grid-cols-2 gap-3">
-                    <div className={`border rounded-lg p-3 ${test.liveStats.winner === 'A' ? 'border-emerald-300 bg-emerald-50/30' : 'border-gray-100'}`}>
+                    <div className={`border rounded-lg p-3 ${test.liveStats.winner === 'A' ? 'border-[#2563EB]/30 bg-[rgba(37,99,235,0.04)]' : 'border-gray-100'}`}>
                       <div className="text-[0.72rem] text-gray-500 mb-1">A: {test.variantALabel}</div>
                       <div className="text-[0.68rem] text-gray-400 truncate mb-2">{test.campaignA.name}</div>
                       <div className="flex items-baseline gap-2">
@@ -3521,7 +3519,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                         {test.campaignA.qualified}/{test.campaignA.callsCompleted} calls
                       </div>
                     </div>
-                    <div className={`border rounded-lg p-3 ${test.liveStats.winner === 'B' ? 'border-emerald-300 bg-emerald-50/30' : 'border-gray-100'}`}>
+                    <div className={`border rounded-lg p-3 ${test.liveStats.winner === 'B' ? 'border-[#2563EB]/30 bg-[rgba(37,99,235,0.04)]' : 'border-gray-100'}`}>
                       <div className="text-[0.72rem] text-gray-500 mb-1">B: {test.variantBLabel}</div>
                       <div className="text-[0.68rem] text-gray-400 truncate mb-2">{test.campaignB.name}</div>
                       <div className="flex items-baseline gap-2">
@@ -3538,17 +3536,17 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                 {/* Significance bar */}
                 {test.liveStats && (
                   <div className="mt-3 flex items-center gap-3">
-                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="flex-1 h-[6px] bg-[rgba(5,14,36,0.06)] rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${test.liveStats.isSignificant ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                        className={`h-full rounded-full transition-all ${test.liveStats.isSignificant ? 'bg-[#2563EB]' : 'bg-amber-400'}`}
                         style={{ width: `${Math.min(test.liveStats.confidence, 100)}%` }}
                       />
                     </div>
-                    <span className={`text-[0.72rem] font-medium ${test.liveStats.isSignificant ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    <span className={`text-[0.72rem] font-medium ${test.liveStats.isSignificant ? 'text-[#2563EB]' : 'text-amber-600'}`}>
                       {test.liveStats.confidence.toFixed(1)}% confidence
                     </span>
                     {test.liveStats.isSignificant ? (
-                      <span className="text-[0.68rem] text-emerald-600 font-medium">Significant</span>
+                      <span className="text-[0.68rem] text-[#2563EB] font-medium">Significant</span>
                     ) : test.liveStats.samplesNeeded > 0 ? (
                       <span className="text-[0.65rem] text-gray-400">~{test.liveStats.samplesNeeded} more samples needed</span>
                     ) : null}
@@ -3561,7 +3559,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
       </div>
 
       {/* ── Conversation Intelligence ──────────────────────────────── */}
-      <div className="border border-gray-200 rounded-lg p-5 bg-white">
+      <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5 bg-white">
         <h3 className="text-[0.92rem] font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-violet-500" /> Conversation Intelligence
         </h3>
@@ -3581,7 +3579,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
             {/* Summary cards */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <div className="border border-gray-100 rounded-lg p-3 text-center">
-                <div className={`text-[1.3rem] font-bold ${intel.summary.avgSentiment > 20 ? 'text-emerald-600' : intel.summary.avgSentiment < -20 ? 'text-red-600' : 'text-amber-600'}`}>
+                <div className={`text-[1.3rem] font-bold ${intel.summary.avgSentiment > 20 ? 'text-[#2563EB]' : intel.summary.avgSentiment < -20 ? 'text-red-600' : 'text-amber-600'}`}>
                   {intel.summary.avgSentiment > 0 ? '+' : ''}{intel.summary.avgSentiment}
                 </div>
                 <div className="text-[0.68rem] text-gray-400 mt-0.5">Avg Sentiment</div>
@@ -3597,7 +3595,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
               <div className="border border-gray-100 rounded-lg p-3 text-center">
                 <div className="text-[1.3rem] font-bold text-gray-900">{intel.summary.avgTalkRatio?.ai}%</div>
                 <div className="text-[0.68rem] text-gray-400 mt-0.5">AI Talk Ratio</div>
-                <div className={`text-[0.62rem] mt-0.5 ${intel.summary.avgTalkRatio?.ai <= 45 ? 'text-emerald-500' : 'text-amber-500'}`}>
+                <div className={`text-[0.62rem] mt-0.5 ${intel.summary.avgTalkRatio?.ai <= 45 ? 'text-[#2563EB]' : 'text-amber-500'}`}>
                   {intel.summary.avgTalkRatio?.ai <= 45 ? 'Ideal' : 'Too high'}
                 </div>
               </div>
@@ -3612,13 +3610,13 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
               <div>
                 <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Sentiment Distribution</h4>
                 <div className="flex h-3 rounded-full overflow-hidden">
-                  {intel.sentimentDistribution.positive > 0 && <div className="bg-emerald-400" style={{ width: `${intel.sentimentDistribution.positive}%` }} title={`Positive: ${intel.sentimentDistribution.positive}%`} />}
+                  {intel.sentimentDistribution.positive > 0 && <div className="bg-[#2563EB]/60" style={{ width: `${intel.sentimentDistribution.positive}%` }} title={`Positive: ${intel.sentimentDistribution.positive}%`} />}
                   {intel.sentimentDistribution.neutral > 0 && <div className="bg-gray-300" style={{ width: `${intel.sentimentDistribution.neutral}%` }} title={`Neutral: ${intel.sentimentDistribution.neutral}%`} />}
                   {intel.sentimentDistribution.mixed > 0 && <div className="bg-amber-300" style={{ width: `${intel.sentimentDistribution.mixed}%` }} title={`Mixed: ${intel.sentimentDistribution.mixed}%`} />}
                   {intel.sentimentDistribution.negative > 0 && <div className="bg-red-400" style={{ width: `${intel.sentimentDistribution.negative}%` }} title={`Negative: ${intel.sentimentDistribution.negative}%`} />}
                 </div>
                 <div className="flex justify-between mt-1 text-[0.65rem] text-gray-400">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />{intel.sentimentDistribution.positive}% Positive</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#2563EB]/60 inline-block" />{intel.sentimentDistribution.positive}% Positive</span>
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />{intel.sentimentDistribution.neutral}% Neutral</span>
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-300 inline-block" />{intel.sentimentDistribution.mixed}% Mixed</span>
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />{intel.sentimentDistribution.negative}% Negative</span>
@@ -3638,7 +3636,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                         <span className="text-gray-600 truncate flex-1">{sig.signal}</span>
                         <div className="flex items-center gap-2 shrink-0 ml-2">
                           <span className="text-gray-400">{sig.count}x</span>
-                          <span className={`font-medium ${sig.conversionRate > 60 ? 'text-emerald-600' : sig.conversionRate > 30 ? 'text-amber-600' : 'text-gray-500'}`}>
+                          <span className={`font-medium ${sig.conversionRate > 60 ? 'text-[#2563EB]' : sig.conversionRate > 30 ? 'text-amber-600' : 'text-gray-500'}`}>
                             {sig.conversionRate}% conv
                           </span>
                         </div>
@@ -3666,7 +3664,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                         </div>
                         <div className="flex items-center gap-2 shrink-0 ml-2">
                           <span className="text-gray-400">{obj.count}x</span>
-                          <span className={`font-medium ${obj.handleRate > 50 ? 'text-emerald-600' : 'text-red-500'}`}>
+                          <span className={`font-medium ${obj.handleRate > 50 ? 'text-[#2563EB]' : 'text-red-500'}`}>
                             {obj.handleRate}% handled
                           </span>
                         </div>
@@ -3682,10 +3680,10 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
               <h4 className="text-[0.78rem] font-medium text-gray-700 mb-2">Talk Ratio</h4>
               <div className="relative">
                 <div className="flex h-5 rounded-full overflow-hidden">
-                  <div className="bg-blue-400 flex items-center justify-center" style={{ width: `${intel.summary.avgTalkRatio?.ai || 0}%` }}>
+                  <div className="bg-[#2563EB] flex items-center justify-center" style={{ width: `${intel.summary.avgTalkRatio?.ai || 0}%` }}>
                     <span className="text-[0.6rem] text-white font-medium">AI {intel.summary.avgTalkRatio?.ai}%</span>
                   </div>
-                  <div className="bg-emerald-400 flex items-center justify-center" style={{ width: `${intel.summary.avgTalkRatio?.buyer || 0}%` }}>
+                  <div className="bg-[#93C5FD] flex items-center justify-center" style={{ width: `${intel.summary.avgTalkRatio?.buyer || 0}%` }}>
                     <span className="text-[0.6rem] text-white font-medium">Buyer {intel.summary.avgTalkRatio?.buyer}%</span>
                   </div>
                 </div>
@@ -3703,7 +3701,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                 <div className="flex flex-wrap gap-2">
                   {intel.competitorMentions.map((c: any, i: number) => (
                     <span key={i} className={`text-[0.72rem] px-2.5 py-1 rounded-full border ${
-                      c.sentiment === 'positive' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' :
+                      c.sentiment === 'positive' ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[rgba(37,99,235,0.2)]' :
                       c.sentiment === 'negative' ? 'text-red-700 bg-red-50 border-red-200' :
                       'text-gray-600 bg-gray-50 border-gray-200'
                     }`}>
@@ -3893,7 +3891,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
         </div>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium text-gray-600 border border-gray-200 rounded-lg hover:border-gray-300 cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium text-gray-600 border border-[rgba(5,14,36,0.08)] rounded-[12px] hover:border-gray-300 cursor-pointer"
         >
           <Settings2 className="w-3.5 h-3.5" /> Settings
         </button>
@@ -3901,7 +3899,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
 
       {/* Settings panel */}
       {showSettings && (
-        <div className="mb-4 border border-gray-200 rounded-lg p-4 bg-white space-y-3">
+        <div className="mb-4 border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 bg-white space-y-3">
           <h4 className="text-[0.82rem] font-medium text-gray-900">Inbound Call Settings</h4>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={configAutoAnswer} onChange={e => setConfigAutoAnswer(e.target.checked)} className="rounded border-gray-300" />
@@ -3929,8 +3927,8 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         {[{ v: '', l: 'All' }, { v: 'completed', l: 'Answered' }, { v: 'missed', l: 'Missed' }].map(f => (
           <button key={f.v} onClick={() => setFilterStatus(f.v)}
-            className={`px-3 py-1.5 text-[0.78rem] font-medium rounded-full border cursor-pointer transition-colors ${
-              filterStatus === f.v ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+            className={`px-3 py-1.5 text-[14px] rounded-full border cursor-pointer transition-colors ${
+              filterStatus === f.v ? 'font-semibold border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
             }`}>
             {f.l}
           </button>
@@ -3938,8 +3936,8 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
         <span className="text-gray-300">|</span>
         {[{ v: '', l: 'All Callers' }, { v: 'true', l: 'Known' }, { v: 'false', l: 'Unknown' }].map(f => (
           <button key={f.v} onClick={() => setFilterIdentified(f.v)}
-            className={`px-3 py-1.5 text-[0.78rem] font-medium rounded-full border cursor-pointer transition-colors ${
-              filterIdentified === f.v ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+            className={`px-3 py-1.5 text-[14px] rounded-full border cursor-pointer transition-colors ${
+              filterIdentified === f.v ? 'font-semibold border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
             }`}>
             {f.l}
           </button>
@@ -3971,7 +3969,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[0.85rem] font-medium text-gray-900 truncate">{getBuyerName(c)}</span>
                       {c.identified && (
-                        <span className="text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full text-emerald-700 bg-emerald-50">Known Buyer</span>
+                        <span className="text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full text-[#2563EB] bg-[rgba(37,99,235,0.08)]">Known Buyer</span>
                       )}
                       {!c.identified && (
                         <span className="text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full text-gray-500 bg-gray-100">Unknown</span>
@@ -4113,7 +4111,7 @@ function VoicemailsTab({ addToast }: { addToast: (msg: string, type: ToastData['
 
   const callbackRateColor = (rate: number | null) => {
     if (rate === null) return 'text-gray-400'
-    if (rate > 5) return 'text-emerald-600'
+    if (rate > 5) return 'text-[#2563EB]'
     if (rate >= 2) return 'text-amber-600'
     return 'text-red-500'
   }
@@ -4141,7 +4139,7 @@ function VoicemailsTab({ addToast }: { addToast: (msg: string, type: ToastData['
 
       {/* Create form */}
       {showCreate && (
-        <div className="mb-4 border border-gray-200 rounded-lg p-4 bg-white space-y-3">
+        <div className="mb-4 border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 bg-white space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[0.82rem] font-medium text-gray-900">New Voicemail (Text-to-Speech)</span>
             <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600 cursor-pointer"><X className="w-4 h-4" /></button>
@@ -4186,7 +4184,7 @@ function VoicemailsTab({ addToast }: { addToast: (msg: string, type: ToastData['
       {!loading && voicemails.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {voicemails.map(vm => (
-            <div key={vm.id} className="border border-gray-200 rounded-lg p-3.5 bg-white hover:border-gray-300 transition-colors">
+            <div key={vm.id} className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3.5 bg-white hover:border-gray-300 transition-colors">
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
                   <h4 className="text-[0.82rem] font-medium text-gray-900">{vm.name}</h4>
@@ -4301,10 +4299,10 @@ function CallbacksTab({ addToast }: { addToast: (msg: string, type: ToastData['t
           <button
             key={s}
             onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 text-[0.78rem] font-medium rounded-full border cursor-pointer transition-colors ${
+            className={`px-3 py-1.5 text-[14px] rounded-full border cursor-pointer transition-colors ${
               statusFilter === s
-                ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                ? 'font-semibold border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]'
+                : 'font-normal border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
             }`}
           >
             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -4354,14 +4352,14 @@ function CallbacksTab({ addToast }: { addToast: (msg: string, type: ToastData['t
                       </span>
                       <span className={`text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full ${
                         cb.source === 'ai_detected' ? 'text-violet-700 bg-violet-50' :
-                        cb.source === 'buyer_request' ? 'text-emerald-700 bg-emerald-50' :
+                        cb.source === 'buyer_request' ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]' :
                         cb.source === 'auto_retry' ? 'text-amber-700 bg-amber-50' :
                         'text-gray-600 bg-gray-100'
                       }`}>
                         {SOURCE_LABELS[cb.source] || cb.source}
                       </span>
                       {cb.withinCallingHours && cb.status === 'scheduled' && (
-                        <span className="text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full text-emerald-700 bg-emerald-50">
+                        <span className="text-[0.65rem] font-medium px-1.5 py-0.5 rounded-full text-[#2563EB] bg-[rgba(37,99,235,0.08)]">
                           Callable Now
                         </span>
                       )}
@@ -4403,7 +4401,7 @@ function CallbacksTab({ addToast }: { addToast: (msg: string, type: ToastData['t
                       <>
                         <button
                           onClick={() => updateCallback(cb.id, { status: 'completed' })}
-                          className="p-1.5 rounded-md text-emerald-600 hover:bg-emerald-50 cursor-pointer"
+                          className="p-1.5 rounded-md text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] cursor-pointer"
                           title="Mark completed"
                         >
                           <CheckCircle2 className="w-4 h-4" />
@@ -4556,17 +4554,17 @@ export default function AIOutreachPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
         <div>
-          <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }} className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] mb-1">
+          <h1 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em' }} className="text-[#0B1224] mb-1">
             Outreach
           </h1>
-          <p className="text-sm text-[#9CA3AF]">
+          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="text-[14px] font-normal text-[rgba(5,14,36,0.5)]">
             Launch AI-powered campaigns to qualify and engage your buyers.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowNewCampaign(true)}
-            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             <Plus className="w-4 h-4" /> New Campaign
           </button>
@@ -4574,9 +4572,9 @@ export default function AIOutreachPage() {
       </div>
 
       {/* Stats bar */}
-      <div className="flex items-center gap-6 bg-white border border-[#E5E7EB] rounded-lg px-5 py-3 mb-5 flex-wrap">
+      <div className="flex items-center gap-6 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-3 mb-5 flex-wrap">
         <div className="flex items-center gap-2">
-          {activeCampaigns > 0 && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
+          {activeCampaigns > 0 && <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />}
           <span className="text-[0.82rem] text-gray-700 font-medium">{activeCampaigns}</span>
           <span className="text-[0.78rem] text-gray-400">Active Campaigns</span>
         </div>
@@ -4599,7 +4597,7 @@ export default function AIOutreachPage() {
 
       {/* Sub tabs */}
       {!isDetailView && (
-        <div className="flex items-center gap-1 mb-6 border-b border-[#E5E7EB] pb-0">
+        <div className="flex items-center gap-0 mb-6 border-b border-[rgba(5,14,36,0.08)] pb-0">
           {[
             { key: 'campaigns' as SubTab, label: 'Campaigns', icon: Layers },
             { key: 'calllog' as SubTab, label: 'Call Log', icon: Phone },
@@ -4613,10 +4611,10 @@ export default function AIOutreachPage() {
             <button
               key={tab.key}
               onClick={() => setSubTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
+              className={`flex items-center gap-2 px-[16px] py-[12px] text-[14px] cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
                 subTab === tab.key
-                  ? 'border-[#2563EB] text-[#2563EB]'
-                  : 'border-transparent text-gray-400 hover:text-gray-600'
+                  ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+                  : 'border-transparent text-[rgba(5,14,36,0.45)] font-normal hover:text-[rgba(5,14,36,0.65)]'
               }`}
             >
               <tab.icon className="w-4 h-4" />

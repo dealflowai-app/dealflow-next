@@ -16,6 +16,8 @@ import {
   Search,
 } from 'lucide-react'
 
+const FONT_FAMILY = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
+
 /* ═══════════════════════════════════════════════
    SUB-SECTION TABS
    ═══════════════════════════════════════════════ */
@@ -58,7 +60,7 @@ const feedPosts = [
     id: 3,
     name: 'David Chen',
     initials: 'DC',
-    color: 'from-emerald-500 to-teal-600',
+    color: 'from-blue-500 to-cyan-600',
     time: '6 hours ago',
     text: 'Pro tip: run your AI campaigns Tuesday through Thursday mornings. My connect rates jumped 40%. Weekends and Mondays are dead for cold outreach.',
     likes: 97,
@@ -105,7 +107,7 @@ const feedPosts = [
    ═══════════════════════════════════════════════ */
 const groups = [
   { id: 1, name: 'Dallas/Fort Worth Wholesalers', members: 1247, desc: 'Connect with wholesalers in the DFW metroplex. Share deals, comps, and buyer contacts.', joined: true, color: 'from-blue-500 to-blue-600' },
-  { id: 2, name: 'Land Deals Only', members: 389, desc: 'Vacant land flips, subdivisions, and rural acreage. Builders and developers welcome.', joined: false, color: 'from-emerald-500 to-teal-600' },
+  { id: 2, name: 'Land Deals Only', members: 389, desc: 'Vacant land flips, subdivisions, and rural acreage. Builders and developers welcome.', joined: false, color: 'from-blue-500 to-cyan-600' },
   { id: 3, name: 'New Wholesalers: Getting Started', members: 2104, desc: 'Ask questions, learn the basics, and get mentorship from experienced wholesalers.', joined: true, color: 'from-violet-500 to-purple-600' },
   { id: 4, name: 'Virtual Wholesale Strategies', members: 756, desc: 'Wholesale deals in markets you don\'t live in. Tools, tips, and virtual closing strategies.', joined: false, color: 'from-amber-500 to-orange-600' },
   { id: 5, name: 'Multifamily & Commercial', members: 412, desc: 'Apartment buildings, retail, and commercial property wholesale deals and strategies.', joined: false, color: 'from-rose-500 to-pink-600' },
@@ -193,7 +195,7 @@ const conversations = [
     id: 3,
     name: 'Marcus Thompson',
     initials: 'MT',
-    color: 'from-emerald-500 to-teal-600',
+    color: 'from-blue-500 to-cyan-600',
     lastMessage: 'Thanks for the tip on the AI campaigns! Connect rates are way up.',
     time: '3 hrs ago',
     unread: false,
@@ -223,13 +225,13 @@ const conversations = [
 /* ═══════════════════════════════════════════════
    AVATAR COMPONENT
    ═══════════════════════════════════════════════ */
-function Avatar({ initials, size = 36 }: { initials: string; color?: string; size?: number }) {
+function Avatar({ initials, size = 32 }: { initials: string; color?: string; size?: number }) {
   return (
     <div
-      className="rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0"
-      style={{ width: size, height: size }}
+      className="rounded-full flex items-center justify-center flex-shrink-0"
+      style={{ width: size, height: size, backgroundColor: '#0B1224' }}
     >
-      <span className="text-[#6B7280] font-medium" style={{ fontSize: size * 0.33 }}>
+      <span style={{ fontSize: size * 0.38, fontWeight: 600, color: '#FFFFFF', fontFamily: FONT_FAMILY }}>
         {initials}
       </span>
     </div>
@@ -255,22 +257,49 @@ function FeedSection() {
   return (
     <div className="max-w-[680px]">
       {/* Create post */}
-      <div className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 mb-4">
+      <div
+        className="bg-white px-5 py-4 mb-4"
+        style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12 }}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0">
-            <span className="text-[0.6rem] font-medium text-[#6B7280]">You</span>
+          <div
+            className="rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ width: 32, height: 32, backgroundColor: '#0B1224' }}
+          >
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFFFFF', fontFamily: FONT_FAMILY }}>You</span>
           </div>
           <div className="flex-1">
             <input
               type="text"
               placeholder="Share something with the community..."
-              className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[0.84rem] text-[#374151] placeholder-[#9CA3AF] outline-none focus:border-[#A5B4FC] focus:bg-white transition-colors"
+              className="w-full outline-none transition-colors"
+              style={{
+                backgroundColor: '#F9FAFB',
+                border: '1px solid rgba(5,14,36,0.08)',
+                borderRadius: 10,
+                padding: '10px 16px',
+                fontSize: 14,
+                fontWeight: 400,
+                color: 'rgba(5,14,36,0.65)',
+                fontFamily: FONT_FAMILY,
+              }}
             />
           </div>
-          <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 text-[#9CA3AF] hover:text-[#6B7280] cursor-pointer bg-transparent border-0 transition-colors">
+          <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 cursor-pointer bg-transparent border-0 transition-colors" style={{ color: 'rgba(5,14,36,0.4)' }}>
             <ImageIcon className="w-4 h-4" />
           </button>
-          <button onClick={() => toast('Coming soon')} className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md px-4 py-2 text-[0.8rem] font-medium cursor-pointer transition-colors flex items-center gap-1.5">
+          <button
+            onClick={() => toast('Coming soon')}
+            className="text-white border-0 cursor-pointer transition-colors flex items-center gap-1.5"
+            style={{
+              backgroundColor: '#2563EB',
+              borderRadius: 10,
+              padding: '8px 16px',
+              fontSize: 14,
+              fontWeight: 600,
+              fontFamily: FONT_FAMILY,
+            }}
+          >
             <Send className="w-3.5 h-3.5" />
             Post
           </button>
@@ -286,34 +315,44 @@ function FeedSection() {
           return (
             <div
               key={post.id}
-              className={`border border-[#E5E7EB] rounded-lg px-5 py-4 hover:bg-[#F9FAFB] transition-colors ${
-                post.id === 1 ? 'bg-[#F9FAFB]' : 'bg-white'
-              }`}
+              className="bg-white transition-all"
+              style={{
+                border: '1px solid rgba(5,14,36,0.08)',
+                borderRadius: 12,
+                padding: '16px 20px',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
             >
               {/* Post header */}
               <div className="flex items-center gap-3 mb-3">
-                <Avatar initials={post.initials} size={36} />
+                <Avatar initials={post.initials} size={32} />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[0.84rem] font-medium text-[#111827]">{post.name}</div>
-                  <div className="text-sm text-[#9CA3AF]">{post.time}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0B1224', fontFamily: FONT_FAMILY }}>{post.name}</div>
+                  <div style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>{post.time}</div>
                 </div>
               </div>
 
               {/* Post text */}
-              <p className="text-[0.84rem] text-[#374151] leading-relaxed mb-3.5">{post.text}</p>
+              <p className="leading-relaxed mb-3.5" style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.65)', fontFamily: FONT_FAMILY }}>{post.text}</p>
 
               {/* Post actions */}
-              <div className="flex items-center gap-5 pt-2 border-t border-[#E5E7EB]">
+              <div className="flex items-center gap-5 pt-2" style={{ borderTop: '1px solid rgba(5,14,36,0.08)' }}>
                 <button
                   onClick={() => toggleLike(post.id)}
-                  className={`flex items-center gap-1.5 text-[0.78rem] cursor-pointer bg-transparent border-0 transition-colors ${
-                    isLiked ? 'text-rose-500' : 'text-[#9CA3AF] hover:text-rose-500'
+                  className={`flex items-center gap-1.5 cursor-pointer bg-transparent border-0 transition-colors ${
+                    isLiked ? 'text-rose-500' : 'hover:text-rose-500'
                   }`}
+                  style={{ fontSize: 12, fontWeight: 400, color: isLiked ? undefined : 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}
                 >
                   <Heart className="w-4 h-4" fill={isLiked ? 'currentColor' : 'none'} />
                   {likeCount}
                 </button>
-                <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 text-[0.78rem] text-[#9CA3AF] hover:text-[#2563EB] cursor-pointer bg-transparent border-0 transition-colors">
+                <button
+                  onClick={() => toast('Coming soon')}
+                  className="flex items-center gap-1.5 cursor-pointer bg-transparent border-0 transition-colors"
+                  style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}
+                >
                   <MessageCircle className="w-4 h-4" />
                   {post.comments}
                 </button>
@@ -346,11 +385,24 @@ function GroupsSection() {
       {/* Search */}
       <div className="mb-5 max-w-[400px]">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(5,14,36,0.4)' }} />
           <input
             type="text"
             placeholder="Search groups..."
-            className="w-full bg-white border border-[#E5E7EB] rounded-lg pl-10 pr-4 py-2.5 text-[0.84rem] text-[#374151] placeholder-[#9CA3AF] outline-none focus:border-[#A5B4FC] transition-colors"
+            className="w-full outline-none transition-colors"
+            style={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(5,14,36,0.08)',
+              borderRadius: 10,
+              paddingLeft: 40,
+              paddingRight: 16,
+              paddingTop: 10,
+              paddingBottom: 10,
+              fontSize: 14,
+              fontWeight: 400,
+              color: 'rgba(5,14,36,0.65)',
+              fontFamily: FONT_FAMILY,
+            }}
           />
         </div>
       </div>
@@ -360,26 +412,43 @@ function GroupsSection() {
         {groups.map(g => {
           const isJoined = joinedGroups.has(g.id)
           return (
-            <div key={g.id} className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-5 flex flex-col hover:bg-[#F9FAFB] transition-colors">
+            <div
+              key={g.id}
+              className="bg-white flex flex-col transition-all"
+              style={{
+                border: '1px solid rgba(5,14,36,0.08)',
+                borderRadius: 12,
+                padding: '20px',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
+            >
               <div className="flex items-start gap-3 mb-3">
                 <div
-                  className="w-10 h-10 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0"
+                  className="flex items-center justify-center flex-shrink-0"
+                  style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(37,99,235,0.08)' }}
                 >
-                  <Users className="text-[#6B7280]" style={{ width: 18, height: 18 }} />
+                  <Users style={{ width: 18, height: 18, color: '#2563EB' }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[0.88rem] font-medium text-[#111827] mb-0.5">{g.name}</div>
-                  <div className="text-sm text-[#9CA3AF]">{g.members.toLocaleString()} members</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT_FAMILY, marginBottom: 2 }}>{g.name}</div>
+                  <div style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>{g.members.toLocaleString()} members</div>
                 </div>
               </div>
-              <p className="text-[0.78rem] text-[#374151] leading-relaxed mb-4 flex-1">{g.desc}</p>
+              <p className="leading-relaxed mb-4 flex-1" style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.65)', fontFamily: FONT_FAMILY }}>{g.desc}</p>
               <button
                 onClick={() => toggleJoin(g.id)}
-                className={`w-full py-2 rounded-md text-[0.8rem] font-medium cursor-pointer transition-all border ${
-                  isJoined
-                    ? 'bg-white border-[#D1D5DB] text-[#374151] hover:border-[#9CA3AF]'
-                    : 'bg-[#2563EB] border-[#2563EB] text-white hover:bg-[#1D4ED8]'
-                }`}
+                className="w-full cursor-pointer transition-all"
+                style={{
+                  padding: '8px 0',
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  fontFamily: FONT_FAMILY,
+                  backgroundColor: isJoined ? '#FFFFFF' : '#2563EB',
+                  border: isJoined ? '1px solid rgba(5,14,36,0.08)' : '1px solid #2563EB',
+                  color: isJoined ? 'rgba(5,14,36,0.65)' : '#FFFFFF',
+                }}
               >
                 {isJoined ? (
                   <span className="flex items-center justify-center gap-1.5">
@@ -407,25 +476,35 @@ function NewsSection() {
       {newsItems.map(item => (
         <div
           key={item.id}
-          className="bg-white border border-[#E5E7EB] rounded-lg px-5 py-4 hover:bg-[#F9FAFB] transition-colors cursor-pointer group"
+          className="bg-white cursor-pointer group transition-all"
+          style={{
+            border: '1px solid rgba(5,14,36,0.08)',
+            borderRadius: 12,
+            padding: '16px 20px',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
         >
           <div className="flex items-center gap-2.5 mb-2">
             <span
-              className={`text-[0.66rem] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${
-                item.source === 'DealFlow AI'
-                  ? 'text-[#1D4ED8] bg-[#EFF6FF]'
-                  : 'text-amber-700 bg-amber-50'
-              }`}
+              className="uppercase tracking-wide px-2 py-0.5 rounded-full"
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                fontFamily: FONT_FAMILY,
+                color: item.source === 'DealFlow AI' ? '#2563EB' : '#92400E',
+                backgroundColor: item.source === 'DealFlow AI' ? 'rgba(37,99,235,0.08)' : 'rgba(245,158,11,0.08)',
+              }}
             >
               {item.source}
             </span>
-            <span className="text-sm text-[#9CA3AF]">{item.date}</span>
+            <span style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>{item.date}</span>
           </div>
-          <h3 className="text-[0.9rem] font-medium text-[#111827] mb-1.5 group-hover:text-[#2563EB] transition-colors flex items-center gap-1.5">
+          <h3 className="mb-1.5 group-hover:text-[#2563EB] transition-colors flex items-center gap-1.5" style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT_FAMILY }}>
             {item.title}
             <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
           </h3>
-          <p className="text-[0.8rem] text-[#374151] leading-relaxed">{item.preview}</p>
+          <p className="leading-relaxed" style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.65)', fontFamily: FONT_FAMILY }}>{item.preview}</p>
         </div>
       ))}
     </div>
@@ -441,16 +520,32 @@ function InboxSection() {
   const active = conversations.find(c => c.id === activeConvo) ?? conversations[0]
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden flex community-inbox" style={{ height: 520 }}>
+    <div
+      className="bg-white overflow-hidden flex community-inbox"
+      style={{ height: 520, border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12 }}
+    >
       {/* Conversation list */}
-      <div className="w-[320px] border-r border-[#E5E7EB] flex flex-col flex-shrink-0 community-inbox-list">
-        <div className="px-4 py-3 border-b border-[#E5E7EB]">
+      <div className="w-[320px] flex flex-col flex-shrink-0 community-inbox-list" style={{ borderRight: '1px solid rgba(5,14,36,0.08)' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
             <input
               type="text"
               placeholder="Search messages..."
-              className="w-full bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg pl-9 pr-3 py-2 text-[0.8rem] text-[#374151] placeholder-[#9CA3AF] outline-none focus:border-[#A5B4FC] focus:bg-white transition-colors"
+              className="w-full outline-none transition-colors"
+              style={{
+                backgroundColor: '#F9FAFB',
+                border: '1px solid rgba(5,14,36,0.08)',
+                borderRadius: 10,
+                paddingLeft: 36,
+                paddingRight: 12,
+                paddingTop: 8,
+                paddingBottom: 8,
+                fontSize: 14,
+                fontWeight: 400,
+                color: 'rgba(5,14,36,0.65)',
+                fontFamily: FONT_FAMILY,
+              }}
             />
           </div>
         </div>
@@ -459,24 +554,27 @@ function InboxSection() {
             <button
               key={c.id}
               onClick={() => setActiveConvo(c.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 cursor-pointer border-0 text-left transition-colors ${
-                activeConvo === c.id ? 'bg-[#EFF6FF]' : 'bg-white hover:bg-[#F9FAFB]'
-              }`}
+              className="w-full flex items-center gap-3 px-4 py-3.5 cursor-pointer border-0 text-left transition-colors"
+              style={{
+                backgroundColor: activeConvo === c.id ? 'rgba(37,99,235,0.08)' : '#FFFFFF',
+              }}
+              onMouseEnter={e => { if (activeConvo !== c.id) (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
+              onMouseLeave={e => { if (activeConvo !== c.id) (e.currentTarget as HTMLElement).style.backgroundColor = '#FFFFFF' }}
             >
               <div className="relative flex-shrink-0">
-                <Avatar initials={c.initials} size={38} />
+                <Avatar initials={c.initials} size={32} />
                 {c.unread && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-[#2563EB] rounded-full border-2 border-white" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{ backgroundColor: '#2563EB' }} />
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className={`text-[0.82rem] ${c.unread ? 'font-semibold text-[#111827]' : 'font-medium text-[#374151]'}`}>
+                  <span style={{ fontSize: 14, fontWeight: c.unread ? 600 : 400, color: '#0B1224', fontFamily: FONT_FAMILY }}>
                     {c.name}
                   </span>
-                  <span className="text-sm text-[#9CA3AF] flex-shrink-0">{c.time}</span>
+                  <span className="flex-shrink-0" style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>{c.time}</span>
                 </div>
-                <p className={`text-[0.76rem] truncate ${c.unread ? 'text-[#374151]' : 'text-[#9CA3AF]'}`}>
+                <p className="truncate" style={{ fontSize: 12, fontWeight: 400, color: c.unread ? 'rgba(5,14,36,0.65)' : 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>
                   {c.lastMessage}
                 </p>
               </div>
@@ -488,9 +586,9 @@ function InboxSection() {
       {/* Active conversation */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <div className="flex items-center gap-3 px-5 py-3 border-b border-[#E5E7EB]">
+        <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
           <Avatar initials={active.initials} size={32} />
-          <span className="text-[0.88rem] font-medium text-[#111827]">{active.name}</span>
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT_FAMILY }}>{active.name}</span>
         </div>
 
         {/* Messages */}
@@ -498,14 +596,15 @@ function InboxSection() {
           {active.messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${
-                  msg.from === 'me'
-                    ? 'bg-[#2563EB] text-white rounded-br-md'
-                    : 'bg-[#F3F4F6] text-[#111827] rounded-bl-md'
-                }`}
+                className="max-w-[75%] px-4 py-2.5"
+                style={{
+                  borderRadius: msg.from === 'me' ? '16px 16px 6px 16px' : '16px 16px 16px 6px',
+                  backgroundColor: msg.from === 'me' ? '#2563EB' : '#F3F4F6',
+                  color: msg.from === 'me' ? '#FFFFFF' : '#0B1224',
+                }}
               >
-                <p className="text-[0.82rem] leading-relaxed">{msg.text}</p>
-                <p className={`text-[0.66rem] mt-1 ${msg.from === 'me' ? 'text-[#BFDBFE]' : 'text-[#9CA3AF]'}`}>
+                <p className="leading-relaxed" style={{ fontSize: 14, fontWeight: 400, fontFamily: FONT_FAMILY }}>{msg.text}</p>
+                <p style={{ fontSize: 11, fontWeight: 400, marginTop: 4, color: msg.from === 'me' ? '#BFDBFE' : 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>
                   {msg.time}
                 </p>
               </div>
@@ -514,14 +613,28 @@ function InboxSection() {
         </div>
 
         {/* Input */}
-        <div className="px-4 py-3 border-t border-[#E5E7EB]">
+        <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(5,14,36,0.08)' }}>
           <div className="flex items-center gap-2">
             <input
               type="text"
               placeholder="Type a message..."
-              className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-[0.82rem] text-[#374151] placeholder-[#9CA3AF] outline-none focus:border-[#A5B4FC] focus:bg-white transition-colors"
+              className="flex-1 outline-none transition-colors"
+              style={{
+                backgroundColor: '#F9FAFB',
+                border: '1px solid rgba(5,14,36,0.08)',
+                borderRadius: 10,
+                padding: '10px 16px',
+                fontSize: 14,
+                fontWeight: 400,
+                color: 'rgba(5,14,36,0.65)',
+                fontFamily: FONT_FAMILY,
+              }}
             />
-            <button onClick={() => toast('Coming soon')} className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-md p-2.5 cursor-pointer transition-colors flex items-center justify-center">
+            <button
+              onClick={() => toast('Coming soon')}
+              className="text-white border-0 cursor-pointer transition-colors flex items-center justify-center"
+              style={{ backgroundColor: '#2563EB', borderRadius: 10, padding: 10 }}
+            >
               <Send className="w-4 h-4" />
             </button>
           </div>
@@ -538,21 +651,28 @@ export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState<Tab>('feed')
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)] ">
+    <div className="p-8 max-w-[1200px]" style={{ fontFamily: FONT_FAMILY }}>
       {/* Header */}
       <div className="mb-6">
-        <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-          className="text-[1.5rem] font-normal text-[var(--navy-heading,#0B1224)] tracking-[-0.022em] mb-1"
+        <h1
+          style={{
+            fontFamily: FONT_FAMILY,
+            fontSize: 24,
+            fontWeight: 700,
+            color: '#0B1224',
+            letterSpacing: '-0.02em',
+            marginBottom: 4,
+          }}
         >
           Feed
         </h1>
-        <p className="text-[0.86rem] text-[var(--body-text,#4B5563)]">
+        <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.5)', fontFamily: FONT_FAMILY }}>
           Connect with wholesalers, share strategies, and stay updated.
         </p>
       </div>
 
       {/* Sub-section tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-[#E5E7EB] pb-0">
+      <div className="flex items-center gap-1 mb-6 pb-0" style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
         {tabs.map(tab => {
           const Icon = tab.icon
           const isActive = activeTab === tab.key
@@ -560,16 +680,32 @@ export default function CommunityPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
-                isActive
-                  ? 'border-b-[#2563EB] text-[#2563EB]'
-                  : 'border-transparent text-[#9CA3AF] hover:text-[#6B7280]'
-              }`}
+              className="flex items-center gap-2 cursor-pointer bg-transparent transition-colors"
+              style={{
+                padding: '10px 16px',
+                fontSize: 14,
+                fontWeight: isActive ? 600 : 400,
+                fontFamily: FONT_FAMILY,
+                color: isActive ? '#2563EB' : 'rgba(5,14,36,0.45)',
+                border: 'none',
+                borderBottom: isActive ? '2px solid #2563EB' : '2px solid transparent',
+                marginBottom: -1,
+              }}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
               {tab.key === 'inbox' && (
-                <span className="bg-[#2563EB] text-white text-[0.62rem] font-semibold w-4.5 h-4.5 rounded-full flex items-center justify-center" style={{ width: 18, height: 18 }}>
+                <span
+                  className="text-white flex items-center justify-center rounded-full"
+                  style={{
+                    backgroundColor: '#2563EB',
+                    fontSize: 10,
+                    fontWeight: 600,
+                    width: 18,
+                    height: 18,
+                    fontFamily: FONT_FAMILY,
+                  }}
+                >
                   2
                 </span>
               )}
@@ -588,7 +724,7 @@ export default function CommunityPage() {
         @media (max-width: 900px) {
           .community-groups { grid-template-columns: 1fr !important; }
           .community-inbox { flex-direction: column !important; height: auto !important; }
-          .community-inbox-list { width: 100% !important; max-height: 250px; border-right: none !important; border-bottom: 1px solid #E5E7EB; }
+          .community-inbox-list { width: 100% !important; max-height: 250px; border-right: none !important; border-bottom: 1px solid rgba(5,14,36,0.08); }
         }
       `}</style>
     </div>

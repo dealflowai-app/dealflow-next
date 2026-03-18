@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!profile) redirect('/onboarding')
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--cream, #FAF9F6)' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: '#F9FAFB' }}>
       <Sidebar profile={profile} />
       <main className="flex-1 overflow-y-auto">
         <ToastProvider>
