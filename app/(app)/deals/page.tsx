@@ -157,8 +157,7 @@ function RowMenu({
           <div className="fixed inset-0 z-[100]" onClick={(e) => { e.stopPropagation(); onClose() }} />
           <div
             className="fixed z-[101] bg-white rounded-[12px] shadow-lg py-1 min-w-[180px]"
-            style={{ border: '1px solid rgba(5,14,36,0.08)' }}
-            style={{ top: pos.top, left: pos.left }}
+            style={{ border: '1px solid rgba(5,14,36,0.08)', top: pos.top, left: pos.left }}
           >
             <button
               onClick={(e) => { e.stopPropagation(); onRunMatch(); onClose() }}
