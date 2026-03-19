@@ -27,6 +27,11 @@ export async function POST(request: Request) {
       update: { firstName, lastName, phone, settings },
     })
 
+    // Mark profile as completed in user_metadata so middleware can check
+    await supabase.auth.updateUser({
+      data: { onboarded: true },
+    })
+
     // Create Stripe customer and set up free trial
     try {
       const customer = await stripe.customers.create({

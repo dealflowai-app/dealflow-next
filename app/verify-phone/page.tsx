@@ -43,7 +43,7 @@ export default function VerifyPhonePage() {
     }
   }, [verified, router])
 
-  // Check if already verified or not logged in
+  // Check if already verified, not logged in, or missing onboarding
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -55,6 +55,11 @@ export default function VerifyPhonePage() {
       if (user.user_metadata?.phone_verified) {
         router.push('/dashboard')
         router.refresh()
+        return
+      }
+      // Not onboarded yet — go to profile setup first
+      if (!user.user_metadata?.onboarded) {
+        router.push('/signup?step=2')
         return
       }
       // Pre-fill phone from profile metadata if available
