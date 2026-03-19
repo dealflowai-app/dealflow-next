@@ -622,7 +622,7 @@ export default function PricingPage() {
       <Footer />
       <ScrollReveal />
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .pricing-cta-outline:hover {
           background: ${NAVY} !important;
           color: white !important;
@@ -650,7 +650,7 @@ export default function PricingPage() {
         @media (max-width: 560px) {
           .usage-grid { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </>
   )
 }

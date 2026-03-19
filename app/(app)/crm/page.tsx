@@ -1722,13 +1722,13 @@ export default function BuyerCrmPage() {
       {showImportModal && <ImportModal onClose={() => setShowImportModal(false)} onImported={(msg) => { addToast(msg); refetch() }} />}
       {showDuplicatesModal && <DuplicatesModal onClose={() => setShowDuplicatesModal(false)} onMerged={(msg) => { addToast(msg); refetch() }} />}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes slideInRight {
           from { transform: translateX(100%); }
           to { transform: translateX(0); }
         }
         @media (max-width: 1000px) { .crm-pipeline { overflow-x: auto; } }
-      `}</style>
+      ` }} />
     </div>
   )
 }

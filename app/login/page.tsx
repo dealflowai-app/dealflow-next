@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import GoogleOAuthButton from '@/components/GoogleOAuthButton'
 import { createClient } from '@/lib/supabase/client'
 
 const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
@@ -95,24 +96,22 @@ export default function LoginPage() {
           boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
           border: '1px solid rgba(5,14,36,0.06)',
         }}>
-          {/* Icon */}
-          <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 22,
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-          </div>
-
           <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15 }}>
             Welcome back
           </h1>
-          <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 28, lineHeight: 1.6, fontFamily: F }}>
+          <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 24, lineHeight: 1.6, fontFamily: F }}>
             Sign in to access your deals, buyers, and platform tools.
           </p>
+
+          {/* Google OAuth */}
+          <GoogleOAuthButton mode="login" />
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '20px 0' }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
+            <span style={{ fontSize: 12, color: 'rgba(5,14,36,0.35)', fontFamily: F, fontWeight: 500 }}>or</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
+          </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* Email */}
@@ -208,7 +207,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .auth-input:focus {
           border-color: ${BLUE} !important;
           box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
@@ -234,7 +233,7 @@ export default function LoginPage() {
         @media (max-width: 480px) {
           .auth-card { padding: 28px 22px !important; border-radius: 14px !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

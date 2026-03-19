@@ -3246,7 +3246,7 @@ export default function PropertyAnalyzerPage() {
         />
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 999px) {
           .analyzer-results-grid { grid-template-columns: 1fr !important; }
           .analyzer-input-grid { grid-template-columns: 1fr !important; }
@@ -3266,7 +3266,7 @@ export default function PropertyAnalyzerPage() {
         }
         .photo-thumbs-scroll::-webkit-scrollbar { height: 4px; }
         .photo-thumbs-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
-      `}</style>
+      ` }} />
     </div>
   )
 }

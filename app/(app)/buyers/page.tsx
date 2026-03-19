@@ -771,11 +771,11 @@ function PropertyDetail({
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 640px) {
           .disc-detail-panel { width: 100% !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -2112,7 +2112,7 @@ export default function DiscoveryPage() {
         />
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 768px) {
           .disc-sidebar {
             position: absolute;
@@ -2123,7 +2123,7 @@ export default function DiscoveryPage() {
             z-index: 15;
           }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

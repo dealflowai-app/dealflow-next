@@ -967,7 +967,7 @@ function S5({ t }: { t: number }) {
               )}
               {celebrate && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '6px 0', animation: 'demoSlideUp 0.3s ease' }}>
-                  <style>{`@keyframes scaleBounce { 0% { transform: scale(0.5); } 60% { transform: scale(1.15); } 80% { transform: scale(0.95); } 100% { transform: scale(1); } }`}</style>
+                  <style dangerouslySetInnerHTML={{ __html: `@keyframes scaleBounce { 0% { transform: scale(0.5); } 60% { transform: scale(1.15); } 80% { transform: scale(0.95); } 100% { transform: scale(1); } }` }} />
                   <span style={{ fontSize: 11, fontWeight: 600, color: BLUE, fontFamily: F }}>Deal closed!</span>
                   <span style={{ fontSize: 15, fontWeight: 800, color: BLUE, fontFamily: F, animation: 'scaleBounce 0.6s ease-out' }}>+$12,800</span>
                 </div>

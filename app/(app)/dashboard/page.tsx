@@ -1623,7 +1623,7 @@ export default function DashboardPage() {
         </>
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .ds-card { border-radius: 12px; padding: 20px 24px; }
         .dash-row { transition: background 0.1s; }
         .dash-row:hover { background: rgba(37,99,235,0.02); }
@@ -1634,7 +1634,7 @@ export default function DashboardPage() {
         @media (max-width: 600px) {
           .dash-grid-4 { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

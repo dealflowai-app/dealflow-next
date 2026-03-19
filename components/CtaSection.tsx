@@ -76,11 +76,11 @@ export default function CtaSection() {
         </a>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 860px) {
           #cta { padding: 56px 20px !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

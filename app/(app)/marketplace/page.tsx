@@ -797,7 +797,7 @@ function MarketplaceMapView({
       )}
 
       {/* Popup styling */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .mp-map-popup .mapboxgl-popup-content {
           padding: 0;
           border-radius: 10px;
@@ -816,7 +816,7 @@ function MarketplaceMapView({
           .mp-map-container { height: 400px !important; }
           .mp-minicard-strip { display: none; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -1518,13 +1518,13 @@ function ListingDetail({
         </div>
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {
           .mp-detail-grid { grid-template-columns: 1fr !important; }
           .mp-analysis-grid { grid-template-columns: 1fr 1fr !important; }
           .mp-similar-grid { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -3728,7 +3728,7 @@ export default function MarketplacePage() {
       {activeTab === 'buyers' && <BuyerBoardSection />}
       {activeTab === 'mine' && <MyListingsSection />}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {
           .mp-deals-grid { grid-template-columns: 1fr !important; }
           .mp-buyer-grid { grid-template-columns: 1fr !important; }
@@ -3736,7 +3736,7 @@ export default function MarketplacePage() {
           .mp-analysis-grid { grid-template-columns: 1fr 1fr !important; }
           .mp-similar-grid { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

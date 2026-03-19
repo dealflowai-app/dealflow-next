@@ -338,7 +338,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
         }}
       />
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .hamburger-line {
           position: absolute;
           left: 50%;
@@ -370,7 +370,7 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
           .nav-mobile-bar { display: none !important; }
           .nav-mobile-overlay { display: none !important; }
         }
-      `}</style>
+      ` }} />
     </>
   )
 }

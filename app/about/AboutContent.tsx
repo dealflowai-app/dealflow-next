@@ -406,7 +406,7 @@ export default function AboutContent() {
 
       </main>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .belief-card:hover {
           border-color: rgba(37,99,235,0.15) !important;
           box-shadow: 0 4px 12px rgba(5,14,36,0.04) !important;
@@ -422,7 +422,7 @@ export default function AboutContent() {
           .about-block > div:first-child { position: static !important; }
           .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
-      `}</style>
+      ` }} />
     </>
   )
 }

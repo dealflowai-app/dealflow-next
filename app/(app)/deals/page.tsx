@@ -686,7 +686,7 @@ export default function DealsPage() {
         </>
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 800px) {
           .deals-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .deals-controls { flex-direction: column; align-items: stretch !important; }
@@ -697,7 +697,7 @@ export default function DealsPage() {
         @media (max-width: 500px) {
           .deals-kpi-grid { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

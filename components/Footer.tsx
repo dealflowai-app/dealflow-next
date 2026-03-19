@@ -124,7 +124,7 @@ export default function Footer() {
         }}
       >
         <span style={{ fontSize: 11, color: 'var(--muted-text)' }}>
-          Built for real estate professionals
+          Built for Real Estate Wholesalers
         </span>
         <div style={{ display: 'flex', gap: 20 }}>
           {[
@@ -145,7 +145,8 @@ export default function Footer() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media (max-width: 860px) {
           .footer-grid {
             grid-template-columns: 1fr 1fr !important;
@@ -158,7 +159,7 @@ export default function Footer() {
             grid-template-columns: 1fr !important;
           }
         }
-      `}</style>
+      ` }} />
     </footer>
   )
 }

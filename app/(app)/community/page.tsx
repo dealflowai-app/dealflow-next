@@ -720,13 +720,13 @@ export default function CommunityPage() {
       {activeTab === 'news' && <NewsSection />}
       {activeTab === 'inbox' && <InboxSection />}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {
           .community-groups { grid-template-columns: 1fr !important; }
           .community-inbox { flex-direction: column !important; height: auto !important; }
           .community-inbox-list { width: 100% !important; max-height: 250px; border-right: none !important; border-bottom: 1px solid rgba(5,14,36,0.08); }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

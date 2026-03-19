@@ -382,7 +382,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .sidebar-link:hover:not(.sidebar-link-active) {
           background: rgba(5, 14, 36, 0.04) !important;
           color: var(--navy-heading, #0B1224) !important;
@@ -400,7 +400,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           opacity: 1 !important;
           background: rgba(5, 14, 36, 0.05) !important;
         }
-      `}</style>
+      ` }} />
     </aside>
   )
 }
