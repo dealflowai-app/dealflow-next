@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import { createClient } from '@/lib/supabase/client'
@@ -11,7 +11,7 @@ const NAVY = '#0B1224'
 const BLUE = '#2563EB'
 const BODY = 'rgba(5, 14, 36, 0.5)'
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -188,5 +188,17 @@ export default function VerifyEmailPage() {
         }
       ` }} />
     </div>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 24, height: 24, border: '2px solid #E5E7EB', borderTopColor: '#2563EB', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   )
 }
