@@ -52,19 +52,34 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false)
   const [hasSession, setHasSession] = useState<boolean | null>(null)
 
-  // Supabase automatically picks up the recovery token from the URL hash
+  // Exchange the code from the URL for a session, then listen for recovery event
   useEffect(() => {
     const supabase = createClient()
+
     supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setHasSession(true)
       }
     })
-    // Also check if user already has a session (e.g. page refresh)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setHasSession(true)
-      else setHasSession(false)
-    })
+
+    // Check for ?code= parameter from Supabase email link
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (error) {
+          setHasSession(false)
+        }
+        // PASSWORD_RECOVERY event will fire from onAuthStateChange above
+      })
+    } else {
+      // No code — check if user already has a session (e.g. page refresh)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) setHasSession(true)
+        else setHasSession(false)
+      })
+    }
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
