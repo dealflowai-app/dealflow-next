@@ -43,13 +43,26 @@ export default function VerifyPhonePage() {
     }
   }, [verified, router])
 
-  // Check if already verified
+  // Check if already verified or not logged in
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) {
         router.push('/login')
         return
+      }
+      // Already verified — skip to dashboard
+      if (user.user_metadata?.phone_verified) {
+        router.push('/dashboard')
+        router.refresh()
+        return
+      }
+      // Pre-fill phone from profile metadata if available
+      if (user.user_metadata?.phone) {
+        const digits = user.user_metadata.phone.replace(/\D/g, '').replace(/^1/, '')
+        if (digits.length === 10) {
+          setPhone(formatPhone(digits))
+        }
       }
     })
   }, [router])

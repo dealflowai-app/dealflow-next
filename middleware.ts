@@ -49,6 +49,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // If fully verified user hits signup step 2, send to dashboard
+  if (user && isSignupStep2 && user.user_metadata?.phone_verified) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
   // For authenticated users on protected pages, enforce email + phone verification
   if (user && isProtected) {
     const emailConfirmed = !!user.email_confirmed_at
