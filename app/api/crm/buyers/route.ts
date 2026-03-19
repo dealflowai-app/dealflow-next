@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { Prisma } from '@prisma/client'
 import { logActivity } from '@/lib/activity'
+import { updateCrmContacts, checkLimit } from '@/lib/usage'
 
 export async function GET(req: NextRequest) {
   try {
@@ -164,6 +165,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Check CRM contact limit
+    const limitResult = await checkLimit(profile.id, 'crmContact')
+    if (!limitResult.allowed) {
+      return NextResponse.json(
+        { error: limitResult.reason, upgrade: true },
+        { status: 403 },
+      )
+    }
+
     if (body.phone) {
       const existing = await prisma.cashBuyer.findFirst({
         where: { profileId: profile.id, phone: body.phone as string | undefined, isOptedOut: false },
@@ -223,6 +233,13 @@ export async function POST(req: NextRequest) {
       type: 'created',
       title: `Buyer ${buyer.firstName || buyer.entityName || ''} created`,
     })
+
+    // Update CRM contact count for billing
+    try {
+      await updateCrmContacts(profile.id)
+    } catch (err) {
+      console.error('Usage tracking failed for CRM contacts:', err)
+    }
 
     return NextResponse.json({ buyer }, { status: 201 })
   } catch (err) {

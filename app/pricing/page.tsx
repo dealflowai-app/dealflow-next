@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import Link from 'next/link'
 import Image from 'next/image'
+import { createBrowserClient } from '@supabase/ssr'
 
 /* ── Tokens ─────────────────────────────────────────────── */
 const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
@@ -31,6 +32,7 @@ const tiers = [
     highlight: false,
     cta: 'Get started',
     ctaHref: '/signup',
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
     features: [
       '1 active market',
       'CRM: 500 contacts',
@@ -52,6 +54,7 @@ const tiers = [
     badge: 'Most popular',
     cta: 'Get started',
     ctaHref: '/signup',
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
     features: [
       '3 active markets',
       'CRM: 3,000 contacts',
@@ -268,6 +271,39 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 /* ── Page ────────────────────────────────────────────────── */
 export default function PricingPage() {
+  const [loading, setLoading] = useState(false)
+
+  const handleSubscribe = useCallback(async (priceId: string | undefined) => {
+    if (!priceId) return
+
+    // Check if user is logged in
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      window.location.href = '/signup'
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+    }
+    setLoading(false)
+  }, [])
+
   return (
     <>
       <Nav currentPage="pricing" />
@@ -337,23 +373,45 @@ export default function PricingPage() {
                   <span style={{ fontSize: '0.9rem', fontWeight: 400, color: MUTED, fontFamily: F, marginLeft: 3 }}>{tier.period}</span>
                 </div>
                 <p style={{ fontSize: '0.82rem', color: BODY, marginBottom: 22, lineHeight: 1.5, fontFamily: F, textAlign: 'center' }}>{tier.tagline}</p>
-                <Link
-                  href={tier.ctaHref}
-                  className={tier.highlight ? 'pricing-cta-pro' : 'pricing-cta-outline'}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    height: 42, borderRadius: 10,
-                    fontSize: '0.85rem', fontWeight: 500, textDecoration: 'none', fontFamily: F,
-                    background: tier.highlight ? BLUE : 'transparent',
-                    color: tier.highlight ? 'white' : NAVY_H,
-                    border: tier.highlight ? 'none' : `1px solid ${NAVY_H}`,
-                    marginBottom: 22,
-                    transition: 'all 0.2s ease',
-                    boxShadow: tier.highlight ? '0 4px 12px rgba(37,99,235,0.25)' : 'none',
-                  }}
-                >
-                  {tier.cta}
-                </Link>
+                {tier.stripePriceId !== undefined ? (
+                  <button
+                    onClick={() => handleSubscribe(tier.stripePriceId)}
+                    disabled={loading}
+                    className={tier.highlight ? 'pricing-cta-pro' : 'pricing-cta-outline'}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      height: 42, borderRadius: 10, width: '100%', cursor: loading ? 'wait' : 'pointer',
+                      fontSize: '0.85rem', fontWeight: 500, textDecoration: 'none', fontFamily: F,
+                      background: tier.highlight ? BLUE : 'transparent',
+                      color: tier.highlight ? 'white' : NAVY_H,
+                      border: tier.highlight ? 'none' : `1px solid ${NAVY_H}`,
+                      marginBottom: 22,
+                      transition: 'all 0.2s ease',
+                      boxShadow: tier.highlight ? '0 4px 12px rgba(37,99,235,0.25)' : 'none',
+                      opacity: loading ? 0.7 : 1,
+                    }}
+                  >
+                    {loading ? 'Loading...' : tier.cta}
+                  </button>
+                ) : (
+                  <Link
+                    href={tier.ctaHref}
+                    className={tier.highlight ? 'pricing-cta-pro' : 'pricing-cta-outline'}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      height: 42, borderRadius: 10,
+                      fontSize: '0.85rem', fontWeight: 500, textDecoration: 'none', fontFamily: F,
+                      background: tier.highlight ? BLUE : 'transparent',
+                      color: tier.highlight ? 'white' : NAVY_H,
+                      border: tier.highlight ? 'none' : `1px solid ${NAVY_H}`,
+                      marginBottom: 22,
+                      transition: 'all 0.2s ease',
+                      boxShadow: tier.highlight ? '0 4px 12px rgba(37,99,235,0.25)' : 'none',
+                    }}
+                  >
+                    {tier.cta}
+                  </Link>
+                )}
                 <div style={{ height: 1, background: BORDER, marginBottom: 18 }} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 0, flex: 1, alignItems: 'center' }}>
                   <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 0 }}>

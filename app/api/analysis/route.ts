@@ -9,6 +9,7 @@ import { cacheFullAnalysis } from '@/lib/analysis/cache'
 import { getRentCastClient } from '@/lib/rentcast'
 import { withRetry } from '@/lib/resilience'
 import { logger } from '@/lib/logger'
+import { trackDealAnalysis } from '@/lib/usage'
 
 // ─── POST /api/analysis — Full deal analysis ───────────────────────────────
 
@@ -41,7 +42,13 @@ export async function POST(req: NextRequest) {
   const rl = rateLimit(`analysis:${profile.id}`, 30, 60 * 60 * 1000)
   if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
-  // 5. Run full analysis pipeline
+  // 5. Check deal analysis limit
+  const analysisResult = await trackDealAnalysis(profile.id)
+  if (!analysisResult.allowed) {
+    return errorResponse(403, `Analysis limit reached (${analysisResult.limit}/mo). Upgrade for more.`)
+  }
+
+  // 6. Run full analysis pipeline
   try {
     const sanitizedAddress = sanitizeString(address as string)
     const analysis = await runFullAnalysis(

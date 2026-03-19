@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { trackDealClosed, updateActiveDeals } from '@/lib/usage'
 import type { DealStatus } from '@prisma/client'
 
 // Valid status transitions: from -> allowed destinations
@@ -198,6 +199,25 @@ export async function PATCH(
       where: { id },
       data: data as never,
     })
+
+    // Track deal closed and update active deals count for billing
+    if (data.status === 'CLOSED') {
+      try {
+        await trackDealClosed(profile.id)
+        await updateActiveDeals(profile.id)
+      } catch (err) {
+        console.error('Usage tracking failed for deal closed:', err)
+      }
+    }
+
+    // Update active deals snapshot when status changes to/from active states
+    if (data.status && ['ACTIVE', 'UNDER_OFFER', 'CANCELLED'].includes(data.status as string)) {
+      try {
+        await updateActiveDeals(profile.id)
+      } catch (err) {
+        console.error('Usage tracking failed for active deals update:', err)
+      }
+    }
 
     return NextResponse.json({ deal })
   } catch (err) {

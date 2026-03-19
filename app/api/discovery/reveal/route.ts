@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { getSkipTraceProvider } from '@/lib/skip-trace/providers'
 import type { SkipTraceResult } from '@/lib/skip-trace'
+import { trackSkipTrace } from '@/lib/usage'
 
 // ── Tier limits (reveals per calendar month) ──
 
@@ -165,6 +166,13 @@ export async function POST(req: NextRequest) {
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
     })
+
+    // Track skip trace usage for billing
+    try {
+      await trackSkipTrace(profile.id)
+    } catch (err) {
+      console.error('Usage tracking failed for skip trace:', err)
+    }
 
     return NextResponse.json({
       reveal: toRevealResponse(reveal),

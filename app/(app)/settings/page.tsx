@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import {
   User,
   CreditCard,
@@ -53,70 +53,31 @@ const mockProfile = {
   website: 'https://riverpointcapital.com',
 }
 
-const plans = [
+/* ── Billing plan definitions ── */
+const planDefs = [
   {
+    key: 'starter' as const,
     name: 'Starter',
-    price: '$199',
+    price: '$149',
     period: '/mo',
-    limits: {
-      markets: '1',
-      aiCalls: '500',
-      deals: '5',
-      buyers: '500',
-      contracts: 'Top 5 states',
-      team: '1',
-      dealFee: '$250',
-    },
-    current: false,
-    action: 'Downgrade',
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
+    limits: { markets: '1', crmContacts: '500', dealsAnalyzed: '30', activeDeals: '5', aiMinutes: '50', contracts: 'Top 5 states', team: '1', dealFee: '$200' },
   },
   {
+    key: 'pro' as const,
     name: 'Pro',
-    price: '$349',
+    price: '$299',
     period: '/mo',
-    limits: {
-      markets: '3',
-      aiCalls: '2,000',
-      deals: '20',
-      buyers: '5,000',
-      contracts: 'All 50 states',
-      team: '3',
-      dealFee: '$200',
-    },
-    current: true,
-    action: 'Current Plan',
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
+    limits: { markets: '3', crmContacts: '3,000', dealsAnalyzed: '150', activeDeals: '20', aiMinutes: '150', contracts: 'All 50 states', team: '3', dealFee: '$200' },
   },
   {
+    key: 'enterprise' as const,
     name: 'Enterprise',
-    price: '$499',
-    period: '+/mo',
-    limits: {
-      markets: 'Unlimited',
-      aiCalls: 'Unlimited',
-      deals: 'Unlimited',
-      buyers: 'Unlimited',
-      contracts: 'All 50 + custom',
-      team: 'Unlimited',
-      dealFee: 'Negotiated',
-    },
-    current: false,
-    action: 'Contact Sales',
+    price: '$499+',
+    period: '/mo',
+    limits: { markets: 'Unlimited', crmContacts: 'Unlimited', dealsAnalyzed: 'Unlimited', activeDeals: 'Unlimited', aiMinutes: '500', contracts: 'All 50 + custom', team: 'Unlimited', dealFee: 'Negotiated' },
   },
-]
-
-const usageStats = [
-  { label: 'AI Calls', used: 1243, total: 2000 },
-  { label: 'Active Deals', used: 12, total: 20 },
-  { label: 'Buyer Database', used: 847, total: 5000 },
-  { label: 'Markets', used: 2, total: 3 },
-]
-
-const billingHistory = [
-  { date: 'Mar 1, 2026', desc: 'Pro Plan - Monthly', amount: '$349.00', status: 'Paid' },
-  { date: 'Feb 22, 2026', desc: 'Transaction Fee - 2201 Elm Ave', amount: '$200.00', status: 'Paid' },
-  { date: 'Feb 1, 2026', desc: 'Pro Plan - Monthly', amount: '$349.00', status: 'Paid' },
-  { date: 'Jan 1, 2026', desc: 'Pro Plan - Monthly', amount: '$349.00', status: 'Paid' },
-  { date: 'Dec 15, 2025', desc: 'Transaction Fee - 940 Birch Dr', amount: '$200.00', status: 'Paid' },
 ]
 
 const teamMembers = [
@@ -218,6 +179,70 @@ export default function SettingsPage() {
   const [callDays, setCallDays] = useState({ Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: false, Sun: false })
   const [dataRetention, setDataRetention] = useState('1 year')
   const [saved, setSaved] = useState(false)
+
+  // Billing state
+  const [billingLoading, setBillingLoading] = useState(false)
+  const [billingError, setBillingError] = useState(false)
+  const [subscription, setSubscription] = useState<any>(null)
+  const [invoices, setInvoices] = useState<any[]>([])
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+
+  const fetchBillingData = useCallback(async () => {
+    setBillingLoading(true)
+    setBillingError(false)
+    try {
+      const [subRes, invRes] = await Promise.all([
+        fetch('/api/stripe/subscription'),
+        fetch('/api/stripe/invoices'),
+      ])
+      if (!subRes.ok) throw new Error('subscription fetch failed')
+      const subData = await subRes.json()
+      setSubscription(subData)
+      if (invRes.ok) {
+        const invData = await invRes.json()
+        setInvoices(invData.invoices || [])
+      }
+    } catch {
+      setBillingError(true)
+    } finally {
+      setBillingLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (activeSection === 'billing') fetchBillingData()
+  }, [activeSection, fetchBillingData])
+
+  const openPortal = async () => {
+    setPortalLoading(true)
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch {
+      /* ignore */
+    } finally {
+      setPortalLoading(false)
+    }
+  }
+
+  const handleCheckout = async (priceId: string) => {
+    setCheckoutLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch {
+      /* ignore */
+    } finally {
+      setCheckoutLoading(false)
+    }
+  }
 
   // DNC management state
   const [dncOpen, setDncOpen] = useState(false)
@@ -359,13 +384,6 @@ export default function SettingsPage() {
       next[catIdx].items[itemIdx] = { ...next[catIdx].items[itemIdx], on: !next[catIdx].items[itemIdx].on }
       return next
     })
-  }
-
-  const getUsageColor = (used: number, total: number) => {
-    const pct = (used / total) * 100
-    if (pct >= 90) return 'bg-red-500'
-    if (pct >= 70) return 'bg-yellow-500'
-    return 'bg-[#2563EB]'
   }
 
   return (
@@ -562,126 +580,331 @@ export default function SettingsPage() {
               <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Billing & Plan</h2>
               <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Manage your subscription, payment methods, and view invoices.</p>
 
-              {/* Current plan card */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>Pro Plan - $349/month</h3>
-                      <span style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: '#2563EB' }} className="px-2 py-0.5 rounded-full text-[10px] font-semibold">Active</span>
-                    </div>
-                    <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="mb-1">Next billing date: <span style={{ fontWeight: 600, color: '#0B1224' }}>April 1, 2026</span></p>
-                    <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }}>Payment method: <span style={{ fontWeight: 600, color: '#0B1224' }}>Visa ending in 4821</span></p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">Change Plan</button>
-                    <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">Update Payment Method</button>
-                  </div>
+              {billingLoading ? (
+                <div className="space-y-4">
+                  {[120, 200, 160, 180].map((h, i) => (
+                    <div key={i} className="animate-pulse bg-[#F3F4F6] rounded-xl" style={{ height: h }} />
+                  ))}
                 </div>
-              </div>
-
-              {/* Plan comparison */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                {plans.map((plan, i) => (
-                  <div
-                    key={i}
-                    style={{ border: plan.current ? '2px solid #2563EB' : '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }}
-                    className="bg-white relative"
-                  >
-                    {plan.current && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#2563EB] text-white">
-                        Current Plan
-                      </span>
-                    )}
-                    <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">{plan.name}</h4>
-                    <p className="mb-4">
-                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }}>{plan.price}</span>
-                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>{plan.period}</span>
-                    </p>
-                    <div className="space-y-2 mb-5" style={{ fontSize: '14px' }}>
-                      {[
-                        ['Markets Active', plan.limits.markets],
-                        ['AI Calls / mo', plan.limits.aiCalls],
-                        ['Active Deals', plan.limits.deals],
-                        ['Buyer Database', plan.limits.buyers],
-                        ['Contract Templates', plan.limits.contracts],
-                        ['Team Users', plan.limits.team],
-                        ['Per-Deal Fee', plan.limits.dealFee],
-                      ].map(([label, val], j) => (
-                        <div key={j} className="flex justify-between">
-                          <span style={{ color: 'rgba(5,14,36,0.65)' }}>{label}</span>
-                          <span style={{ fontWeight: 600, color: '#0B1224' }}>{val}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {plan.current ? (
-                      <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-gray-100 text-gray-500 cursor-default">Current Plan</button>
-                    ) : plan.name === 'Enterprise' ? (
-                      <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">Contact Sales</button>
-                    ) : (
-                      <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid rgba(5,14,36,0.15)' }} className="w-full bg-white text-[#0B1224] hover:bg-gray-50 transition-colors">Downgrade</button>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Usage this month */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
-                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Usage This Month</h3>
-                <div className="grid grid-cols-4 gap-6">
-                  {usageStats.map((stat, i) => {
-                    const pct = Math.round((stat.used / stat.total) * 100)
-                    return (
-                      <div key={i}>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>{stat.label}</span>
-                          <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '12px', color: '#0B1224' }}>{stat.used.toLocaleString()} / {stat.total.toLocaleString()}</span>
-                        </div>
-                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full transition-all ${getUsageColor(stat.used, stat.total)}`} style={{ width: `${pct}%` }} />
-                        </div>
-                        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="mt-1">{pct}% used</p>
+              ) : billingError ? (
+                <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '40px 24px' }} className="bg-white text-center">
+                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-3">Unable to load billing information. Please try again.</p>
+                  <button onClick={fetchBillingData} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+                    Retry
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Past due warning */}
+                  {subscription?.tierStatus === 'past_due' && (
+                    <div style={{ border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', padding: '16px 20px', backgroundColor: 'rgba(239,68,68,0.04)' }} className="mb-6 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: '#991B1B' }}>
+                          Your last payment failed. Please update your payment method to avoid losing access.
+                        </p>
                       </div>
-                    )
-                  })}
-                </div>
-              </div>
+                      <button onClick={openPortal} disabled={portalLoading} style={{ borderRadius: '10px', padding: '8px 16px', fontWeight: 600, fontSize: '13px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", whiteSpace: 'nowrap' }} className="bg-red-600 text-white hover:bg-red-700 transition-colors flex-shrink-0">
+                        Update payment method
+                      </button>
+                    </div>
+                  )}
 
-              {/* Billing history */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-100">
-                  <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>Billing History</h3>
-                </div>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-100 text-left">
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Date</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Description</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Amount</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Status</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {billingHistory.map((row, i) => (
-                      <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
-                        <td className="px-6 py-3 text-gray-700">{row.date}</td>
-                        <td className="px-6 py-3 text-gray-700">{row.desc}</td>
-                        <td className="px-6 py-3 font-medium text-gray-900">{row.amount}</td>
-                        <td className="px-6 py-3">
-                          <span style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: '#2563EB' }} className="px-2 py-0.5 rounded-full text-[10px] font-semibold">{row.status}</span>
-                        </td>
-                        <td className="px-6 py-3">
-                          <button className="text-xs text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1">
-                            <Download className="w-3 h-3" />
-                            Invoice
+                  {/* Current plan card */}
+                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                    <div className="flex items-start justify-between flex-wrap gap-4">
+                      <div>
+                        <div className="flex items-center gap-2.5 mb-2">
+                          <span style={{
+                            backgroundColor: subscription?.tier === 'free' ? 'rgba(5,14,36,0.06)' : 'rgba(37,99,235,0.08)',
+                            color: subscription?.tier === 'free' ? 'rgba(5,14,36,0.5)' : '#2563EB',
+                            fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+                          }} className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                            {subscription?.tier || 'free'}
+                          </span>
+                          {(() => {
+                            const st = subscription?.tierStatus
+                            const bg = st === 'active' ? 'rgba(37,99,235,0.08)' : st === 'trialing' ? 'rgba(37,99,235,0.08)' : st === 'past_due' ? 'rgba(239,68,68,0.08)' : 'rgba(5,14,36,0.06)'
+                            const fg = st === 'active' ? '#2563EB' : st === 'trialing' ? '#2563EB' : st === 'past_due' ? '#DC2626' : 'rgba(5,14,36,0.5)'
+                            const label = st === 'past_due' ? 'Past Due' : st === 'trialing' ? 'Trialing' : st === 'cancelled' ? 'Cancelled' : 'Active'
+                            return <span style={{ backgroundColor: bg, color: fg }} className="px-2 py-0.5 rounded-full text-[10px] font-semibold">{label}</span>
+                          })()}
+                        </div>
+                        <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '20px', color: '#0B1224' }}>
+                          {subscription?.tierName || 'Free Trial'}
+                        </h3>
+                        {subscription?.tier !== 'free' && (
+                          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', color: 'rgba(5,14,36,0.45)' }}>
+                            ${subscription?.tier === 'starter' ? '149' : subscription?.tier === 'pro' ? '299' : '499'}/mo
+                          </p>
+                        )}
+                        {subscription?.isTrialing && (
+                          <div className="mt-3">
+                            <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.5)' }} className="mb-1.5">
+                              {subscription.trialDaysLeft} day{subscription.trialDaysLeft !== 1 ? 's' : ''} remaining in trial
+                            </p>
+                            <div className="w-48 h-1.5 bg-[rgba(5,14,36,0.06)] rounded-full overflow-hidden">
+                              <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${Math.max(5, ((14 - subscription.trialDaysLeft) / 14) * 100)}%` }} />
+                            </div>
+                          </div>
+                        )}
+                        {subscription?.currentPeriodEnd && !subscription?.isTrialing && (
+                          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '13px', color: 'rgba(5,14,36,0.4)', marginTop: 6 }}>
+                            Next billing: {new Date(subscription.currentPeriodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {subscription?.tier === 'free' ? (
+                          <button onClick={() => { const el = document.getElementById('plan-comparison'); el?.scrollIntoView({ behavior: 'smooth' }) }} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+                            Upgrade now
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        ) : (
+                          <>
+                            <button onClick={openPortal} disabled={portalLoading} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
+                              {portalLoading ? 'Loading...' : 'Manage subscription'}
+                            </button>
+                            <button onClick={() => { const el = document.getElementById('plan-comparison'); el?.scrollIntoView({ behavior: 'smooth' }) }} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
+                              Change plan
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {subscription?.tier === 'free' && subscription?.isTrialing && (
+                      <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.45)', marginTop: 12 }}>
+                        Your trial expires in {subscription.trialDaysLeft} days. Upgrade to keep your data and unlock all features.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Usage this period */}
+                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                    <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Usage This Period</h3>
+                    {(() => {
+                      const u = subscription?.usage
+                      const l = subscription?.limits
+                      if (!u || !l) return <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.4)' }}>No usage data yet.</p>
+
+                      const usageRows = [
+                        { label: 'AI Call Minutes', used: u.aiCallMinutes || 0, limit: l.freeAiMinutes, unit: 'free', rate: 0.18 },
+                        { label: 'SMS Messages', used: u.smsCount || 0, limit: null, unit: 'msg', rate: 0.03 },
+                        { label: 'Skip Traces', used: u.skipTraces || 0, limit: null, unit: 'each', rate: 0.50 },
+                        { label: 'Deals Analyzed', used: u.dealsAnalyzed || 0, limit: l.dealsAnalyzed === Infinity ? null : l.dealsAnalyzed, unit: null, rate: 0 },
+                        { label: 'Active Deals', used: u.activeDeals || 0, limit: l.activeDeals === Infinity ? null : l.activeDeals, unit: null, rate: 0 },
+                        { label: 'CRM Contacts', used: u.crmContacts || 0, limit: l.crmContacts === Infinity ? null : l.crmContacts, unit: null, rate: 0 },
+                        { label: 'Deals Closed', used: u.dealsClosed || 0, limit: null, unit: 'each', rate: 200 },
+                      ]
+
+                      let totalUsageCharges = 0
+                      // AI overage
+                      const aiOverage = Math.max(0, (u.aiCallMinutes || 0) - (l.freeAiMinutes || 0))
+                      totalUsageCharges += aiOverage * 0.18
+                      // SMS
+                      totalUsageCharges += (u.smsCount || 0) * 0.03
+                      // Skip traces
+                      totalUsageCharges += (u.skipTraces || 0) * 0.50
+                      // Deal fees
+                      totalUsageCharges += (u.dealsClosed || 0) * 200
+
+                      return (
+                        <div>
+                          <div className="space-y-4">
+                            {usageRows.map((row, i) => {
+                              const hasLimit = row.limit != null && row.limit > 0
+                              const pct = hasLimit ? Math.min(100, Math.round((row.used / row.limit!) * 100)) : 0
+                              const barColor = pct >= 90 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-[#2563EB]'
+                              let cost = 0
+                              if (row.label === 'AI Call Minutes') cost = aiOverage * 0.18
+                              else if (row.rate > 0 && row.limit === null) cost = row.used * row.rate
+
+                              return (
+                                <div key={i}>
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '13px', color: 'rgba(5,14,36,0.5)' }}>{row.label}</span>
+                                    <div className="flex items-center gap-3">
+                                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '13px', color: '#0B1224' }}>
+                                        {typeof row.used === 'number' ? (Number.isInteger(row.used) ? row.used.toLocaleString() : row.used.toFixed(1)) : row.used}
+                                        {hasLimit && <span style={{ fontWeight: 400, color: 'rgba(5,14,36,0.35)' }}> / {row.limit!.toLocaleString()} {row.unit || ''}</span>}
+                                      </span>
+                                      {cost > 0 && (
+                                        <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>
+                                          ${cost.toFixed(2)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {hasLimit && (
+                                    <div className="w-full h-1.5 bg-[rgba(5,14,36,0.06)] rounded-full overflow-hidden">
+                                      <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                          {totalUsageCharges > 0 && (
+                            <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(5,14,36,0.06)' }}>
+                              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }}>
+                                Estimated usage charges this period: ${totalUsageCharges.toFixed(2)}
+                              </p>
+                              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)', marginTop: 4 }}>
+                                Usage charges are billed at the end of each billing period.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+                  </div>
+
+                  {/* Payment method card */}
+                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">Payment Method</h3>
+                        {subscription?.tier !== 'free' ? (
+                          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>
+                            Manage your payment method through the Stripe portal.
+                          </p>
+                        ) : (
+                          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>
+                            No payment method on file. Subscribe to a plan to add one.
+                          </p>
+                        )}
+                      </div>
+                      {subscription?.tier !== 'free' && (
+                        <button onClick={openPortal} disabled={portalLoading} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors flex-shrink-0">
+                          Update payment method
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Billing history */}
+                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white overflow-hidden mb-6">
+                    <div className="px-6 py-4 border-b border-gray-100">
+                      <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>Billing History</h3>
+                    </div>
+                    {invoices.length === 0 ? (
+                      <div className="px-6 py-10 text-center">
+                        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.4)' }}>
+                          No invoices yet. Your first invoice will appear after your trial period.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-gray-100 text-left">
+                              {['Date', 'Description', 'Amount', 'Status', ''].map((h, i) => (
+                                <th key={i} style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {invoices.map((inv: any) => {
+                              const statusBg = inv.status === 'paid' ? 'rgba(37,99,235,0.08)' : inv.status === 'failed' ? 'rgba(239,68,68,0.08)' : 'rgba(5,14,36,0.06)'
+                              const statusFg = inv.status === 'paid' ? '#2563EB' : inv.status === 'failed' ? '#DC2626' : 'rgba(5,14,36,0.5)'
+                              return (
+                                <tr key={inv.id} className="border-b border-gray-50 hover:bg-gray-50">
+                                  <td style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px' }} className="px-6 py-3 text-gray-700">
+                                    {new Date(inv.paidAt || inv.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                  </td>
+                                  <td style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px' }} className="px-6 py-3 text-gray-700">
+                                    {inv.description || 'DealFlow AI subscription'}
+                                  </td>
+                                  <td style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', fontWeight: 600 }} className="px-6 py-3 text-gray-900">
+                                    ${(inv.amount / 100).toFixed(2)}
+                                  </td>
+                                  <td className="px-6 py-3">
+                                    <span style={{ backgroundColor: statusBg, color: statusFg }} className="px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize">{inv.status}</span>
+                                  </td>
+                                  <td className="px-6 py-3">
+                                    {inv.invoiceUrl && (
+                                      <a href={inv.invoiceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1">
+                                        <ExternalLink className="w-3 h-3" />
+                                        View
+                                      </a>
+                                    )}
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Plan comparison */}
+                  <div id="plan-comparison">
+                    <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Compare Plans</h3>
+                    <div className="grid grid-cols-3 gap-4 billing-plans-grid">
+                      {planDefs.map((plan) => {
+                        const isCurrent = subscription?.tier === plan.key
+                        const currentIdx = ['starter', 'pro', 'enterprise'].indexOf(subscription?.tier || '')
+                        const planIdx = ['starter', 'pro', 'enterprise'].indexOf(plan.key)
+                        const isUpgrade = planIdx > currentIdx
+                        const isDowngrade = planIdx < currentIdx && currentIdx >= 0
+
+                        return (
+                          <div
+                            key={plan.key}
+                            style={{ border: isCurrent ? '2px solid #2563EB' : '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }}
+                            className="bg-white relative"
+                          >
+                            {isCurrent && (
+                              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#2563EB] text-white whitespace-nowrap">
+                                Current Plan
+                              </span>
+                            )}
+                            <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">{plan.name}</h4>
+                            <p className="mb-4">
+                              <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }}>{plan.price}</span>
+                              <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>{plan.period}</span>
+                            </p>
+                            <div className="space-y-2 mb-5" style={{ fontSize: '14px' }}>
+                              {[
+                                ['Markets', plan.limits.markets],
+                                ['CRM Contacts', plan.limits.crmContacts],
+                                ['Deals Analyzed', plan.limits.dealsAnalyzed],
+                                ['Active Deals', plan.limits.activeDeals],
+                                ['Free AI Minutes', plan.limits.aiMinutes],
+                                ['Contracts', plan.limits.contracts],
+                                ['Team Users', plan.limits.team],
+                                ['Per-Deal Fee', plan.limits.dealFee],
+                              ].map(([label, val], j) => (
+                                <div key={j} className="flex justify-between">
+                                  <span style={{ color: 'rgba(5,14,36,0.65)', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{label}</span>
+                                  <span style={{ fontWeight: 600, color: '#0B1224', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{val}</span>
+                                </div>
+                              ))}
+                            </div>
+                            {isCurrent ? (
+                              <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-gray-100 text-gray-500 cursor-default">Current Plan</button>
+                            ) : plan.key === 'enterprise' && !isCurrent ? (
+                              <a href="mailto:hello@dealflowai.app" style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", textDecoration: 'none', display: 'block', textAlign: 'center' }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">Contact Sales</a>
+                            ) : isUpgrade && plan.stripePriceId ? (
+                              <button onClick={() => handleCheckout(plan.stripePriceId!)} disabled={checkoutLoading} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+                                {checkoutLoading ? 'Loading...' : 'Upgrade'}
+                              </button>
+                            ) : isDowngrade ? (
+                              <button onClick={openPortal} disabled={portalLoading} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid rgba(5,14,36,0.15)' }} className="w-full bg-white text-[#0B1224] hover:bg-gray-50 transition-colors">
+                                {portalLoading ? 'Loading...' : 'Downgrade'}
+                              </button>
+                            ) : plan.stripePriceId ? (
+                              <button onClick={() => handleCheckout(plan.stripePriceId!)} disabled={checkoutLoading} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+                                {checkoutLoading ? 'Loading...' : 'Subscribe'}
+                              </button>
+                            ) : null}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -1380,6 +1603,12 @@ export default function SettingsPage() {
           Settings saved successfully
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 860px) {
+          .billing-plans-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   )
 }

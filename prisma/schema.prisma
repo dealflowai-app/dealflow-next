@@ -156,10 +156,21 @@ model Profile {
   firstName String?
   lastName  String?
   phone     String?
-  role      Role
-  company   String?
+  role         Role
+  platformRole String    @default("user")  // "user" or "admin"
+  company      String?
   avatarUrl String?
   settings  Json?          // user preferences & config (inbound routing, etc.)
+
+  // Stripe / billing
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?
+  stripePriceId        String?
+  tier                 String    @default("free")  // "free", "starter", "pro", "enterprise"
+  tierStatus           String    @default("active") // "active", "past_due", "cancelled", "trialing"
+  trialEndsAt          DateTime?
+  currentPeriodEnd     DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -187,6 +198,8 @@ model Profile {
   callIntelligence     CallIntelligence[]
   smsConversations     SMSConversation[]
   liveCallSessions     LiveCallSession[]
+  usageRecords         Usage[]
+  paymentHistory       PaymentHistory[]
 
   @@map("profiles")
 }
@@ -1264,4 +1277,46 @@ model ChatConversation {
   @@index([updatedAt])
   @@index([shareToken])
   @@map("chat_conversations")
+}
+
+// ─── USAGE TRACKING ──────────────────────────────────────────────────────────
+
+model Usage {
+  id              String   @id @default(cuid())
+  userId          String
+  user            Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  periodStart     DateTime
+  periodEnd       DateTime
+  aiCallMinutes   Float    @default(0)
+  smsCount        Int      @default(0)
+  skipTraces      Int      @default(0)
+  dealsAnalyzed   Int      @default(0)
+  dealsClosed     Int      @default(0)
+  activeDeals     Int      @default(0)
+  crmContacts     Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, periodStart])
+  @@index([userId])
+  @@map("usage")
+}
+
+// ─── PAYMENT HISTORY ─────────────────────────────────────────────────────────
+
+model PaymentHistory {
+  id              String    @id @default(cuid())
+  userId          String
+  user            Profile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeInvoiceId String?   @unique
+  amount          Int       // cents
+  currency        String    @default("usd")
+  status          String    // "paid", "failed", "refunded"
+  description     String?
+  invoiceUrl      String?
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@map("payment_history")
 }

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email'
 import { formatWelcomeEmail } from '@/lib/emails'
+import { stripe } from '@/lib/stripe'
 
 export async function POST(request: Request) {
   try {
@@ -25,6 +26,39 @@ export async function POST(request: Request) {
       create: { userId: user.id, email: user.email!, firstName, lastName, phone, role: 'WHOLESALER', settings },
       update: { firstName, lastName, phone, settings },
     })
+
+    // Create Stripe customer and set up free trial
+    try {
+      const customer = await stripe.customers.create({
+        email: user.email!,
+        metadata: {
+          userId: user.id,
+          firstName: firstName || '',
+          lastName: lastName || '',
+        },
+      })
+
+      await prisma.profile.update({
+        where: { id: profile.id },
+        data: {
+          stripeCustomerId: customer.id,
+          tier: 'free',
+          trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14-day trial
+        },
+      })
+
+      // Create initial usage record for the current period
+      await prisma.usage.create({
+        data: {
+          userId: profile.id,
+          periodStart: new Date(),
+          periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+      })
+    } catch (stripeErr) {
+      console.error('Stripe customer creation failed:', stripeErr)
+      // Don't block onboarding if Stripe fails — customer can be created later
+    }
 
     // Send welcome email (fire-and-forget)
     if (firstName && user.email) {

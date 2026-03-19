@@ -7,6 +7,7 @@ import {
   setConversationMode,
   markConversationRead,
 } from '@/lib/outreach/sms-conversation'
+import { trackSms } from '@/lib/usage'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -79,6 +80,13 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
     const result = await sendManualMessage(id, messageBody.trim())
     if (!result.success) {
       return errorResponse(400, result.error || 'Send failed')
+    }
+
+    // Track SMS usage for billing
+    try {
+      await trackSms(profile.id)
+    } catch (err) {
+      console.error('Usage tracking failed for SMS:', err)
     }
 
     return successResponse({

@@ -11,6 +11,7 @@ import {
   generateDeepAnalysis, updateCallIntelligenceDeep,
 } from '@/lib/outreach/conversation-intelligence'
 import { completeLiveSession } from '@/lib/outreach/live-call-service'
+import { trackAiCallMinutes } from '@/lib/usage'
 import crypto from 'crypto'
 
 const BLAND_WEBHOOK_SECRET = process.env.BLAND_WEBHOOK_SECRET
@@ -91,6 +92,24 @@ export async function POST(req: NextRequest) {
           endedAt: new Date(),
         },
       })
+
+      // Track AI call minutes for billing
+      try {
+        const buyer = await prisma.cashBuyer.findUnique({
+          where: { id: buyerId },
+          select: { profileId: true },
+        })
+        if (buyer?.profileId) {
+          const minutes = Math.ceil((duration || 0) / 60 * 100) / 100
+          await trackAiCallMinutes(buyer.profileId, minutes)
+        }
+      } catch (err) {
+        logger.warn('Usage tracking failed for AI call', {
+          route: '/api/webhooks/bland',
+          callId: call_id,
+          error: err instanceof Error ? err.message : String(err),
+        })
+      }
 
       // Complete live monitoring session
       try {

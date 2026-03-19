@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const protectedPaths = ['/dashboard', '/community', '/marketplace', '/buyers', '/crm', '/outreach', '/analyzer', '/contracts', '/gpt', '/settings', '/deals']
+  const protectedPaths = ['/dashboard', '/community', '/marketplace', '/buyers', '/crm', '/outreach', '/analyzer', '/contracts', '/gpt', '/settings', '/deals', '/admin']
   const isProtected = protectedPaths.some(p => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(p + '/'))
 
   if (!user && isProtected) {
@@ -38,5 +38,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/community/:path*', '/marketplace/:path*', '/buyers/:path*', '/crm/:path*', '/outreach/:path*', '/analyzer/:path*', '/contracts/:path*', '/gpt/:path*', '/settings/:path*', '/deals/:path*'],
+  matcher: ['/dashboard/:path*', '/community/:path*', '/marketplace/:path*', '/buyers/:path*', '/crm/:path*', '/outreach/:path*', '/analyzer/:path*', '/contracts/:path*', '/gpt/:path*', '/settings/:path*', '/deals/:path*', '/admin/:path*'],
 }

@@ -19,6 +19,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Shield,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
@@ -216,8 +217,69 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         </div>
       </nav>
 
-      {/* Settings + User */}
+      {/* Settings + Admin + User */}
       <div style={{ padding: '8px 10px 14px', borderTop: '1px solid rgba(5,14,36,0.08)' }}>
+        {/* Admin link (only for admins) */}
+        {(profile as any).platformRole === 'admin' && (
+          <Link
+            href="/admin"
+            title={collapsed ? 'Admin' : undefined}
+            className="sidebar-link"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: collapsed ? '9px 0' : '9px 12px',
+              borderRadius: 10,
+              fontSize: '0.82rem',
+              fontWeight: 500,
+              fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+              letterSpacing: '-0.005em',
+              textDecoration: 'none',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              marginBottom: 4,
+              color: '#0B1224',
+              background: 'transparent',
+              transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <Shield
+              className="flex-shrink-0"
+              style={{
+                width: 17,
+                height: 17,
+                strokeWidth: 1.8,
+                color: '#DC2626',
+                transition: 'color 0.18s ease',
+              }}
+            />
+            {!collapsed && (
+              <>
+                Admin
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    fontSize: '0.55rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    color: '#DC2626',
+                    background: '#FEF2F2',
+                    border: '1px solid #FEE2E2',
+                    borderRadius: 20,
+                    padding: '1px 5px',
+                    lineHeight: 1,
+                    marginLeft: 'auto',
+                  }}
+                >
+                  Admin
+                </span>
+              </>
+            )}
+          </Link>
+        )}
+
         {/* Settings link */}
         <Link
           href="/settings"
