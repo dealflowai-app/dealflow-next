@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false)
   const [hasSession, setHasSession] = useState<boolean | null>(null)
 
-  // Exchange the code from the URL for a session, then listen for recovery event
+  // Check for active session (set by /api/auth/callback after code exchange)
   useEffect(() => {
     const supabase = createClient()
 
@@ -62,27 +62,10 @@ export default function ResetPasswordPage() {
       }
     })
 
-    // Check for ?code= parameter from Supabase email link
-    const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-        if (error || !data.session) {
-          console.error('Code exchange failed:', error)
-          setHasSession(false)
-        } else {
-          // Session established — allow password update
-          setHasSession(true)
-        }
-      })
-    } else {
-      // No code — check if user already has a session (e.g. page refresh)
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) setHasSession(true)
-        else setHasSession(false)
-      })
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setHasSession(true)
+      else setHasSession(false)
+    })
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
