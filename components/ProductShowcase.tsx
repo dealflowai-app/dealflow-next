@@ -259,7 +259,7 @@ export default function ProductShowcase() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .pipeline-connector {
           display: flex;
           align-items: center;
@@ -342,7 +342,7 @@ export default function ProductShowcase() {
           .showcase-block-mockup { order: 2 !important; }
           .pipeline-connector { display: none; }
         }
-      `}</style>
+      ` }} />
     </section>
   )
 }

@@ -160,12 +160,12 @@ export default function WhoItsFor() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 860px) {
           #who { padding: 64px 20px !important; }
           .who-panel { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

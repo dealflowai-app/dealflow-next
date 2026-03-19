@@ -301,7 +301,7 @@ export default function DiscoveryMapbox({
       {/* Pin count removed — shown in floating search bar */}
 
       {/* Remove default popup styling */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .discovery-popup .mapboxgl-popup-content {
           padding: 0;
           border-radius: 8px;
@@ -311,7 +311,7 @@ export default function DiscoveryMapbox({
         .discovery-popup .mapboxgl-popup-tip {
           border-top-color: #E5E7EB;
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

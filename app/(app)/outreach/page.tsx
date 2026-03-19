@@ -1335,9 +1335,9 @@ function CallDetailSlideOver({
           )}
         </div>
       </div>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 640px) { .outreach-slide-panel { width: 100% !important; } }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -2124,9 +2124,9 @@ function NewCampaignModal({
           </div>
         </div>
       </div>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 640px) { .outreach-modal { width: 95% !important; max-height: 90vh !important; } }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -2687,12 +2687,12 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
         </div>
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes waveform {
           0% { transform: scaleY(0.4); }
           100% { transform: scaleY(1); }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -4715,7 +4715,7 @@ export default function AIOutreachPage() {
       {/* Toasts */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
@@ -4724,7 +4724,7 @@ export default function AIOutreachPage() {
         .animate-slideInRight { animation: slideInRight 0.25s ease-out; }
         @media (max-width: 900px) { .outreach-metrics { grid-template-columns: repeat(2, 1fr) !important; } }
         @media (max-width: 640px) { .outreach-slide-panel { width: 100% !important; } }
-      `}</style>
+      ` }} />
     </div>
   )
 }

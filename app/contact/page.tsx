@@ -197,14 +197,14 @@ export default function ContactPage() {
       </main>
       <Footer />
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 860px) {
           .contact-content { padding-left: 20px !important; padding-right: 20px !important; }
         }
         @media (max-width: 520px) {
           .contact-name-row { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </>
   )
 }

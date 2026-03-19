@@ -1998,7 +1998,7 @@ export default function DealFlowGPTPage() {
         </div>
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 1280px) {
           .context-sidebar { display: none; }
         }
@@ -2012,7 +2012,7 @@ export default function DealFlowGPTPage() {
             box-shadow: 4px 0 24px rgba(0,0,0,0.1);
           }
         }
-      `}</style>
+      ` }} />
     </div>
     </ChatErrorBoundary>
   )

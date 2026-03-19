@@ -275,11 +275,11 @@ export default function GlobalSearch() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

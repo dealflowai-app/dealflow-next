@@ -673,7 +673,7 @@ export default function Features() {
 
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 860px) {
           #how { padding: 64px 20px !important; }
           .features-detail { grid-template-columns: 1fr !important; gap: 24px !important; }
@@ -684,7 +684,7 @@ export default function Features() {
         @media (max-width: 520px) {
           .features-tab-btn span:first-child { display: none; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

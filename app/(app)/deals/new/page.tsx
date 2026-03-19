@@ -631,7 +631,7 @@ export default function NewDealPage() {
         </Link>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 680px) {
           .new-deal-address-grid { grid-template-columns: 1fr !important; }
           .new-deal-details-grid { grid-template-columns: 1fr 1fr !important; }
@@ -642,7 +642,7 @@ export default function NewDealPage() {
         @media (max-width: 480px) {
           .new-deal-details-grid { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

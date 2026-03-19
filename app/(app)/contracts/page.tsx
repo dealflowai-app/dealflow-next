@@ -1113,12 +1113,12 @@ function ContractDetail({
       {/* Version History */}
       <VersionHistory contractId={contract.id} />
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {
           .contracts-parties { grid-template-columns: 1fr !important; }
           .contracts-terms { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -1733,11 +1733,11 @@ function TemplatesSection({ onUseTemplate }: { onUseTemplate: (templateId: strin
         />
       )}
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {
           .contracts-template-grid { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }
@@ -1927,11 +1927,11 @@ function ArchiveSection({
         </table>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {
           .contracts-archive-stats { grid-template-columns: 1fr 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

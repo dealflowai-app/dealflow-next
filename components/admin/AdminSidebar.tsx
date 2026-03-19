@@ -264,7 +264,7 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .admin-nav-link:hover {
           background: rgba(255,255,255,0.08) !important;
           color: #ffffff !important;
@@ -275,7 +275,7 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
         .admin-user:hover {
           background: rgba(255,255,255,0.05);
         }
-      `}</style>
+      ` }} />
     </aside>
   )
 }
