@@ -28,6 +28,7 @@ import {
   Activity,
 } from 'lucide-react'
 import { useToast } from '@/components/toast'
+import VerificationBanner from '@/components/VerificationBanner'
 
 /* ══════════════════════════════════════════════
    TYPES
@@ -1536,6 +1537,9 @@ export default function DashboardPage() {
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </div>
+
+      {/* Verification reminder */}
+      <VerificationBanner />
 
       {/* Alert badges */}
       {data && <AlertBadges data={data} router={router} />}

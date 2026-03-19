@@ -56,28 +56,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // For authenticated users on protected pages, enforce email + onboarding + phone verification
+  // For authenticated users on protected pages, enforce onboarding only
+  // Email and phone verification are soft-gated (reminder banner on dashboard)
   if (user && isProtected) {
-    const emailConfirmed = !!user.email_confirmed_at
     const onboarded = !!user.user_metadata?.onboarded
-    const phoneVerified = !!user.user_metadata?.phone_verified
-
-    if (!emailConfirmed) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/verify-email'
-      return NextResponse.redirect(url)
-    }
 
     if (!onboarded) {
       const url = request.nextUrl.clone()
       url.pathname = '/signup'
       url.searchParams.set('step', '2')
-      return NextResponse.redirect(url)
-    }
-
-    if (!phoneVerified) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/verify-phone'
       return NextResponse.redirect(url)
     }
   }
