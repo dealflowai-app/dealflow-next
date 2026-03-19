@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
+import GoogleOAuthButton from '@/components/GoogleOAuthButton'
 import { createClient } from '@/lib/supabase/client'
 
 const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
@@ -48,6 +49,31 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState('')
   const [resetSent, setResetSent] = useState(false)
+  const [failCount, setFailCount] = useState(0)
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null)
+  const [lockCountdown, setLockCountdown] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Countdown timer for lockout
+  useEffect(() => {
+    if (lockedUntil) {
+      const tick = () => {
+        const remaining = Math.ceil((lockedUntil - Date.now()) / 1000)
+        if (remaining <= 0) {
+          setLockedUntil(null)
+          setLockCountdown(0)
+          if (timerRef.current) clearInterval(timerRef.current)
+        } else {
+          setLockCountdown(remaining)
+        }
+      }
+      tick()
+      timerRef.current = setInterval(tick, 1000)
+      return () => { if (timerRef.current) clearInterval(timerRef.current) }
+    }
+  }, [lockedUntil])
+
+  const isLocked = lockedUntil !== null && Date.now() < lockedUntil
 
   async function handleForgotPassword() {
     if (!email) {
@@ -57,7 +83,7 @@ export default function LoginPage() {
     setError('')
     const supabase = createClient()
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/reset-password`,
     })
     if (resetError) {
       setError(resetError.message)
@@ -68,6 +94,7 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (isLocked) return
     setLoading(true)
     setError('')
 
@@ -75,11 +102,24 @@ export default function LoginPage() {
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (authError) {
-      setError(authError.message)
+      const newCount = failCount + 1
+      setFailCount(newCount)
+
+      // Lock out after 5 failed attempts for 30 seconds
+      if (newCount >= 5) {
+        const lockDuration = 30 * 1000
+        setLockedUntil(Date.now() + lockDuration)
+        setError('Too many failed attempts. Please wait before trying again.')
+        setFailCount(0)
+      } else {
+        setError(authError.message)
+      }
+
       setLoading(false)
       return
     }
 
+    setFailCount(0)
     window.location.href = '/dashboard'
   }
 
@@ -95,24 +135,22 @@ export default function LoginPage() {
           boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
           border: '1px solid rgba(5,14,36,0.06)',
         }}>
-          {/* Icon */}
-          <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 22,
-          }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-          </div>
-
           <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15 }}>
             Welcome back
           </h1>
-          <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 28, lineHeight: 1.6, fontFamily: F }}>
+          <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 24, lineHeight: 1.6, fontFamily: F }}>
             Sign in to access your deals, buyers, and platform tools.
           </p>
+
+          {/* Google OAuth */}
+          <GoogleOAuthButton mode="login" />
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '20px 0' }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
+            <span style={{ fontSize: 12, color: 'rgba(5,14,36,0.35)', fontFamily: F, fontWeight: 500 }}>or</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
+          </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* Email */}
@@ -180,14 +218,14 @@ export default function LoginPage() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isLocked}
               className="auth-submit"
               style={{
                 width: '100%', padding: 12, borderRadius: 10,
-                background: loading ? '#60A5FA' : BLUE,
+                background: (loading || isLocked) ? '#60A5FA' : BLUE,
                 color: 'white', border: 'none',
                 fontFamily: F, fontWeight: 600, fontSize: 15,
-                cursor: loading ? 'not-allowed' : 'pointer',
+                cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
                 transition: 'background 0.2s',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               }}
@@ -197,7 +235,7 @@ export default function LoginPage() {
                   <span className="auth-spinner" />
                   Signing in...
                 </>
-              ) : 'Sign in'}
+              ) : isLocked ? `Try again in ${lockCountdown}s` : 'Sign in'}
             </button>
           </form>
 
@@ -208,7 +246,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .auth-input:focus {
           border-color: ${BLUE} !important;
           box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
@@ -234,7 +272,7 @@ export default function LoginPage() {
         @media (max-width: 480px) {
           .auth-card { padding: 28px 22px !important; border-radius: 14px !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

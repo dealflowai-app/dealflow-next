@@ -162,6 +162,12 @@ model Profile {
   avatarUrl String?
   settings  Json?          // user preferences & config (inbound routing, etc.)
 
+  // Verification
+  emailVerified    Boolean   @default(false)
+  phoneVerified    Boolean   @default(false)
+  phoneOtp         String?               // hashed OTP for phone verification
+  phoneOtpExpires  DateTime?             // OTP expiry time
+
   // Stripe / billing
   stripeCustomerId     String?   @unique
   stripeSubscriptionId String?

@@ -124,7 +124,7 @@ export default function Footer() {
         }}
       >
         <span style={{ fontSize: 11, color: 'var(--muted-text)' }}>
-          Built for real estate professionals
+          Built for Real Estate Wholesalers
         </span>
         <div style={{ display: 'flex', gap: 20 }}>
           {[

@@ -28,15 +28,66 @@ export async function middleware(request: NextRequest) {
   const protectedPaths = ['/dashboard', '/community', '/marketplace', '/buyers', '/crm', '/outreach', '/analyzer', '/contracts', '/gpt', '/settings', '/deals', '/admin']
   const isProtected = protectedPaths.some(p => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(p + '/'))
 
-  if (!user && isProtected) {
+  const verificationPaths = ['/verify-email', '/verify-phone']
+  const isVerificationPage = verificationPaths.some(p => request.nextUrl.pathname === p)
+
+  // Redirect unauthenticated users away from protected pages and verification pages
+  if (!user && (isProtected || isVerificationPage)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
+  }
+
+  // Redirect authenticated users away from auth pages (unless completing signup step 2)
+  const authPaths = ['/login', '/signup']
+  const isAuthPage = authPaths.some(p => request.nextUrl.pathname === p)
+  const isSignupStep2 = request.nextUrl.pathname === '/signup' && request.nextUrl.searchParams.get('step') === '2'
+
+  if (user && isAuthPage && !isSignupStep2) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  // For authenticated users on protected pages, enforce email + phone verification
+  if (user && isProtected) {
+    const emailConfirmed = !!user.email_confirmed_at
+    const phoneVerified = !!user.user_metadata?.phone_verified
+
+    if (!emailConfirmed) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/verify-email'
+      return NextResponse.redirect(url)
+    }
+
+    if (!phoneVerified) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/verify-phone'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // If user is on verify-email but already verified email, push to verify-phone or dashboard
+  if (user && request.nextUrl.pathname === '/verify-email') {
+    if (user.email_confirmed_at) {
+      const url = request.nextUrl.clone()
+      url.pathname = user.user_metadata?.phone_verified ? '/dashboard' : '/verify-phone'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // If user is on verify-phone but already verified phone, push to dashboard
+  if (user && request.nextUrl.pathname === '/verify-phone') {
+    if (user.user_metadata?.phone_verified) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/community/:path*', '/marketplace/:path*', '/buyers/:path*', '/crm/:path*', '/outreach/:path*', '/analyzer/:path*', '/contracts/:path*', '/gpt/:path*', '/settings/:path*', '/deals/:path*', '/admin/:path*'],
+  matcher: ['/dashboard/:path*', '/community/:path*', '/marketplace/:path*', '/buyers/:path*', '/crm/:path*', '/outreach/:path*', '/analyzer/:path*', '/contracts/:path*', '/gpt/:path*', '/settings/:path*', '/deals/:path*', '/admin/:path*', '/login', '/signup', '/verify-email', '/verify-phone'],
 }
