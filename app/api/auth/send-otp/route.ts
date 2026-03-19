@@ -36,10 +36,17 @@ export async function POST(request: Request) {
 
     const normalizedPhone = normalizePhone(phone)
 
-    // Rate limit: max 3 OTPs per 10 minutes
-    const profile = await prisma.profile.findUnique({ where: { userId: user.id } })
+    // Find or create profile
+    let profile = await prisma.profile.findUnique({ where: { userId: user.id } })
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      // Create a basic profile if one doesn't exist (user may have skipped profile setup)
+      profile = await prisma.profile.create({
+        data: {
+          userId: user.id,
+          email: user.email!,
+          role: 'WHOLESALER',
+        },
+      })
     }
 
     // OTP expires 10 min after creation. If expires > now + 8 min, it was created < 2 min ago.
