@@ -27,7 +27,7 @@ function VerifyEmailContent() {
       // Update profile emailVerified flag
       fetch('/api/auth/confirm-email', { method: 'POST' }).catch(() => {})
       setTimeout(() => {
-        router.push('/verify-phone')
+        router.push('/signup?step=2')
         router.refresh()
       }, 2000)
       return
@@ -42,7 +42,7 @@ function VerifyEmailContent() {
         setConfirmed(true)
         fetch('/api/auth/confirm-email', { method: 'POST' }).catch(() => {})
         setTimeout(() => {
-          router.push('/verify-phone')
+          router.push('/signup?step=2')
           router.refresh()
         }, 1500)
       }
@@ -91,7 +91,7 @@ function VerifyEmailContent() {
               Email verified
             </h1>
             <p style={{ fontSize: '0.9rem', color: BODY, lineHeight: 1.6, fontFamily: F }}>
-              Redirecting to phone verification...
+              Redirecting to profile setup...
             </p>
           </div>
         </div>

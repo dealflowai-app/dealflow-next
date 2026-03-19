@@ -67,11 +67,17 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // If user is on verify-email but already verified email, push to verify-phone or dashboard
+  // If user is on verify-email but already verified email, push to profile setup or dashboard
   if (user && request.nextUrl.pathname === '/verify-email') {
     if (user.email_confirmed_at) {
       const url = request.nextUrl.clone()
-      url.pathname = user.user_metadata?.phone_verified ? '/dashboard' : '/verify-phone'
+      if (user.user_metadata?.phone_verified) {
+        url.pathname = '/dashboard'
+      } else {
+        // Go to profile setup, then phone verification
+        url.pathname = '/signup'
+        url.searchParams.set('step', '2')
+      }
       return NextResponse.redirect(url)
     }
   }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Nav from '@/components/Nav'
@@ -155,8 +155,8 @@ function SignUpFlow() {
   const router = useRouter()
 
   const [step, setStep] = useState(1)
-  const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
-  const [animating, setAnimating] = useState(false)
+  const [direction] = useState<'forward' | 'backward'>('forward')
+  const [animating] = useState(false)
 
   // Step 1
   const [email, setEmail] = useState('')
@@ -207,15 +207,6 @@ function SignUpFlow() {
     }
   }, [searchParams])
 
-  const goToStep = useCallback((target: number) => {
-    setDirection(target > step ? 'forward' : 'backward')
-    setAnimating(true)
-    setTimeout(() => {
-      setStep(target)
-      setTimeout(() => setAnimating(false), 20)
-    }, 200)
-  }, [step])
-
   /* ── Step 1: Submit ─────────────────────────────────── */
 
   async function handleSignUp(e: React.FormEvent) {
@@ -239,7 +230,7 @@ function SignUpFlow() {
 
     setLoading(true)
     const supabase = createClient()
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -253,8 +244,17 @@ function SignUpFlow() {
       return
     }
 
+    // Supabase returns a user with empty identities when the email is already taken
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setError('An account with this email already exists.')
+      setLoading(false)
+      return
+    }
+
     setLoading(false)
-    goToStep(2)
+    // Email confirmation is required — no session until confirmed
+    // Go directly to verify-email; profile setup happens after verification
+    router.push('/verify-email')
   }
 
   /* ── Step 2: Submit ─────────────────────────────────── */
@@ -301,26 +301,16 @@ function SignUpFlow() {
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
 
       setLoading(false)
-      goToStep(3)
+      // Profile saved — go to phone verification
+      router.push('/verify-phone')
+      router.refresh()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
       setLoading(false)
     }
   }
 
-  /* ── Step 3: Auto-redirect to verification ────────────── */
-
-  useEffect(() => {
-    if (step === 3) {
-      const t = setTimeout(() => {
-        router.push('/verify-email')
-        router.refresh()
-      }, 2000)
-      return () => clearTimeout(t)
-    }
-  }, [step, router])
-
-  const isAlreadyRegistered = error.toLowerCase().includes('already registered')
+  const isAlreadyRegistered = error.toLowerCase().includes('already registered') || error.toLowerCase().includes('already exists')
 
   /* ── Render ─────────────────────────────────────────── */
 
@@ -416,6 +406,7 @@ function SignUpFlow() {
                         placeholder="Create a password"
                         className="auth-input"
                         style={inputWithToggle}
+                        autoComplete="new-password"
                         autoFocus={showPasswordFields}
                       />
                       <button
@@ -450,6 +441,7 @@ function SignUpFlow() {
                           ...inputWithToggle,
                           borderColor: confirmError ? '#EF4444' : undefined,
                         }}
+                        autoComplete="new-password"
                         tabIndex={showPasswordFields ? 0 : -1}
                       />
                       <button
