@@ -67,11 +67,14 @@ export default function ResetPasswordPage() {
     const code = params.get('code')
 
     if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-        if (error) {
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        if (error || !data.session) {
+          console.error('Code exchange failed:', error)
           setHasSession(false)
+        } else {
+          // Session established — allow password update
+          setHasSession(true)
         }
-        // PASSWORD_RECOVERY event will fire from onAuthStateChange above
       })
     } else {
       // No code — check if user already has a session (e.g. page refresh)
