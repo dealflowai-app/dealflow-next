@@ -7,7 +7,7 @@ import {
   normalizeOwnerName,
   groupPropertiesByOwner,
 } from '@/lib/discovery/owner-intelligence'
-import { AttomApiError } from '@/lib/attom'
+import { BatchDataApiError } from '@/lib/batchdata'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -36,10 +36,13 @@ export async function GET(req: NextRequest, context: RouteContext) {
 
     const provider = getDataProvider()
 
-    // ── ATTOM path: get real owner profile ────────────────────────────────
-    if (provider.hasAttom) {
+    // ── BatchData path: owner profile via BatchData API ─────────────────
+    if (provider.hasBatchData) {
       try {
-        const ownerProfile = await provider.getOwnerProfileById(id)
+        const ownerProfile = await provider.getOwnerPortfolio(
+          row.ownerName,
+          `${row.city}, ${row.state}`,
+        )
 
         // Also search cached properties by this owner name for local data
         const normalized = normalizeOwnerName(row.ownerName)
@@ -47,10 +50,13 @@ export async function GET(req: NextRequest, context: RouteContext) {
           where: {
             ownerName: { not: null },
             expiresAt: { gt: new Date() },
+            OR: [
+              ...(row.searchCity ? [{ searchCity: row.searchCity }] : []),
+              ...(row.searchZip ? [{ searchZip: row.searchZip }] : []),
+            ],
           },
         })
 
-        // Filter to matching owner
         const matchingRows = cachedRows.filter(
           (r) => normalizeOwnerName(r.ownerName) === normalized
         )
@@ -62,15 +68,16 @@ export async function GET(req: NextRequest, context: RouteContext) {
           owner: ownerProfile,
           portfolio: {
             properties: otherProperties,
-            propertyCount: ownerProfile.portfolio.propertyCount,
-            totalValue: ownerProfile.portfolio.totalValue,
+            propertyCount: ownerProfile.portfolio.propertyCount || matchingRows.length,
+            totalValue: ownerProfile.portfolio.totalValue ||
+              matchingRows.reduce((sum, r) => sum + (r.assessedValue ?? 0), 0),
           },
           dataSource: provider.primarySource,
         })
       } catch (err) {
-        // Fall through to RentCast path if ATTOM lookup fails
-        if (!(err instanceof AttomApiError)) throw err
-        console.error(`ATTOM owner lookup failed, falling back: ${err.status}`)
+        if (!(err instanceof BatchDataApiError)) throw err
+        console.error(`BatchData owner lookup failed, falling back: ${err.status}`)
+        // Fall through to RentCast path
       }
     }
 
@@ -162,8 +169,8 @@ export async function GET(req: NextRequest, context: RouteContext) {
       dataSource: provider.primarySource,
     })
   } catch (err) {
-    if (err instanceof AttomApiError) {
-      console.error(`ATTOM error in portfolio: ${err.status} ${err.endpoint}`)
+    if (err instanceof BatchDataApiError) {
+      console.error(`BatchData error in portfolio: ${err.status} ${err.endpoint}`)
       return NextResponse.json(
         { error: 'Property data provider error' },
         { status: 502 },

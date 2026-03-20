@@ -1527,13 +1527,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="px-9 py-7 max-w-[1200px]" style={{ background: '#F9FAFB', fontFamily: FONT }}>
+    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
       {/* Header */}
       <div className="mb-6">
-        <h1 style={{ fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 4, fontFamily: FONT }}>
+        <h1 style={{ fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 4 }}>
           {data?.firstName ? `${getGreeting()}, ${data.firstName}` : 'Dashboard'}
         </h1>
-        <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.4)', lineHeight: 1.5, margin: 0, fontFamily: FONT }}>
+        <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.4)', lineHeight: 1.5, margin: 0 }}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </div>

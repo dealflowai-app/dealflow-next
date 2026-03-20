@@ -285,23 +285,22 @@ export default function DiscoveryMapbox({
         )}
       </Map>
 
-      {/* ── Legend (bottom-left) ── */}
-      <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2.5 border border-gray-200 shadow-sm z-10">
-        <div className="text-[0.62rem] text-gray-400 uppercase tracking-wide mb-1.5">Property Types</div>
-        <div className="space-y-1">
+      {/* ── Legend (bottom-left, covers mapbox logo) ── */}
+      <div className="absolute bottom-0 left-0 bg-white/95 backdrop-blur-sm rounded-tr-lg px-3 py-2 border-t border-r border-gray-200/60 z-10">
+        <div className="text-[0.58rem] text-gray-400 uppercase tracking-wider mb-1 font-medium">Property Types</div>
+        <div className="space-y-0.5">
           {LEGEND.map(l => (
             <div key={l.label} className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ background: l.color }} />
-              <span className="text-[0.66rem] text-gray-600">{l.label}</span>
+              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: l.color }} />
+              <span className="text-[0.64rem] text-gray-600">{l.label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Pin count removed — shown in floating search bar */}
-
-      {/* Remove default popup styling */}
+      {/* Remove default popup styling + hide mapbox branding */}
       <style dangerouslySetInnerHTML={{ __html: `
+        .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { display: none !important; }
         .discovery-popup .mapboxgl-popup-content {
           padding: 0;
           border-radius: 8px;

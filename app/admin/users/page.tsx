@@ -48,6 +48,7 @@ function tierBadge(tier: string) {
     free: { bg: '#F3F4F6', color: '#6B7280' },
     starter: { bg: '#DBEAFE', color: '#2563EB' },
     pro: { bg: '#EDE9FE', color: '#7C3AED' },
+    business: { bg: '#FEF3C7', color: '#D97706' },
     enterprise: { bg: '#FEF3C7', color: '#D97706' },
   }
   const c = colors[tier] || colors.free

@@ -414,17 +414,17 @@ export default function DealsPage() {
   ]
 
   return (
-    <div className="p-9 max-w-[1080px]">
+    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1
-            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em' }}
+            style={{ fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em' }}
             className="mb-1"
           >
             My Deals
           </h1>
-          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>Manage and track submitted properties.</p>
+          <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>Manage and track submitted properties.</p>
         </div>
         <Link
           href="/deals/new"

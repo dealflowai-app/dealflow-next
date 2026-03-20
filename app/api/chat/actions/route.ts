@@ -2115,7 +2115,7 @@ async function handleSearchProperties(
     message: `Found ${properties.length} properties in ${city || ''}, ${state || ''}`,
     count: properties.length,
     topResults,
-    link: `/buyers?search=${encodeURIComponent(`${city || ''},${state || ''}`)}`,
+    link: `/discovery?search=${encodeURIComponent(`${city || ''},${state || ''}`)}`,
   })
 }
 
@@ -2152,6 +2152,6 @@ async function handleRevealContact(
     ownerName: data.ownerName,
     phone: data.phone ? maskPhone(data.phone) : null,
     email: data.email ? maskEmail(data.email) : null,
-    link: '/buyers',
+    link: '/discovery',
   })
 }

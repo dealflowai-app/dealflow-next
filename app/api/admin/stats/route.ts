@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
   ])
 
   // Calculate MRR
-  const tierPrices: Record<string, number> = { starter: 149, pro: 299, enterprise: 499 }
+  const tierPrices: Record<string, number> = { starter: 149, pro: 299, business: 499, enterprise: 499 }
   let mrr = 0
   const tierBreakdown: Record<string, number> = {}
   for (const tc of tierCounts) {
@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
   }
 
   const paidSubscribers =
-    (tierBreakdown.starter || 0) + (tierBreakdown.pro || 0) + (tierBreakdown.enterprise || 0)
+    (tierBreakdown.starter || 0) + (tierBreakdown.pro || 0) + (tierBreakdown.business || 0) + (tierBreakdown.enterprise || 0)
 
   // Revenue MTD from payments
   const revenueMtd =

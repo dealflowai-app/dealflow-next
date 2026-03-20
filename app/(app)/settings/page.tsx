@@ -61,7 +61,7 @@ const planDefs = [
     price: '$149',
     period: '/mo',
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
-    limits: { markets: '1', crmContacts: '500', dealsAnalyzed: '30', activeDeals: '5', aiMinutes: '50', contracts: 'Top 5 states', team: '1', dealFee: '$200' },
+    limits: { reveals: '50', aiMinutes: '50', sms: '100', analyses: '10', team: '1', overageReveals: '$0.40/ea', overageCalls: '$0.25/min', overageSms: '$0.05/msg' },
   },
   {
     key: 'pro' as const,
@@ -69,14 +69,15 @@ const planDefs = [
     price: '$299',
     period: '/mo',
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
-    limits: { markets: '3', crmContacts: '3,000', dealsAnalyzed: '150', activeDeals: '20', aiMinutes: '150', contracts: 'All 50 states', team: '3', dealFee: '$200' },
+    limits: { reveals: '200', aiMinutes: '200', sms: '500', analyses: '50', team: '3', overageReveals: '$0.30/ea', overageCalls: '$0.20/min', overageSms: '$0.04/msg' },
   },
   {
-    key: 'enterprise' as const,
-    name: 'Enterprise',
-    price: '$499+',
+    key: 'business' as const,
+    name: 'Business',
+    price: '$499',
     period: '/mo',
-    limits: { markets: 'Unlimited', crmContacts: 'Unlimited', dealsAnalyzed: 'Unlimited', activeDeals: 'Unlimited', aiMinutes: '500', contracts: 'All 50 + custom', team: 'Unlimited', dealFee: 'Negotiated' },
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_BUSINESS_PRICE_ID,
+    limits: { reveals: '500', aiMinutes: '400', sms: '1,000', analyses: 'Unlimited', team: 'Unlimited', overageReveals: '$0.25/ea', overageCalls: '$0.15/min', overageSms: '$0.03/msg' },
   },
 ]
 
@@ -128,7 +129,7 @@ const integrationsData = {
   connected: [
     { name: 'Twilio', desc: 'SMS and voice communication', color: 'bg-red-500', letter: 'T' },
     { name: 'DocuSign', desc: 'E-signatures for contracts', color: 'bg-yellow-500', letter: 'D' },
-    { name: 'ATTOM Data', desc: 'Property records and data', color: 'bg-blue-600', letter: 'A' },
+    { name: 'BatchData', desc: 'Property records and data', color: 'bg-blue-600', letter: 'B' },
   ],
   available: [
     { name: 'Google Calendar', desc: 'Sync closing dates', color: 'bg-blue-500', letter: 'G' },
@@ -387,10 +388,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-0px)] overflow-hidden bg-[var(--cream,#FAF9F6)]">
+    <div className="flex h-full overflow-hidden bg-[#F9FAFB]">
       {/* ── Settings side nav ── */}
       <div style={{ borderRight: '1px solid rgba(5,14,36,0.08)' }} className="w-[220px] bg-white flex flex-col py-6 flex-shrink-0">
-        <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="px-5 mb-5">
+        <h2 style={{ fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="px-5 mb-5">
           Settings
         </h2>
         <nav className="flex-1 px-3 space-y-0.5">
@@ -635,7 +636,7 @@ export default function SettingsPage() {
                         </h3>
                         {subscription?.tier !== 'free' && (
                           <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '16px', color: 'rgba(5,14,36,0.45)' }}>
-                            ${subscription?.tier === 'starter' ? '149' : subscription?.tier === 'pro' ? '299' : '499'}/mo
+                            ${subscription?.tier === 'starter' ? '149' : subscription?.tier === 'pro' ? '299' : subscription?.tier === 'business' ? '499' : '499'}/mo
                           </p>
                         )}
                         {subscription?.isTrialing && (
@@ -644,7 +645,7 @@ export default function SettingsPage() {
                               {subscription.trialDaysLeft} day{subscription.trialDaysLeft !== 1 ? 's' : ''} remaining in trial
                             </p>
                             <div className="w-48 h-1.5 bg-[rgba(5,14,36,0.06)] rounded-full overflow-hidden">
-                              <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${Math.max(5, ((14 - subscription.trialDaysLeft) / 14) * 100)}%` }} />
+                              <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${Math.max(5, ((7 - subscription.trialDaysLeft) / 7) * 100)}%` }} />
                             </div>
                           </div>
                         )}
@@ -682,74 +683,76 @@ export default function SettingsPage() {
                   <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
                     <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Usage This Period</h3>
                     {(() => {
-                      const u = subscription?.usage
-                      const l = subscription?.limits
-                      if (!u || !l) return <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.4)' }}>No usage data yet.</p>
+                      const a = subscription?.allowance
+                      if (!a) return <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.4)' }}>No usage data yet.</p>
 
                       const usageRows = [
-                        { label: 'AI Call Minutes', used: u.aiCallMinutes || 0, limit: l.freeAiMinutes, unit: 'free', rate: 0.18 },
-                        { label: 'SMS Messages', used: u.smsCount || 0, limit: null, unit: 'msg', rate: 0.03 },
-                        { label: 'Skip Traces', used: u.skipTraces || 0, limit: null, unit: 'each', rate: 0.50 },
-                        { label: 'Deals Analyzed', used: u.dealsAnalyzed || 0, limit: l.dealsAnalyzed === Infinity ? null : l.dealsAnalyzed, unit: null, rate: 0 },
-                        { label: 'Active Deals', used: u.activeDeals || 0, limit: l.activeDeals === Infinity ? null : l.activeDeals, unit: null, rate: 0 },
-                        { label: 'CRM Contacts', used: u.crmContacts || 0, limit: l.crmContacts === Infinity ? null : l.crmContacts, unit: null, rate: 0 },
-                        { label: 'Deals Closed', used: u.dealsClosed || 0, limit: null, unit: 'each', rate: 200 },
+                        { label: 'Reveals', used: a.reveals.used, limit: a.reveals.limit },
+                        { label: 'AI Call Minutes', used: a.callMinutes.used, limit: a.callMinutes.limit },
+                        { label: 'SMS Messages', used: a.sms.used, limit: a.sms.limit },
+                        { label: 'Deal Analyses', used: a.analyses.used, limit: a.analyses.limit },
                       ]
 
-                      let totalUsageCharges = 0
-                      // AI overage
-                      const aiOverage = Math.max(0, (u.aiCallMinutes || 0) - (l.freeAiMinutes || 0))
-                      totalUsageCharges += aiOverage * 0.18
-                      // SMS
-                      totalUsageCharges += (u.smsCount || 0) * 0.03
-                      // Skip traces
-                      totalUsageCharges += (u.skipTraces || 0) * 0.50
-                      // Deal fees
-                      totalUsageCharges += (u.dealsClosed || 0) * 200
+                      const totalOverage = (a.overages?.reveals || 0) + (a.overages?.callMinutes || 0) + (a.overages?.sms || 0)
 
                       return (
                         <div>
                           <div className="space-y-4">
                             {usageRows.map((row, i) => {
+                              const isUnlimited = row.limit === -1
                               const hasLimit = row.limit != null && row.limit > 0
-                              const pct = hasLimit ? Math.min(100, Math.round((row.used / row.limit!) * 100)) : 0
-                              const barColor = pct >= 90 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-[#2563EB]'
-                              let cost = 0
-                              if (row.label === 'AI Call Minutes') cost = aiOverage * 0.18
-                              else if (row.rate > 0 && row.limit === null) cost = row.used * row.rate
+                              const pct = hasLimit ? Math.min(100, Math.round((row.used / row.limit) * 100)) : 0
+                              const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-[#2563EB]'
 
                               return (
                                 <div key={i}>
                                   <div className="flex items-center justify-between mb-1">
                                     <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '13px', color: 'rgba(5,14,36,0.5)' }}>{row.label}</span>
-                                    <div className="flex items-center gap-3">
-                                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '13px', color: '#0B1224' }}>
-                                        {typeof row.used === 'number' ? (Number.isInteger(row.used) ? row.used.toLocaleString() : row.used.toFixed(1)) : row.used}
-                                        {hasLimit && <span style={{ fontWeight: 400, color: 'rgba(5,14,36,0.35)' }}> / {row.limit!.toLocaleString()} {row.unit || ''}</span>}
-                                      </span>
-                                      {cost > 0 && (
-                                        <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>
-                                          ${cost.toFixed(2)}
-                                        </span>
+                                    <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '13px', color: '#0B1224' }}>
+                                      {row.used.toLocaleString()}
+                                      {isUnlimited ? (
+                                        <span style={{ fontWeight: 400, color: 'rgba(5,14,36,0.35)' }}> / Unlimited</span>
+                                      ) : hasLimit ? (
+                                        <span style={{ fontWeight: 400, color: 'rgba(5,14,36,0.35)' }}> / {row.limit.toLocaleString()}</span>
+                                      ) : null}
+                                      {hasLimit && pct >= 100 && (
+                                        <span style={{ fontWeight: 500, color: '#DC2626', marginLeft: 8, fontSize: '11px' }}>OVER</span>
                                       )}
-                                    </div>
+                                    </span>
                                   </div>
-                                  {hasLimit && (
+                                  {(hasLimit || isUnlimited) && (
                                     <div className="w-full h-1.5 bg-[rgba(5,14,36,0.06)] rounded-full overflow-hidden">
-                                      <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                                      <div className={`h-full rounded-full transition-all ${isUnlimited ? 'bg-[#2563EB]' : barColor}`} style={{ width: isUnlimited ? '5%' : `${pct}%` }} />
                                     </div>
                                   )}
                                 </div>
                               )
                             })}
                           </div>
-                          {totalUsageCharges > 0 && (
+                          {totalOverage > 0 && (
                             <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(5,14,36,0.06)' }}>
                               <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }}>
-                                Estimated usage charges this period: ${totalUsageCharges.toFixed(2)}
+                                Overages this period
                               </p>
-                              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)', marginTop: 4 }}>
-                                Usage charges are billed at the end of each billing period.
+                              <div className="mt-2 space-y-1">
+                                {a.overages.reveals > 0 && (
+                                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.5)' }}>
+                                    {a.overages.reveals} extra reveal{a.overages.reveals !== 1 ? 's' : ''}
+                                  </p>
+                                )}
+                                {a.overages.callMinutes > 0 && (
+                                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.5)' }}>
+                                    {a.overages.callMinutes} extra AI minute{a.overages.callMinutes !== 1 ? 's' : ''}
+                                  </p>
+                                )}
+                                {a.overages.sms > 0 && (
+                                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '13px', color: 'rgba(5,14,36,0.5)' }}>
+                                    {a.overages.sms} extra SMS
+                                  </p>
+                                )}
+                              </div>
+                              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)', marginTop: 8 }}>
+                                Overages are billed at the end of each billing period.
                               </p>
                             </div>
                           )}
@@ -843,8 +846,8 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-3 gap-4 billing-plans-grid">
                       {planDefs.map((plan) => {
                         const isCurrent = subscription?.tier === plan.key
-                        const currentIdx = ['starter', 'pro', 'enterprise'].indexOf(subscription?.tier || '')
-                        const planIdx = ['starter', 'pro', 'enterprise'].indexOf(plan.key)
+                        const currentIdx = ['starter', 'pro', 'business'].indexOf(subscription?.tier || '')
+                        const planIdx = ['starter', 'pro', 'business'].indexOf(plan.key)
                         const isUpgrade = planIdx > currentIdx
                         const isDowngrade = planIdx < currentIdx && currentIdx >= 0
 
@@ -866,14 +869,14 @@ export default function SettingsPage() {
                             </p>
                             <div className="space-y-2 mb-5" style={{ fontSize: '14px' }}>
                               {[
-                                ['Markets', plan.limits.markets],
-                                ['CRM Contacts', plan.limits.crmContacts],
-                                ['Deals Analyzed', plan.limits.dealsAnalyzed],
-                                ['Active Deals', plan.limits.activeDeals],
-                                ['Free AI Minutes', plan.limits.aiMinutes],
-                                ['Contracts', plan.limits.contracts],
-                                ['Team Users', plan.limits.team],
-                                ['Per-Deal Fee', plan.limits.dealFee],
+                                ['Reveals', plan.limits.reveals],
+                                ['AI Call Minutes', plan.limits.aiMinutes],
+                                ['SMS Messages', plan.limits.sms],
+                                ['Deal Analyses', plan.limits.analyses],
+                                ['Team Members', plan.limits.team],
+                                ['Overage: Reveals', plan.limits.overageReveals],
+                                ['Overage: AI Calls', plan.limits.overageCalls],
+                                ['Overage: SMS', plan.limits.overageSms],
                               ].map(([label, val], j) => (
                                 <div key={j} className="flex justify-between">
                                   <span style={{ color: 'rgba(5,14,36,0.65)', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>{label}</span>
@@ -883,8 +886,6 @@ export default function SettingsPage() {
                             </div>
                             {isCurrent ? (
                               <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-gray-100 text-gray-500 cursor-default">Current Plan</button>
-                            ) : plan.key === 'enterprise' && !isCurrent ? (
-                              <a href="mailto:hello@dealflowai.app" style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", textDecoration: 'none', display: 'block', textAlign: 'center' }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">Contact Sales</a>
                             ) : isUpgrade && plan.stripePriceId ? (
                               <button onClick={() => handleCheckout(plan.stripePriceId!)} disabled={checkoutLoading} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                                 {checkoutLoading ? 'Loading...' : 'Upgrade'}

@@ -174,7 +174,7 @@ export function resolveDecay(config?: ScoringConfig): DecayConfig {
 // ─── SCORING FUNCTIONS ──────────────────────────────────────────────────────────
 
 /**
- * Transaction History — scores based on verified cash purchases from ATTOM data.
+ * Transaction History — scores based on verified cash purchases from BatchData.
  * Thresholds scale proportionally to the configured weight.
  */
 function scoreTransaction(cashPurchaseCount: number, maxPts: number): number {

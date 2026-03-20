@@ -67,15 +67,23 @@ export async function GET(
 
 const UPDATABLE_FIELDS = [
   'firstName', 'lastName', 'entityName', 'entityType',
-  'phone', 'email', 'address', 'city', 'state', 'zip',
+  'phone', 'phoneSecondary', 'email', 'emailSecondary',
+  'address', 'city', 'state', 'zip',
   'primaryPropertyType', 'strategy', 'preferredMarkets', 'preferredTypes',
   'minPrice', 'maxPrice', 'closeSpeedDays', 'proofOfFundsVerified',
+  'maxRehab', 'minBeds', 'minBaths', 'minSqft', 'yearBuiltMin',
   'notes', 'buyerScore', 'status',
   'scorePinned', 'scoreOverride', 'scoreAdjustment', 'overrideReason', 'customTags',
   // Wholesaler-specific fields
   'motivation', 'buyerType', 'fundingSource', 'conditionPreference',
   'communicationPref', 'preferredZips', 'portfolioSize', 'avgPurchasePrice',
-  'followUpDate', 'source', 'assignedTo',
+  'followUpDate', 'followUpNote', 'source', 'assignedTo',
+  // Contact type and seller fields
+  'contactType',
+  'sellerMotivation', 'sellerAskingPrice', 'sellerPropertyId',
+  'sellerTimeline', 'sellerNotes', 'sellerPropertyAddress',
+  // Alert preferences
+  'alertsEnabled', 'alertFrequency',
   // Unarchive support
   'isOptedOut',
 ] as const
@@ -106,12 +114,12 @@ export async function PATCH(
     // Whitelist fields
     const data: Record<string, unknown> = {}
     const numericFields = ['minPrice', 'maxPrice', 'closeSpeedDays',
-      'scoreOverride', 'portfolioSize', 'avgPurchasePrice']
+      'scoreOverride', 'portfolioSize', 'avgPurchasePrice', 'sellerAskingPrice']
     const requiredNumericFields = ['buyerScore', 'scoreAdjustment'] // non-nullable, skip if empty
     const dateFields = ['followUpDate']
     const nullableEnumFields = ['primaryPropertyType', 'strategy', 'motivation',
       'buyerType', 'fundingSource', 'conditionPreference', 'communicationPref']
-    const requiredEnumFields = ['status'] // non-nullable, skip if empty
+    const requiredEnumFields = ['status', 'contactType'] // non-nullable, skip if empty
     const requiredStringFields: string[] = [] // fields that can't be null
     const arrayFields = ['preferredMarkets', 'preferredTypes', 'preferredZips', 'customTags']
 

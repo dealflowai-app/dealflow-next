@@ -4,9 +4,8 @@ import { getAuthProfile } from '@/lib/auth'
 import { toClientProperty } from '@/lib/discovery/to-client-property'
 import { groupPropertiesByOwner } from '@/lib/discovery/owner-intelligence'
 import { getDataProvider } from '@/lib/discovery/data-provider'
-import { AttomApiError } from '@/lib/attom'
+import { BatchDataApiError } from '@/lib/batchdata'
 import type { OwnerProfile } from '@/lib/types/owner-intelligence'
-import type { UnifiedBuyer } from '@/lib/discovery/unified-types'
 
 type SortField = 'propertyCount' | 'totalValue' | 'investorScore'
 
@@ -27,8 +26,6 @@ export async function GET(req: NextRequest) {
       : 'investorScore') as SortField
     const limit = Math.min(200, Math.max(1, parseInt(params.get('limit') || '50')))
     const offset = Math.max(0, parseInt(params.get('offset') || '0'))
-    const mode = params.get('mode') // "cashBuyers" to use provider.findCashBuyers()
-
     if (!zip && (!city || !state)) {
       return NextResponse.json(
         { error: 'Provide either zip or city + state' },
@@ -42,27 +39,6 @@ export async function GET(req: NextRequest) {
 
     const provider = getDataProvider()
 
-    // ── Mode: cashBuyers — use provider for verified cash buyer data ──────
-    if (mode === 'cashBuyers' && provider.hasAttom) {
-      const buyers = await provider.findCashBuyers({
-        city,
-        state,
-        zipCode: zip,
-        minPurchases: minProperties,
-        pageSize: limit,
-        page: offset > 0 ? Math.floor(offset / limit) + 1 : 1,
-      })
-
-      return NextResponse.json({
-        owners: buyers.map(buyerToOwnerShape),
-        cashBuyers: buyers,
-        total: buyers.length,
-        searchLocation,
-        dataSource: provider.primarySource,
-        fromCache: false,
-      })
-    }
-
     // ── Default: group cached properties by owner ─────────────────────────
     const rows = await prisma.discoveryProperty.findMany({
       where: {
@@ -72,26 +48,6 @@ export async function GET(req: NextRequest) {
     })
 
     if (rows.length === 0) {
-      // No cache — if ATTOM available, try cash buyer search directly
-      if (provider.hasAttom) {
-        const buyers = await provider.findCashBuyers({
-          city,
-          state,
-          zipCode: zip,
-          minPurchases: minProperties,
-          pageSize: limit,
-        })
-
-        return NextResponse.json({
-          owners: buyers.map(buyerToOwnerShape),
-          cashBuyers: buyers,
-          total: buyers.length,
-          searchLocation,
-          dataSource: provider.primarySource,
-          fromCache: false,
-        })
-      }
-
       return NextResponse.json({
         owners: [],
         total: 0,
@@ -131,8 +87,8 @@ export async function GET(req: NextRequest) {
       fromCache: true,
     })
   } catch (err) {
-    if (err instanceof AttomApiError) {
-      console.error(`ATTOM error in discovery owners: ${err.status} ${err.endpoint}`)
+    if (err instanceof BatchDataApiError) {
+      console.error(`BatchData error in discovery owners: ${err.status} ${err.endpoint}`)
       return NextResponse.json(
         { error: 'Property data provider error' },
         { status: 502 },
@@ -140,23 +96,5 @@ export async function GET(req: NextRequest) {
     }
     console.error('Discovery owners error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-}
-
-/** Map a UnifiedBuyer to the OwnerProfile-like shape the frontend expects */
-function buyerToOwnerShape(b: UnifiedBuyer): OwnerProfile {
-  return {
-    normalizedName: b.buyerName.toLowerCase().trim(),
-    displayName: b.buyerName,
-    properties: [],
-    propertyCount: b.cashPurchaseCount,
-    totalValue: b.totalCashVolume,
-    avgValue: b.avgPurchasePrice ?? 0,
-    cities: b.markets,
-    propertyTypes: b.propertyTypes,
-    likelyCashBuyer: true,
-    investorScore: Math.min(100, b.cashPurchaseCount * 15 + (b.corporateIndicator ? 20 : 0)),
-    lastPurchaseDate: b.lastPurchaseDate,
-    oldestPurchaseDate: null,
   }
 }

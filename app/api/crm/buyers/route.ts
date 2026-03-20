@@ -24,12 +24,17 @@ export async function GET(req: NextRequest) {
     const sortBy = params.get('sortBy') || 'createdAt'
     const sortOrder = (params.get('sortOrder') || 'desc') as 'asc' | 'desc'
 
+    const contactTypeParam = params.get('contactType') || ''
     const archived = params.get('archived') === 'true'
     const cursor = params.get('cursor') || ''
 
     const where: Prisma.CashBuyerWhereInput = {
       profileId: profile.id,
       isOptedOut: archived,
+    }
+
+    if (contactTypeParam && ['BUYER', 'SELLER', 'BOTH'].includes(contactTypeParam)) {
+      where.contactType = contactTypeParam as 'BUYER' | 'SELLER' | 'BOTH'
     }
 
     if (search) {
@@ -103,6 +108,13 @@ export async function GET(req: NextRequest) {
           lastContactedAt: true,
           followUpDate: true,
           source: true,
+          contactType: true,
+          sellerMotivation: true,
+          sellerAskingPrice: true,
+          sellerPropertyId: true,
+          sellerTimeline: true,
+          alertsEnabled: true,
+          alertFrequency: true,
           createdAt: true,
           updatedAt: true,
           tags: {
@@ -188,6 +200,12 @@ export async function POST(req: NextRequest) {
 
     const contactEnriched = !!(body.phone && body.email)
 
+    // Validate contactType if provided
+    const validContactTypes = ['BUYER', 'SELLER', 'BOTH']
+    const contactType = body.contactType && validContactTypes.includes(body.contactType as string)
+      ? body.contactType as string
+      : 'BUYER'
+
     const createData = {
       profileId: profile.id,
       firstName: body.firstName || null,
@@ -221,6 +239,13 @@ export async function POST(req: NextRequest) {
       assignedTo: body.assignedTo || null,
       contactEnriched,
       enrichedAt: contactEnriched ? new Date() : null,
+      // Contact type and seller fields
+      contactType,
+      sellerMotivation: body.sellerMotivation || null,
+      sellerAskingPrice: body.sellerAskingPrice != null ? Number(body.sellerAskingPrice) : null,
+      sellerPropertyId: body.sellerPropertyId || null,
+      sellerTimeline: body.sellerTimeline || null,
+      sellerNotes: body.sellerNotes || null,
     }
 
     const buyer = await prisma.cashBuyer.create({
@@ -231,7 +256,7 @@ export async function POST(req: NextRequest) {
       buyerId: buyer.id,
       profileId: profile.id,
       type: 'created',
-      title: `Buyer ${buyer.firstName || buyer.entityName || ''} created`,
+      title: `${contactType === 'SELLER' ? 'Seller' : contactType === 'BOTH' ? 'Contact' : 'Buyer'} ${buyer.firstName || buyer.entityName || ''} created`,
     })
 
     // Update CRM contact count for billing

@@ -975,6 +975,7 @@ function ResultsState({
   onUpdateCondition,
   recommendations,
   recommendationsLoading,
+  sourcePropertyId,
   onAnalyzeAddress,
 }: {
   analysis: FullDealAnalysis
@@ -992,6 +993,7 @@ function ResultsState({
   onUpdateCondition: (condition: string) => void
   recommendations: DealRecommendations | null
   recommendationsLoading: boolean
+  sourcePropertyId?: string | null
   onAnalyzeAddress: (address: string) => void
 }) {
   const toast = useToast()
@@ -1006,15 +1008,25 @@ function ResultsState({
   const [regeneratingAI, setRegeneratingAI] = useState(false)
   const [aiSummary, setAiSummary] = useState(analysis.aiSummary)
   const [savingAndMatching, setSavingAndMatching] = useState(false)
+  const [userARV, setUserARV] = useState<number | null>(null)
+  const [compAdjustments, setCompAdjustments] = useState<Record<string, string>>({})
+  const [expandedComp, setExpandedComp] = useState<string | null>(null)
 
   const { property: propData, arv, repairs, flip, rental, dealScore, market, neighborhood } = analysis
   const p = propData.property
 
-  const spread = arv.arv != null && flip ? arv.arv - flip.purchasePrice : null
+  // Effective ARV: user override or system estimate
+  const effectiveARV = userARV ?? arv.arv
+
+  const spread = effectiveARV != null && flip ? effectiveARV - flip.purchasePrice : null
   const spreadPct =
-    arv.arv != null && arv.arv > 0 && flip
-      ? Math.round(((arv.arv - flip.purchasePrice) / arv.arv) * 100)
+    effectiveARV != null && effectiveARV > 0 && flip
+      ? Math.round(((effectiveARV - flip.purchasePrice) / effectiveARV) * 100)
       : null
+
+  // 70% Rule calculation
+  const maxOffer70 = effectiveARV != null ? Math.round(effectiveARV * 0.7 - repairs.total) : null
+  const meetsRule70 = maxOffer70 != null && flip ? flip.purchasePrice <= maxOffer70 : null
 
   async function saveDeal(): Promise<string | null> {
     if (savedDealId) return savedDealId
@@ -1030,7 +1042,7 @@ function ResultsState({
           zip: p.zip,
           propertyType: p.propertyType ?? 'SFR',
           askingPrice: flip?.purchasePrice ?? null,
-          arv: arv.arv,
+          arv: effectiveARV,
           repairCost: repairs.total,
           beds: p.beds,
           baths: p.baths,
@@ -1038,6 +1050,7 @@ function ResultsState({
           yearBuilt: p.yearBuilt,
           assignFee: flip?.assignmentFee ?? null,
           status: 'ACTIVE',
+          propertyId: sourcePropertyId ?? undefined,
         }),
       })
       if (!res.ok) throw new Error('Failed to save deal')
@@ -1198,12 +1211,22 @@ function ResultsState({
     <div className="animate-fadeInUp">
       {/* Back + History Nav */}
       <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={handleBack}
-          className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 bg-transparent border-0 cursor-pointer transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> New Analysis
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 bg-transparent border-0 cursor-pointer transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" /> New Analysis
+          </button>
+          {sourcePropertyId && (
+            <Link
+              href={`/discovery?activeProperty=${sourcePropertyId}`}
+              className="flex items-center gap-1 text-[0.78rem] text-[#2563EB] hover:underline no-underline"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Back to Discovery
+            </Link>
+          )}
+        </div>
         {historyNav && historyNav.total > 1 && (
           <div className="flex items-center gap-2 text-[0.78rem] text-gray-500">
             <button
@@ -1319,41 +1342,107 @@ function ResultsState({
             <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
               <Target className="w-3.5 h-3.5" /> Comparable Sales
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {arv.scoredComps
                 .filter((c) => !c.excluded)
                 .slice(0, 6)
-                .map((c, i, arr) => (
-                  <div
-                    key={`${c.address}-${i}`}
-                    className="flex items-center gap-3 py-2 bg-white hover:bg-[rgba(37,99,235,0.02)]"
-                    style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[0.8rem] text-gray-800 font-medium truncate">{c.address}</div>
-                      <div className="flex items-center gap-2 text-[0.7rem] text-gray-400">
-                        <span>{c.beds ?? '?'}bd/{c.baths ?? '?'}ba &middot; {c.sqft ? c.sqft.toLocaleString() : '?'} sqft</span>
-                        <span>&middot;</span>
-                        <span>{c.distance != null ? `${c.distance.toFixed(1)} mi` : '?'}</span>
+                .map((c, i, arr) => {
+                  const compKey = `${c.address}-${i}`
+                  const isExpanded = expandedComp === compKey
+                  return (
+                    <div key={compKey} style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}>
+                      <div
+                        className="flex items-center gap-3 py-2 bg-white hover:bg-[rgba(37,99,235,0.02)] cursor-pointer"
+                        onClick={() => setExpandedComp(isExpanded ? null : compKey)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[0.8rem] text-gray-800 font-medium truncate">{c.address}</div>
+                          <div className="flex items-center gap-2 text-[0.7rem] text-gray-400">
+                            <span>{c.beds ?? '?'}bd/{c.baths ?? '?'}ba &middot; {c.sqft ? c.sqft.toLocaleString() : '?'} sqft</span>
+                            <span>&middot;</span>
+                            <span>{c.distance != null ? `${c.distance.toFixed(1)} mi` : '?'}</span>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-[0.84rem] font-semibold text-gray-800">{fmt(c.price)}</div>
+                          <div className="text-[0.66rem] text-gray-400">{c.saleDate ?? 'Unknown'}</div>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <div
+                            className={`text-[0.64rem] font-bold px-2 py-0.5 rounded-full border ${
+                              c.relevanceScore >= 80
+                                ? 'text-white bg-[#2563EB] border-[#2563EB]'
+                                : c.relevanceScore >= 60
+                                  ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]'
+                                  : 'text-amber-700 bg-amber-50 border-amber-200'
+                            }`}
+                          >
+                            {c.relevanceScore}%
+                          </div>
+                          <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                        </div>
                       </div>
+                      {/* Expanded factor breakdown + adjustment */}
+                      {isExpanded && (
+                        <div className="pb-3 pl-1 pr-1 space-y-2">
+                          {/* Score factors */}
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 bg-gray-50 rounded-lg p-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[0.7rem] text-gray-500">Distance</span>
+                              <span className="text-[0.7rem] font-medium text-gray-700">{c.distance != null ? `${c.distance.toFixed(1)} mi` : 'Unknown'}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[0.7rem] text-gray-500">Sale Date</span>
+                              <span className="text-[0.7rem] font-medium text-gray-700">{c.saleDate ?? 'Unknown'}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[0.7rem] text-gray-500">Size</span>
+                              <span className="text-[0.7rem] font-medium text-gray-700">{c.sqft ? `${c.sqft.toLocaleString()} sqft` : 'N/A'}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[0.7rem] text-gray-500">$/sqft</span>
+                              <span className="text-[0.7rem] font-medium text-gray-700">{c.pricePerSqft ? `$${Math.round(c.pricePerSqft)}` : 'N/A'}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[0.7rem] text-gray-500">Type</span>
+                              <span className="text-[0.7rem] font-medium text-gray-700">{c.propertyType ?? 'Unknown'}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[0.7rem] text-gray-500">Adjusted Price</span>
+                              <span className="text-[0.7rem] font-medium text-[#2563EB]">{fmt(c.adjustedPrice)}</span>
+                            </div>
+                          </div>
+                          {/* Price adjustments applied */}
+                          {c.adjustments.length > 0 && (
+                            <div className="space-y-1">
+                              <div className="text-[0.68rem] text-gray-400 font-medium">Auto-adjustments:</div>
+                              {c.adjustments.map((adj, j) => (
+                                <div key={j} className="flex items-center justify-between text-[0.68rem]">
+                                  <span className="text-gray-500">{adj.description}</span>
+                                  <span className={adj.amount >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                    {adj.amount >= 0 ? '+' : ''}{fmt(adj.amount)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* Manual adjustment input */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-[0.7rem] text-gray-500">Your adjustment:</span>
+                            <input
+                              type="text"
+                              placeholder="±$0"
+                              value={compAdjustments[compKey] ?? ''}
+                              onChange={e => setCompAdjustments(prev => ({ ...prev, [compKey]: e.target.value }))}
+                              onClick={e => e.stopPropagation()}
+                              className="w-24 text-center bg-white border border-gray-200 rounded px-2 py-1 text-[0.74rem] outline-none focus:border-[#2563EB] transition-colors"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-[0.84rem] font-semibold text-gray-800">{fmt(c.price)}</div>
-                      <div className="text-[0.66rem] text-gray-400">{c.saleDate ?? 'Unknown'}</div>
-                    </div>
-                    <div
-                      className={`text-[0.64rem] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${
-                        c.relevanceScore >= 80
-                          ? 'text-white bg-[#2563EB] border-[#2563EB]'
-                          : c.relevanceScore >= 60
-                            ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]'
-                            : 'text-amber-700 bg-amber-50 border-amber-200'
-                      }`}
-                    >
-                      {c.relevanceScore}%
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
             </div>
             <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
@@ -1442,13 +1531,38 @@ function ResultsState({
               <DollarSign className="w-3.5 h-3.5" /> Deal Financials
             </div>
             <div className="space-y-2.5 mb-4">
+              {/* ARV with override */}
               <div className="flex items-center justify-between">
-                <span className="text-[0.8rem] text-gray-500">Estimated ARV</span>
+                <span className="text-[0.8rem] text-gray-500">System ARV</span>
                 <span className="text-[0.92rem] font-semibold text-gray-900">{fmt(arv.arv)}</span>
               </div>
               <div className="flex items-center justify-between">
+                <span className="text-[0.8rem] text-gray-500">Your ARV</span>
+                <input
+                  type="text"
+                  value={userARV != null ? `$${userARV.toLocaleString()}` : ''}
+                  onChange={e => {
+                    const cleaned = e.target.value.replace(/[$,\s]/g, '')
+                    setUserARV(cleaned ? parseInt(cleaned) || null : null)
+                  }}
+                  placeholder={fmt(arv.arv)}
+                  className="text-[0.88rem] font-semibold text-[#2563EB] bg-transparent border-b-2 border-dashed border-[rgba(37,99,235,0.3)] focus:border-[#2563EB] outline-none w-32 text-right transition-colors"
+                />
+              </div>
+              {userARV != null && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[0.8rem] text-gray-500">Effective ARV</span>
+                  <span className="text-[0.92rem] font-bold text-[#2563EB]">{fmt(effectiveARV)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
                 <span className="text-[0.8rem] text-gray-500">ARV Range</span>
                 <span className="text-[0.82rem] text-gray-700">{fmt(arv.arvLow)} &ndash; {fmt(arv.arvHigh)}</span>
+              </div>
+              {/* ARV methodology */}
+              <div className="bg-gray-50 rounded-lg p-2.5">
+                <div className="text-[0.68rem] text-gray-400 mb-0.5">Calculation: {arv.method === 'weighted_comp_average' ? 'Weighted comp average' : arv.method === 'avm_adjusted' ? 'AVM-adjusted' : arv.method}</div>
+                <div className="text-[0.68rem] text-gray-400">Based on {arv.compSummary.used} comps, avg {fmt(arv.compSummary.avgPricePerSqft != null ? Math.round(arv.compSummary.avgPricePerSqft) : null)}/sqft</div>
               </div>
               {flip && (
                 <div className="flex items-center justify-between">
@@ -1507,18 +1621,67 @@ function ResultsState({
                 </div>
               </div>
             )}
+            {/* 70% Rule callout */}
+            {maxOffer70 != null && flip && (
+              <div className={`mt-4 rounded-lg p-3 border ${meetsRule70 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                <div className="flex items-center gap-1.5 mb-1">
+                  {meetsRule70 ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <AlertTriangle className="w-3.5 h-3.5 text-red-500" />}
+                  <span className={`text-[0.78rem] font-bold ${meetsRule70 ? 'text-green-700' : 'text-red-700'}`}>
+                    70% Rule: {meetsRule70 ? 'PASS' : 'FAIL'}
+                  </span>
+                </div>
+                <div className="text-[0.72rem] text-gray-600">
+                  Max offer: {fmt(maxOffer70)} (ARV &times; 70% &minus; repairs)
+                </div>
+                <div className="text-[0.72rem] text-gray-600">
+                  Asking: {fmt(flip.purchasePrice)} &mdash; {meetsRule70
+                    ? <span className="text-green-600 font-medium">{fmt(maxOffer70 - flip.purchasePrice)} under</span>
+                    : <span className="text-red-600 font-medium">{fmt(flip.purchasePrice - maxOffer70)} over</span>
+                  }
+                </div>
+              </div>
+            )}
             {/* Deal Score factors */}
             {dealScore && (
               <div className="mt-4 pt-3 border-t border-gray-100">
-                <div className="text-[0.72rem] font-medium text-gray-500 mb-2">Score Breakdown</div>
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-3">
                   <span className={`text-[0.72rem] font-bold px-2.5 py-1 rounded-lg border ${recLabel(dealScore.recommendation).className}`}>
                     {recLabel(dealScore.recommendation).text}
                   </span>
                   <span className="text-[0.82rem] font-bold text-gray-900">{dealScore.score}/100</span>
                 </div>
+                {/* Visual factor bars */}
+                <div className="space-y-2.5 mb-3">
+                  {[
+                    { name: 'Spread', score: dealScore.factors.spreadScore, max: 25 },
+                    { name: 'Profit', score: dealScore.factors.profitScore, max: 20 },
+                    { name: 'ARV Confidence', score: dealScore.factors.compConfidence, max: 20 },
+                    { name: 'Market', score: dealScore.factors.marketStrength, max: 15 },
+                    { name: 'Entry Price', score: dealScore.factors.entryPrice, max: 10 },
+                    { name: 'Rental', score: dealScore.factors.rentalViability, max: 10 },
+                  ].map(f => {
+                    const pct = f.max > 0 ? Math.round((f.score / f.max) * 100) : 0
+                    return (
+                      <div key={f.name}>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-amber-500' : 'bg-red-500'}`} />
+                            <span className="text-[0.72rem] font-medium text-gray-700">{f.name}</span>
+                          </div>
+                          <span className="text-[0.68rem] font-semibold text-gray-600">{f.score}/{f.max}</span>
+                        </div>
+                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-amber-500' : 'bg-red-500'}`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
                 {dealScore.strengths.length > 0 && (
-                  <div className="mt-2 space-y-1">
+                  <div className="space-y-1">
                     {dealScore.strengths.slice(0, 3).map((s, i) => (
                       <div key={i} className="flex items-start gap-1.5 text-[0.72rem] text-[#2563EB]">
                         <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" /> {s}
@@ -1539,10 +1702,47 @@ function ResultsState({
             )}
           </div>
 
-          {/* Card 5: Flip Analysis */}
+          {/* Card 5: Wholesale + Flip Analysis */}
           {flip ? (
             <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-5">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-4 flex items-center gap-1.5">
+              {/* Wholesale Assignment Section */}
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-3 flex items-center gap-1.5">
+                <DollarSign className="w-3.5 h-3.5" /> Wholesale Assignment
+              </div>
+              {maxOffer70 != null && (
+                <div className={`rounded-lg p-3 mb-4 border ${meetsRule70 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    {meetsRule70 ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <AlertTriangle className="w-3.5 h-3.5 text-red-500" />}
+                    <span className={`text-[0.78rem] font-bold ${meetsRule70 ? 'text-green-700' : 'text-red-700'}`}>
+                      70% Rule: {meetsRule70 ? 'PASS' : 'FAIL'}
+                    </span>
+                  </div>
+                  <div className="text-[0.72rem] text-gray-600">
+                    Max offer: {fmt(maxOffer70)} (ARV &times; 70% &minus; repairs)
+                  </div>
+                </div>
+              )}
+              <div className="space-y-1.5 mb-4 pb-3 border-b border-gray-100">
+                <div className="flex justify-between text-[0.8rem]">
+                  <span className="text-gray-500">Buyer pays (asking + fee)</span>
+                  <span className="font-medium text-gray-700">{fmt(flip.purchasePrice + (flip.assignmentFee ?? 0))}</span>
+                </div>
+                <div className="flex justify-between text-[0.8rem]">
+                  <span className="text-gray-500">Your assignment fee</span>
+                  <span className="font-bold text-green-600">{fmt(flip.assignmentFee ?? 0)}</span>
+                </div>
+                <div className="flex justify-between text-[0.8rem]">
+                  <span className="text-gray-500">Your capital at risk</span>
+                  <span className="font-medium text-gray-700">$0</span>
+                </div>
+                <div className="flex justify-between text-[0.8rem] pt-1.5 border-t border-gray-50">
+                  <span className="font-semibold text-gray-800">Wholesaler profit</span>
+                  <span className="font-bold text-green-600 text-[0.88rem]">{fmt(flip.assignmentFee ?? 0)}</span>
+                </div>
+              </div>
+
+              {/* Flip P&L Section */}
+              <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] mb-3 flex items-center gap-1.5">
                 <TrendingUp className="w-3.5 h-3.5" /> Flip Analysis
               </div>
               <div className="space-y-2 mb-3">
@@ -1581,17 +1781,16 @@ function ResultsState({
                 </div>
                 {flip.assignmentFee != null && (
                   <div className="flex justify-between text-[0.8rem]">
-                    <span className="text-gray-500">Assignment Fee</span>
-                    <span className="text-[#2563EB] font-semibold">{fmt(flip.assignmentFee)}</span>
+                    <span className="text-gray-500">End Buyer Profit</span>
+                    <span className="text-gray-700 font-medium">{fmt(flip.endBuyerProfit)} ({flip.endBuyerROI}%)</span>
                   </div>
                 )}
-                <div className="flex justify-between text-[0.8rem]">
-                  <span className="text-gray-500">End Buyer Profit</span>
-                  <span className="text-gray-700 font-medium">{fmt(flip.endBuyerProfit)} ({flip.endBuyerROI}%)</span>
-                </div>
               </div>
               {/* Threshold badges */}
               <div className="flex gap-2 flex-wrap">
+                <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full border ${meetsRule70 ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]' : 'text-red-700 bg-red-50 border-red-200'}`}>
+                  {meetsRule70 ? '\u2713' : '\u2717'} 70% Rule
+                </span>
                 <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full border ${flip.meetsMinSpread ? 'text-[#2563EB] bg-[rgba(37,99,235,0.08)] border-[#2563EB]' : 'text-red-700 bg-red-50 border-red-200'}`}>
                   {flip.meetsMinSpread ? '\u2713' : '\u2717'} Min Spread
                 </span>
@@ -1824,8 +2023,8 @@ function ResultsState({
           {contractCreated ? 'Contract Created' : 'Generate Contract'}
         </button>
         <button
-          onClick={() => toast('Coming soon\u2026')}
-          className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          onClick={() => window.print()}
+          className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] text-[#374151] rounded-[10px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors no-print"
         >
           <Download className="w-4 h-4" /> Export PDF
         </button>
@@ -1952,7 +2151,7 @@ function BuyerPreviewCard({
             No buyers in your CRM match this deal&apos;s criteria. Consider adjusting your buyer list or finding new buyers in the {city} market.
           </p>
           <Link
-            href={`/buyers?market=${encodeURIComponent(city)}`}
+            href={`/discovery?market=${encodeURIComponent(city)}`}
             className="inline-flex items-center gap-1.5 text-[0.82rem] text-[#2563EB] hover:text-[#1D4ED8] no-underline font-medium transition-colors"
           >
             Find Buyers <ExternalLink className="w-3.5 h-3.5" />
@@ -2820,6 +3019,9 @@ export default function PropertyAnalyzerPage() {
     } catch { /* silent */ }
   }, [])
 
+  // Discovery/deal source tracking
+  const [sourcePropertyId, setSourcePropertyId] = useState<string | null>(null)
+
   useEffect(() => { fetchHistory() }, [fetchHistory])
 
   // Pick up pre-loaded analysis from deal detail "Re-analyze" button
@@ -2834,6 +3036,19 @@ export default function PropertyAnalyzerPage() {
         setPage('results')
         fetchBuyerPreview(result)
         fetchRecommendations(result)
+        return
+      }
+    } catch { /* ignore */ }
+
+    // Handle URL params from Discovery: ?address=...&propertyId=...
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const address = params.get('address')
+      const propertyId = params.get('propertyId')
+      if (address) {
+        if (propertyId) setSourcePropertyId(propertyId)
+        window.history.replaceState({}, '', window.location.pathname)
+        runAnalysis(decodeURIComponent(address))
       }
     } catch { /* ignore */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -3135,7 +3350,7 @@ export default function PropertyAnalyzerPage() {
     : null
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
       {/* Header + API Usage */}
       <div className="flex items-start justify-between mb-5">
         <div>
@@ -3216,6 +3431,7 @@ export default function PropertyAnalyzerPage() {
           onUpdateCondition={handleUpdateCondition}
           recommendations={recommendations}
           recommendationsLoading={recommendationsLoading}
+          sourcePropertyId={sourcePropertyId}
           onAnalyzeAddress={(address) => {
             setPage('input')
             setAnalysis(null)
@@ -3266,6 +3482,14 @@ export default function PropertyAnalyzerPage() {
         }
         .photo-thumbs-scroll::-webkit-scrollbar { height: 4px; }
         .photo-thumbs-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+        @media print {
+          nav, aside, .sidebar, .no-print, header, footer { display: none !important; }
+          body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .analyzer-results-grid { grid-template-columns: 1fr 1fr !important; }
+          .bg-\\[\\#F9FAFB\\] { background: white !important; }
+          .rounded-xl { border: 1px solid #e5e7eb !important; page-break-inside: avoid; }
+          * { box-shadow: none !important; }
+        }
       ` }} />
     </div>
   )

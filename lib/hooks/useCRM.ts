@@ -41,6 +41,13 @@ export interface ApiBuyer {
   fundingSource: string | null
   source: string | null
   followUpDate: string | null
+  contactType: string
+  sellerMotivation: string | null
+  sellerAskingPrice: number | null
+  sellerPropertyId: string | null
+  sellerTimeline: string | null
+  alertsEnabled: boolean
+  alertFrequency: string
   createdAt: string
   updatedAt: string
   tags?: Array<{
@@ -68,6 +75,7 @@ export interface BuyerFilters {
   tag?: string
   motivation?: string
   archived?: boolean
+  contactType?: string
 }
 
 export interface Pagination {
@@ -137,6 +145,7 @@ export function useBuyers(filters: BuyerFilters = {}) {
       if (filters.sortOrder) params.set('sortOrder', filters.sortOrder)
       if (filters.tag) params.set('tag', filters.tag)
       if (filters.motivation) params.set('motivation', filters.motivation)
+      if (filters.contactType) params.set('contactType', filters.contactType)
       if (filters.archived) params.set('archived', 'true')
 
       const res = await fetch(`/api/crm/buyers?${params.toString()}`)

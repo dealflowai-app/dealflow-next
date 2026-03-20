@@ -48,16 +48,22 @@ import {
   ChevronsRight,
   SquareStack,
   Layers,
+  Target,
+  UserPlus,
+  XCircle,
+  Download,
 } from 'lucide-react'
-import { useDiscoverySearch } from '@/lib/hooks/useDiscoverySearch'
+import { useDiscoverySearch, FILTER_PRESETS, type PresetKey } from '@/lib/hooks/useDiscoverySearch'
 import type { DiscoveryProperty } from '@/lib/types/discovery'
 import DiscoveryMapbox, { type MapStyleKey } from '@/components/discovery/DiscoveryMapbox'
+import ContactReveal from '@/components/discovery/ContactReveal'
 import { createBuyer } from '@/lib/hooks/useCRMActions'
 import { useMapboxGeocode } from '@/lib/hooks/useMapboxGeocode'
 import { useOwnerSearch } from '@/lib/hooks/useOwnerSearch'
 import type { OwnerProfile } from '@/lib/types/owner-intelligence'
 import { estimateEquity, type EquityEstimate } from '@/lib/discovery/owner-intelligence'
 import type { EquityData, DistressSignals, UnifiedPropertyDetail } from '@/lib/discovery/unified-types'
+import { propertiesToCSV, downloadCSV } from '@/lib/utils/csv-export'
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
@@ -268,8 +274,10 @@ function PropertyDetail({
   onClose,
   onViewOnMap,
   onAddToCRM,
+  onAddAsSeller,
   isInCRM,
   addingToCRM,
+  addingAsSeller,
   features,
   featuresLoading,
   onSelectProperty,
@@ -278,8 +286,10 @@ function PropertyDetail({
   onClose: () => void
   onViewOnMap?: () => void
   onAddToCRM?: () => void
+  onAddAsSeller?: () => void
   isInCRM?: boolean
   addingToCRM?: boolean
+  addingAsSeller?: boolean
   features?: {
     equityData: EquityData | null
     distressSignals: DistressSignals | null
@@ -291,6 +301,8 @@ function PropertyDetail({
   onSelectProperty?: (p: DiscoveryProperty) => void
 }) {
   const [tab, setTab] = useState<DetailTab>('property')
+  const [comps, setComps] = useState<{ value: number | null; valueRangeLow: number | null; valueRangeHigh: number | null; comparables: Array<{ address: string; city: string; state: string; price: number | null; sqft: number | null; bedrooms: number | null; bathrooms: number | null; distance: number | null; correlation: number | null }> } | null>(null)
+  const [compsLoading, setCompsLoading] = useState(false)
   const pType = displayType(property.propertyType)
   const ownerType = detectOwnerType(property.ownerName)
   const eq = estimateEquity(property)
@@ -300,6 +312,15 @@ function PropertyDetail({
   const mortBal = eqData?.mortgageBalance ?? null
   const equityAmt = eqData?.equity ?? (estValue != null && property.lastSalePrice != null ? estValue - property.lastSalePrice : null)
   const equityPct = eqData?.equityPercent ?? (estValue != null && estValue > 0 && equityAmt != null ? Math.round((equityAmt / estValue) * 100) : null)
+
+  const loadComps = async () => {
+    if (comps || compsLoading) return
+    setCompsLoading(true)
+    try {
+      const res = await fetch(`/api/discovery/property/${property.id}/comps`)
+      if (res.ok) setComps(await res.json())
+    } catch { /* ignore */ } finally { setCompsLoading(false) }
+  }
 
   /* helper: grid row */
   function InfoRow({ label, value }: { label: string; value: string | number | null | undefined }) {
@@ -337,14 +358,24 @@ function PropertyDetail({
               <button
                 onClick={onAddToCRM}
                 disabled={isInCRM || addingToCRM}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] text-[0.78rem] font-semibold border-0 cursor-pointer transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[0.78rem] font-semibold border-0 cursor-pointer transition-colors ${
                   isInCRM
                     ? 'bg-[#2563EB] text-white'
                     : 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
                 }`}
+                title="Add as buyer"
               >
-                {addingToCRM ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : isInCRM ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                {addingToCRM ? 'Adding...' : isInCRM ? 'In CRM' : 'Add'}
+                {addingToCRM ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : isInCRM ? <Check className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
+                {addingToCRM ? '...' : isInCRM ? 'In CRM' : 'Buyer'}
+              </button>
+              <button
+                onClick={onAddAsSeller}
+                disabled={addingAsSeller}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[0.78rem] font-semibold border-0 cursor-pointer transition-colors bg-[#F97316] hover:bg-[#EA580C] text-white"
+                title="Add as seller"
+              >
+                {addingAsSeller ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Home className="w-3.5 h-3.5" />}
+                {addingAsSeller ? '...' : 'Seller'}
               </button>
               <button onClick={onClose} className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer border-0 transition-colors">
                 <X className="w-4 h-4 text-gray-500" />
@@ -379,6 +410,13 @@ function PropertyDetail({
           {/* ════════ PROPERTY TAB ════════ */}
           {tab === 'property' && (
             <div>
+              {/* Enrichment loading indicator */}
+              {featuresLoading && (
+                <div className="flex items-center gap-2 px-5 py-2 bg-blue-50 border-b border-blue-100 text-[0.76rem] text-blue-600">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Enriching property data...
+                </div>
+              )}
               {/* Mini map */}
               <div className="h-[160px] relative overflow-hidden bg-gray-100">
                 {property.latitude != null && property.longitude != null ? (
@@ -422,6 +460,8 @@ function PropertyDetail({
                   {eq.equityCategory === 'high' && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-[#BFDBFE] bg-[rgba(37,99,235,0.08)] text-[#2563EB]">High Equity</span>}
                   {features?.distressSignals?.foreclosure?.active && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-red-200 bg-red-50 text-red-700">Pre-Foreclosure</span>}
                   {features?.distressSignals?.taxDelinquent?.isDelinquent && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-orange-200 bg-orange-50 text-orange-700">Tax Delinquent</span>}
+                  {property.listingStatus === 'Active' && property.daysOnMarket != null && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-purple-200 bg-purple-50 text-purple-700">On Market {property.daysOnMarket}d</span>}
+                  {property.priceReduced && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-orange-200 bg-orange-50 text-orange-700">Price Reduced</span>}
                 </div>
               </div>
 
@@ -459,6 +499,35 @@ function PropertyDetail({
                     </div>
                   </div>
                 )}
+                {/* AVM Range */}
+                {eqData?.avm && eqData.avm.mid != null && (
+                  <div className="mt-3 rounded-[10px] bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-3">
+                    <div className="text-[11px] font-[600] uppercase text-blue-500 mb-2" style={{ letterSpacing: '0.05em' }}>Automated Valuation (AVM)</div>
+                    <div className="flex items-center justify-between text-[0.78rem]">
+                      <span className="text-gray-500">{formatCurrency(eqData.avm.low)}</span>
+                      <span className="text-[15px] font-[700] text-[#2563EB]">{formatCurrency(eqData.avm.mid)}</span>
+                      <span className="text-gray-500">{formatCurrency(eqData.avm.high)}</span>
+                    </div>
+                    <div className="flex items-center mt-1.5">
+                      <div className="flex-1 h-1.5 rounded-full bg-gray-200 relative">
+                        {eqData.avm.low != null && eqData.avm.high != null && eqData.avm.high > eqData.avm.low && (
+                          <div
+                            className="absolute h-full rounded-full bg-gradient-to-r from-blue-400 to-indigo-500"
+                            style={{
+                              left: '0%',
+                              width: `${Math.min(100, ((eqData.avm.mid! - eqData.avm.low) / (eqData.avm.high - eqData.avm.low)) * 100)}%`,
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-[0.66rem] text-gray-400 mt-0.5">
+                      <span>Low</span>
+                      <span>Estimate</span>
+                      <span>High</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Public Facts & Zoning */}
@@ -488,6 +557,34 @@ function PropertyDetail({
                   {eqData?.ltv != null && <InfoRow label="LTV" value={`${eqData.ltv}%`} />}
                 </div>
               </div>
+
+              {/* Listing Data */}
+              {property.listingStatus && (
+                <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+                  <h3 className="text-[15px] font-[600] text-[#0B1224] mb-3">Listing Data</h3>
+                  <div className="grid grid-cols-3 gap-y-3 gap-x-4">
+                    <InfoRow label="Status" value={property.listingStatus} />
+                    <InfoRow label="List Price" value={formatCurrency(property.listPrice ?? null)} />
+                    {property.daysOnMarket != null && <InfoRow label="Days on Market" value={String(property.daysOnMarket)} />}
+                    {property.priceReduced && property.priceReductionPercent != null && (
+                      <InfoRow label="Price Reduced" value={`${property.priceReductionPercent}% off`} />
+                    )}
+                  </div>
+                  {property.listPrice != null && property.assessedValue != null && property.assessedValue > 0 && (
+                    <div className={`mt-3 rounded-[8px] p-2.5 text-[0.78rem] font-medium ${
+                      property.listPrice < property.assessedValue * 0.9
+                        ? 'bg-green-50 border border-green-200 text-green-700'
+                        : property.listPrice > property.assessedValue * 1.1
+                        ? 'bg-amber-50 border border-amber-200 text-amber-700'
+                        : 'bg-blue-50 border border-blue-200 text-blue-600'
+                    }`}>
+                      List price is {Math.abs(Math.round(((property.listPrice - property.assessedValue) / property.assessedValue) * 100))}%
+                      {property.listPrice < property.assessedValue ? ' below' : property.listPrice > property.assessedValue ? ' above' : ' equal to'} assessed value
+                      ({formatCurrency(property.assessedValue)})
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Mortgage Details */}
               <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
@@ -555,21 +652,95 @@ function PropertyDetail({
                   </div>
                 </div>
               </div>
+
+              {/* Comparable Sales */}
+              <div className="px-5 py-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-[15px] font-[600] text-[#0B1224]">Comparable Sales</h3>
+                  {!comps && (
+                    <button
+                      onClick={loadComps}
+                      disabled={compsLoading}
+                      className="flex items-center gap-1.5 text-[0.76rem] font-semibold text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer"
+                    >
+                      {compsLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <BarChart3 className="w-3.5 h-3.5" />}
+                      {compsLoading ? 'Loading...' : 'Load Comps'}
+                    </button>
+                  )}
+                </div>
+                {comps ? (
+                  <>
+                    {comps.value != null && (
+                      <div className="rounded-[10px] bg-green-50 border border-green-200 p-3 mb-3">
+                        <div className="text-[11px] font-[600] uppercase text-green-600 mb-1" style={{ letterSpacing: '0.05em' }}>RentCast Estimate</div>
+                        <div className="flex items-baseline gap-3">
+                          <span className="text-[18px] font-[700] text-green-700">{formatCurrency(comps.value)}</span>
+                          {comps.valueRangeLow != null && comps.valueRangeHigh != null && (
+                            <span className="text-[0.72rem] text-green-600">
+                              {formatCurrency(comps.valueRangeLow)} – {formatCurrency(comps.valueRangeHigh)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {comps.comparables.length > 0 ? (
+                      <div className="space-y-2">
+                        {comps.comparables.slice(0, 5).map((c, i) => (
+                          <div key={i} className="flex items-center justify-between py-2 px-3 rounded-[8px] bg-gray-50 border border-gray-100">
+                            <div className="min-w-0 flex-1">
+                              <div className="text-[0.78rem] font-medium text-[#0B1224] truncate">{c.address}</div>
+                              <div className="text-[0.68rem] text-gray-400">
+                                {c.bedrooms ?? '—'}bd / {c.bathrooms ?? '—'}ba · {c.sqft?.toLocaleString() ?? '—'} sqft
+                                {c.distance != null && <> · {c.distance.toFixed(1)} mi</>}
+                              </div>
+                            </div>
+                            <div className="text-right ml-3 flex-shrink-0">
+                              <div className="text-[0.82rem] font-semibold text-[#0B1224]">{formatCurrency(c.price)}</div>
+                              {c.correlation != null && (
+                                <div className="text-[0.66rem] text-gray-400">{Math.round(c.correlation * 100)}% match</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[0.78rem] text-gray-400">No comparable sales found</p>
+                    )}
+                  </>
+                ) : !compsLoading ? (
+                  <p className="text-[0.78rem] text-gray-400">Click &quot;Load Comps&quot; to fetch comparable sales and valuation data</p>
+                ) : null}
+              </div>
             </div>
           )}
 
           {/* ════════ OWNER TAB ════════ */}
           {tab === 'owner' && (
             <div className="px-5 py-5">
+              {/* Enrichment notice */}
+              {!property.ownerName && featuresLoading && (
+                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-blue-50 border border-blue-100 text-[0.76rem] text-blue-600">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Loading owner data...
+                </div>
+              )}
+              {!property.ownerName && !featuresLoading && !features && (
+                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 text-[0.76rem] text-gray-500">
+                  <Info className="w-3.5 h-3.5" />
+                  Owner data loads automatically when you open a property.
+                </div>
+              )}
               {/* Owner info */}
               <div className="flex items-start justify-between mb-5">
                 <div>
                   <div className="flex items-center gap-1.5 text-[0.72rem] text-gray-400 mb-1">
                     <UserCircle className="w-3.5 h-3.5" /> Full Name
                   </div>
-                  <div className="text-[0.92rem] font-semibold text-[#2563EB]">{property.ownerName ?? '—'}</div>
+                  <div className="text-[0.92rem] font-semibold text-[#2563EB]">{property.ownerName ?? (featuresLoading ? '...' : '—')}</div>
                 </div>
-                <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${ownerType.color}`}>{ownerType.label}</span>
+                {property.ownerName && (
+                  <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full ${ownerType.color}`}>{ownerType.label}</span>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-5">
@@ -589,6 +760,11 @@ function PropertyDetail({
                     {property.ownerOccupied == null ? '—' : property.ownerOccupied ? 'Owner Occupied' : 'Absentee'}
                   </div>
                 </div>
+              </div>
+
+              {/* Contact Reveal */}
+              <div className="-mx-5">
+                <ContactReveal propertyId={property.id} ownerName={property.ownerName} />
               </div>
 
               {features?.ownerProfile && (
@@ -756,11 +932,21 @@ function PropertyDetail({
                 isInCRM ? 'bg-[#2563EB] text-white cursor-default' : 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
               }`}
             >
-              {addingToCRM ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Adding...</> : isInCRM ? <><Check className="w-3.5 h-3.5" /> In CRM</> : <><Plus className="w-3.5 h-3.5" /> Add to CRM</>}
+              {addingToCRM ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Adding...</> : isInCRM ? <><Check className="w-3.5 h-3.5" /> In CRM</> : <><UserPlus className="w-3.5 h-3.5" /> Add as Buyer</>}
             </button>
-            <button className="flex-1 flex items-center justify-center gap-1.5 bg-white text-[rgba(5,14,36,0.65)] border border-[rgba(5,14,36,0.08)] hover:bg-gray-50 rounded-[10px] py-2 text-[0.78rem] font-medium cursor-pointer transition-colors">
-              <PhoneOutgoing className="w-3.5 h-3.5" /> Contact Owner
+            <button
+              onClick={onAddAsSeller}
+              disabled={addingAsSeller}
+              className="flex-1 flex items-center justify-center gap-1.5 font-medium border-0 rounded-[10px] py-2 text-[0.78rem] cursor-pointer transition-colors bg-[#F97316] hover:bg-[#EA580C] text-white"
+            >
+              {addingAsSeller ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Adding...</> : <><Home className="w-3.5 h-3.5" /> Add as Seller</>}
             </button>
+            <a
+              href={`/analyzer?address=${encodeURIComponent(`${property.addressLine1}, ${property.city}, ${property.state} ${property.zipCode ?? ''}`.trim())}&propertyId=${property.id}`}
+              className="flex-1 flex items-center justify-center gap-1.5 bg-white text-[rgba(5,14,36,0.65)] border border-[rgba(5,14,36,0.08)] hover:bg-gray-50 rounded-[10px] py-2 text-[0.78rem] font-medium cursor-pointer transition-colors no-underline"
+            >
+              <BarChart3 className="w-3.5 h-3.5" /> Analyze Deal
+            </a>
             <button
               onClick={onViewOnMap}
               className="flex items-center justify-center gap-1.5 bg-white text-[rgba(5,14,36,0.65)] border border-[rgba(5,14,36,0.08)] hover:bg-gray-50 rounded-[10px] px-3 py-2 text-[0.78rem] font-medium cursor-pointer transition-colors"
@@ -788,6 +974,7 @@ type ViewMode = 'properties' | 'buyers'
 export default function DiscoveryPage() {
   const [crmIds, setCrmIds] = useState<Set<string>>(new Set())
   const [addingCrmId, setAddingCrmId] = useState<string | null>(null)
+  const [addingSellerId, setAddingSellerId] = useState<string | null>(null)
   const { toasts, addToast, dismissToast } = useToasts()
   const { suggestions, search: searchGeocode, clear: clearSuggestions } = useMapboxGeocode()
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -802,7 +989,17 @@ export default function DiscoveryPage() {
   const [sortField, setSortField] = useState<'value' | 'equity' | 'sqft'>('value')
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const [searchAsMove, setSearchAsMove] = useState(false)
+  const [revealUsage, setRevealUsage] = useState<{ used: number; limit: number | null; remaining: number | null } | null>(null)
+
+  // Fetch reveal usage on mount
+  useEffect(() => {
+    fetch('/api/usage/reveals')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.reveals) setRevealUsage(data.reveals) })
+      .catch(() => {})
+  }, [])
 
   // ── Saved searches (persisted in localStorage) ──
   type SavedSearch = { id: string; label: string; query: string; savedAt: number }
@@ -878,6 +1075,10 @@ export default function DiscoveryPage() {
     searchByBounds,
     setFilter,
     clearFilters,
+    clearBuyerMatch,
+    applyPreset,
+    activePreset,
+    buyerMatchBanner,
     setActiveProperty,
     nextPage,
     prevPage,
@@ -885,13 +1086,48 @@ export default function DiscoveryPage() {
 
   const ownerSearch = useOwnerSearch()
 
-  // Client-side equity filter (equity is computed, not stored)
+  // Client-side filters (equity is computed, distress/daysOnMarket come from enrichment)
   const filteredProperties = useMemo(() => {
-    if (filters.equityMin === null || filters.equityMin <= 0) return properties
-    return properties.filter(p => equityFilterMatches(estimateEquity(p).equityCategory, filters.equityMin))
-  }, [properties, filters.equityMin])
+    let result = properties
+
+    // Equity filter
+    if (filters.equityMin !== null && filters.equityMin > 0) {
+      result = result.filter(p => equityFilterMatches(estimateEquity(p).equityCategory, filters.equityMin))
+    }
+
+    // Distress filters (client-side — only applies to enriched properties)
+    if (filters.preForeclosure) {
+      result = result.filter(p => p.isPreForeclosure === true)
+    }
+    if (filters.taxDelinquent) {
+      result = result.filter(p => p.isTaxDelinquent === true)
+    }
+
+    // Days on market (client-side fallback for non-DB-column data)
+    if (filters.daysOnMarketMin != null) {
+      result = result.filter(p => p.daysOnMarket != null && p.daysOnMarket >= filters.daysOnMarketMin!)
+    }
+
+    return result
+  }, [properties, filters.equityMin, filters.preForeclosure, filters.taxDelinquent, filters.daysOnMarketMin])
 
   const activeId = activeProperty?.id ?? null
+
+  // ── Keyboard shortcuts ──
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && activeId) {
+        setActiveProperty(null)
+        return
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [activeId, setActiveProperty])
 
   const fetchPropertyFeatures = useCallback(async (propertyId: string) => {
     if (propertyFeatures[propertyId] || featuresLoading === propertyId) return
@@ -903,6 +1139,11 @@ export default function DiscoveryPage() {
       ])
       const detailData = detailRes.ok ? await detailRes.json() : null
       const portfolioData = portfolioRes.ok ? await portfolioRes.json() : null
+
+      // Update activeProperty with enriched data (owner name, assessed value, etc.)
+      if (detailData?.property && activeProperty?.id === propertyId) {
+        setActiveProperty({ ...activeProperty, ...detailData.property })
+      }
 
       setPropertyFeatures(prev => ({
         ...prev,
@@ -919,7 +1160,7 @@ export default function DiscoveryPage() {
     } finally {
       setFeaturesLoading(null)
     }
-  }, [propertyFeatures, featuresLoading])
+  }, [propertyFeatures, featuresLoading, activeProperty, setActiveProperty])
 
   function handleSearch() {
     search()
@@ -1006,6 +1247,90 @@ export default function DiscoveryPage() {
     }
   }, [crmIds, addingCrmId, addToast])
 
+  const addPropertyAsSeller = useCallback(async (property: DiscoveryProperty) => {
+    if (addingSellerId === property.id) return
+
+    const ownerName = property.ownerName
+    const entityIsOrg = isEntity(ownerName)
+    const { firstName, lastName } = entityIsOrg
+      ? { firstName: null, lastName: null }
+      : parseOwnerName(ownerName)
+
+    // Detect seller motivation from distress signals
+    const feat = propertyFeatures[property.id]
+    const distress = feat?.distressSignals
+    let sellerMotivation: string | null = null
+    if (distress) {
+      if (distress.foreclosure?.active) sellerMotivation = 'Pre-foreclosure'
+      else if (distress.taxDelinquent?.isDelinquent) sellerMotivation = 'Tax delinquent'
+    }
+
+    setAddingSellerId(property.id)
+    try {
+      const body: Record<string, unknown> = {
+        firstName,
+        lastName,
+        entityName: entityIsOrg ? ownerName : null,
+        entityType: detectEntityType(ownerName),
+        address: property.addressLine1,
+        city: property.city,
+        state: property.state,
+        zip: property.zipCode,
+        status: 'ACTIVE',
+        source: 'discovery',
+        contactType: 'SELLER',
+        sellerPropertyId: property.id,
+        sellerMotivation,
+        notes: `Seller imported from Discovery - ${property.addressLine1}, ${property.city}, ${property.state}`,
+      }
+
+      await createBuyer(body)
+      addToast(`Added ${ownerName || property.addressLine1} as seller`, 'success')
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Failed to add seller', 'error')
+    } finally {
+      setAddingSellerId(null)
+    }
+  }, [addingSellerId, addToast, propertyFeatures])
+
+  const [bulkImporting, setBulkImporting] = useState(false)
+
+  const handleBulkCRMImport = useCallback(async () => {
+    const selected = filteredProperties.filter(p => selectedIds.has(p.id))
+    if (selected.length === 0) return
+    setBulkImporting(true)
+    let added = 0
+    for (const p of selected) {
+      if (crmIds.has(p.id)) continue
+      try {
+        const entityIsOrg = isEntity(p.ownerName)
+        const { firstName, lastName } = entityIsOrg ? { firstName: null, lastName: null } : parseOwnerName(p.ownerName)
+        await createBuyer({
+          firstName, lastName,
+          entityName: entityIsOrg ? p.ownerName : null,
+          entityType: detectEntityType(p.ownerName),
+          address: p.addressLine1, city: p.city, state: p.state, zip: p.zipCode,
+          status: 'ACTIVE', source: 'discovery',
+          notes: `Bulk imported from Find Buyers`,
+        })
+        setCrmIds(prev => new Set(prev).add(p.id))
+        added++
+      } catch { /* skip duplicates */ }
+    }
+    setBulkImporting(false)
+    addToast(`Added ${added} of ${selected.length} to CRM`, added > 0 ? 'success' : 'warning')
+    setSelectedIds(new Set())
+  }, [filteredProperties, selectedIds, crmIds, addToast])
+
+  const handleExportCSV = useCallback(() => {
+    const selected = filteredProperties.filter(p => selectedIds.has(p.id))
+    const toExport = selected.length > 0 ? selected : filteredProperties
+    const csv = propertiesToCSV(toExport)
+    const location = filters.query || 'properties'
+    downloadCSV(csv, `dealflow-${location.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().slice(0, 10)}.csv`)
+    addToast(`Exported ${toExport.length} properties`, 'success')
+  }, [filteredProperties, selectedIds, filters.query, addToast])
+
   function handleOwnerClick(owner: OwnerProfile) {
     const key = owner.normalizedName
     if (expandedOwner === key) {
@@ -1029,6 +1354,7 @@ export default function DiscoveryPage() {
     filters.absenteeOnly,
     filters.equityMin !== null && filters.equityMin > 0,
     filters.ownershipMin !== null,
+    filters.daysOnMarketMin !== null,
   ].filter(Boolean).length
 
   const totalPages = Math.ceil(pagination.total / pagination.limit)
@@ -1057,11 +1383,12 @@ export default function DiscoveryPage() {
 
       {/* ═══ TOP SEARCH BAR ═══ */}
       <div className="flex-shrink-0 bg-white border-b border-[rgba(5,14,36,0.08)] px-4 py-2.5 z-20">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pl-3">
           {/* Search icon + input */}
           <div className="flex items-center gap-2 flex-1 relative">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <input
+              ref={searchInputRef}
               type="text"
               value={filters.query}
               onChange={e => {
@@ -1166,6 +1493,25 @@ export default function DiscoveryPage() {
               </div>
             )}
           </div>
+
+          {/* Divider */}
+          <div className="w-px h-7 bg-gray-200" />
+
+          {/* ── Preset buttons ── */}
+          {(Object.entries(FILTER_PRESETS) as [Exclude<PresetKey, null>, typeof FILTER_PRESETS[keyof typeof FILTER_PRESETS]][]).map(([key, preset]) => (
+            <button
+              key={key}
+              onClick={() => { applyPreset(key); if (filters.query) handleSearch() }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors whitespace-nowrap ${
+                activePreset === key
+                  ? 'bg-[#2563EB] text-white border-[#2563EB] font-[600]'
+                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+              }`}
+            >
+              {key === 'motivatedSellers' ? <Target className="w-3.5 h-3.5" /> : <DollarSign className="w-3.5 h-3.5" />}
+              {preset.label}
+            </button>
+          ))}
 
           {/* Divider */}
           <div className="w-px h-7 bg-gray-200" />
@@ -1453,7 +1799,7 @@ export default function DiscoveryPage() {
             <button
               onClick={() => setOpenDropdown(openDropdown === 'more' ? null : 'more')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors ${
-                filters.sqftMin != null || filters.sqftMax != null || filters.yearBuiltMin != null || filters.yearBuiltMax != null || (filters.equityMin != null && filters.equityMin > 0) || filters.ownershipMin != null
+                filters.sqftMin != null || filters.sqftMax != null || filters.yearBuiltMin != null || filters.yearBuiltMax != null || (filters.equityMin != null && filters.equityMin > 0) || filters.ownershipMin != null || filters.daysOnMarketMin != null
                   ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border-[#BFDBFE] font-[600]'
                   : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
               }`}
@@ -1540,12 +1886,23 @@ export default function DiscoveryPage() {
                     className="w-24 bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                   />
                 </div>
+                {/* Days on market */}
+                <div className="mb-3">
+                  <div className="text-[0.72rem] text-gray-500 font-medium mb-2">Min Days on Market</div>
+                  <input
+                    type="text"
+                    placeholder="Any"
+                    value={filters.daysOnMarketMin ?? ''}
+                    onChange={e => setFilter('daysOnMarketMin', e.target.value ? parseInt(e.target.value) || null : null)}
+                    className="w-24 bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                  />
+                </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
                       setFilter('sqftMin', null); setFilter('sqftMax', null)
                       setFilter('yearBuiltMin', null); setFilter('yearBuiltMax', null)
-                      setFilter('equityMin', null); setFilter('ownershipMin', null)
+                      setFilter('equityMin', null); setFilter('ownershipMin', null); setFilter('daysOnMarketMin', null)
                     }}
                     className="text-[0.74rem] text-gray-400 hover:text-gray-600 bg-transparent border-0 cursor-pointer"
                   >
@@ -1682,6 +2039,18 @@ export default function DiscoveryPage() {
 
         {/* ── Right Sidebar (property list) ── */}
         <div className="w-[420px] flex-shrink-0 border-l border-[rgba(5,14,36,0.08)] bg-white flex flex-col disc-sidebar">
+          {/* Buyer match banner */}
+          {buyerMatchBanner && (
+            <div className="flex items-center justify-between px-4 py-2 bg-[rgba(37,99,235,0.06)] border-b border-[rgba(37,99,235,0.12)] flex-shrink-0">
+              <span className="text-[13px] font-medium text-[#2563EB]">{buyerMatchBanner}</span>
+              <button
+                onClick={clearBuyerMatch}
+                className="text-[12px] text-[rgba(5,14,36,0.45)] hover:text-[#EF4444] bg-transparent border-0 cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+          )}
           {/* Results header */}
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(5,14,36,0.08)] flex-shrink-0 bg-gray-50/50">
             <div className="flex items-center gap-3">
@@ -1753,10 +2122,61 @@ export default function DiscoveryPage() {
                       {selectedIds.size}
                     </span>
                   )}
+                  {/* Clear all filters */}
+                  {activeFilterCount > 0 && (
+                    <button
+                      onClick={() => { clearFilters(); if (filters.query) handleSearch() }}
+                      className="flex items-center gap-1 text-[0.72rem] text-red-500 hover:text-red-700 bg-transparent border-0 cursor-pointer whitespace-nowrap"
+                    >
+                      <XCircle className="w-3 h-3" />
+                      Clear ({activeFilterCount})
+                    </button>
+                  )}
+                  {/* Export CSV */}
+                  {filteredProperties.length > 0 && selectedIds.size === 0 && (
+                    <button
+                      onClick={handleExportCSV}
+                      className="flex items-center gap-1 text-[0.72rem] text-gray-500 hover:text-[#0B1224] bg-transparent border-0 cursor-pointer"
+                      title="Export results as CSV"
+                    >
+                      <Download className="w-3 h-3" />
+                    </button>
+                  )}
                 </>
               )}
             </div>
           </div>
+
+          {/* Usage counter */}
+          {revealUsage && revealUsage.limit != null && (
+            <div className="flex items-center gap-2 px-4 py-1.5 border-b border-[rgba(5,14,36,0.08)] bg-gray-50/30 flex-shrink-0">
+              <Lock className="w-3 h-3 text-gray-400" />
+              <span className="text-[0.7rem] text-gray-400">
+                {revealUsage.used}/{revealUsage.limit} reveals
+              </span>
+              <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${
+                    revealUsage.remaining === 0
+                      ? 'bg-red-400'
+                      : revealUsage.remaining != null && revealUsage.remaining <= Math.ceil(revealUsage.limit * 0.2)
+                      ? 'bg-amber-400'
+                      : 'bg-[#2563EB]'
+                  }`}
+                  style={{ width: `${Math.min(100, (revealUsage.used / revealUsage.limit) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Results info bar */}
+          {searchLocation && properties.length > 0 && (
+            <div className="flex items-center gap-2 px-4 py-1.5 border-b border-[rgba(5,14,36,0.08)] bg-blue-50/40 flex-shrink-0">
+              <MapPin className="w-3 h-3 text-blue-400" />
+              <span className="text-[0.7rem] text-blue-500 font-medium">{searchLocation}</span>
+              {fromCache && <span className="text-[0.62rem] text-gray-400 ml-auto">Cached</span>}
+            </div>
+          )}
 
           {/* Scrollable list */}
           <div className="flex-1 overflow-y-auto">
@@ -1764,16 +2184,60 @@ export default function DiscoveryPage() {
             {/* ────── PROPERTIES VIEW ────── */}
             {viewMode === 'properties' && (<>
               {loading && properties.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-                  <Loader2 className="w-7 h-7 animate-spin mb-2 text-[#2563EB]" />
-                  <span className="text-[0.8rem]">Searching...</span>
+                <div className="space-y-0">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="px-4 py-3 border-b border-[rgba(5,14,36,0.06)] animate-pulse">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-200 flex-shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3.5 bg-gray-200 rounded w-3/4" />
+                          <div className="h-3 bg-gray-100 rounded w-1/2" />
+                          <div className="flex gap-4 mt-1">
+                            <div className="h-3 bg-gray-100 rounded w-16" />
+                            <div className="h-3 bg-gray-100 rounded w-16" />
+                            <div className="h-3 bg-gray-100 rounded w-16" />
+                          </div>
+                        </div>
+                        <div className="h-4 bg-gray-200 rounded w-20 flex-shrink-0" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
               {!loading && properties.length === 0 && !error && (
-                <div className="flex flex-col items-center justify-center h-48 text-gray-400">
+                <div className="flex flex-col items-center justify-center h-48 text-gray-400 px-6 text-center">
                   <Search className="w-8 h-8 mb-2 text-gray-300" />
-                  <span className="text-[0.82rem] font-medium text-gray-500 mb-0.5">Search for properties</span>
-                  <span className="text-[0.72rem] text-gray-400">Enter a city and state or zip code</span>
+                  {filters.query ? (
+                    <>
+                      <span className="text-[0.82rem] font-medium text-gray-500 mb-1">No properties found</span>
+                      {activeFilterCount > 0 ? (
+                        <>
+                          <span className="text-[0.72rem] text-gray-400 mb-2">
+                            Try removing some filters to see more results
+                          </span>
+                          <button
+                            onClick={() => { clearFilters(); }}
+                            className="text-[0.78rem] text-[#2563EB] hover:underline bg-transparent border-0 cursor-pointer"
+                          >
+                            Clear all filters
+                          </button>
+                        </>
+                      ) : /\d/.test(filters.query) ? (
+                        <span className="text-[0.72rem] text-gray-400">
+                          Try searching by city, state or zip code instead of a specific address
+                        </span>
+                      ) : (
+                        <span className="text-[0.72rem] text-gray-400">
+                          Try a different location or broader search area
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-[0.82rem] font-medium text-gray-500 mb-0.5">Search for properties</span>
+                      <span className="text-[0.72rem] text-gray-400">Enter a city and state or zip code</span>
+                    </>
+                  )}
                 </div>
               )}
               {filteredProperties.length > 0 && (
@@ -1787,11 +2251,12 @@ export default function DiscoveryPage() {
                     return (
                       <div
                         key={p.id}
-                        className={`px-4 py-3 cursor-pointer transition-colors ${
+                        className={`px-4 py-3 cursor-pointer transition-all duration-200 ${
                           isActive
                             ? 'bg-blue-50/60'
                             : 'hover:bg-gray-50/60'
                         }`}
+                        style={{ animation: 'fadeIn 0.2s ease-out' }}
                         onClick={() => handleListClick(p)}
                       >
                         {/* Row 1: Checkbox + Address + Value */}
@@ -1837,27 +2302,88 @@ export default function DiscoveryPage() {
                                 {typeIcon(pType)}
                                 {pType}
                               </span>
-                              <span className={`flex items-center gap-1 text-[0.72rem] ${ownerT.color} px-1.5 py-0.5 rounded`}>
-                                {ownerT.label === 'Individual' ? <UserCircle className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
-                                {ownerT.label} Owned
-                              </span>
+                              {p.ownerName ? (
+                                <span className={`flex items-center gap-1 text-[0.72rem] ${ownerT.color} px-1.5 py-0.5 rounded`}>
+                                  {ownerT.label === 'Individual' ? <UserCircle className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
+                                  {ownerT.label}
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 text-[0.72rem] text-gray-400 px-1.5 py-0.5 rounded bg-gray-50">
+                                  <Lock className="w-3 h-3" /> Owner on click
+                                </span>
+                              )}
                             </div>
 
                             {/* Row 4: Badges */}
-                            <div className="flex items-center gap-1.5 mt-2">
-                              {p.ownerOccupied === false && (
-                                <span className="text-[12px] font-[400] px-2 py-0.5 rounded-full border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.65)] bg-white">
-                                  Absentee Owners
+                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                              {p.isPreForeclosure && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-red-200 text-red-700 bg-red-50">
+                                  Pre-Foreclosure
                                 </span>
                               )}
-                              {(p.bedrooms ?? 0) >= 3 && (
-                                <span className="text-[12px] font-[400] px-2 py-0.5 rounded-full border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.65)] bg-white">
-                                  {p.bedrooms}+
+                              {p.isTaxDelinquent && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-amber-200 text-amber-700 bg-amber-50">
+                                  Tax Delinquent
                                 </span>
                               )}
-                              {eq.equityCategory === 'high' && (
-                                <span className="text-[12px] font-[400] px-2 py-0.5 rounded-full border border-[#2563EB] text-[#2563EB] bg-transparent">
+                              {(p.isHighEquity || eq.equityCategory === 'high') && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-green-200 text-green-700 bg-green-50">
                                   High Equity
+                                </span>
+                              )}
+                              {(p.isAbsenteeOwner || p.ownerOccupied === false) && (
+                                <span className="text-[11px] font-[400] px-2 py-0.5 rounded-full border border-blue-200 text-blue-600 bg-blue-50">
+                                  Absentee
+                                </span>
+                              )}
+                              {p.isCorporateOwner && (
+                                <span className="text-[11px] font-[400] px-2 py-0.5 rounded-full border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.65)] bg-gray-50">
+                                  Corporate
+                                </span>
+                              )}
+                              {p.isCashBuyer && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-emerald-200 text-emerald-700 bg-emerald-50">
+                                  Cash Buyer
+                                </span>
+                              )}
+                              {p.isFreeAndClear && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-teal-200 text-teal-700 bg-teal-50">
+                                  Free &amp; Clear
+                                </span>
+                              )}
+                              {p.isVacant && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-violet-200 text-violet-700 bg-violet-50">
+                                  Vacant
+                                </span>
+                              )}
+                              {p.isTrustOwned && (
+                                <span className="text-[11px] font-[400] px-2 py-0.5 rounded-full border border-sky-200 text-sky-700 bg-sky-50">
+                                  Trust Owned
+                                </span>
+                              )}
+                              {p.salePropensity === 'High' && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-rose-200 text-rose-700 bg-rose-50">
+                                  High Sale Propensity
+                                </span>
+                              )}
+                              {p.listingStatus === 'Active' && p.daysOnMarket != null && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-purple-200 text-purple-700 bg-purple-50">
+                                  On Market {p.daysOnMarket}d
+                                </span>
+                              )}
+                              {p.listingStatus === 'Pending' && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-indigo-200 text-indigo-700 bg-indigo-50">
+                                  Pending
+                                </span>
+                              )}
+                              {p.listingStatus === 'Sold' && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-gray-300 text-gray-600 bg-gray-100">
+                                  Sold
+                                </span>
+                              )}
+                              {p.priceReduced && (
+                                <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full border border-orange-200 text-orange-700 bg-orange-50">
+                                  Price Reduced
                                 </span>
                               )}
                             </div>
@@ -2095,6 +2621,34 @@ export default function DiscoveryPage() {
         </div>
       </div>
 
+      {/* Floating action bar (selected items) */}
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-[#0B1224] text-white rounded-2xl px-5 py-3 shadow-2xl">
+          <span className="text-[0.82rem] font-semibold">{selectedIds.size} selected</span>
+          <div className="w-px h-5 bg-white/20" />
+          <button
+            onClick={handleBulkCRMImport}
+            disabled={bulkImporting}
+            className="flex items-center gap-1.5 text-[0.78rem] font-medium bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-lg px-3 py-1.5 cursor-pointer transition-colors"
+          >
+            {bulkImporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
+            {bulkImporting ? 'Importing...' : 'Add to CRM'}
+          </button>
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 text-[0.78rem] font-medium bg-white/10 hover:bg-white/20 text-white border-0 rounded-lg px-3 py-1.5 cursor-pointer transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" /> Export CSV
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="flex items-center gap-1 text-[0.72rem] text-white/60 hover:text-white bg-transparent border-0 cursor-pointer"
+          >
+            <X className="w-3 h-3" /> Clear
+          </button>
+        </div>
+      )}
+
       {/* Detail panel */}
       {activeProperty && (
         <PropertyDetail
@@ -2104,8 +2658,10 @@ export default function DiscoveryPage() {
             setActiveProperty(null)
           }}
           onAddToCRM={() => addPropertyToCRM(activeProperty)}
+          onAddAsSeller={() => addPropertyAsSeller(activeProperty)}
           isInCRM={crmIds.has(activeProperty.id)}
           addingToCRM={addingCrmId === activeProperty.id}
+          addingAsSeller={addingSellerId === activeProperty.id}
           features={propertyFeatures[activeProperty.id] ?? null}
           featuresLoading={featuresLoading === activeProperty.id}
           onSelectProperty={(p) => { setActiveProperty(p); fetchPropertyFeatures(p.id) }}
@@ -2113,6 +2669,10 @@ export default function DiscoveryPage() {
       )}
 
       <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @media (max-width: 768px) {
           .disc-sidebar {
             position: absolute;

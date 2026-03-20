@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { TIERS, USAGE_RATES, TierKey } from '@/lib/tiers'
+import { TIERS, OVERAGE_RATES, TierKey } from '@/lib/tiers'
 
 // ── Get or create the current usage record for a user ────────────────────────
 
@@ -75,18 +75,19 @@ export async function trackDealAnalysis(profileId: string) {
   const usage = await getCurrentUsage(profileId)
   const tier = await getUserTier(profileId)
 
-  if (tier.dealsAnalyzed !== Infinity && usage.dealsAnalyzed >= tier.dealsAnalyzed) {
-    return { allowed: false, current: usage.dealsAnalyzed, limit: tier.dealsAnalyzed }
+  const limit = tier.analyses
+  if (limit !== -1 && limit !== Infinity && usage.dealsAnalyzed >= limit) {
+    return { allowed: false, current: usage.dealsAnalyzed, limit }
   }
 
   await prisma.usage.update({
     where: { id: usage.id },
     data: { dealsAnalyzed: { increment: 1 } },
   })
-  return { allowed: true, current: usage.dealsAnalyzed + 1, limit: tier.dealsAnalyzed }
+  return { allowed: true, current: usage.dealsAnalyzed + 1, limit }
 }
 
-// ── Track deal closed (triggers per-deal fee) ────────────────────────────────
+// ── Track deal closed ────────────────────────────────────────────────────────
 
 export async function trackDealClosed(profileId: string) {
   const usage = await getCurrentUsage(profileId)
@@ -152,34 +153,29 @@ export async function checkLimit(
         return { allowed: false, reason: `Contact limit reached (${tier.crmContacts}). Upgrade for more.` }
       return { allowed: true }
 
-    case 'dealAnalysis':
-      if (tier.dealsAnalyzed !== Infinity && usage.dealsAnalyzed >= tier.dealsAnalyzed)
-        return { allowed: false, reason: `Analysis limit reached (${tier.dealsAnalyzed}/mo). Upgrade for more.` }
+    case 'dealAnalysis': {
+      const limit = tier.analyses
+      if (limit !== -1 && limit !== Infinity && usage.dealsAnalyzed >= limit)
+        return { allowed: false, reason: `Analysis limit reached (${limit}/mo). Upgrade for more.` }
       return { allowed: true }
+    }
 
     case 'activeDeal':
-      if (tier.activeDeals !== Infinity && usage.activeDeals >= tier.activeDeals)
-        return { allowed: false, reason: `Active deal limit reached (${tier.activeDeals}). Close or archive a deal to add more.` }
-      return { allowed: true }
+      return { allowed: true } // no active deal limit in new pricing
 
     case 'sms':
-      if (!tier.sms)
-        return { allowed: false, reason: 'SMS campaigns require the Pro plan or higher.' }
-      return { allowed: true }
-
-    case 'abTest':
-      if (!tier.abTesting)
-        return { allowed: false, reason: 'A/B testing requires the Pro plan or higher.' }
+      if (tier.sms === 0)
+        return { allowed: false, reason: 'SMS requires a paid plan.' }
       return { allowed: true }
 
     case 'whiteLabel':
       if (!tier.whiteLabel)
-        return { allowed: false, reason: 'White-label requires the Enterprise plan.' }
+        return { allowed: false, reason: 'White-label requires the Business plan.' }
       return { allowed: true }
 
     case 'api':
       if (!tier.apiAccess)
-        return { allowed: false, reason: 'API access requires the Enterprise plan.' }
+        return { allowed: false, reason: 'API access requires the Business plan.' }
       return { allowed: true }
 
     default:
@@ -187,28 +183,34 @@ export async function checkLimit(
   }
 }
 
-// ── Calculate estimated usage charges for the current period ─────────────────
+// ── Calculate estimated overage charges for the current period ────────────────
 
 export async function getUsageCharges(profileId: string) {
   const profile = await prisma.profile.findUnique({
     where: { id: profileId },
     select: { tier: true },
   })
-  const tier = TIERS[(profile?.tier || 'free') as TierKey]
+  const tierKey = (profile?.tier || 'free') as string
+  const tier = TIERS[tierKey as TierKey]
+  const rates = OVERAGE_RATES[tierKey]
   const usage = await getCurrentUsage(profileId)
 
-  const freeMinutes = tier.freeAiMinutes || 0
-  const overageMinutes = Math.max(0, usage.aiCallMinutes - freeMinutes)
+  if (!rates) {
+    return { aiCalls: 0, sms: 0, skipTraces: 0, total: 0 }
+  }
+
+  const overageMinutes = Math.max(0, usage.aiCallMinutes - (tier.callMinutes || 0))
+  const overageReveals = Math.max(0, usage.skipTraces - (tier.reveals || 0))
+  const overageSms = Math.max(0, usage.smsCount - (tier.sms || 0))
 
   const charges = {
-    aiCalls: Math.round(overageMinutes * USAGE_RATES.aiCallPerMinute * 100) / 100,
-    sms: Math.round(usage.smsCount * USAGE_RATES.smsPerMessage * 100) / 100,
-    skipTraces: Math.round(usage.skipTraces * USAGE_RATES.skipTracePerReveal * 100) / 100,
-    dealsClosed: usage.dealsClosed * USAGE_RATES.dealClosedFee,
+    aiCalls: Math.round(overageMinutes * rates.callMinutes * 100) / 100,
+    sms: Math.round(overageSms * rates.sms * 100) / 100,
+    skipTraces: Math.round(overageReveals * rates.reveals * 100) / 100,
   }
 
   return {
     ...charges,
-    total: charges.aiCalls + charges.sms + charges.skipTraces + charges.dealsClosed,
+    total: charges.aiCalls + charges.sms + charges.skipTraces,
   }
 }

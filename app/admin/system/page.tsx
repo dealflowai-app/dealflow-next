@@ -35,7 +35,7 @@ const serviceIcons: Record<string, React.ElementType> = {
   Database: Database,
   Stripe: CreditCard,
   'Supabase Auth': Shield,
-  'ATTOM Data': Server,
+  BatchData: Server,
   RentCast: Server,
   Mapbox: Map,
   'Bland AI': Phone,

@@ -30,6 +30,28 @@ export interface DiscoveryProperty {
   searchZip: string | null;
   cachedAt: string;
   expiresAt: string;
+
+  // Distress / enrichment flags (derived from rawResponse on Tier 2 enriched properties)
+  isPreForeclosure?: boolean;
+  isTaxDelinquent?: boolean;
+  equityPercent?: number | null;
+  isCorporateOwner?: boolean;
+
+  // Listing data (Tier 2 enrichment)
+  listingStatus?: string | null;
+  daysOnMarket?: number | null;
+  listPrice?: number | null;
+  priceReduced?: boolean;
+  priceReductionPercent?: number | null;
+
+  // New quickList-derived fields
+  isCashBuyer?: boolean;
+  isFreeAndClear?: boolean;
+  isVacant?: boolean;
+  isTrustOwned?: boolean;
+  isAbsenteeOwner?: boolean;
+  isHighEquity?: boolean;
+  salePropensity?: string | null;  // "High", "Medium", "Low"
 }
 
 export interface DiscoverySearchParams {

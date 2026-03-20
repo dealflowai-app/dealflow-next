@@ -2,50 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
-import { getSkipTraceProvider } from '@/lib/skip-trace/providers'
-import type { SkipTraceResult } from '@/lib/skip-trace'
+import { enrichedSkipTrace } from '@/lib/skip-trace/enrich'
+import { checkAllowance, recordUsage } from '@/lib/billing/allowances'
 import { trackSkipTrace } from '@/lib/usage'
-
-// ── Tier limits (reveals per calendar month) ──
-
-const TIER_LIMITS: Record<string, number> = {
-  free: 0,
-  starter: 50,
-  pro: 500,
-  enterprise: Infinity,
-}
-
-function getTierLimit(_profileId: string): number {
-  // TODO: Look up the user's subscription tier from Stripe/billing table.
-  // For now, default to starter tier so reveals work during development.
-  const tier = process.env.DEFAULT_TIER ?? 'starter'
-  return TIER_LIMITS[tier] ?? TIER_LIMITS.free
-}
-
-// ── Parse owner name into first/last or entity ──
-
-function parseOwnerName(name: string): {
-  firstName?: string
-  lastName?: string
-  entityName?: string
-} {
-  const lower = name.toLowerCase()
-  const entityKeywords = ['llc', 'l.l.c', 'corp', 'inc', 'trust', 'holdings', 'capital', 'properties', 'lp', 'ltd']
-  if (entityKeywords.some(kw => lower.includes(kw))) {
-    return { entityName: name }
-  }
-  // Try "LAST, FIRST" format (common in public records)
-  const commaMatch = name.match(/^(.+?),\s*(.+?)$/)
-  if (commaMatch) {
-    return { firstName: commaMatch[2].trim(), lastName: commaMatch[1].trim() }
-  }
-  // Try "FIRST LAST" format
-  const parts = name.trim().split(/\s+/)
-  if (parts.length >= 2) {
-    return { firstName: parts[0], lastName: parts.slice(1).join(' ') }
-  }
-  return { lastName: name.trim() }
-}
+import { BatchDataApiError } from '@/lib/batchdata'
 
 // ── POST /api/discovery/reveal ──
 
@@ -85,7 +45,7 @@ export async function POST(req: NextRequest) {
     const ownerName = property.ownerName
     const propertyAddress = property.addressLine1
 
-    // 2. Check for cached (non-expired) reveal
+    // 2. Check for cached (non-expired) reveal in ContactReveal table
     const existing = await prisma.contactReveal.findFirst({
       where: {
         ownerName,
@@ -101,41 +61,31 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // 3. Check usage limits
-    const now = new Date()
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    const usedThisMonth = await prisma.contactReveal.count({
-      where: {
-        userId: profile.id,
-        cachedAt: { gte: monthStart },
-      },
-    })
+    // 3. Check allowance
+    const allowance = await checkAllowance(profile.id, 'reveals')
 
-    const limit = getTierLimit(profile.id)
-    if (usedThisMonth >= limit) {
+    if (!allowance.allowed) {
       return NextResponse.json(
         {
           error: 'Reveal limit reached',
-          limit,
-          used: usedThisMonth,
-          upgrade: true,
+          limit: allowance.limit,
+          used: allowance.used,
+          upgradeRequired: !allowance.canOverage,
         },
         { status: 403 },
       )
     }
 
-    // 4. Call skip trace provider
-    const provider = getSkipTraceProvider()
-    const nameParts = parseOwnerName(ownerName)
-    const result: SkipTraceResult = await provider.lookup({
-      ...nameParts,
-      address: propertyAddress,
+    // 4. Run enriched skip trace (trace + verify + DNC + TCPA)
+    const result = await enrichedSkipTrace({
+      street: propertyAddress,
       city: property.city,
       state: property.state,
-      zip: property.zipCode ?? undefined,
+      zip: property.zipCode ?? '',
+      ownerName: property.ownerName ?? undefined,
     })
 
-    // 5. Save to cache (upsert in case of race condition on unique constraint)
+    // 5. Save to ContactReveal cache (backward compat)
     const reveal = await prisma.contactReveal.upsert({
       where: {
         ownerName_propertyAddress: { ownerName, propertyAddress },
@@ -167,19 +117,82 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Track skip trace usage for billing
+    // 6. Also save to SkipTraceResult (enriched table with DNC/TCPA flags)
+    const mobileCount = result.phones.filter((p) => p.type === 'mobile' && p.verified).length
+    try {
+      await prisma.skipTraceResult.upsert({
+        where: {
+          ownerName_propertyAddress: { ownerName, propertyAddress },
+        },
+        create: {
+          userId: profile.id,
+          propertyId,
+          ownerName,
+          propertyAddress,
+          city: property.city,
+          state: property.state,
+          zipCode: property.zipCode,
+          phones: result.phones as unknown as Prisma.InputJsonValue,
+          emails: result.emails as unknown as Prisma.InputJsonValue,
+          mailingAddress: result.mailingAddress
+            ? (result.mailingAddress as unknown as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
+          confidence: result.confidence,
+          provider: result.provider,
+          phoneCount: result.phones.length,
+          emailCount: result.emails.length,
+          mobileCount,
+          hasDoNotCall: result.phones.some((p) => p.doNotCall),
+          hasLitigator: result.phones.some((p) => p.litigator),
+          estimatedCost: result.estimatedCost,
+        },
+        update: {
+          phones: result.phones as unknown as Prisma.InputJsonValue,
+          emails: result.emails as unknown as Prisma.InputJsonValue,
+          mailingAddress: result.mailingAddress
+            ? (result.mailingAddress as unknown as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
+          confidence: result.confidence,
+          phoneCount: result.phones.length,
+          emailCount: result.emails.length,
+          mobileCount,
+          hasDoNotCall: result.phones.some((p) => p.doNotCall),
+          hasLitigator: result.phones.some((p) => p.litigator),
+          estimatedCost: result.estimatedCost,
+          cachedAt: new Date(),
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+      })
+    } catch (err) {
+      console.error('Failed to write SkipTraceResult:', err)
+    }
+
+    // 7. Record usage in allowance system + legacy usage table
+    const usage = await recordUsage(profile.id, 'reveals', 1, result.estimatedCost)
     try {
       await trackSkipTrace(profile.id)
     } catch (err) {
-      console.error('Usage tracking failed for skip trace:', err)
+      console.error('Legacy usage tracking failed for skip trace:', err)
     }
 
     return NextResponse.json({
       reveal: toRevealResponse(reveal),
       cached: false,
-      usage: { used: usedThisMonth + 1, limit },
+      usage: {
+        used: usage.used,
+        limit: usage.limit === -1 ? null : usage.limit,
+        remaining: usage.remaining === -1 ? null : usage.remaining,
+      },
+      isOverage: usage.isOverage,
     })
   } catch (err) {
+    if (err instanceof BatchDataApiError) {
+      console.error(`BatchData error in reveal: ${err.status} ${err.endpoint}`)
+      return NextResponse.json(
+        { error: err.status === 429 ? 'Rate limit exceeded, try again shortly' : 'Skip trace provider error' },
+        { status: err.status === 429 ? 429 : 502 },
+      )
+    }
     console.error('Discovery reveal error:', err)
     return NextResponse.json(
       { error: 'Internal server error' },

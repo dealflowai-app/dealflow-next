@@ -651,12 +651,11 @@ export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState<Tab>('feed')
 
   return (
-    <div className="p-8 max-w-[1200px]" style={{ fontFamily: FONT_FAMILY }}>
+    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
       {/* Header */}
       <div className="mb-6">
         <h1
           style={{
-            fontFamily: FONT_FAMILY,
             fontSize: 24,
             fontWeight: 700,
             color: '#0B1224',
@@ -666,7 +665,7 @@ export default function CommunityPage() {
         >
           Feed
         </h1>
-        <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.5)', fontFamily: FONT_FAMILY }}>
+        <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.5)' }}>
           Connect with wholesalers, share strategies, and stay updated.
         </p>
       </div>

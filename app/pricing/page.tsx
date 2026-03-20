@@ -30,19 +30,18 @@ const tiers = [
     period: '/mo',
     tagline: 'For solo wholesalers getting started',
     highlight: false,
-    cta: 'Get started',
+    cta: 'Start 7-day free trial',
     ctaHref: '/signup',
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
     features: [
+      '50 contact reveals/mo',
+      '50 AI call minutes/mo',
+      '100 SMS messages/mo',
+      '10 deal analyses/mo',
       '1 active market',
       'CRM: 500 contacts',
-      '30 deal analyses per month',
-      '5 active deals',
-      '50 free AI call minutes included',
-      'Contract templates (top 5 states)',
       'Basic marketplace access',
       'Email support',
-      '$200 per-deal transaction fee',
     ],
   },
   {
@@ -52,75 +51,52 @@ const tiers = [
     tagline: 'For active wholesalers scaling up',
     highlight: true,
     badge: 'Most popular',
-    cta: 'Get started',
+    cta: 'Start 7-day free trial',
     ctaHref: '/signup',
     stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
     features: [
+      '200 contact reveals/mo',
+      '200 AI call minutes/mo',
+      '500 SMS messages/mo',
+      '50 deal analyses/mo',
       '3 active markets',
       'CRM: 3,000 contacts',
-      '150 deal analyses per month',
-      '20 active deals',
-      '150 free AI call minutes included',
-      'Contract templates for all 50 states',
-      'Full marketplace with deal listings',
-      'SMS + email campaigns',
+      '3 team members',
+      'Full marketplace + SMS campaigns',
       'A/B testing + analytics',
       'Priority support',
-      '$200 per-deal transaction fee',
     ],
   },
   {
-    name: 'Enterprise',
-    price: '$499+',
+    name: 'Business',
+    price: '$499',
     period: '/mo',
     tagline: 'For large operations and teams',
     highlight: false,
-    cta: 'Contact us',
-    ctaHref: 'mailto:hello@dealflowai.app',
+    cta: 'Start 7-day free trial',
+    ctaHref: '/signup',
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_BUSINESS_PRICE_ID,
     features: [
+      '500 contact reveals/mo',
+      '400 AI call minutes/mo',
+      '1,000 SMS messages/mo',
+      'Unlimited deal analyses',
       'Unlimited markets',
       'Unlimited CRM contacts',
-      'Unlimited deal analyses',
-      'Unlimited active deals',
-      '500 free AI call minutes included',
-      'All 50 states + custom contract templates',
+      'Unlimited team members',
       'White-label option',
-      'Team accounts (unlimited users)',
-      'Dedicated account manager',
       'Custom integrations + API access',
-      'Negotiated transaction fee',
+      'Dedicated account manager',
     ],
   },
 ]
 
 const usagePricing = [
   {
-    label: 'AI Voice Calls',
-    price: '$0.18',
-    unit: '/min after free minutes',
-    note: 'AI calls, qualifies, and transcribes buyer conversations automatically.',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'SMS Messages',
-    price: '$0.03',
-    unit: '/message',
-    note: 'Automated follow-up texts to buyers and sellers.',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Skip Trace Reveals',
-    price: '$0.50',
-    unit: '/reveal',
-    note: 'Uncover phone numbers, emails, and mailing addresses for property owners.',
+    label: 'Extra Reveals',
+    price: '$0.25–$0.40',
+    unit: '/reveal (varies by plan)',
+    note: 'Additional contact reveals beyond your plan allowance.',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="10" cy="7" r="4" /><path d="M10.3 15H7a4 4 0 00-4 4v2" /><circle cx="17" cy="17" r="3" /><path d="m21 21-1.9-1.9" />
@@ -128,51 +104,61 @@ const usagePricing = [
     ),
   },
   {
-    label: 'Per-Deal Fee',
-    price: '$200',
-    unit: '/closed deal',
-    note: 'Only charged when a deal closes through the platform with both signatures.',
+    label: 'Extra AI Minutes',
+    price: '$0.15–$0.25',
+    unit: '/min (varies by plan)',
+    note: 'Additional AI call minutes beyond your plan allowance.',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 15l2 2 4-4" />
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Extra SMS',
+    price: '$0.03–$0.05',
+    unit: '/message (varies by plan)',
+    note: 'Additional SMS messages beyond your plan allowance.',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
       </svg>
     ),
   },
 ]
 
 const freeMinutes = [
-  { tier: 'Starter', mins: 50, calls: '~17 calls', pct: 10 },
-  { tier: 'Pro', mins: 150, calls: '~50 calls', pct: 30 },
-  { tier: 'Enterprise', mins: 500, calls: '~167 calls', pct: 100 },
+  { tier: 'Starter', mins: 50, calls: '~17 calls', pct: 12.5 },
+  { tier: 'Pro', mins: 200, calls: '~67 calls', pct: 50 },
+  { tier: 'Business', mins: 400, calls: '~133 calls', pct: 100 },
 ]
 
-const compare: { feature: string; starter: boolean | string; pro: boolean | string; enterprise: boolean | string }[] = [
-  { feature: 'AI buyer discovery', starter: true, pro: true, enterprise: true },
-  { feature: 'AI voice calling', starter: 'Usage-based', pro: 'Usage-based', enterprise: 'Usage-based' },
-  { feature: 'SMS campaigns', starter: false, pro: true, enterprise: true },
-  { feature: 'Deal analysis', starter: '30/mo', pro: '150/mo', enterprise: 'Unlimited' },
-  { feature: 'Smart deal matching', starter: true, pro: true, enterprise: true },
-  { feature: 'Assignment contracts', starter: '5 states', pro: 'All 50 states', enterprise: 'All 50 states' },
-  { feature: 'E-signature', starter: true, pro: true, enterprise: true },
-  { feature: 'Multiple markets', starter: false, pro: true, enterprise: true },
-  { feature: 'A/B testing', starter: false, pro: true, enterprise: true },
-  { feature: 'Conversation intelligence', starter: false, pro: true, enterprise: true },
-  { feature: 'Live call monitoring', starter: false, pro: false, enterprise: true },
-  { feature: 'Team accounts', starter: false, pro: '3 users', enterprise: 'Unlimited' },
-  { feature: 'White-label', starter: false, pro: false, enterprise: true },
-  { feature: 'Custom templates', starter: false, pro: false, enterprise: true },
-  { feature: 'API access', starter: false, pro: false, enterprise: true },
-  { feature: 'Dedicated account manager', starter: false, pro: false, enterprise: true },
+const compare: { feature: string; starter: boolean | string; pro: boolean | string; business: boolean | string }[] = [
+  { feature: 'Contact reveals', starter: '50/mo', pro: '200/mo', business: '500/mo' },
+  { feature: 'AI call minutes', starter: '50/mo', pro: '200/mo', business: '400/mo' },
+  { feature: 'SMS messages', starter: '100/mo', pro: '500/mo', business: '1,000/mo' },
+  { feature: 'Deal analyses', starter: '10/mo', pro: '50/mo', business: 'Unlimited' },
+  { feature: 'AI buyer discovery', starter: true, pro: true, business: true },
+  { feature: 'Smart deal matching', starter: true, pro: true, business: true },
+  { feature: 'E-signature', starter: true, pro: true, business: true },
+  { feature: 'SMS campaigns', starter: true, pro: true, business: true },
+  { feature: 'Multiple markets', starter: false, pro: true, business: true },
+  { feature: 'A/B testing', starter: false, pro: true, business: true },
+  { feature: 'Conversation intelligence', starter: false, pro: true, business: true },
+  { feature: 'Team accounts', starter: false, pro: '3 users', business: 'Unlimited' },
+  { feature: 'White-label', starter: false, pro: false, business: true },
+  { feature: 'API access', starter: false, pro: false, business: true },
+  { feature: 'Dedicated account manager', starter: false, pro: false, business: true },
 ]
 
 const faqs = [
   {
-    q: 'What happens when I use all my free AI call minutes?',
-    a: 'Additional minutes are billed at $0.18/min. You can set a monthly spending cap in Settings to avoid surprises.',
+    q: 'What happens when I exceed my plan allowances?',
+    a: 'Overages are billed per-unit at the end of each billing period. Rates vary by plan — for example, extra reveals are $0.40 on Starter, $0.30 on Pro, and $0.25 on Business. You can see your usage anytime in Settings.',
   },
   {
-    q: 'What is the per-deal transaction fee?',
-    a: 'When a deal closes through the platform (contract signed by both parties), a $200 fee is charged. This only applies to completed transactions, not to listings or offers.',
+    q: 'Is there a free trial?',
+    a: 'Yes! Every plan includes a 7-day free trial with full access. No credit card required to start.',
   },
   {
     q: 'Can I switch plans?',
@@ -515,7 +501,7 @@ export default function PricingPage() {
                   <th style={{ textAlign: 'left', padding: '10px 18px', fontSize: '0.72rem', fontWeight: 600, color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Feature</th>
                   <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Starter</th>
                   <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: BLUE, fontFamily: F, background: 'rgba(37,99,235,0.03)', borderBottom: `1px solid ${BORDER}` }}>Pro</th>
-                  <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Enterprise</th>
+                  <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Business</th>
                 </tr>
               </thead>
               <tbody>
@@ -524,7 +510,7 @@ export default function PricingPage() {
                     <td style={{ padding: '9px 18px', fontSize: '0.78rem', color: BODY, fontFamily: F, background: i % 2 === 1 ? 'rgba(5,14,36,0.015)' : 'white' }}>{row.feature}</td>
                     <td style={{ textAlign: 'center', padding: '9px 12px', verticalAlign: 'middle', background: i % 2 === 1 ? 'rgba(5,14,36,0.015)' : 'white' }}><CellContent val={row.starter} /></td>
                     <td style={{ textAlign: 'center', padding: '9px 12px', verticalAlign: 'middle', background: i % 2 === 1 ? 'rgba(37,99,235,0.04)' : 'rgba(37,99,235,0.03)' }}><CellContent val={row.pro} isPro /></td>
-                    <td style={{ textAlign: 'center', padding: '9px 12px', verticalAlign: 'middle', background: i % 2 === 1 ? 'rgba(5,14,36,0.015)' : 'white' }}><CellContent val={row.enterprise} /></td>
+                    <td style={{ textAlign: 'center', padding: '9px 12px', verticalAlign: 'middle', background: i % 2 === 1 ? 'rgba(5,14,36,0.015)' : 'white' }}><CellContent val={row.business} /></td>
                   </tr>
                 ))}
               </tbody>

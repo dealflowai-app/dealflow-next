@@ -2026,16 +2026,16 @@ export default function ContractsPage() {
     .reduce((sum, c) => sum + (feeFromContract(c) || 0), 0)
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)]">
+    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", letterSpacing: '-0.02em' }}
+          <h1 style={{ letterSpacing: '-0.02em' }}
             className="text-[24px] font-bold text-[#0B1224] mb-1"
           >
             Contracts
           </h1>
-          <p className="text-[14px] text-[rgba(5,14,36,0.5)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <p className="text-[14px] text-[rgba(5,14,36,0.5)]">
             Generate, sign, and track assignment contracts.
           </p>
         </div>

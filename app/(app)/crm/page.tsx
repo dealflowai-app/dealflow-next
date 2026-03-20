@@ -95,11 +95,20 @@ function scoreDot(s: string) {
 }
 
 const STATUS_DISPLAY: Record<string, string> = {
+  NEW: 'New',
+  CONTACTED: 'Contacted',
   ACTIVE: 'Active',
+  UNDER_CONTRACT: 'Under Contract',
+  CLOSED: 'Closed',
   DORMANT: 'Dormant',
+  DO_NOT_CALL: 'Do Not Call',
+  QUALIFIED: 'Qualified',
   HIGH_CONFIDENCE: 'High-Confidence',
   RECENTLY_VERIFIED: 'Recently Verified',
-  DO_NOT_CALL: 'Do Not Call',
+  NEGOTIATING: 'Negotiating',
+  FINDING_BUYER: 'Finding Buyer',
+  ASSIGNED: 'Assigned',
+  DEAD: 'Dead',
 }
 
 function displayStatus(s: string): string {
@@ -118,13 +127,21 @@ function motivationBadge(m: string | null) {
 }
 
 function statusStyle(s: string) {
-  const display = displayStatus(s)
-  switch (display) {
-    case 'Active': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
-    case 'Dormant': return 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
-    case 'High-Confidence': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
-    case 'Recently Verified': return 'text-[#8B5CF6] bg-[rgba(139,92,246,0.08)]'
-    case 'Do Not Call': return 'text-[#EF4444] bg-[rgba(239,68,68,0.08)]'
+  switch (s) {
+    case 'NEW': return 'text-[#6366F1] bg-[rgba(99,102,241,0.08)]'
+    case 'CONTACTED': return 'text-[#0EA5E9] bg-[rgba(14,165,233,0.08)]'
+    case 'ACTIVE': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
+    case 'QUALIFIED': return 'text-[#059669] bg-[rgba(5,150,105,0.08)]'
+    case 'HIGH_CONFIDENCE': return 'text-[#2563EB] bg-[rgba(37,99,235,0.08)]'
+    case 'RECENTLY_VERIFIED': return 'text-[#8B5CF6] bg-[rgba(139,92,246,0.08)]'
+    case 'NEGOTIATING': return 'text-[#D97706] bg-[rgba(217,119,6,0.08)]'
+    case 'UNDER_CONTRACT': return 'text-[#059669] bg-[rgba(5,150,105,0.08)]'
+    case 'FINDING_BUYER': return 'text-[#F97316] bg-[rgba(249,115,22,0.08)]'
+    case 'ASSIGNED': return 'text-[#8B5CF6] bg-[rgba(139,92,246,0.08)]'
+    case 'CLOSED': return 'text-[#10B981] bg-[rgba(16,185,129,0.08)]'
+    case 'DORMANT': return 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
+    case 'DO_NOT_CALL': return 'text-[#EF4444] bg-[rgba(239,68,68,0.08)]'
+    case 'DEAD': return 'text-[#6B7280] bg-[rgba(107,114,128,0.08)]'
     default: return 'text-[rgba(5,14,36,0.4)] bg-[rgba(5,14,36,0.04)]'
   }
 }
@@ -383,14 +400,25 @@ function FilterSelect({
 /* ═══════════════════════════════════════════════
    ADD BUYER MODAL
    ═══════════════════════════════════════════════ */
-function AddBuyerModal({ onClose, onCreated }: { onClose: () => void; onCreated: (msg: string) => void }) {
+function AddBuyerModal({ onClose, onCreated, defaultType }: { onClose: () => void; onCreated: (msg: string) => void; defaultType?: 'BUYER' | 'SELLER' }) {
+  const [contactType, setContactType] = useState<'BUYER' | 'SELLER' | 'BOTH'>(defaultType || 'BUYER')
   const [form, setForm] = useState({
     firstName: '', lastName: '', entityName: '', phone: '', email: '',
-    city: '', state: '', strategy: '', minPrice: '', maxPrice: '',
-    motivation: '', buyerType: '', fundingSource: '', source: '', buyerScore: '50',
+    city: '', state: '', source: '', buyerScore: '50', notes: '',
+    // Buyer fields
+    strategy: '', minPrice: '', maxPrice: '', buyerType: '', fundingSource: '',
+    preferredMarkets: '', closeSpeedDays: '', portfolioSize: '',
+    // Seller fields
+    sellerMotivation: '', sellerAskingPrice: '', sellerTimeline: '',
+    sellerPropertyAddress: '', sellerNotes: '',
+    // Shared
+    motivation: '',
   })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
+
+  const isBuyer = contactType === 'BUYER' || contactType === 'BOTH'
+  const isSeller = contactType === 'SELLER' || contactType === 'BOTH'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -398,136 +426,282 @@ function AddBuyerModal({ onClose, onCreated }: { onClose: () => void; onCreated:
     setSaving(true)
     setErr('')
     try {
-      const payload: Record<string, unknown> = {}
+      const payload: Record<string, unknown> = { contactType }
+      const numericKeys = ['minPrice', 'maxPrice', 'buyerScore', 'sellerAskingPrice', 'closeSpeedDays', 'portfolioSize']
       for (const [k, v] of Object.entries(form)) {
         if (v === '') continue
-        if (k === 'minPrice' || k === 'maxPrice' || k === 'buyerScore') { payload[k] = Number(v); continue }
+        if (k === 'preferredMarkets') { payload[k] = (v as string).split(',').map(s => s.trim()).filter(Boolean); continue }
+        if (numericKeys.includes(k)) { payload[k] = Number(v); continue }
         payload[k] = v
       }
       await createBuyer(payload)
-      onCreated('Buyer created')
+      onCreated('Contact created')
       onClose()
     } catch (ex) {
-      setErr(ex instanceof Error ? ex.message : 'Failed to create buyer')
+      setErr(ex instanceof Error ? ex.message : 'Failed to create contact')
     } finally {
       setSaving(false)
     }
   }
 
   const scoreVal = Number(form.buyerScore) || 0
+  const inputCls = "w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-3 py-2.5 text-[0.82rem] outline-none focus:border-[#2563EB] transition-colors bg-white"
+  const labelCls = "text-[0.72rem] font-medium text-[rgba(5,14,36,0.45)] mb-1.5 block uppercase tracking-wide"
+  const selectCls = inputCls + " cursor-pointer"
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
-      <form onSubmit={handleSubmit} className="relative bg-white rounded-[12px] shadow-xl p-6 w-[520px] max-h-[90vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
-        <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-4">Add Buyer</h3>
-        {err && <div className="text-red-600 text-sm mb-3">{err}</div>}
+      <form onSubmit={handleSubmit} className="relative bg-white rounded-[16px] shadow-xl w-[540px] max-h-[90vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
 
-        {/* Score Slider */}
-        <div className="mb-4 bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs font-medium text-gray-600">Buyer Score</label>
-            <span className={`text-[0.72rem] font-bold px-2 py-0.5 rounded-full border ${scoreColor(scoreGrade(scoreVal))}`}>
-              {scoreGrade(scoreVal)} ({scoreVal})
-            </span>
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '22px', color: '#0B1224', letterSpacing: '-0.02em' }} className="m-0">Add Contact</h3>
+            <button type="button" onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-[8px] hover:bg-[rgba(5,14,36,0.04)] border-0 bg-transparent cursor-pointer transition-colors">
+              <X className="w-4 h-4 text-[rgba(5,14,36,0.3)]" />
+            </button>
           </div>
-          <div className="flex items-center gap-3">
-            <input type="range" min="0" max="100" value={form.buyerScore} onChange={e => setForm(p => ({ ...p, buyerScore: e.target.value }))}
-              className="flex-1 h-2 accent-[#2563EB] cursor-pointer" />
-            <input type="number" min="0" max="100" value={form.buyerScore} onChange={e => setForm(p => ({ ...p, buyerScore: e.target.value }))}
-              className="w-14 text-center text-sm font-bold border border-gray-200 rounded-md py-1 outline-none focus:border-[#2563EB]" />
-          </div>
-        </div>
 
-        {/* Motivation */}
-        <div className="mb-4">
-          <label className="text-xs text-gray-500 mb-1.5 block">Motivation Level</label>
-          <div className="flex flex-wrap gap-1.5">
-            {[
-              { value: 'HOT', label: 'Hot', dot: 'bg-red-500' },
-              { value: 'WARM', label: 'Warm', dot: 'bg-orange-400' },
-              { value: 'COLD', label: 'Cold', dot: 'bg-blue-400' },
-              { value: 'NOT_INTERESTED', label: 'Not Interested', dot: 'bg-gray-400' },
-            ].map(m => (
-              <button key={m.value} type="button"
-                onClick={() => setForm(p => ({ ...p, motivation: p.motivation === m.value ? '' : m.value }))}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[0.76rem] font-medium border cursor-pointer transition-all ${
-                  form.motivation === m.value ? 'bg-gray-900 text-white border-gray-900' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                }`}>
-                <span className={`w-2 h-2 rounded-full ${m.dot}`} />
-                {m.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          {[
-            { key: 'firstName', label: 'First Name' },
-            { key: 'lastName', label: 'Last Name' },
-            { key: 'entityName', label: 'Entity / LLC' },
-            { key: 'phone', label: 'Phone' },
-            { key: 'email', label: 'Email' },
-            { key: 'city', label: 'City' },
-            { key: 'state', label: 'State' },
-            { key: 'minPrice', label: 'Min Price' },
-            { key: 'maxPrice', label: 'Max Price' },
-          ].map((f) => (
-            <div key={f.key}>
-              <label className="text-xs text-gray-500 mb-1 block">{f.label}</label>
-              <input
-                value={form[f.key as keyof typeof form]}
-                onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
-                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB]"
-              />
+          {/* Contact type as inline selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-[0.76rem] text-[rgba(5,14,36,0.4)]">Type:</span>
+            <div className="flex items-center gap-1 bg-[rgba(5,14,36,0.03)] rounded-[8px] p-0.5">
+              {([
+                { key: 'BUYER' as const, label: 'Buyer' },
+                { key: 'SELLER' as const, label: 'Seller' },
+                { key: 'BOTH' as const, label: 'Both' },
+              ]).map(t => (
+                <button key={t.key} type="button"
+                  onClick={() => setContactType(t.key)}
+                  className={`px-3 py-1.5 rounded-[7px] text-[0.76rem] font-medium border-0 cursor-pointer transition-all ${
+                    contactType === t.key
+                      ? 'bg-white text-[#0B1224] shadow-sm'
+                      : 'bg-transparent text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.6)]'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
-          ))}
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Strategy</label>
-            <select value={form.strategy} onChange={(e) => setForm((p) => ({ ...p, strategy: e.target.value }))}
-              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB] bg-white">
-              <option value="">Select...</option>
-              <option value="FLIP">Flip</option><option value="HOLD">Hold</option>
-              <option value="BOTH">Both</option><option value="LAND">Land</option>
-              <option value="COMMERCIAL">Commercial</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Buyer Type</label>
-            <select value={form.buyerType} onChange={(e) => setForm((p) => ({ ...p, buyerType: e.target.value }))}
-              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB] bg-white">
-              <option value="">Select...</option>
-              <option value="CASH_BUYER">Cash Buyer</option><option value="FLIPPER">Flipper</option>
-              <option value="LANDLORD">Landlord</option><option value="WHOLESALER">Wholesaler</option>
-              <option value="DEVELOPER">Developer</option><option value="HEDGE_FUND">Hedge Fund</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Funding</label>
-            <select value={form.fundingSource} onChange={(e) => setForm((p) => ({ ...p, fundingSource: e.target.value }))}
-              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB] bg-white">
-              <option value="">Select...</option>
-              <option value="CASH">Cash</option><option value="HARD_MONEY">Hard Money</option>
-              <option value="CONVENTIONAL">Conventional</option><option value="PRIVATE_MONEY">Private Money</option>
-              <option value="SELF_DIRECTED_IRA">Self-Directed IRA</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Lead Source</label>
-            <select value={form.source} onChange={(e) => setForm((p) => ({ ...p, source: e.target.value }))}
-              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-[#2563EB] bg-white">
-              <option value="">Select...</option>
-              {['Driving for Dollars','Referral','Cash Buyer List','Tax Records','Auction','Networking Event','Cold Call','Inbound Lead','Other'].map(s =>
-                <option key={s} value={s}>{s}</option>
-              )}
-            </select>
           </div>
         </div>
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-gray-50">Cancel</button>
-          <button type="submit" disabled={saving} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-[10px] border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+
+        {err && <div className="mx-6 mt-3 text-red-600 text-sm bg-red-50 border border-red-100 rounded-[8px] px-3 py-2">{err}</div>}
+
+        <div className="px-6 py-5 space-y-5">
+
+          {/* Contact Info — always shown */}
+          <div>
+            <div className="text-[0.68rem] font-semibold text-[rgba(5,14,36,0.3)] uppercase mb-3" style={{ letterSpacing: '0.06em' }}>Contact Information</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>First Name</label>
+                <input value={form.firstName} onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))} className={inputCls} placeholder="John" />
+              </div>
+              <div>
+                <label className={labelCls}>Last Name</label>
+                <input value={form.lastName} onChange={e => setForm(p => ({ ...p, lastName: e.target.value }))} className={inputCls} placeholder="Smith" />
+              </div>
+              <div>
+                <label className={labelCls}>Entity / LLC</label>
+                <input value={form.entityName} onChange={e => setForm(p => ({ ...p, entityName: e.target.value }))} className={inputCls} placeholder="Smith Properties LLC" />
+              </div>
+              <div>
+                <label className={labelCls}>Phone</label>
+                <input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} className={inputCls} placeholder="(555) 123-4567" />
+              </div>
+              <div>
+                <label className={labelCls}>Email</label>
+                <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} className={inputCls} placeholder="john@example.com" />
+              </div>
+              <div>
+                <label className={labelCls}>Lead Source</label>
+                <select value={form.source} onChange={e => setForm(p => ({ ...p, source: e.target.value }))} className={selectCls}>
+                  <option value="">Select...</option>
+                  {(isSeller && !isBuyer
+                    ? ['Driving for Dollars','Direct Mail','Referral','Tax Records','Probate List','Pre-Foreclosure List','Cold Call','Inbound Lead','Bandit Signs','Other']
+                    : ['Cash Buyer List','Referral','Tax Records','Auction','Networking Event','Cold Call','Inbound Lead','Title Company','Other']
+                  ).map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>City</label>
+                <input value={form.city} onChange={e => setForm(p => ({ ...p, city: e.target.value }))} className={inputCls} placeholder="Dallas" />
+              </div>
+              <div>
+                <label className={labelCls}>State</label>
+                <input value={form.state} onChange={e => setForm(p => ({ ...p, state: e.target.value }))} className={inputCls} placeholder="TX" />
+              </div>
+            </div>
+          </div>
+
+          {/* Motivation + Score — always shown */}
+          <div>
+            <div className="text-[0.68rem] font-semibold text-[rgba(5,14,36,0.3)] uppercase mb-3" style={{ letterSpacing: '0.06em' }}>Lead Quality</div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex flex-wrap gap-1.5 flex-1">
+                {[
+                  { value: 'HOT', label: 'Hot', dot: '#EF4444' },
+                  { value: 'WARM', label: 'Warm', dot: '#F59E0B' },
+                  { value: 'COLD', label: 'Cold', dot: '#3B82F6' },
+                  { value: 'NOT_INTERESTED', label: 'Not Interested', dot: '#9CA3AF' },
+                ].map(m => (
+                  <button key={m.value} type="button"
+                    onClick={() => setForm(p => ({ ...p, motivation: p.motivation === m.value ? '' : m.value }))}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] text-[0.74rem] font-medium border cursor-pointer transition-all ${
+                      form.motivation === m.value ? 'bg-[#0B1224] text-white border-[#0B1224]' : 'bg-white border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.5)] hover:border-[rgba(5,14,36,0.15)]'
+                    }`}>
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: m.dot }} />
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-3 bg-[rgba(5,14,36,0.02)] rounded-[10px] p-3">
+              <span className="text-[0.72rem] font-medium text-[rgba(5,14,36,0.4)] whitespace-nowrap">Score</span>
+              <input type="range" min="0" max="100" value={form.buyerScore} onChange={e => setForm(p => ({ ...p, buyerScore: e.target.value }))}
+                className="flex-1 h-1.5 accent-[#2563EB] cursor-pointer" />
+              <span className={`text-[0.72rem] font-bold px-2 py-0.5 rounded-full border ${scoreColor(scoreGrade(scoreVal))}`}>
+                {scoreGrade(scoreVal)} ({scoreVal})
+              </span>
+            </div>
+          </div>
+
+          {/* ─── BUYER-SPECIFIC SECTION ─── */}
+          {isBuyer && (
+            <div>
+              <div className="text-[0.68rem] font-semibold text-[#2563EB] uppercase mb-3" style={{ letterSpacing: '0.06em' }}>Buy Box Criteria</div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>Min Purchase Price</label>
+                  <input value={form.minPrice} onChange={e => setForm(p => ({ ...p, minPrice: e.target.value }))} type="number" placeholder="$50,000" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Max Purchase Price</label>
+                  <input value={form.maxPrice} onChange={e => setForm(p => ({ ...p, maxPrice: e.target.value }))} type="number" placeholder="$200,000" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Strategy</label>
+                  <select value={form.strategy} onChange={e => setForm(p => ({ ...p, strategy: e.target.value }))} className={selectCls}>
+                    <option value="">Select...</option>
+                    <option value="FLIP">Flip</option>
+                    <option value="HOLD">Buy & Hold</option>
+                    <option value="BOTH">Flip & Hold</option>
+                    <option value="LAND">Land</option>
+                    <option value="COMMERCIAL">Commercial</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Buyer Type</label>
+                  <select value={form.buyerType} onChange={e => setForm(p => ({ ...p, buyerType: e.target.value }))} className={selectCls}>
+                    <option value="">Select...</option>
+                    <option value="CASH_BUYER">Cash Buyer</option>
+                    <option value="FLIPPER">Flipper</option>
+                    <option value="LANDLORD">Landlord / Investor</option>
+                    <option value="WHOLESALER">Wholesaler</option>
+                    <option value="DEVELOPER">Developer</option>
+                    <option value="HEDGE_FUND">Hedge Fund / Fund</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Funding Source</label>
+                  <select value={form.fundingSource} onChange={e => setForm(p => ({ ...p, fundingSource: e.target.value }))} className={selectCls}>
+                    <option value="">Select...</option>
+                    <option value="CASH">Cash</option>
+                    <option value="HARD_MONEY">Hard Money</option>
+                    <option value="CONVENTIONAL">Conventional</option>
+                    <option value="PRIVATE_MONEY">Private Money</option>
+                    <option value="SELF_DIRECTED_IRA">Self-Directed IRA</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Close Speed (days)</label>
+                  <input value={form.closeSpeedDays} onChange={e => setForm(p => ({ ...p, closeSpeedDays: e.target.value }))} type="number" placeholder="14" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Target Markets</label>
+                  <input value={form.preferredMarkets} onChange={e => setForm(p => ({ ...p, preferredMarkets: e.target.value }))} placeholder="Dallas, Houston, Austin" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Portfolio Size</label>
+                  <input value={form.portfolioSize} onChange={e => setForm(p => ({ ...p, portfolioSize: e.target.value }))} type="number" placeholder="25" className={inputCls} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ─── SELLER-SPECIFIC SECTION ─── */}
+          {isSeller && (
+            <div>
+              <div className="text-[0.68rem] font-semibold text-[#F97316] uppercase mb-3" style={{ letterSpacing: '0.06em' }}>Property & Seller Details</div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <label className={labelCls}>Property Address</label>
+                  <input value={form.sellerPropertyAddress} onChange={e => setForm(p => ({ ...p, sellerPropertyAddress: e.target.value }))}
+                    placeholder="123 Main St, Dallas, TX 75201" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Seller Situation</label>
+                  <select value={form.sellerMotivation} onChange={e => setForm(p => ({ ...p, sellerMotivation: e.target.value }))} className={selectCls}>
+                    <option value="">Select...</option>
+                    <option value="Distressed">Distressed / Financial Hardship</option>
+                    <option value="Divorce">Divorce</option>
+                    <option value="Probate">Probate / Inherited</option>
+                    <option value="Pre-Foreclosure">Pre-Foreclosure</option>
+                    <option value="Tax Lien">Tax Lien / Back Taxes</option>
+                    <option value="Relocating">Relocating</option>
+                    <option value="Tired Landlord">Tired Landlord</option>
+                    <option value="Vacant">Vacant Property</option>
+                    <option value="Code Violations">Code Violations</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Asking Price</label>
+                  <input value={form.sellerAskingPrice} onChange={e => setForm(p => ({ ...p, sellerAskingPrice: e.target.value }))}
+                    type="number" placeholder="$150,000" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Timeline to Sell</label>
+                  <select value={form.sellerTimeline} onChange={e => setForm(p => ({ ...p, sellerTimeline: e.target.value }))} className={selectCls}>
+                    <option value="">Select...</option>
+                    <option value="ASAP">ASAP — needs to sell now</option>
+                    <option value="30 days">Within 30 days</option>
+                    <option value="60 days">Within 60 days</option>
+                    <option value="90+ days">90+ days</option>
+                    <option value="Not urgent">Not urgent / just exploring</option>
+                  </select>
+                </div>
+                <div className="col-span-2">
+                  <label className={labelCls}>Seller Notes</label>
+                  <textarea value={form.sellerNotes} onChange={e => setForm(p => ({ ...p, sellerNotes: e.target.value }))}
+                    placeholder="Property condition, owner situation, negotiation notes..."
+                    rows={3} className={inputCls + " resize-none"} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* General notes — always shown */}
+          {!isSeller && (
+            <div>
+              <label className={labelCls}>Notes</label>
+              <textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
+                placeholder="Additional notes about this contact..."
+                rows={2} className={inputCls + " resize-none"} />
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: '1px solid rgba(5,14,36,0.06)' }}>
+          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[0.82rem] font-medium text-[rgba(5,14,36,0.5)] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-[rgba(5,14,36,0.02)] transition-colors">Cancel</button>
+          <button type="submit" disabled={saving}
+            className="px-5 py-2.5 text-[0.82rem] font-semibold text-white rounded-[10px] border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 hover:opacity-90 transition-opacity bg-[#2563EB]"
+          >
             {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {saving ? 'Saving...' : 'Create Buyer'}
+            {saving ? 'Saving...' : 'Add Contact'}
           </button>
         </div>
       </form>
@@ -538,11 +712,12 @@ function AddBuyerModal({ onClose, onCreated }: { onClose: () => void; onCreated:
 /* ═══════════════════════════════════════════════
    CSV IMPORT MODAL
    ═══════════════════════════════════════════════ */
-const CSV_TEMPLATE = 'First Name,Last Name,Company,Phone,Email,Address,City,State,Zip,Notes'
+const CSV_TEMPLATE = 'First Name,Last Name,Company,Phone,Phone Secondary,Email,Email Secondary,Address,City,State,Zip,Strategy,Min Price,Max Price,Buyer Type,Funding Source,Notes'
 
 function ImportModal({ onClose, onImported }: { onClose: () => void; onImported: (msg: string) => void }) {
   const [csvText, setCsvText] = useState('')
   const [importing, setImporting] = useState(false)
+  const [contactType, setContactType] = useState<'BUYER' | 'SELLER' | 'BOTH'>('BUYER')
   const [result, setResult] = useState<{ imported: number; skipped: number; total: number; errors: Array<{ index: number; reason: string }> } | null>(null)
   const [preview, setPreview] = useState<{ headers: string[]; rows: string[][]; mapped: Record<string, string> } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -574,7 +749,7 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
     if (parsed.length < 2) { setPreview(null); return }
     const headers = parsed[0]
     const rows = parsed.slice(1, 6) // first 5 data rows
-    const KNOWN = ['firstname', 'first name', 'lastname', 'last name', 'company', 'entityname', 'phone', 'email', 'address', 'city', 'state', 'zip', 'notes']
+    const KNOWN = ['firstname', 'first name', 'lastname', 'last name', 'company', 'entityname', 'entity name', 'phone', 'phone secondary', 'phonesecondary', 'email', 'email secondary', 'emailsecondary', 'address', 'city', 'state', 'zip', 'strategy', 'min price', 'minprice', 'max price', 'maxprice', 'buyer type', 'buyertype', 'funding source', 'fundingsource', 'notes']
     const mapped: Record<string, string> = {}
     for (const h of headers) {
       const lower = h.toLowerCase().trim()
@@ -601,7 +776,9 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
         headers.forEach((h, i) => { obj[h.trim()] = vals[i] || '' })
         return obj
       })
-      const data = await importBuyers(rows)
+      // Inject contactType into each row
+      const enriched = rows.map(r => ({ ...r, contactType }))
+      const data = await importBuyers(enriched)
       setResult(data)
       const msg = `Imported ${data.imported} buyer${data.imported !== 1 ? 's' : ''}. ${data.skipped} skipped.`
       onImported(msg)
@@ -623,6 +800,17 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
             <FileDown className="w-3 h-3" />
             Download template
           </button>
+        </div>
+
+        {/* Contact type selector */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs text-gray-500 font-medium">Import as:</span>
+          {(['BUYER', 'SELLER', 'BOTH'] as const).map(t => (
+            <button key={t} type="button" onClick={() => setContactType(t)}
+              className={`text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-all ${contactType === t ? 'bg-[#0B1224] text-white border-[#0B1224]' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'}`}>
+              {t === 'BOTH' ? 'Buyer + Seller' : t.charAt(0) + t.slice(1).toLowerCase()}
+            </button>
+          ))}
         </div>
 
         <div className="flex items-center gap-2 mb-3">
@@ -956,23 +1144,28 @@ function ListView({
   isLoading,
   hasFilters,
   showArchived,
+  contactTypeFilter,
   onOpenDetail,
   onRefetch,
   onClearFilters,
   addToast,
+  onStatusChange,
 }: {
   buyers: ApiBuyer[]
   isLoading: boolean
   hasFilters: boolean
   showArchived?: boolean
+  contactTypeFilter?: string
   onOpenDetail: (id: string) => void
   onRefetch: () => void
   onClearFilters: () => void
   addToast: (msg: string, type?: ToastType) => void
+  onStatusChange?: (buyerId: string, newStatus: string) => void
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sortCol, setSortCol] = useState<string>('score')
   const [menuOpen, setMenuOpen] = useState<string | null>(null)
+  const [statusDropdown, setStatusDropdown] = useState<string | null>(null)
   const [bulkLoading, setBulkLoading] = useState(false)
   const [showDialer, setShowDialer] = useState(false)
 
@@ -1020,16 +1213,19 @@ function ListView({
   // Skeleton while loading
   if (isLoading) return <TableSkeleton />
 
+  const ctLabel = contactTypeFilter === 'SELLER' ? 'seller' : contactTypeFilter === 'BUYER' ? 'buyer' : 'contact'
+  const ctLabelPlural = contactTypeFilter === 'SELLER' ? 'sellers' : contactTypeFilter === 'BUYER' ? 'buyers' : 'contacts'
+
   // Empty state: no buyers at all
   if (buyers.length === 0 && !hasFilters) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px]">
         <Users className="w-14 h-14 mb-3 text-gray-300" />
-        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">Your buyer list is empty</p>
-        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="mb-5">Add buyers manually or import from a CSV file.</p>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">No {ctLabelPlural} yet</p>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="mb-5">Add a {ctLabel} manually or import from a CSV file.</p>
         <div className="flex gap-2">
           <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openAddModal'))} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
-            <UserPlus className="w-4 h-4" /> Add Buyer
+            <UserPlus className="w-4 h-4" /> Add Contact
           </button>
           <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openImportModal'))} className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[10px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
             <Upload className="w-4 h-4" /> Import CSV
@@ -1044,7 +1240,7 @@ function ListView({
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px]">
         <Search className="w-12 h-12 mb-3 text-gray-300" />
-        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }}>No buyers match your filters</p>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }}>No {ctLabelPlural} match your filters</p>
         <button onClick={onClearFilters} className="mt-3 text-sm text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer">Clear all filters</button>
       </div>
     )
@@ -1064,8 +1260,14 @@ function ListView({
               <Phone className="w-3.5 h-3.5" />
               Power Dial
             </button>
+            <a
+              href={`/outreach?action=create&contactIds=${Array.from(selected).join(',')}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-semibold text-[#2563EB] hover:bg-[rgba(37,99,235,0.12)] bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.2)] no-underline cursor-pointer transition-colors"
+            >
+              <PhoneOutgoing className="w-3.5 h-3.5" />
+              Start Campaign
+            </a>
             {[
-              { label: 'Send Campaign', icon: PhoneOutgoing, action: 'campaign' },
               { label: 'Add Tag', icon: Tag, action: 'tag' },
               { label: 'Export', icon: Download, action: 'export' },
               { label: 'Archive', icon: Archive, action: 'archive' },
@@ -1142,6 +1344,8 @@ function ListView({
                         <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '11px', color: 'white' }}>{buyerInitials(b)}</span>
                       </div>
                       <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }} className="group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
+                      {b.contactType === 'SELLER' && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[rgba(249,115,22,0.08)] text-[#F97316]">Seller</span>}
+                      {b.contactType === 'BOTH' && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[rgba(139,92,246,0.08)] text-[#8B5CF6]">Both</span>}
                     </button>
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }}>
@@ -1174,8 +1378,35 @@ function ListView({
                       )
                     })()}
                   </td>
-                  <td className="px-3 py-3">
-                    <span className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${statusStyle(b.status)}`}>{displayStatus(b.status)}</span>
+                  <td className="px-3 py-3 relative">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setStatusDropdown(statusDropdown === b.id ? null : b.id) }}
+                      className={`text-[0.68rem] font-medium px-2 py-0.5 rounded-full whitespace-nowrap border-0 cursor-pointer transition-all hover:ring-2 hover:ring-[rgba(37,99,235,0.2)] ${statusStyle(b.status)}`}
+                    >
+                      {displayStatus(b.status)}
+                    </button>
+                    {statusDropdown === b.id && (
+                      <>
+                        <div className="fixed inset-0 z-[100]" onClick={() => setStatusDropdown(null)} />
+                        <div className="absolute top-full left-0 mt-1 z-[101] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] shadow-lg py-1 min-w-[150px] max-h-[260px] overflow-y-auto crm-dropdown">
+                          {Object.entries(STATUS_DISPLAY).map(([key, label]) => (
+                            <button
+                              key={key}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setStatusDropdown(null)
+                                if (key !== b.status && onStatusChange) onStatusChange(b.id, key)
+                              }}
+                              className={`w-full text-left px-3 py-1.5 text-[0.72rem] border-0 cursor-pointer transition-colors ${
+                                key === b.status ? 'bg-[rgba(37,99,235,0.06)] font-semibold text-[#2563EB]' : 'bg-transparent text-[rgba(5,14,36,0.65)] hover:bg-[rgba(5,14,36,0.03)]'
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }}>{relativeDate(b.lastContactedAt)}</td>
                   <td className="px-3 py-3 text-center" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }}>{b.cashPurchaseCount}</td>
@@ -1262,9 +1493,13 @@ function ListView({
    PIPELINE VIEW
    ═══════════════════════════════════════════════ */
 const PIPELINE_STATUSES = [
+  { key: 'NEW', label: 'New', borderColor: 'border-t-[#6366F1]' },
+  { key: 'CONTACTED', label: 'Contacted', borderColor: 'border-t-[#0EA5E9]' },
+  { key: 'QUALIFIED', label: 'Qualified', borderColor: 'border-t-[#059669]' },
   { key: 'ACTIVE', label: 'Active', borderColor: 'border-t-[#2563EB]' },
-  { key: 'RECENTLY_VERIFIED', label: 'Recently Verified', borderColor: 'border-t-[#8B5CF6]' },
-  { key: 'HIGH_CONFIDENCE', label: 'High-Confidence', borderColor: 'border-t-[#F59E0B]' },
+  { key: 'NEGOTIATING', label: 'Negotiating', borderColor: 'border-t-[#D97706]' },
+  { key: 'UNDER_CONTRACT', label: 'Under Contract', borderColor: 'border-t-[#059669]' },
+  { key: 'CLOSED', label: 'Closed', borderColor: 'border-t-[#10B981]' },
   { key: 'DORMANT', label: 'Dormant', borderColor: 'border-t-[rgba(5,14,36,0.2)]' },
   { key: 'DO_NOT_CALL', label: 'Do Not Call', borderColor: 'border-t-[#EF4444]' },
 ]
@@ -1273,11 +1508,57 @@ function PipelineView({
   buyers,
   isLoading,
   onOpenDetail,
+  onStatusChange,
 }: {
   buyers: ApiBuyer[]
   isLoading: boolean
   onOpenDetail: (id: string) => void
+  onStatusChange?: (buyerId: string, newStatus: string) => void
 }) {
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dragOver, setDragOver] = useState<string | null>(null)
+
+  function handleDragStart(e: React.DragEvent, id: string) {
+    setDragId(id)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', id)
+    // Make the drag image slightly transparent
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '0.5'
+    }
+  }
+
+  function handleDragEnd(e: React.DragEvent) {
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '1'
+    }
+    setDragId(null)
+    setDragOver(null)
+  }
+
+  function handleDragOver(e: React.DragEvent, stageKey: string) {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOver(stageKey)
+  }
+
+  function handleDragLeave() {
+    setDragOver(null)
+  }
+
+  function handleDrop(e: React.DragEvent, stageKey: string) {
+    e.preventDefault()
+    setDragOver(null)
+    const buyerId = e.dataTransfer.getData('text/plain') || dragId
+    if (buyerId && onStatusChange) {
+      const buyer = buyers.find(b => b.id === buyerId)
+      if (buyer && buyer.status !== stageKey) {
+        onStatusChange(buyerId, stageKey)
+      }
+    }
+    setDragId(null)
+  }
+
   if (isLoading) {
     return (
       <div className="flex gap-3 overflow-x-auto pb-4">
@@ -1311,9 +1592,15 @@ function PipelineView({
     <div className="flex gap-3 overflow-x-auto pb-4 crm-pipeline">
       {PIPELINE_STATUSES.map((stage) => {
         const cards = buyers.filter((b) => b.status === stage.key)
+        const isOver = dragOver === stage.key
         return (
           <div key={stage.key} className="flex-shrink-0 w-[210px]">
-            <div className={`bg-gray-50 rounded-xl border-t-[3px] ${stage.borderColor} p-3 min-h-[400px]`}>
+            <div
+              className={`rounded-xl border-t-[3px] ${stage.borderColor} p-3 min-h-[400px] transition-colors ${isOver ? 'bg-[rgba(37,99,235,0.06)]' : 'bg-gray-50'}`}
+              onDragOver={(e) => handleDragOver(e, stage.key)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, stage.key)}
+            >
               <div className="flex items-center justify-between mb-3">
                 <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>{stage.label}</span>
                 <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="bg-white rounded-full px-2 py-0.5">{cards.length}</span>
@@ -1322,11 +1609,14 @@ function PipelineView({
                 {cards.map((b) => {
                   const grade = scoreGrade(b.buyerScore)
                   return (
-                    <button
+                    <div
                       key={b.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, b.id)}
+                      onDragEnd={handleDragEnd}
                       onClick={() => onOpenDetail(b.id)}
-                      className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-3 py-2.5 text-left cursor-pointer shadow-none group crm-card"
-                      style={{ transition: 'box-shadow 0.15s ease' }}
+                      className={`w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-3 py-2.5 text-left cursor-grab active:cursor-grabbing shadow-none group crm-card ${dragId === b.id ? 'opacity-50' : ''}`}
+                      style={{ transition: 'box-shadow 0.15s ease, opacity 0.15s ease' }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
                     >
@@ -1335,18 +1625,36 @@ function PipelineView({
                           <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '10px', color: 'white' }}>{buyerInitials(b)}</span>
                         </div>
                         <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: '#0B1224' }} className="truncate group-hover:text-[#2563EB] transition-colors">{buyerName(b)}</span>
+                        {b.contactType === 'SELLER' && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-[rgba(249,115,22,0.08)] text-[#F97316] flex-shrink-0">Seller</span>}
+                        {b.contactType === 'BOTH' && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-[rgba(139,92,246,0.08)] text-[#8B5CF6] flex-shrink-0">Both</span>}
                       </div>
-                      <div className="mb-1.5 flex gap-1 flex-wrap" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, color: 'rgba(5,14,36,0.4)' }}>
-                        {(b.preferredMarkets || []).map((m) => <span key={m}>{m}</span>)}
-                      </div>
-                      <div className="truncate mb-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, color: 'rgba(5,14,36,0.65)' }}>{buyBox(b)}</div>
+                      {b.contactType === 'SELLER' ? (
+                        <div className="truncate mb-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, color: 'rgba(5,14,36,0.65)' }}>
+                          {b.sellerMotivation && <span className="text-[#F97316]">{b.sellerMotivation}</span>}
+                          {b.sellerAskingPrice != null && <span> · {formatPrice(b.sellerAskingPrice)}</span>}
+                          {b.sellerTimeline && <span> · {b.sellerTimeline}</span>}
+                          {!b.sellerMotivation && b.sellerAskingPrice == null && '—'}
+                        </div>
+                      ) : (
+                        <>
+                          <div className="mb-1.5 flex gap-1 flex-wrap" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, color: 'rgba(5,14,36,0.4)' }}>
+                            {(b.preferredMarkets || []).map((m) => <span key={m}>{m}</span>)}
+                          </div>
+                          <div className="truncate mb-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', fontWeight: 400, color: 'rgba(5,14,36,0.65)' }}>{buyBox(b)}</div>
+                        </>
+                      )}
                       <div className="flex items-center justify-between">
                         <span className={`text-[0.64rem] font-bold px-1.5 py-0.5 rounded-full border ${scoreColor(grade)}`}>{grade}</span>
                       </div>
-                    </button>
+                    </div>
                   )
                 })}
               </div>
+              {isOver && cards.length === 0 && (
+                <div className="border-2 border-dashed border-[rgba(37,99,235,0.3)] rounded-[12px] py-8 text-center text-[0.74rem] text-[rgba(37,99,235,0.5)]">
+                  Drop here
+                </div>
+              )}
             </div>
           </div>
         )
@@ -1471,6 +1779,7 @@ export default function BuyerCrmPage() {
   const [scoreFilter, setScoreFilter] = useState(searchParams.get('score') || '')
   const [tagFilter, setTagFilter] = useState(searchParams.get('tag') || '')
   const [motivationFilter, setMotivationFilter] = useState(searchParams.get('motivation') || '')
+  const [contactTypeFilter, setContactTypeFilter] = useState(searchParams.get('contactType') || '')
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1)
 
   const { toasts, addToast, dismissToast } = useToasts()
@@ -1479,7 +1788,7 @@ export default function BuyerCrmPage() {
 
   function clearFilters() {
     setSearch(''); setStatusFilter(''); setMarketFilter(''); setStrategyFilter('')
-    setTypeFilter(''); setScoreFilter(''); setTagFilter(''); setMotivationFilter(''); setPage(1)
+    setTypeFilter(''); setScoreFilter(''); setTagFilter(''); setMotivationFilter(''); setContactTypeFilter(''); setPage(1)
   }
 
   const filters: BuyerFilters = {
@@ -1493,6 +1802,7 @@ export default function BuyerCrmPage() {
     scoreMin: scoreFilter ? ({ A: 90, B: 70, C: 50, D: 0 } as Record<string, number>)[scoreFilter] : undefined,
     tag: tagFilter || undefined,
     motivation: motivationFilter || undefined,
+    contactType: contactTypeFilter || undefined,
     sortBy: searchParams.get('sort') || undefined,
     sortOrder: (searchParams.get('order') as 'asc' | 'desc') || undefined,
     archived: showArchived,
@@ -1502,7 +1812,7 @@ export default function BuyerCrmPage() {
   const { tags } = useTags()
 
   // Reset page on filter change
-  useEffect(() => { setPage(1) }, [search, statusFilter, marketFilter, strategyFilter, typeFilter, scoreFilter, tagFilter, motivationFilter])
+  useEffect(() => { setPage(1) }, [search, statusFilter, marketFilter, strategyFilter, typeFilter, scoreFilter, tagFilter, motivationFilter, contactTypeFilter])
 
   // URL sync — update URL when state changes
   useEffect(() => {
@@ -1516,11 +1826,12 @@ export default function BuyerCrmPage() {
     if (scoreFilter) params.set('score', scoreFilter)
     if (tagFilter) params.set('tag', tagFilter)
     if (motivationFilter) params.set('motivation', motivationFilter)
+    if (contactTypeFilter) params.set('contactType', contactTypeFilter)
     if (page > 1) params.set('page', String(page))
     if (showArchived) params.set('archived', 'true')
     const qs = params.toString()
     router.replace(qs ? `?${qs}` : '?', { scroll: false })
-  }, [view, search, statusFilter, marketFilter, strategyFilter, typeFilter, scoreFilter, tagFilter, motivationFilter, page, showArchived, router])
+  }, [view, search, statusFilter, marketFilter, strategyFilter, typeFilter, scoreFilter, tagFilter, motivationFilter, contactTypeFilter, page, showArchived, router])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -1565,15 +1876,33 @@ export default function BuyerCrmPage() {
 
   const handleOpenDetail = useCallback((id: string) => router.push(`/crm/${id}`), [router])
 
+  const handleStatusChange = useCallback(async (buyerId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/crm/buyers/${buyerId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (res.ok) {
+        addToast(`Status updated to ${displayStatus(newStatus)}`)
+        refetch()
+      } else {
+        addToast('Failed to update status', 'error')
+      }
+    } catch {
+      addToast('Failed to update status', 'error')
+    }
+  }, [addToast, refetch])
+
   return (
-    <div className="p-8 max-w-[1400px] bg-[var(--cream,#FAF9F6)]">
+    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Buyer List</h1>
-          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>Manage your cash buyer relationships and pipeline.</p>
+          <h1 style={{ fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">CRM</h1>
+          <p style={{ fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>Manage your buyer and seller relationships.</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -1606,9 +1935,34 @@ export default function BuyerCrmPage() {
             className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
           >
             <UserPlus className="w-4 h-4" />
-            Add Buyer
+            Add Contact
           </button>
         </div>
+      </div>
+
+      {/* Contact type tabs */}
+      <div className="flex items-center gap-0 mb-4 border-b border-[rgba(5,14,36,0.08)]">
+        {[
+          { key: '', label: 'All Contacts' },
+          { key: 'BUYER', label: 'Buyers' },
+          { key: 'SELLER', label: 'Sellers' },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setContactTypeFilter(tab.key)}
+            style={{
+              fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+              fontSize: '14px',
+              fontWeight: contactTypeFilter === tab.key ? 600 : 400,
+              color: contactTypeFilter === tab.key ? '#2563EB' : 'rgba(5,14,36,0.45)',
+              borderBottom: contactTypeFilter === tab.key ? '2px solid #2563EB' : '2px solid transparent',
+              padding: '10px 16px',
+            }}
+            className="bg-transparent border-0 cursor-pointer transition-colors hover:text-[rgba(5,14,36,0.65)]"
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Search + Filters + View toggle */}
@@ -1633,7 +1987,15 @@ export default function BuyerCrmPage() {
         <FilterSelect label="Motivation" value={motivationFilter} onChange={setMotivationFilter}
           options={[{ value: 'HOT', label: 'Hot' }, { value: 'WARM', label: 'Warm' }, { value: 'COLD', label: 'Cold' }, { value: 'NOT_INTERESTED', label: 'Not Interested' }]} />
         <FilterSelect label="Status" value={statusFilter} onChange={setStatusFilter}
-          options={[{ value: 'ACTIVE', label: 'Active' }, { value: 'DORMANT', label: 'Dormant' }, { value: 'HIGH_CONFIDENCE', label: 'High-Confidence' }, { value: 'RECENTLY_VERIFIED', label: 'Recently Verified' }]} />
+          options={[
+            { value: 'NEW', label: 'New' }, { value: 'CONTACTED', label: 'Contacted' },
+            { value: 'ACTIVE', label: 'Active' }, { value: 'QUALIFIED', label: 'Qualified' },
+            { value: 'HIGH_CONFIDENCE', label: 'High-Confidence' }, { value: 'RECENTLY_VERIFIED', label: 'Recently Verified' },
+            { value: 'NEGOTIATING', label: 'Negotiating' }, { value: 'UNDER_CONTRACT', label: 'Under Contract' },
+            { value: 'FINDING_BUYER', label: 'Finding Buyer' }, { value: 'ASSIGNED', label: 'Assigned' },
+            { value: 'CLOSED', label: 'Closed' }, { value: 'DORMANT', label: 'Dormant' },
+            { value: 'DEAD', label: 'Dead' },
+          ]} />
         <FilterSelect label="Strategy" value={strategyFilter} onChange={setStrategyFilter}
           options={[{ value: 'FLIP', label: 'Flip' }, { value: 'HOLD', label: 'Hold' }, { value: 'BOTH', label: 'Both' }]} />
         <FilterSelect label="Type" value={typeFilter} onChange={setTypeFilter}
@@ -1673,7 +2035,7 @@ export default function BuyerCrmPage() {
           <span className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading...</span>
         ) : (
           <>
-            <span><strong style={{ color: '#0B1224', fontWeight: 700 }}>{pagination.total}</strong> buyers</span>
+            <span><strong style={{ color: '#0B1224', fontWeight: 700 }}>{pagination.total}</strong> {contactTypeFilter === 'SELLER' ? 'sellers' : contactTypeFilter === 'BUYER' ? 'buyers' : 'contacts'}</span>
             {Object.entries(stats).map(([key, val]) => (
               <span key={key}>
                 <span style={{ color: 'rgba(5,14,36,0.1)' }} className="mr-5">|</span>
@@ -1706,10 +2068,10 @@ export default function BuyerCrmPage() {
 
       {/* Views */}
       {view === 'list' && (
-        <ListView buyers={buyers} isLoading={isLoading} hasFilters={hasFilters} showArchived={showArchived}
-          onOpenDetail={handleOpenDetail} onRefetch={refetch} onClearFilters={clearFilters} addToast={addToast} />
+        <ListView buyers={buyers} isLoading={isLoading} hasFilters={hasFilters} showArchived={showArchived} contactTypeFilter={contactTypeFilter}
+          onOpenDetail={handleOpenDetail} onRefetch={refetch} onClearFilters={clearFilters} addToast={addToast} onStatusChange={handleStatusChange} />
       )}
-      {view === 'pipeline' && <PipelineView buyers={buyers} isLoading={isLoading} onOpenDetail={handleOpenDetail} />}
+      {view === 'pipeline' && <PipelineView buyers={buyers} isLoading={isLoading} onOpenDetail={handleOpenDetail} onStatusChange={handleStatusChange} />}
       {view === 'map' && <MapView buyers={buyers} onOpenDetail={handleOpenDetail} />}
 
       {/* Pagination */}
@@ -1718,7 +2080,7 @@ export default function BuyerCrmPage() {
       )}
 
       {/* Modals */}
-      {showAddModal && <AddBuyerModal onClose={() => setShowAddModal(false)} onCreated={(msg) => { addToast(msg); refetch() }} />}
+      {showAddModal && <AddBuyerModal onClose={() => setShowAddModal(false)} onCreated={(msg) => { addToast(msg); refetch() }} defaultType={contactTypeFilter === 'BUYER' || contactTypeFilter === 'SELLER' ? contactTypeFilter : undefined} />}
       {showImportModal && <ImportModal onClose={() => setShowImportModal(false)} onImported={(msg) => { addToast(msg); refetch() }} />}
       {showDuplicatesModal && <DuplicatesModal onClose={() => setShowDuplicatesModal(false)} onMerged={(msg) => { addToast(msg); refetch() }} />}
 

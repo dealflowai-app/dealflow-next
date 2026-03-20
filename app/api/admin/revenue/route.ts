@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (!profile) return NextResponse.json({ error }, { status })
 
   const now = new Date()
-  const tierPrices: Record<string, number> = { starter: 149, pro: 299, enterprise: 499 }
+  const tierPrices: Record<string, number> = { starter: 149, pro: 299, business: 499, enterprise: 499 }
 
   // --- Tier counts for MRR ---
   const tierCounts = await prisma.profile.groupBy({

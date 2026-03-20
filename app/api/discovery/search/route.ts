@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client'
 import { toClientProperty } from '@/lib/discovery/to-client-property'
 import { getDataProvider } from '@/lib/discovery/data-provider'
 import { RentCastError } from '@/lib/rentcast'
-import { AttomApiError } from '@/lib/attom'
+import { BatchDataApiError } from '@/lib/batchdata'
 
 // Map frontend property type values to DB format
 const PROPERTY_TYPE_MAP: Record<string, string> = {
@@ -155,6 +155,10 @@ export async function GET(req: NextRequest) {
       cutoff.setFullYear(cutoff.getFullYear() - ownershipMin)
       filterWhere.lastSaleDate = { lte: cutoff }
     }
+    const daysOnMarketMin = params.get('daysOnMarketMin') ? parseInt(params.get('daysOnMarketMin')!) : undefined
+    if (daysOnMarketMin !== undefined) {
+      filterWhere.daysOnMarket = { gte: daysOnMarketMin }
+    }
 
     // Check if cache has any rows for this location (before filters)
     const cacheCount = await prisma.discoveryProperty.count({ where: cacheWhere })
@@ -215,14 +219,20 @@ export async function GET(req: NextRequest) {
           ownerName: p.ownerName,
           ownerOccupied: p.ownerOccupied,
           features: Prisma.JsonNull,
-          rawResponse: Prisma.JsonNull,
+          rawResponse: p.enrichmentLevel != null
+            ? ({
+                enrichmentLevel: p.enrichmentLevel,
+                dataSource: p.dataSource,
+                ...(p._batchdataRaw ? { batchdata: p._batchdataRaw } : {}),
+              } as unknown as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
           searchCity,
           searchZip,
           cachedAt: new Date(),
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         }
 
-        // For RentCast results, upsert by rentcastId. For ATTOM, insert fresh.
+        // For RentCast results, upsert by rentcastId. For BatchData, upsert by address.
         if (p.dataSource === 'rentcast' && p.id) {
           return prisma.discoveryProperty.upsert({
             where: { rentcastId: p.id },
@@ -234,7 +244,21 @@ export async function GET(req: NextRequest) {
           })
         }
 
-        return prisma.discoveryProperty.create({ data })
+        // BatchData: upsert by composite address to avoid duplicate rows
+        return prisma.discoveryProperty.upsert({
+          where: {
+            addressCityState: {
+              addressLine1: p.addressLine1,
+              city: p.city,
+              state: p.state,
+            },
+          },
+          create: data,
+          update: {
+            ...data,
+            userId: undefined,
+          },
+        })
       })
 
       await Promise.all(upserts)
@@ -259,16 +283,16 @@ export async function GET(req: NextRequest) {
       searchLocation,
     })
   } catch (err) {
-    if (err instanceof RentCastError) {
-      console.error(`RentCast error in discovery search: ${err.status}`)
+    if (err instanceof BatchDataApiError) {
+      console.error(`BatchData error in discovery search: ${err.status} ${err.endpoint}`)
       const clientStatus = err.status === 429 ? 429 : 502
       return NextResponse.json(
         { error: err.status === 429 ? 'Rate limit exceeded, try again shortly' : 'Property data provider error' },
         { status: clientStatus }
       )
     }
-    if (err instanceof AttomApiError) {
-      console.error(`ATTOM error in discovery search: ${err.status} ${err.endpoint}`)
+    if (err instanceof RentCastError) {
+      console.error(`RentCast error in discovery search: ${err.status}`)
       const clientStatus = err.status === 429 ? 429 : 502
       return NextResponse.json(
         { error: err.status === 429 ? 'Rate limit exceeded, try again shortly' : 'Property data provider error' },

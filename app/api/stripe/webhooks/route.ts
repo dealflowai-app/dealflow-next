@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
+import { createAllowanceForPeriod } from '@/lib/billing/allowances'
 import Stripe from 'stripe'
 
 // Disable body parsing so we can verify the raw signature
@@ -12,7 +13,9 @@ export const dynamic = 'force-dynamic'
 function priceIdToTier(priceId: string): string {
   if (priceId === process.env.STRIPE_STARTER_PRICE_ID) return 'starter'
   if (priceId === process.env.STRIPE_PRO_PRICE_ID) return 'pro'
-  if (priceId === process.env.STRIPE_ENTERPRISE_PRICE_ID) return 'enterprise'
+  if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) return 'business'
+  // Backward compat for old enterprise price
+  if (priceId === process.env.STRIPE_ENTERPRISE_PRICE_ID) return 'business'
   return 'free'
 }
 
@@ -73,6 +76,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     },
   })
 
+  // Create Usage record (legacy)
   await prisma.usage.upsert({
     where: {
       userId_periodStart: {
@@ -88,7 +92,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     },
   })
 
-  console.log(`Profile ${profile.id} subscribed to ${tier}`)
+  // Create UsageAllowance for this billing period
+  const effectiveTier = subscription.status === 'trialing' ? 'trial' : tier
+  await createAllowanceForPeriod(
+    profile.id,
+    effectiveTier,
+    new Date(period.periodStart * 1000),
+    new Date(period.periodEnd * 1000),
+  )
+
+  console.log(`Profile ${profile.id} subscribed to ${tier} (${subscription.status})`)
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -119,6 +132,17 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     },
   })
 
+  // Update allowance if tier changed
+  if (tierStatus !== 'cancelled') {
+    const effectiveTier = tierStatus === 'trialing' ? 'trial' : tier
+    await createAllowanceForPeriod(
+      profile.id,
+      effectiveTier,
+      new Date(period.periodStart * 1000),
+      new Date(period.periodEnd * 1000),
+    )
+  }
+
   console.log(`Profile ${profile.id} subscription updated: ${tier} (${tierStatus})`)
 }
 
@@ -138,6 +162,27 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       currentPeriodEnd: null,
     },
   })
+
+  // Zero out allowances for current period
+  const now = new Date()
+  const currentAllowance = await prisma.usageAllowance.findFirst({
+    where: {
+      profileId: profile.id,
+      periodStart: { lte: now },
+      periodEnd: { gt: now },
+    },
+  })
+  if (currentAllowance) {
+    await prisma.usageAllowance.update({
+      where: { id: currentAllowance.id },
+      data: {
+        revealsAllowed: 0,
+        callMinutesAllowed: 0,
+        smsAllowed: 0,
+        analysesAllowed: 0,
+      },
+    })
+  }
 
   console.log(`Profile ${profile.id} subscription cancelled, reverted to free`)
 }
@@ -174,12 +219,14 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     })
   }
 
-  // Reset usage for new billing period
+  // Reset usage for new billing period — create fresh allowance
   const subscriptionId = getInvoiceSubscriptionId(invoice)
   if (subscriptionId) {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId)
     const period = getSubscriptionPeriod(subscription)
+    const tier = priceIdToTier(subscription.items.data[0]?.price.id || '')
 
+    // Legacy Usage record
     await prisma.usage.upsert({
       where: {
         userId_periodStart: {
@@ -194,6 +241,14 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
         periodEnd: new Date(period.periodEnd * 1000),
       },
     })
+
+    // Fresh UsageAllowance for the new period
+    await createAllowanceForPeriod(
+      profile.id,
+      tier,
+      new Date(period.periodStart * 1000),
+      new Date(period.periodEnd * 1000),
+    )
   }
 
   console.log(`Payment recorded for profile ${profile.id}: $${(invoice.amount_paid / 100).toFixed(2)}`)

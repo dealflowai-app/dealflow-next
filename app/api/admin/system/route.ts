@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
   // External APIs (check env vars only)
   const apiChecks = [
-    { name: 'ATTOM Data', envKey: 'ATTOM_API_KEY' },
+    { name: 'BatchData', envKey: 'BATCHDATA_API_KEY' },
     { name: 'RentCast', envKey: 'RENTCAST_API_KEY' },
     { name: 'Mapbox', envKey: 'NEXT_PUBLIC_MAPBOX_TOKEN' },
     { name: 'Bland AI', envKey: 'BLAND_AI_API_KEY' },

@@ -169,7 +169,7 @@ function linkLabel(link: string): string {
   if (link.startsWith('/marketplace')) return 'Marketplace'
   if (link.startsWith('/outreach')) return 'Outreach'
   if (link.startsWith('/analyzer')) return 'Deal Analyzer'
-  if (link.startsWith('/buyers')) return 'Find Buyers'
+  if (link.startsWith('/discovery')) return 'Discovery'
   return 'View'
 }
 
@@ -1103,7 +1103,7 @@ export default function DealFlowGPTPage() {
 
   return (
     <ChatErrorBoundary>
-    <div className="flex h-[calc(100vh-0px)] overflow-hidden">
+    <div className="flex h-full overflow-hidden">
       {/* Skip to input for keyboard users */}
       <a href="#chat-input" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:text-[#2563EB] focus:rounded-md focus:shadow-lg focus:top-2 focus:left-2">
         Skip to chat input

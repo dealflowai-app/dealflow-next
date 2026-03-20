@@ -1,0 +1,20 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/match",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/digest?frequency=daily",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/digest?frequency=weekly",
+      "schedule": "0 13 * * 1"
+    },
+    {
+      "path": "/api/cron/campaigns",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

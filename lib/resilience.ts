@@ -157,4 +157,5 @@ export const circuits = {
   sms: new CircuitBreaker({ label: 'sms', failureThreshold: 5, resetTimeoutMs: 60_000 }),
   geocode: new CircuitBreaker({ label: 'geocode', failureThreshold: 3, resetTimeoutMs: 30_000 }),
   pdf: new CircuitBreaker({ label: 'pdf', failureThreshold: 3, resetTimeoutMs: 30_000 }),
+  batchdata: new CircuitBreaker({ label: 'batchdata', failureThreshold: 5, resetTimeoutMs: 30_000 }),
 }

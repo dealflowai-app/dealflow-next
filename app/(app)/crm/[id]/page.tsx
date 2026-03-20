@@ -6,7 +6,7 @@ import {
   ArrowLeft, Phone, Mail, MapPin, Home, Copy, Check,
   RefreshCw, Loader2, X, Tag, Pencil, Archive, PhoneOutgoing,
   Send, Clock, Circle, FileSignature, Users, UserPlus, Upload,
-  Plus, Sparkles, ChevronDown, MessageSquare, AlertTriangle,
+  Plus, Sparkles, ChevronDown, MessageSquare, AlertTriangle, Search,
 } from 'lucide-react'
 import ClickToCall from '@/components/outreach/ClickToCall'
 
@@ -20,7 +20,9 @@ interface BuyerDetail {
   entityName: string | null
   entityType: string | null
   phone: string | null
+  phoneSecondary: string | null
   email: string | null
+  emailSecondary: string | null
   address: string | null
   city: string | null
   state: string | null
@@ -40,6 +42,11 @@ interface BuyerDetail {
   maxPrice: number | null
   closeSpeedDays: number | null
   proofOfFundsVerified: boolean
+  maxRehab: number | null
+  minBeds: number | null
+  minBaths: number | null
+  minSqft: number | null
+  yearBuiltMin: number | null
   scorePinned: boolean
   scoreOverride: number | null
   scoreAdjustment: number
@@ -56,8 +63,21 @@ interface BuyerDetail {
   portfolioSize: number | null
   avgPurchasePrice: number | null
   followUpDate: string | null
+  followUpNote: string | null
   source: string | null
   assignedTo: string | null
+  // Contact type and seller fields
+  contactType: string
+  sellerMotivation: string | null
+  sellerAskingPrice: number | null
+  sellerPropertyId: string | null
+  sellerTimeline: string | null
+  sellerNotes: string | null
+  sellerPropertyAddress: string | null
+  // Alert preferences
+  alertsEnabled: boolean
+  alertFrequency: string
+  lastAlertSentAt: string | null
   createdAt: string
   updatedAt: string
   tags?: Array<{ id: string; autoApplied: boolean; tagId: string; tag: { id: string; name: string; label: string; color: string; type: string } }>
@@ -108,11 +128,20 @@ function scoreColorStyle(g: string): React.CSSProperties {
 
 function statusStyleObj(s: string): React.CSSProperties {
   switch (s) {
+    case 'NEW': return { color: '#6366F1', backgroundColor: 'rgba(99,102,241,0.08)' }
+    case 'CONTACTED': return { color: '#0EA5E9', backgroundColor: 'rgba(14,165,233,0.08)' }
+    case 'ACTIVE': return { color: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)' }
+    case 'QUALIFIED': return { color: '#059669', backgroundColor: 'rgba(5,150,105,0.08)' }
     case 'HIGH_CONFIDENCE': return { color: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)' }
     case 'RECENTLY_VERIFIED': return { color: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.08)' }
-    case 'ACTIVE': return { color: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)' }
+    case 'NEGOTIATING': return { color: '#D97706', backgroundColor: 'rgba(217,119,6,0.08)' }
+    case 'UNDER_CONTRACT': return { color: '#059669', backgroundColor: 'rgba(5,150,105,0.08)' }
+    case 'FINDING_BUYER': return { color: '#F97316', backgroundColor: 'rgba(249,115,22,0.08)' }
+    case 'ASSIGNED': return { color: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.08)' }
+    case 'CLOSED': return { color: '#10B981', backgroundColor: 'rgba(16,185,129,0.08)' }
     case 'DORMANT': return { color: 'rgba(5,14,36,0.4)', backgroundColor: 'rgba(5,14,36,0.04)' }
     case 'DO_NOT_CALL': return { color: '#b91c1c', backgroundColor: 'rgb(254,242,242)' }
+    case 'DEAD': return { color: '#6B7280', backgroundColor: 'rgba(107,114,128,0.08)' }
     default: return { color: 'rgba(5,14,36,0.4)', backgroundColor: 'rgba(5,14,36,0.04)' }
   }
 }
@@ -538,6 +567,280 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
 }
 
 /* ═══════════════════════════════════════════════
+   SCORE BREAKDOWN CARD
+   ═══════════════════════════════════════════════ */
+function ScoreBreakdownCard({ buyerId }: { buyerId: string }) {
+  const [breakdown, setBreakdown] = useState<ScoreData | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+
+  async function loadBreakdown() {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/crm/buyers/${buyerId}/score`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+      if (res.ok) {
+        const data = await res.json()
+        setBreakdown(data)
+        setExpanded(true)
+      }
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
+  }
+
+  const SCORE_LABELS: { key: keyof ScoreData; label: string; color: string; max: number }[] = [
+    { key: 'transactionScore', label: 'Transactions', color: '#2563EB', max: 25 },
+    { key: 'recencyScore', label: 'Recency', color: '#0EA5E9', max: 20 },
+    { key: 'responsivenessScore', label: 'Responsiveness', color: '#8B5CF6', max: 20 },
+    { key: 'completenessScore', label: 'Completeness', color: '#059669', max: 15 },
+    { key: 'engagementScore', label: 'Engagement', color: '#F59E0B', max: 10 },
+    { key: 'closingScore', label: 'Closing', color: '#EF4444', max: 10 },
+  ]
+
+  return (
+    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px' }}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[11px] font-semibold uppercase text-[rgba(5,14,36,0.4)]" style={{ letterSpacing: '0.05em' }}>Score Breakdown</span>
+        <button
+          onClick={expanded ? () => setExpanded(false) : loadBreakdown}
+          disabled={loading}
+          className="text-[12px] text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer flex items-center gap-1"
+        >
+          {loading && <Loader2 className="w-3 h-3 animate-spin" />}
+          {loading ? 'Calculating...' : expanded ? 'Collapse' : 'Calculate'}
+        </button>
+      </div>
+      {expanded && breakdown && (
+        <div className="space-y-2.5 mt-3">
+          {SCORE_LABELS.map(s => {
+            const val = breakdown[s.key]
+            const pct = s.max > 0 ? Math.round((val / s.max) * 100) : 0
+            return (
+              <div key={s.key}>
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[12px] text-[rgba(5,14,36,0.5)]">{s.label}</span>
+                  <span className="text-[12px] font-semibold text-[#0B1224]">{val}/{s.max}</span>
+                </div>
+                <div className="w-full h-1.5 bg-[rgba(5,14,36,0.06)] rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: s.color }} />
+                </div>
+              </div>
+            )
+          })}
+          {(breakdown.tagBonus !== 0 || breakdown.manualAdjustment !== 0) && (
+            <div className="flex items-center gap-3 pt-1 border-t border-[rgba(5,14,36,0.06)] mt-2">
+              {breakdown.tagBonus !== 0 && (
+                <span className="text-[11px] text-[rgba(5,14,36,0.5)]">Tag bonus: <strong className={breakdown.tagBonus > 0 ? 'text-[#059669]' : 'text-[#EF4444]'}>{breakdown.tagBonus > 0 ? '+' : ''}{breakdown.tagBonus}</strong></span>
+              )}
+              {breakdown.manualAdjustment !== 0 && (
+                <span className="text-[11px] text-[rgba(5,14,36,0.5)]">Manual adj: <strong className={breakdown.manualAdjustment > 0 ? 'text-[#059669]' : 'text-[#EF4444]'}>{breakdown.manualAdjustment > 0 ? '+' : ''}{breakdown.manualAdjustment}</strong></span>
+              )}
+            </div>
+          )}
+          <div className="flex items-center justify-between pt-2 border-t border-[rgba(5,14,36,0.06)]">
+            <span className="text-[12px] font-semibold text-[rgba(5,14,36,0.5)]">Total</span>
+            <span className="text-[16px] font-bold text-[#0B1224]">{breakdown.total}</span>
+          </div>
+        </div>
+      )}
+      {!expanded && !loading && (
+        <p className="text-[12px] text-[rgba(5,14,36,0.35)] mt-1">Click Calculate to see score breakdown by category.</p>
+      )}
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   FOLLOW-UP SCHEDULER CARD
+   ═══════════════════════════════════════════════ */
+function FollowUpCard({ buyerId, currentDate, currentNote, onUpdated }: {
+  buyerId: string; currentDate: string | null; currentNote: string | null; onUpdated: () => void
+}) {
+  const [date, setDate] = useState(currentDate ? currentDate.slice(0, 10) : '')
+  const [note, setNote] = useState(currentNote || '')
+  const [saving, setSaving] = useState(false)
+  const [dirty, setDirty] = useState(false)
+
+  useEffect(() => {
+    setDate(currentDate ? currentDate.slice(0, 10) : '')
+    setNote(currentNote || '')
+    setDirty(false)
+  }, [currentDate, currentNote])
+
+  const isOverdue = currentDate && new Date(currentDate) < new Date()
+
+  async function save() {
+    setSaving(true)
+    try {
+      const payload: Record<string, unknown> = {
+        followUpDate: date ? new Date(date).toISOString() : null,
+        followUpNote: note || null,
+      }
+      const res = await fetch(`/api/crm/buyers/${buyerId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) { setDirty(false); onUpdated() }
+    } finally { setSaving(false) }
+  }
+
+  async function clear() {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/crm/buyers/${buyerId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ followUpDate: null, followUpNote: null }),
+      })
+      if (res.ok) { setDate(''); setNote(''); setDirty(false); onUpdated() }
+    } finally { setSaving(false) }
+  }
+
+  // Quick date buttons
+  function setQuickDate(days: number) {
+    const d = new Date()
+    d.setDate(d.getDate() + days)
+    setDate(d.toISOString().slice(0, 10))
+    setDirty(true)
+  }
+
+  return (
+    <div className={`border rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow ${isOverdue ? 'bg-[rgba(239,68,68,0.03)] border-[rgba(239,68,68,0.15)]' : 'bg-white border-[rgba(5,14,36,0.08)]'}`} style={{ padding: '20px 24px' }}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[11px] font-semibold uppercase text-[rgba(5,14,36,0.4)]" style={{ letterSpacing: '0.05em' }}>Follow-Up</span>
+        {isOverdue && <span className="text-[10px] font-semibold text-[#EF4444] bg-[rgba(239,68,68,0.08)] px-1.5 py-0.5 rounded-full">Overdue</span>}
+      </div>
+      <div className="flex items-center gap-1.5 mb-2">
+        {[
+          { label: 'Tomorrow', days: 1 },
+          { label: '3 days', days: 3 },
+          { label: '1 week', days: 7 },
+          { label: '2 weeks', days: 14 },
+        ].map(q => (
+          <button key={q.days} onClick={() => setQuickDate(q.days)}
+            className="text-[11px] px-2 py-1 rounded-full border border-[rgba(5,14,36,0.08)] bg-white text-[rgba(5,14,36,0.5)] hover:bg-[rgba(5,14,36,0.03)] hover:border-[rgba(5,14,36,0.15)] cursor-pointer transition-all">
+            {q.label}
+          </button>
+        ))}
+      </div>
+      <input type="date" value={date} onChange={e => { setDate(e.target.value); setDirty(true) }}
+        className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[13px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] mb-2" />
+      <input value={note} onChange={e => { setNote(e.target.value); setDirty(true) }} placeholder="Follow-up note..."
+        className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[13px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] mb-2" />
+      <div className="flex items-center gap-2">
+        {dirty && (
+          <button onClick={save} disabled={saving}
+            className="flex-1 text-[12px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[10px] py-2 cursor-pointer font-semibold disabled:opacity-50 flex items-center justify-center gap-1">
+            {saving && <Loader2 className="w-3 h-3 animate-spin" />}
+            Save
+          </button>
+        )}
+        {currentDate && (
+          <button onClick={clear} disabled={saving}
+            className="text-[12px] text-[rgba(5,14,36,0.4)] hover:text-[#EF4444] bg-transparent border-0 cursor-pointer">
+            Clear
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   FIND DEALS CARD + ALERT TOGGLE
+   ═══════════════════════════════════════════════ */
+function FindDealsCard({ buyer }: { buyer: BuyerDetail }) {
+  const router = useRouter()
+  const [alertsEnabled, setAlertsEnabled] = useState(buyer.alertsEnabled)
+  const [alertFrequency, setAlertFrequency] = useState(buyer.alertFrequency || 'daily')
+  const [savingAlert, setSavingAlert] = useState(false)
+
+  const name = buyer.firstName ? `${buyer.firstName}${buyer.lastName ? ` ${buyer.lastName}` : ''}` : buyer.entityName || 'this buyer'
+
+  // Build Discovery URL from buy box
+  const discoveryUrl = (() => {
+    const params = new URLSearchParams()
+    if (buyer.preferredMarkets?.length > 0) {
+      // Use first market as city/state
+      const market = buyer.preferredMarkets[0]
+      params.set('buyerName', name)
+      // Markets are typically city names — pass as city filter
+      params.set('city', market)
+    }
+    if (buyer.preferredTypes?.length > 0) params.set('propertyType', buyer.preferredTypes[0])
+    if (buyer.minPrice) params.set('valueMin', String(buyer.minPrice))
+    if (buyer.maxPrice) params.set('valueMax', String(buyer.maxPrice))
+    return `/discovery?${params.toString()}`
+  })()
+
+  async function toggleAlerts() {
+    setSavingAlert(true)
+    const newEnabled = !alertsEnabled
+    try {
+      const res = await fetch(`/api/crm/buyers/${buyer.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alertsEnabled: newEnabled, alertFrequency }),
+      })
+      if (res.ok) setAlertsEnabled(newEnabled)
+    } catch { /* ignore */ }
+    setSavingAlert(false)
+  }
+
+  async function updateFrequency(freq: string) {
+    setAlertFrequency(freq)
+    if (!alertsEnabled) return
+    try {
+      await fetch(`/api/crm/buyers/${buyer.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alertFrequency: freq }),
+      })
+    } catch { /* ignore */ }
+  }
+
+  return (
+    <div className="bg-white border border-[rgba(37,99,235,0.12)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+      <div className="text-[11px] font-semibold text-[#2563EB] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Find Deals for {name}</div>
+      <div className="text-[13px] text-[rgba(5,14,36,0.5)] mb-3">
+        {buyer.preferredTypes?.join(', ')} | {formatPrice(buyer.minPrice)}–{formatPrice(buyer.maxPrice)} | {buyer.preferredMarkets?.join(', ') || '—'} | {buyer.strategy || '—'}
+      </div>
+      <div className="flex items-center gap-3">
+        <a
+          href={discoveryUrl}
+          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors no-underline"
+        >
+          <Search className="w-3.5 h-3.5" /> Search Discovery
+        </a>
+        <button
+          onClick={toggleAlerts}
+          disabled={savingAlert}
+          className={`flex items-center gap-1.5 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors border ${
+            alertsEnabled
+              ? 'bg-[rgba(37,99,235,0.08)] border-[rgba(37,99,235,0.2)] text-[#2563EB]'
+              : 'bg-white border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.65)] hover:bg-gray-50'
+          }`}
+        >
+          {savingAlert ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+          {alertsEnabled ? 'Alerts On' : 'Enable Auto-Match'}
+        </button>
+        {alertsEnabled && (
+          <select
+            value={alertFrequency}
+            onChange={(e) => updateFrequency(e.target.value)}
+            className="border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] bg-white outline-none focus:border-[#2563EB] cursor-pointer"
+          >
+            <option value="realtime">Real-time</option>
+            <option value="daily">Daily digest</option>
+            <option value="weekly">Weekly digest</option>
+          </select>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
    OVERVIEW TAB
    ═══════════════════════════════════════════════ */
 function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, saving }: {
@@ -575,7 +878,9 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               { key: 'lastName', label: 'Last Name' },
               { key: 'entityName', label: 'Entity Name' },
               { key: 'phone', label: 'Phone' },
+              { key: 'phoneSecondary', label: 'Phone (Secondary)' },
               { key: 'email', label: 'Email' },
+              { key: 'emailSecondary', label: 'Email (Secondary)' },
               { key: 'address', label: 'Address' },
               { key: 'city', label: 'City' },
               { key: 'state', label: 'State' },
@@ -606,15 +911,31 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Status</label>
               <select value={editForm.status || 'ACTIVE'} onChange={e => setEditForm(p => ({ ...p, status: e.target.value }))}
                 className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
-                <option value="ACTIVE">Active</option><option value="DORMANT">Dormant</option>
-                <option value="HIGH_CONFIDENCE">High Confidence</option><option value="RECENTLY_VERIFIED">Recently Verified</option>
-                <option value="DO_NOT_CALL">Do Not Call</option>
+                <optgroup label="Buyer Pipeline">
+                  <option value="NEW">New</option><option value="CONTACTED">Contacted</option>
+                  <option value="ACTIVE">Active</option><option value="QUALIFIED">Qualified</option>
+                  <option value="HIGH_CONFIDENCE">High Confidence</option><option value="RECENTLY_VERIFIED">Recently Verified</option>
+                  <option value="NEGOTIATING">Negotiating</option><option value="UNDER_CONTRACT">Under Contract</option>
+                  <option value="CLOSED">Closed</option>
+                </optgroup>
+                <optgroup label="Seller Pipeline">
+                  <option value="FINDING_BUYER">Finding Buyer</option><option value="ASSIGNED">Assigned</option>
+                </optgroup>
+                <optgroup label="Inactive">
+                  <option value="DORMANT">Dormant</option><option value="DO_NOT_CALL">Do Not Call</option>
+                  <option value="DEAD">Dead</option>
+                </optgroup>
               </select>
             </div>
             {[
               { key: 'minPrice', label: 'Min Price', type: 'number' },
               { key: 'maxPrice', label: 'Max Price', type: 'number' },
               { key: 'closeSpeedDays', label: 'Close Speed (days)', type: 'number' },
+              { key: 'maxRehab', label: 'Max Rehab Budget', type: 'number' },
+              { key: 'minBeds', label: 'Min Beds', type: 'number' },
+              { key: 'minBaths', label: 'Min Baths', type: 'number' },
+              { key: 'minSqft', label: 'Min Sq Ft', type: 'number' },
+              { key: 'yearBuiltMin', label: 'Year Built (min)', type: 'number' },
             ].map(f => (
               <div key={f.key}>
                 <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">{f.label}</label>
@@ -700,6 +1021,11 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               <input type="date" value={editForm.followUpDate || ''} onChange={e => setEditForm(p => ({ ...p, followUpDate: e.target.value }))}
                 className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
+            <div className="col-span-2">
+              <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Follow-Up Note</label>
+              <input value={editForm.followUpNote || ''} onChange={e => setEditForm(p => ({ ...p, followUpNote: e.target.value }))}
+                placeholder="What to discuss on follow-up..." className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+            </div>
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Assigned To</label>
               <input value={editForm.assignedTo || ''} onChange={e => setEditForm(p => ({ ...p, assignedTo: e.target.value }))}
@@ -730,10 +1056,22 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               <span className="text-[14px] text-[#0B1224] flex items-center gap-1.5">{buyer.phone} <CopyBtn text={buyer.phone} /> <ClickToCall buyerId={buyer.id} buyerName={buyerName(buyer)} phone={buyer.phone} compact /></span>
             </div>
           )}
+          {buyer.phoneSecondary && (
+            <div className="flex items-center justify-between">
+              <span className="text-[14px] text-[rgba(5,14,36,0.5)] flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-[rgba(5,14,36,0.3)]" /> Phone 2</span>
+              <span className="text-[14px] text-[rgba(5,14,36,0.65)] flex items-center gap-1.5">{buyer.phoneSecondary} <CopyBtn text={buyer.phoneSecondary} /></span>
+            </div>
+          )}
           {buyer.email && (
             <div className="flex items-center justify-between">
               <span className="text-[14px] text-[rgba(5,14,36,0.5)] flex items-center gap-2"><Mail className="w-3.5 h-3.5" /> Email</span>
               <span className="text-[14px] text-[#0B1224] flex items-center gap-1.5">{buyer.email} <CopyBtn text={buyer.email} /></span>
+            </div>
+          )}
+          {buyer.emailSecondary && (
+            <div className="flex items-center justify-between">
+              <span className="text-[14px] text-[rgba(5,14,36,0.5)] flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-[rgba(5,14,36,0.3)]" /> Email 2</span>
+              <span className="text-[14px] text-[rgba(5,14,36,0.65)] flex items-center gap-1.5">{buyer.emailSecondary} <CopyBtn text={buyer.emailSecondary} /></span>
             </div>
           )}
           {(buyer.address || buyer.city) && (
@@ -750,7 +1088,42 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
         </div>
       </div>
 
-      {/* Buy Box Card */}
+      {/* Seller Info Card — shown for SELLER and BOTH contacts */}
+      {(buyer.contactType === 'SELLER' || buyer.contactType === 'BOTH') && (
+        <div className="bg-white border border-[rgba(249,115,22,0.15)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="text-[11px] font-semibold text-[#F97316] uppercase" style={{ letterSpacing: '0.05em' }}>Seller Info</div>
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[rgba(249,115,22,0.08)] text-[#F97316]">
+              {buyer.contactType === 'BOTH' ? 'Buyer + Seller' : 'Seller'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-y-2.5">
+            <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Motivation</span><div className="text-[14px] text-[#0B1224]">{buyer.sellerMotivation || '—'}</div></div>
+            <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Asking Price</span><div className="text-[14px] text-[#0B1224] font-medium">{buyer.sellerAskingPrice != null ? formatPrice(buyer.sellerAskingPrice) : '—'}</div></div>
+            <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Timeline</span><div className="text-[14px] text-[#0B1224]">{buyer.sellerTimeline || '—'}</div></div>
+            {buyer.sellerPropertyAddress && (
+              <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Property Address</span><div className="text-[14px] text-[#0B1224]">{buyer.sellerPropertyAddress}</div></div>
+            )}
+            {buyer.sellerPropertyId && (
+              <div>
+                <span className="text-[12px] text-[rgba(5,14,36,0.4)]">Linked Property</span>
+                <a href={`/discovery?propertyId=${buyer.sellerPropertyId}`} className="text-[14px] text-[#2563EB] hover:underline block">View in Discovery</a>
+              </div>
+            )}
+            {buyer.sellerNotes && (
+              <div className="col-span-2"><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Seller Notes</span><div className="text-[14px] text-[rgba(5,14,36,0.65)] mt-1">{buyer.sellerNotes}</div></div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Find Deals Card — shown for BUYER and BOTH contacts */}
+      {(buyer.contactType === 'BUYER' || buyer.contactType === 'BOTH') && (buyer.preferredMarkets?.length > 0 || buyer.preferredTypes?.length > 0 || buyer.minPrice || buyer.maxPrice) && (
+        <FindDealsCard buyer={buyer} />
+      )}
+
+      {/* Buy Box Card — hidden for pure sellers */}
+      {buyer.contactType !== 'SELLER' && (
       <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
         <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buy Box</div>
         <div className="grid grid-cols-2 gap-y-2.5">
@@ -760,8 +1133,14 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
           <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Close Speed</span><div className="text-[14px] text-[#0B1224]">{buyer.closeSpeedDays ? `${buyer.closeSpeedDays} days` : '—'}</div></div>
           <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Markets</span><div className="text-[14px] text-[#0B1224]">{buyer.preferredMarkets?.join(', ') || '—'}</div></div>
           <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Proof of Funds</span><div className={`text-[14px] font-medium ${buyer.proofOfFundsVerified ? 'text-[#2563EB]' : 'text-[rgba(5,14,36,0.4)]'}`}>{buyer.proofOfFundsVerified ? 'Verified' : 'Unverified'}</div></div>
+          {buyer.maxRehab != null && <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Max Rehab</span><div className="text-[14px] text-[#0B1224] font-medium">{formatPrice(buyer.maxRehab)}</div></div>}
+          {buyer.minBeds != null && <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Min Beds</span><div className="text-[14px] text-[#0B1224]">{buyer.minBeds}</div></div>}
+          {buyer.minBaths != null && <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Min Baths</span><div className="text-[14px] text-[#0B1224]">{buyer.minBaths}</div></div>}
+          {buyer.minSqft != null && <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Min Sq Ft</span><div className="text-[14px] text-[#0B1224]">{buyer.minSqft.toLocaleString()}</div></div>}
+          {buyer.yearBuiltMin != null && <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Year Built (min)</span><div className="text-[14px] text-[#0B1224]">{buyer.yearBuiltMin}</div></div>}
         </div>
       </div>
+      )}
 
       {/* Buyer Profile Card */}
       <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
@@ -790,6 +1169,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
                 <Clock className="w-3.5 h-3.5 text-amber-500" />
                 {new Date(buyer.followUpDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </div>
+              {buyer.followUpNote && <div className="text-[13px] text-[rgba(5,14,36,0.5)] mt-1">{buyer.followUpNote}</div>}
             </div>
           )}
         </div>
@@ -827,11 +1207,21 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
 /* ═══════════════════════════════════════════════
    TIMELINE TAB
    ═══════════════════════════════════════════════ */
+const TIMELINE_FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'call', label: 'Calls' },
+  { key: 'deal', label: 'Deals' },
+  { key: 'status', label: 'Status' },
+  { key: 'note', label: 'Notes' },
+  { key: 'edit', label: 'Edits' },
+] as const
+
 function TimelineTab({ buyerId }: { buyerId: string }) {
   const [events, setEvents] = useState<TimelineEvent[]>([])
   const [hasMore, setHasMore] = useState(false)
   const [cursor, setCursor] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState<string>('all')
 
   const load = useCallback(async (c?: string | null) => {
     setLoading(true)
@@ -852,18 +1242,46 @@ function TimelineTab({ buyerId }: { buyerId: string }) {
 
   useEffect(() => { load() }, [load])
 
+  const filtered = filter === 'all' ? events : events.filter(e => {
+    switch (filter) {
+      case 'call': return ['call', 'call_completed', 'phone'].includes(e.type)
+      case 'deal': return ['deal', 'deal_matched', 'deal_match', 'offer', 'offer_made'].includes(e.type)
+      case 'status': return e.type === 'status_changed'
+      case 'note': return e.type === 'note_added'
+      case 'edit': return e.type === 'edited'
+      default: return true
+    }
+  })
+
   return (
     <div className="space-y-4" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       <NoteComposer buyerId={buyerId} onNoteAdded={() => load()} />
 
-      {!loading && events.length === 0 && (
-        <p className="text-center text-[14px] text-[rgba(5,14,36,0.4)] py-8">No activity yet</p>
+      {/* Filter chips */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {TIMELINE_FILTERS.map(f => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`text-[12px] font-medium px-2.5 py-1 rounded-full border cursor-pointer transition-all ${
+              filter === f.key
+                ? 'bg-[#0B1224] text-white border-[#0B1224]'
+                : 'bg-white text-[rgba(5,14,36,0.5)] border-[rgba(5,14,36,0.08)] hover:border-[rgba(5,14,36,0.15)]'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {!loading && filtered.length === 0 && (
+        <p className="text-center text-[14px] text-[rgba(5,14,36,0.4)] py-8">{filter === 'all' ? 'No activity yet' : 'No events match this filter'}</p>
       )}
 
       <div className="relative pl-6">
-        {events.length > 0 && <div className="absolute left-[9px] top-2 bottom-2 w-px bg-[rgba(5,14,36,0.08)]" />}
+        {filtered.length > 0 && <div className="absolute left-[9px] top-2 bottom-2 w-px bg-[rgba(5,14,36,0.08)]" />}
         <div className="space-y-4">
-          {events.map(e => (
+          {filtered.map(e => (
             <div key={e.id} className="relative">
               <div className={`absolute left-[-24px] top-0.5 w-[18px] h-[18px] rounded-full bg-white border-2 ${tlColor(e.type)} flex items-center justify-center`}>
                 {tlIcon(e.type)}
@@ -896,36 +1314,87 @@ function TimelineTab({ buyerId }: { buyerId: string }) {
 /* ═══════════════════════════════════════════════
    DEALS TAB
    ═══════════════════════════════════════════════ */
-function DealsTab({ matches }: { matches: BuyerDetail['dealMatches'] }) {
-  if (!matches || matches.length === 0) {
-    return <p className="text-center text-sm text-gray-400 py-12">No deals matched to this buyer yet.</p>
+function DealsTab({ matches, offers, buyer }: { matches: BuyerDetail['dealMatches']; offers: BuyerDetail['offers']; buyer: BuyerDetail }) {
+  const hasMatches = matches && matches.length > 0
+  const hasOffers = offers && offers.length > 0
+
+  if (!hasMatches && !hasOffers) {
+    const discoveryParams = new URLSearchParams()
+    if (buyer.preferredMarkets?.length > 0) discoveryParams.set('city', buyer.preferredMarkets[0])
+    if (buyer.preferredTypes?.length > 0) discoveryParams.set('propertyType', buyer.preferredTypes[0])
+    if (buyer.minPrice) discoveryParams.set('valueMin', String(buyer.minPrice))
+    if (buyer.maxPrice) discoveryParams.set('valueMax', String(buyer.maxPrice))
+
+    return (
+      <div className="text-center py-12">
+        <Home className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+        <p className="text-[14px] text-gray-500 font-medium mb-1">No deals matched yet</p>
+        <p className="text-[12px] text-gray-400 mb-4">Find properties that match this buyer&apos;s buy box criteria.</p>
+        <a href={`/discovery?${discoveryParams.toString()}`} className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors no-underline">
+          <Search className="w-3.5 h-3.5" /> Search Discovery
+        </a>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-3">
-      {matches.map(m => (
-        <div key={m.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <div className="text-[15px] font-semibold text-[#0B1224]">{m.deal.address}</div>
-              <div className="text-[12px] text-[rgba(5,14,36,0.4)]">{m.deal.city}, {m.deal.state} &middot; {m.deal.propertyType}</div>
-            </div>
-            <div className="text-right">
-              <div className="text-[12px] text-[rgba(5,14,36,0.4)]">Match Score</div>
-              <div className="text-[0.92rem] font-bold text-[#2563EB]">{m.matchScore}%</div>
-            </div>
-          </div>
-          <div className="w-full h-2 bg-[rgba(5,14,36,0.04)] rounded-full overflow-hidden mb-3">
-            <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${m.matchScore}%` }} />
-          </div>
-          <div className="flex items-center gap-4 text-[0.74rem] text-gray-500">
-            <span>Ask: {formatPrice(m.deal.askingPrice)}</span>
-            <span>ARV: {formatPrice(m.deal.arv)}</span>
-            {m.outreachSent && <span className="text-[#2563EB]">Outreach sent {m.outreachSentAt ? relativeTime(m.outreachSentAt) : ''}</span>}
-            <span className="ml-auto">{relativeTime(m.createdAt)}</span>
+    <div className="space-y-5" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+      {/* Offers section */}
+      {hasOffers && (
+        <div>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Offers ({offers!.length})</div>
+          <div className="space-y-2">
+            {offers!.map(o => (
+              <div key={o.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 flex items-center justify-between">
+                <div>
+                  <div className="text-[14px] font-medium text-[#0B1224]">{o.deal.address}</div>
+                  <div className="text-[12px] text-[rgba(5,14,36,0.4)]">{o.deal.city}, {o.deal.state}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[14px] font-bold text-[#0B1224]">{formatPrice(o.amount)}</div>
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                    o.status === 'ACCEPTED' ? 'text-[#059669] bg-[rgba(5,150,105,0.08)]' :
+                    o.status === 'REJECTED' ? 'text-[#EF4444] bg-[rgba(239,68,68,0.08)]' :
+                    'text-[#D97706] bg-[rgba(217,119,6,0.08)]'
+                  }`}>{o.status}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
+      )}
+
+      {/* Matched deals section */}
+      {hasMatches && (
+        <div>
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Matched Deals ({matches!.length})</div>
+          <div className="space-y-3">
+            {matches!.map(m => (
+              <div key={m.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '16px 20px' }}>
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="text-[15px] font-semibold text-[#0B1224]">{m.deal.address}</div>
+                    <div className="text-[12px] text-[rgba(5,14,36,0.4)]">{m.deal.city}, {m.deal.state} &middot; {m.deal.propertyType}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[12px] text-[rgba(5,14,36,0.4)]">Match</div>
+                    <div className="text-[0.92rem] font-bold text-[#2563EB]">{m.matchScore}%</div>
+                  </div>
+                </div>
+                <div className="w-full h-1.5 bg-[rgba(5,14,36,0.04)] rounded-full overflow-hidden mb-3">
+                  <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${m.matchScore}%` }} />
+                </div>
+                <div className="flex items-center gap-4 text-[0.74rem] text-gray-500">
+                  <span>Ask: {formatPrice(m.deal.askingPrice)}</span>
+                  <span>ARV: {formatPrice(m.deal.arv)}</span>
+                  {m.outreachSent && <span className="text-[#2563EB]">Outreach sent {m.outreachSentAt ? relativeTime(m.outreachSentAt) : ''}</span>}
+                  <span className="ml-auto">{relativeTime(m.createdAt)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1433,11 +1902,17 @@ export default function BuyerDetailPage() {
     setEditForm({
       firstName: buyer.firstName || '', lastName: buyer.lastName || '',
       entityName: buyer.entityName || '', entityType: buyer.entityType || '',
-      phone: buyer.phone || '', email: buyer.email || '',
+      phone: buyer.phone || '', phoneSecondary: buyer.phoneSecondary || '',
+      email: buyer.email || '', emailSecondary: buyer.emailSecondary || '',
       address: buyer.address || '', city: buyer.city || '', state: buyer.state || '', zip: buyer.zip || '',
       strategy: buyer.strategy || '', minPrice: buyer.minPrice != null ? String(buyer.minPrice) : '',
       maxPrice: buyer.maxPrice != null ? String(buyer.maxPrice) : '',
       closeSpeedDays: buyer.closeSpeedDays != null ? String(buyer.closeSpeedDays) : '',
+      maxRehab: buyer.maxRehab != null ? String(buyer.maxRehab) : '',
+      minBeds: buyer.minBeds != null ? String(buyer.minBeds) : '',
+      minBaths: buyer.minBaths != null ? String(buyer.minBaths) : '',
+      minSqft: buyer.minSqft != null ? String(buyer.minSqft) : '',
+      yearBuiltMin: buyer.yearBuiltMin != null ? String(buyer.yearBuiltMin) : '',
       notes: buyer.notes || '', status: buyer.status || 'ACTIVE',
       buyerType: buyer.buyerType || '', fundingSource: buyer.fundingSource || '',
       conditionPreference: buyer.conditionPreference || '',
@@ -1447,6 +1922,7 @@ export default function BuyerDetailPage() {
       avgPurchasePrice: buyer.avgPurchasePrice != null ? String(buyer.avgPurchasePrice) : '',
       source: buyer.source || '', assignedTo: buyer.assignedTo || '',
       followUpDate: buyer.followUpDate ? buyer.followUpDate.slice(0, 10) : '',
+      followUpNote: buyer.followUpNote || '',
     })
     setEditing(true)
   }
@@ -1456,18 +1932,24 @@ export default function BuyerDetailPage() {
     setEditSaving(true)
     try {
       const payload: Record<string, unknown> = {}
-      const numericFields = ['minPrice', 'maxPrice', 'closeSpeedDays', 'portfolioSize', 'avgPurchasePrice']
+      const numericFields = ['minPrice', 'maxPrice', 'closeSpeedDays', 'portfolioSize', 'avgPurchasePrice', 'maxRehab', 'minBeds', 'minBaths', 'minSqft', 'yearBuiltMin']
       const enumFields = ['strategy', 'buyerType', 'fundingSource', 'conditionPreference', 'communicationPref']
 
       // Build a map of original values to compare against
       const original: Record<string, string> = {
         firstName: buyer.firstName || '', lastName: buyer.lastName || '',
         entityName: buyer.entityName || '', entityType: buyer.entityType || '',
-        phone: buyer.phone || '', email: buyer.email || '',
+        phone: buyer.phone || '', phoneSecondary: buyer.phoneSecondary || '',
+        email: buyer.email || '', emailSecondary: buyer.emailSecondary || '',
         address: buyer.address || '', city: buyer.city || '', state: buyer.state || '', zip: buyer.zip || '',
         strategy: buyer.strategy || '', minPrice: buyer.minPrice != null ? String(buyer.minPrice) : '',
         maxPrice: buyer.maxPrice != null ? String(buyer.maxPrice) : '',
         closeSpeedDays: buyer.closeSpeedDays != null ? String(buyer.closeSpeedDays) : '',
+        maxRehab: buyer.maxRehab != null ? String(buyer.maxRehab) : '',
+        minBeds: buyer.minBeds != null ? String(buyer.minBeds) : '',
+        minBaths: buyer.minBaths != null ? String(buyer.minBaths) : '',
+        minSqft: buyer.minSqft != null ? String(buyer.minSqft) : '',
+        yearBuiltMin: buyer.yearBuiltMin != null ? String(buyer.yearBuiltMin) : '',
         notes: buyer.notes || '', status: buyer.status || 'ACTIVE',
         buyerType: buyer.buyerType || '', fundingSource: buyer.fundingSource || '',
         conditionPreference: buyer.conditionPreference || '',
@@ -1477,6 +1959,7 @@ export default function BuyerDetailPage() {
         avgPurchasePrice: buyer.avgPurchasePrice != null ? String(buyer.avgPurchasePrice) : '',
         source: buyer.source || '', assignedTo: buyer.assignedTo || '',
         followUpDate: buyer.followUpDate ? buyer.followUpDate.slice(0, 10) : '',
+        followUpNote: buyer.followUpNote || '',
       }
 
       // Only send fields that actually changed
@@ -1630,7 +2113,7 @@ export default function BuyerDetailPage() {
                 onSave={saveEdits} onCancel={() => setEditing(false)} saving={editSaving} />
             )}
             {tab === 'Timeline' && <TimelineTab buyerId={buyerId} />}
-            {tab === 'Deals' && <DealsTab matches={buyer.dealMatches} />}
+            {tab === 'Deals' && <DealsTab matches={buyer.dealMatches} offers={buyer.offers} buyer={buyer} />}
             {tab === 'Calls' && <CallsTab calls={buyer.campaignCalls} inboundCalls={buyer.inboundCalls} />}
             {tab === 'Intelligence' && <BuyerIntelligenceTab buyerId={buyerId} />}
             {tab === 'Callbacks' && <BuyerCallbacksTab buyerId={buyerId} />}
@@ -1641,6 +2124,7 @@ export default function BuyerDetailPage() {
         {/* Right Column (1/3) */}
         <div className="w-full lg:w-80 flex-shrink-0 space-y-4 crm-stagger">
           <ScoreMotivationCard buyerId={buyerId} currentScore={buyer.buyerScore} currentMotivation={buyer.motivation} onUpdated={fetchBuyer} />
+          <ScoreBreakdownCard buyerId={buyerId} />
           <TagsCard buyer={buyer} onRefetch={fetchBuyer} />
 
           {/* Duplicate Warning */}
@@ -1653,6 +2137,9 @@ export default function BuyerDetailPage() {
               <p className="text-[14px] text-amber-700">This buyer may be a duplicate. Review and merge from the CRM list.</p>
             </div>
           )}
+
+          {/* Follow-Up Scheduler */}
+          <FollowUpCard buyerId={buyerId} currentDate={buyer.followUpDate} currentNote={buyer.followUpNote} onUpdated={fetchBuyer} />
 
           {/* Quick Actions */}
           <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px' }}>

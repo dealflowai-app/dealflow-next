@@ -8,7 +8,7 @@ import {
   LayoutDashboard,
   MessagesSquare,
   Store,
-  UserSearch,
+  Search,
   Users,
   PhoneOutgoing,
   Calculator,
@@ -34,8 +34,8 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Feed', href: '/community', icon: MessagesSquare },
   { label: 'Marketplace', href: '/marketplace', icon: Store },
-  { label: 'Find Buyers', href: '/buyers', icon: UserSearch },
-  { label: 'Buyer List', href: '/crm', icon: Users },
+  { label: 'Discovery', href: '/discovery', icon: Search },
+  { label: 'CRM', href: '/crm', icon: Users },
   { label: 'Outreach', href: '/outreach', icon: PhoneOutgoing },
   { label: 'Analyze Deal', href: '/analyzer', icon: Calculator },
   { label: 'My Deals', href: '/deals', icon: FolderOpen },
@@ -71,7 +71,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
     <aside
       className="flex-shrink-0 h-screen flex flex-col relative"
       style={{
-        width: collapsed ? 68 : 240,
+        width: collapsed ? 68 : 230,
         transition: 'width 0.2s ease',
         background: 'var(--white, #ffffff)',
         borderRight: '1px solid rgba(5,14,36,0.08)',
@@ -155,20 +155,21 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       </button>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto" style={{ padding: '14px 10px' }}>
+      <nav className="flex-1 flex flex-col sidebar-nav-scroll" style={{ padding: '12px 10px', overflowY: 'auto', minHeight: 0 }}>
         {!collapsed && (
           <p style={{
-            fontSize: '0.62rem',
+            fontSize: '0.65rem',
             fontWeight: 600,
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
             color: 'var(--muted-text, #9CA3AF)',
-            margin: '0 0 6px 12px',
+            margin: '0 0 4px 12px',
+            flexShrink: 0,
           }}>
             Menu
           </p>
         )}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
           {navItems.map(item => {
             const Icon = item.icon
             const isActive =
@@ -185,11 +186,11 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 11,
                   padding: collapsed ? '9px 0' : '9px 12px',
                   borderRadius: 10,
-                  fontSize: '0.82rem',
-                  fontWeight: isActive ? 500 : 400,
+                  fontSize: '14.5px',
+                  fontWeight: isActive ? 600 : 400,
                   fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
                   letterSpacing: '-0.005em',
                   textDecoration: 'none',
@@ -203,8 +204,8 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                 <Icon
                   className="flex-shrink-0"
                   style={{
-                    width: 17,
-                    height: 17,
+                    width: 19,
+                    height: 19,
                     strokeWidth: isActive ? 2 : 1.7,
                     color: isActive ? 'var(--blue-600, #2563EB)' : 'var(--muted-text, #9CA3AF)',
                     transition: 'color 0.18s ease',
@@ -228,11 +229,11 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 10,
+              gap: 11,
               padding: collapsed ? '9px 0' : '9px 12px',
               borderRadius: 10,
-              fontSize: '0.82rem',
-              fontWeight: 500,
+              fontSize: '14.5px',
+              fontWeight: 600,
               fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
               letterSpacing: '-0.005em',
               textDecoration: 'none',
@@ -246,8 +247,8 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             <Shield
               className="flex-shrink-0"
               style={{
-                width: 17,
-                height: 17,
+                width: 19,
+                height: 19,
                 strokeWidth: 1.8,
                 color: '#DC2626',
                 transition: 'color 0.18s ease',
@@ -288,13 +289,13 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 11,
             padding: collapsed ? '9px 0' : '9px 12px',
             borderRadius: 10,
-            fontSize: '0.82rem',
+            fontSize: '14.5px',
             fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
             letterSpacing: '-0.005em',
-            fontWeight: pathname.startsWith('/settings') ? 500 : 400,
+            fontWeight: pathname.startsWith('/settings') ? 600 : 400,
             textDecoration: 'none',
             justifyContent: collapsed ? 'center' : 'flex-start',
             marginBottom: 8,
@@ -306,8 +307,8 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           <Settings
             className="flex-shrink-0"
             style={{
-              width: 17,
-              height: 17,
+              width: 19,
+              height: 19,
               strokeWidth: pathname.startsWith('/settings') ? 2 : 1.7,
               color: pathname.startsWith('/settings') ? 'var(--blue-600, #2563EB)' : 'var(--muted-text, #9CA3AF)',
               transition: 'color 0.18s ease',
@@ -322,7 +323,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 11,
             padding: collapsed ? '9px 0' : '9px 12px',
             borderRadius: 10,
             justifyContent: collapsed ? 'center' : 'flex-start',
@@ -348,7 +349,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             <>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
-                  fontSize: '0.78rem',
+                  fontSize: '14px',
                   fontWeight: 500,
                   fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
                   color: 'var(--navy-heading, #0B1224)',
@@ -383,6 +384,26 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
+        .sidebar-nav-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: transparent transparent;
+        }
+        .sidebar-nav-scroll:hover {
+          scrollbar-color: rgba(5,14,36,0.15) transparent;
+        }
+        .sidebar-nav-scroll::-webkit-scrollbar {
+          width: 4px;
+        }
+        .sidebar-nav-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .sidebar-nav-scroll::-webkit-scrollbar-thumb {
+          background: transparent;
+          border-radius: 4px;
+        }
+        .sidebar-nav-scroll:hover::-webkit-scrollbar-thumb {
+          background: rgba(5,14,36,0.15);
+        }
         .sidebar-link:hover:not(.sidebar-link-active) {
           background: rgba(5, 14, 36, 0.04) !important;
           color: var(--navy-heading, #0B1224) !important;

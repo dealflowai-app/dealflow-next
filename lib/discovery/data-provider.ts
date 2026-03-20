@@ -1,14 +1,13 @@
 // ─── Unified Discovery Data Provider ─────────────────────────────────────────
-// Automatically uses ATTOM when configured, falls back to RentCast.
+// Uses BatchData as primary, falls back to RentCast.
 // All API routes should call getDataProvider() instead of reaching
-// for ATTOM or RentCast directly.
+// for BatchData or RentCast directly.
 
-import { getAttomClient, type AttomClient } from '@/lib/attom'
 import { getRentCastClient, type RentCastClient, type RentCastProperty } from '@/lib/rentcast'
+import { getBatchDataClient, type BatchDataClient } from '@/lib/batchdata'
+import type { BatchDataProperty } from '@/lib/batchdata/types'
 import {
   estimateEquity,
-  detectLikelyCashBuyer,
-  calculateInvestorScore,
   normalizeOwnerName,
   groupPropertiesByOwner,
 } from './owner-intelligence'
@@ -42,75 +41,109 @@ const RENTCAST_TYPE_MAP: Record<string, string> = {
 // ─── DiscoveryDataProvider ───────────────────────────────────────────────────
 
 export class DiscoveryDataProvider {
-  private attom: AttomClient | null
+  private batchdata: BatchDataClient | null
   private rentcast: RentCastClient
 
-  constructor(attom: AttomClient | null, rentcast: RentCastClient) {
-    this.attom = attom
+  constructor(
+    batchdata: BatchDataClient | null,
+    rentcast: RentCastClient,
+  ) {
+    this.batchdata = batchdata
     this.rentcast = rentcast
   }
 
   /** Which data source is active for property data */
   get primarySource(): DataSource {
-    return this.attom ? 'attom' : 'rentcast'
+    return this.batchdata ? 'batchdata' : 'rentcast'
   }
 
-  /** True if ATTOM is configured and available */
-  get hasAttom(): boolean {
-    return this.attom !== null
+  /** True if BatchData is configured and available */
+  get hasBatchData(): boolean {
+    return this.batchdata !== null
   }
 
   // ── 1. searchProperties ─────────────────────────────────────────────────
 
   async searchProperties(params: UnifiedSearchParams): Promise<UnifiedProperty[]> {
-    if (this.attom) {
-      return this.searchViaAttom(params)
+    if (this.batchdata) {
+      return this.searchViaBatchData(params)
     }
     return this.searchViaRentCast(params)
   }
 
-  private async searchViaAttom(params: UnifiedSearchParams): Promise<UnifiedProperty[]> {
-    const results = await this.attom!.searchProperties({
-      city: params.city,
-      state: params.state,
-      zipCode: params.zipCode,
-      propertyType: params.propertyType,
-      minBeds: params.minBeds,
-      maxBeds: params.maxBeds,
-      minBaths: params.minBaths,
-      maxBaths: params.maxBaths,
-      minSqft: params.minSqft,
-      maxSqft: params.maxSqft,
-      page: params.page,
-      pageSize: params.pageSize,
+  private async searchViaBatchData(params: UnifiedSearchParams): Promise<UnifiedProperty[]> {
+    // Build searchCriteria string from city/state/zip
+    let searchCriteria: string
+    if (params.zipCode) {
+      searchCriteria = params.zipCode
+    } else if (params.city && params.state) {
+      searchCriteria = `${params.city}, ${params.state}`
+    } else {
+      return []
+    }
+
+    const response = await this.batchdata!.searchProperties({
+      searchCriteria,
+      propertyType: params.propertyType ? mapPropertyTypeForBatchData(params.propertyType) : undefined,
+      limit: Math.min(params.pageSize ?? 50, 50),  // Cap at 50 to control costs (~$32 max)
     })
 
-    return results.map((p): UnifiedProperty => ({
-      id: String(p.identifier.attomId),
-      dataSource: 'attom',
-      addressLine1: p.address.line1,
-      city: p.address.locality,
-      state: p.address.countrySubd,
-      zipCode: p.address.postal1,
-      county: null,
-      latitude: p.location.latitude,
-      longitude: p.location.longitude,
-      propertyType: p.summary.propClass ?? p.summary.propertyType ?? null,
-      bedrooms: p.building.rooms.beds,
-      bathrooms: p.building.rooms.bathsTotal,
-      sqft: p.building.size.livingSize ?? p.building.size.bldgSize,
-      lotSize: p.lot.lotSize1,
-      yearBuilt: p.summary.yearBuilt,
-      assessedValue: null, // basic profile doesn't include assessment
-      taxAmount: null,
-      lastSaleDate: null,
-      lastSalePrice: null,
-      ownerName: null, // basic profile doesn't include owner
-      ownerOccupied: p.summary.absenteeInd === 'N' ? true : p.summary.absenteeInd === 'Y' ? false : null,
-      absenteeOwner: p.summary.absenteeInd === 'Y',
-      corporateOwner: null,
-      propIndicator: p.summary.propIndicator ?? null,
-    }))
+    const properties = response.results?.properties ?? []
+
+    return properties.map((p): UnifiedProperty => {
+      const addr = p.address
+      const beds = p.listing?.bedroomCount ?? null
+      const baths = p.listing?.bathroomCount ?? null
+      const sqft = p.listing?.totalBuildingAreaSquareFeet ?? p.listing?.livingArea ?? null
+      const lotSize = p.listing?.lotSizeSquareFeet ?? null
+      const yearBuilt = p.listing?.yearBuilt ?? null
+      const propertyType = p.listing?.propertyType ?? null
+
+      // Tax from listing.taxes array (most recent year)
+      const mostRecentTax = p.listing?.taxes?.find(t => t.amount != null)
+      const taxAmount = mostRecentTax?.amount ?? null
+
+      // Last sale from deedHistory (first entry with a price > 0)
+      const lastSale = p.deedHistory?.find(d => d.salePrice != null && d.salePrice > 0)
+
+      return {
+        id: p._id,
+        dataSource: 'batchdata',
+        addressLine1: addr.street,
+        city: addr.city,
+        state: addr.state,
+        zipCode: addr.zip ?? null,
+        county: addr.county ?? null,
+        latitude: addr.latitude ?? null,
+        longitude: addr.longitude ?? null,
+        propertyType,
+        bedrooms: beds,
+        bathrooms: baths,
+        sqft,
+        lotSize,
+        yearBuilt,
+        assessedValue: p.valuation?.estimatedValue ?? null,
+        taxAmount,
+        lastSaleDate: lastSale?.saleDate ?? null,
+        lastSalePrice: lastSale?.salePrice ?? null,
+        ownerName: p.owner?.fullName ?? null,
+        ownerOccupied: p.quickLists?.ownerOccupied ?? null,
+        absenteeOwner: p.quickLists?.absenteeOwner ?? false,
+        corporateOwner: p.quickLists?.corporateOwned ?? false,
+        propIndicator: null,
+        // Search already returns Tier 2 data — no separate lookup needed
+        enrichmentLevel: 2,
+        // Listing data
+        listingStatus: p.listing?.status ?? null,
+        daysOnMarket: calculateDaysOnMarket(p.listing),
+        listPrice: p.listing?.price ?? null,
+        originalListPrice: p.listing?.maxListPrice ?? null,
+        listingDate: p.listing?.originalListingDate ?? null,
+        listingAgent: null,
+        // Store the full BatchData object for cache
+        _batchdataRaw: p,
+      }
+    })
   }
 
   private async searchViaRentCast(params: UnifiedSearchParams): Promise<UnifiedProperty[]> {
@@ -136,109 +169,8 @@ export class DiscoveryDataProvider {
 
   // ── 2. getPropertyDetail ────────────────────────────────────────────────
 
-  async getPropertyDetail(id: string): Promise<UnifiedPropertyDetail> {
-    if (this.attom) {
-      return this.getDetailViaAttom(id)
-    }
-    return this.getDetailViaRentCast(id)
-  }
-
-  private async getDetailViaAttom(attomId: string): Promise<UnifiedPropertyDetail> {
-    // Fetch expanded profile and mortgage in parallel
-    const [detail, mortgages] = await Promise.all([
-      this.attom!.getPropertyDetail(attomId),
-      this.attom!.getMortgageData(attomId).catch(() => []),
-    ])
-
-    const totalLienAmount = mortgages.reduce((sum, m) => sum + (m.lien.amount ?? 0), 0)
-
-    return {
-      id: String(detail.identifier.attomId),
-      dataSource: 'attom',
-      addressLine1: detail.address.line1,
-      city: detail.address.locality,
-      state: detail.address.countrySubd,
-      zipCode: detail.address.postal1,
-      county: null,
-      latitude: detail.location.latitude,
-      longitude: detail.location.longitude,
-      propertyType: detail.summary.propClass ?? detail.summary.propertyType ?? null,
-      bedrooms: detail.building.rooms.beds,
-      bathrooms: detail.building.rooms.bathsTotal,
-      sqft: detail.building.size.livingSize ?? detail.building.size.bldgSize,
-      lotSize: detail.lot.lotSize1,
-      yearBuilt: detail.summary.yearBuilt,
-      assessedValue: detail.assessment?.assessed?.assdTtlValue ?? null,
-      taxAmount: detail.assessment?.tax?.taxAmt ?? null,
-      lastSaleDate: detail.sale?.amount?.saleRecDate ?? null,
-      lastSalePrice: detail.sale?.amount?.saleAmt ?? null,
-      ownerName: detail.owner?.owner1?.fullName ?? null,
-      ownerOccupied: detail.owner?.absenteeOwnerStatus === 'Owner Occupied'
-        ? true
-        : detail.owner?.absenteeOwnerStatus === 'Absentee Owner'
-          ? false
-          : null,
-      absenteeOwner: detail.owner?.absenteeOwnerStatus === 'Absentee Owner',
-      corporateOwner: detail.owner?.corporateIndicator === 'Y',
-      propIndicator: detail.summary.propIndicator ?? null,
-
-      assessment: {
-        assessedTotal: detail.assessment?.assessed?.assdTtlValue ?? null,
-        assessedLand: detail.assessment?.assessed?.assdLandValue ?? null,
-        assessedImprovement: detail.assessment?.assessed?.assdImprValue ?? null,
-        marketValue: detail.assessment?.market?.mktTtlValue ?? null,
-        taxYear: detail.assessment?.tax?.taxYear ?? null,
-        taxAmount: detail.assessment?.tax?.taxAmt ?? null,
-      },
-
-      owner: {
-        name: detail.owner?.owner1?.fullName ?? null,
-        name2: detail.owner?.owner2?.fullName ?? null,
-        corporateIndicator: detail.owner?.corporateIndicator === 'Y',
-        absenteeOwner: detail.owner?.absenteeOwnerStatus === 'Absentee Owner',
-        mailingAddress: detail.owner?.mailingAddressOneLine ?? null,
-      },
-
-      lastSale: detail.sale
-        ? {
-            date: detail.sale.amount?.saleRecDate ?? null,
-            price: detail.sale.amount?.saleAmt ?? null,
-            pricePerSqft: detail.sale.calculation?.pricePerSizeUnit ?? null,
-            buyerName: null, // expandedprofile doesn't include buyer/seller
-            sellerName: null,
-          }
-        : null,
-
-      building: {
-        totalSqft: detail.building.size.bldgSize,
-        livingSqft: detail.building.size.livingSize,
-        stories: detail.building.summary.levels,
-        condition: detail.building.construction.condition,
-        garageType: detail.building.parking.garageType,
-        garageSpaces: detail.building.parking.prkgSpaces,
-        basementSqft: detail.building.interior.bsmtSize,
-        basementType: detail.building.interior.bsmtType,
-        fireplaceCount: detail.building.interior.fplcCount,
-        yearBuiltEffective: detail.building.summary.yearBuiltEffective,
-      },
-
-      mortgage: mortgages.length > 0
-        ? {
-            totalLienAmount: totalLienAmount > 0 ? totalLienAmount : null,
-            liens: mortgages.map((m) => ({
-              position: m.lien.lienPosition ?? 1,
-              amount: m.lien.amount,
-              lenderName: m.lien.lenderName,
-              interestRate: m.lien.interestRate,
-              interestRateType: m.lien.interestRateType,
-              term: m.lien.term,
-              dueDate: m.lien.dueDate,
-            })),
-          }
-        : null,
-
-      features: null,
-    }
+  async getPropertyDetail(address: string): Promise<UnifiedPropertyDetail> {
+    return this.getDetailViaRentCast(address)
   }
 
   private async getDetailViaRentCast(address: string): Promise<UnifiedPropertyDetail> {
@@ -291,44 +223,114 @@ export class DiscoveryDataProvider {
     }
   }
 
+  // ── 2b. enrichProperty (BatchData tiered enrichment) ────────────────
+
+  /**
+   * Progressively enrich a property with additional data tiers.
+   * Tier 1: Core/Tax ($0.10) — owner, assessed value, tax
+   * Tier 2: Full ($0.23) — AVM, distress, mortgage, history
+   *
+   * Only useful when BatchData is the primary source. Falls back to
+   * getPropertyDetail for RentCast.
+   */
+  async enrichProperty(
+    address: { street: string; city: string; state: string; zip: string },
+    targetTier: 1 | 2,
+  ): Promise<Partial<UnifiedPropertyDetail>> {
+    if (!this.batchdata) {
+      // Fall back to RentCast detail path
+      const lookupKey = `${address.street}, ${address.city}, ${address.state} ${address.zip}`
+      return this.getPropertyDetail(lookupKey)
+    }
+
+    const response = await this.batchdata.lookupProperty({
+      requests: [{ address }],
+    })
+
+    const p = response.results?.properties?.[0]
+    if (!p) return {}
+
+    const result: Partial<UnifiedPropertyDetail> = {}
+
+    // Lookup returns fully enriched data (same as search)
+    const mailingAddr = p.owner?.mailingAddress
+    const mailingStr = mailingAddr
+      ? `${mailingAddr.street ?? ''}, ${mailingAddr.city ?? ''}, ${mailingAddr.state ?? ''} ${mailingAddr.zip ?? ''}`.trim()
+      : null
+
+    result.ownerName = p.owner?.fullName ?? null
+    result.assessedValue = p.valuation?.estimatedValue ?? null
+    result.ownerOccupied = p.quickLists?.ownerOccupied ?? null
+    result.absenteeOwner = p.quickLists?.absenteeOwner ?? null
+    result.corporateOwner = p.quickLists?.corporateOwned ?? null
+    result.owner = p.owner ? {
+      name: p.owner.fullName ?? null,
+      name2: null,
+      corporateIndicator: p.quickLists?.corporateOwned ?? false,
+      absenteeOwner: p.quickLists?.absenteeOwner ?? false,
+      mailingAddress: mailingStr,
+    } : null
+    result.assessment = {
+      assessedTotal: p.valuation?.estimatedValue ?? null,
+      assessedLand: null,
+      assessedImprovement: null,
+      marketValue: p.valuation?.estimatedValue ?? null,
+      taxYear: null,
+      taxAmount: p.listing?.taxes?.find(t => t.amount != null)?.amount ?? null,
+    }
+
+    // Last sale from deedHistory
+    const lastSaleDeed = p.deedHistory?.find(d => d.salePrice != null && d.salePrice > 0)
+    result.lastSaleDate = lastSaleDeed?.saleDate ?? null
+    result.lastSalePrice = lastSaleDeed?.salePrice ?? null
+    result.lastSale = lastSaleDeed ? {
+      date: lastSaleDeed.saleDate ?? null,
+      price: lastSaleDeed.salePrice ?? null,
+      pricePerSqft: null,
+      buyerName: lastSaleDeed.buyers?.[0] ?? null,
+      sellerName: lastSaleDeed.sellers?.[0] ?? null,
+    } : null
+
+    // Mortgage from openLien
+    result.mortgage = p.openLien?.mortgages?.length ? {
+      totalLienAmount: p.openLien.totalOpenLienBalance ?? null,
+      liens: p.openLien.mortgages.map((m, i) => ({
+        position: i + 1,
+        amount: m.loanAmount ?? m.currentEstimatedBalance ?? null,
+        lenderName: m.lenderName ?? null,
+        interestRate: m.currentEstimatedInterestRate ?? null,
+        interestRateType: m.financingType ?? null,
+        term: m.loanTermMonths ?? null,
+        dueDate: m.dueDate ?? null,
+      })),
+    } : null
+
+    // Listing data (already included in response)
+    if (p.listing) {
+      result.listingStatus = p.listing.status ?? null
+      result.daysOnMarket = calculateDaysOnMarket(p.listing)
+      result.listPrice = p.listing.price ?? null
+      result.originalListPrice = p.listing.maxListPrice ?? null
+      result.priceReduced = p.listing.maxListPrice != null && p.listing.price != null
+        ? p.listing.price < p.listing.maxListPrice
+        : null
+      result.priceReductionAmount = result.priceReduced && p.listing.maxListPrice && p.listing.price
+        ? p.listing.maxListPrice - p.listing.price
+        : null
+      result.listingDate = p.listing.originalListingDate ?? null
+      result.listingAgent = null
+    }
+
+    // Attach raw BatchData object so callers can store it in cache
+    result._batchdataRaw = p
+
+    return result
+  }
+
   // ── 3. findCashBuyers ───────────────────────────────────────────────────
 
   async findCashBuyers(params: UnifiedCashBuyerParams): Promise<UnifiedBuyer[]> {
-    if (this.attom) {
-      return this.findCashBuyersViaAttom(params)
-    }
     return this.findCashBuyersViaRentCast(params)
-  }
-
-  private async findCashBuyersViaAttom(params: UnifiedCashBuyerParams): Promise<UnifiedBuyer[]> {
-    const results = await this.attom!.searchCashBuyers({
-      city: params.city,
-      state: params.state,
-      zipCode: params.zipCode,
-      minPurchases: params.minPurchases,
-      minPrice: params.minPrice,
-      maxPrice: params.maxPrice,
-      propertyType: params.propertyType,
-      page: params.page,
-      pageSize: params.pageSize,
-    })
-
-    return results.map((b): UnifiedBuyer => ({
-      dataSource: 'attom',
-      buyerName: b.buyerName,
-      buyerFirstName: b.buyerFirstName,
-      buyerLastName: b.buyerLastName,
-      corporateIndicator: b.corporateIndicator,
-      cashPurchaseCount: b.cashPurchaseCount,
-      totalCashVolume: b.totalCashVolume,
-      avgPurchasePrice: b.avgPurchasePrice,
-      lastPurchaseDate: b.lastPurchaseDate,
-      lastPurchaseAmount: b.lastPurchaseAmount,
-      lastPurchaseAddress: b.lastPurchaseAddress,
-      propertyTypes: b.propertyTypes,
-      markets: b.markets,
-      confidence: 'verified',
-    }))
   }
 
   private async findCashBuyersViaRentCast(params: UnifiedCashBuyerParams): Promise<UnifiedBuyer[]> {
@@ -392,40 +394,20 @@ export class DiscoveryDataProvider {
     ownerName: string,
     location: string,
   ): Promise<UnifiedOwnerProfile> {
-    if (this.attom) {
-      return this.getOwnerViaAttom(ownerName, location)
+    if (this.batchdata) {
+      return this.getOwnerViaBatchData(ownerName, location)
     }
     return this.getOwnerViaRentCast(ownerName, location)
   }
 
-  private async getOwnerViaAttom(
+  private async getOwnerViaBatchData(
     ownerName: string,
     location: string,
   ): Promise<UnifiedOwnerProfile> {
-    // Search for properties owned by this person in the area
-    // ATTOM doesn't have a direct "search by owner" — use property search
-    // and filter. For a known attomId, use getOwnerProfile instead.
-    const [city, state] = parseLocation(location)
+    const [city] = parseLocation(location)
 
-    const properties = await this.attom!.searchProperties({
-      city: city ?? undefined,
-      state: state ?? undefined,
-      pageSize: 100,
-    })
-
-    // Filter to matching owner name
-    const normalized = normalizeOwnerName(ownerName)
-    const owned = properties.filter((p) => {
-      // Basic profile doesn't include owner — this is a limitation.
-      // In practice, callers would use getOwnerProfile(attomId) for
-      // a specific property, then cross-reference.
-      return false // Placeholder — real impl would use owner search endpoint
-    })
-
-    // Fall back to a single-property profile if we have an attomId
-    // This is the more realistic path: UI passes an attomId
     return {
-      dataSource: 'attom',
+      dataSource: 'batchdata',
       ownerName,
       ownerName2: null,
       corporateIndicator: isEntityName(ownerName),
@@ -433,52 +415,14 @@ export class DiscoveryDataProvider {
       mailingAddress: null,
       ownershipLength: { ownedSince: null, yearsOwned: null },
       portfolio: {
-        propertyCount: owned.length,
+        propertyCount: 0,
         totalValue: 0,
         avgValue: 0,
-        cities: [],
+        cities: city ? [city] : [],
         propertyTypes: [],
       },
       investorScore: 0,
       likelyCashBuyer: isEntityName(ownerName),
-    }
-  }
-
-  /**
-   * Get ATTOM owner profile by attomId — the preferred path when you
-   * already have a property ID from a prior search.
-   */
-  async getOwnerProfileById(attomId: string): Promise<UnifiedOwnerProfile> {
-    if (!this.attom) {
-      throw new Error('ATTOM not configured — use getOwnerPortfolio() for RentCast fallback')
-    }
-
-    const owner = await this.attom.getOwnerProfile(attomId)
-
-    return {
-      dataSource: 'attom',
-      ownerName: owner.owner1.fullName ?? '',
-      ownerName2: owner.owner2?.fullName ?? null,
-      corporateIndicator: owner.corporateIndicator,
-      absenteeOwner: owner.absenteeOwner,
-      mailingAddress: owner.mailingAddress?.oneLine ?? null,
-      ownershipLength: {
-        ownedSince: owner.ownershipLength.ownedSince,
-        yearsOwned: owner.ownershipLength.yearsOwned,
-      },
-      portfolio: owner.portfolioSummary
-        ? {
-            propertyCount: owner.portfolioSummary.totalProperties ?? 0,
-            totalValue: owner.portfolioSummary.totalValue ?? 0,
-            avgValue: owner.portfolioSummary.totalProperties
-              ? Math.round((owner.portfolioSummary.totalValue ?? 0) / owner.portfolioSummary.totalProperties)
-              : 0,
-            cities: [],
-            propertyTypes: owner.portfolioSummary.propertyTypes,
-          }
-        : { propertyCount: 1, totalValue: 0, avgValue: 0, cities: [], propertyTypes: [] },
-      investorScore: 0,
-      likelyCashBuyer: owner.corporateIndicator || owner.absenteeOwner,
     }
   }
 
@@ -558,31 +502,64 @@ export class DiscoveryDataProvider {
 
   // ── 5. getEquityData ────────────────────────────────────────────────────
 
-  async getEquityData(propertyId: string): Promise<EquityData> {
-    if (this.attom) {
-      return this.getEquityViaAttom(propertyId)
+  async getEquityData(propertyId: string, cachedRaw?: Record<string, unknown> | null): Promise<EquityData> {
+    if (this.batchdata) {
+      return this.getEquityViaBatchData(cachedRaw ?? null)
     }
     return this.getEquityViaRentCast(propertyId)
   }
 
-  private async getEquityViaAttom(attomId: string): Promise<EquityData> {
-    const avm = await this.attom!.getAVM(attomId)
+  private getEquityViaBatchData(raw: Record<string, unknown> | null): EquityData {
+    if (!raw) {
+      return {
+        dataSource: 'batchdata',
+        source: 'estimated',
+        confidence: 'low',
+        estimatedValue: null,
+        mortgageBalance: null,
+        equity: null,
+        equityPercent: null,
+        ltv: null,
+        avm: null,
+      }
+    }
 
+    // Extract from new BatchData structure stored in rawResponse.batchdata
+    const bd = raw.batchdata as BatchDataProperty | undefined
+    if (bd) {
+      const val = bd.valuation
+      return {
+        dataSource: 'batchdata',
+        source: 'batchdata',
+        confidence: val?.confidenceScore != null
+          ? (val.confidenceScore >= 80 ? 'high' : 'low')
+          : 'low',
+        estimatedValue: val?.estimatedValue ?? null,
+        mortgageBalance: bd.openLien?.totalOpenLienBalance ?? null,
+        equity: val?.equityCurrentEstimatedBalance ?? null,
+        equityPercent: val?.equityPercent ? Math.round(val.equityPercent) : null,
+        ltv: val?.ltv ? Math.round(val.ltv) : null,
+        avm: val ? {
+          low: val.priceRangeMin ?? null,
+          mid: val.estimatedValue ?? null,
+          high: val.priceRangeMax ?? null,
+          valuationDate: val.asOfDate ?? null,
+        } : null,
+      }
+    }
+
+    // Fallback for legacy cached data
+    const estimatedValue = (raw.estimatedValue as number) ?? null
     return {
-      dataSource: 'attom',
-      source: 'attom',
-      confidence: 'high',
-      estimatedValue: avm.value.mid,
-      mortgageBalance: avm.calculatedEquity?.totalLiens ?? null,
-      equity: avm.calculatedEquity?.estimatedEquity ?? null,
-      equityPercent: avm.calculatedEquity?.equityPercent ?? null,
-      ltv: avm.calculatedEquity?.ltv ?? null,
-      avm: {
-        low: avm.value.low,
-        mid: avm.value.mid,
-        high: avm.value.high,
-        valuationDate: avm.valuationDate,
-      },
+      dataSource: 'batchdata',
+      source: 'estimated',
+      confidence: estimatedValue ? 'high' : 'low',
+      estimatedValue,
+      mortgageBalance: null,
+      equity: null,
+      equityPercent: null,
+      ltv: null,
+      avm: null,
     }
   }
 
@@ -640,55 +617,63 @@ export class DiscoveryDataProvider {
 
   // ── 6. getDistressSignals ───────────────────────────────────────────────
 
-  async getDistressSignals(propertyId: string): Promise<DistressSignals> {
-    if (this.attom) {
-      return this.getDistressViaAttom(propertyId)
+  async getDistressSignals(propertyId: string, cachedRaw?: Record<string, unknown> | null): Promise<DistressSignals> {
+    if (this.batchdata) {
+      return this.getDistressViaBatchData(cachedRaw ?? null)
     }
     return this.getDistressViaRentCast()
   }
 
-  private async getDistressViaAttom(attomId: string): Promise<DistressSignals> {
-    // Fetch foreclosure and tax status in parallel
-    const [foreclosure, taxStatus] = await Promise.all([
-      this.attom!.getForeclosureStatus(attomId),
-      this.attom!.getTaxStatus(attomId).catch(() => null),
-    ])
+  private getDistressViaBatchData(raw: Record<string, unknown> | null): DistressSignals {
+    if (!raw) {
+      return {
+        dataSource: 'batchdata',
+        available: false,
+        upgradeRequired: false,
+        foreclosure: null,
+        taxDelinquent: null,
+        probate: null,
+      }
+    }
 
+    // Extract from new BatchData structure stored in rawResponse.batchdata
+    const bd = raw.batchdata as BatchDataProperty | undefined
+    if (bd) {
+      return {
+        dataSource: 'batchdata',
+        available: true,
+        upgradeRequired: false,
+        foreclosure: bd.foreclosure?.status ? {
+          active: true,
+          status: bd.foreclosure.status,
+          filingDate: bd.foreclosure.filingDate ?? null,
+          defaultAmount: null,
+          auctionDate: null,
+        } : {
+          active: false, status: null, filingDate: null, defaultAmount: null, auctionDate: null,
+        },
+        taxDelinquent: bd.quickLists?.taxDefault ? {
+          isDelinquent: true,
+          delinquentAmount: null,
+          delinquentYears: null,
+          taxLienAmount: null,
+        } : null,
+        probate: null,
+      }
+    }
+
+    // Fallback for legacy cached data
     return {
-      dataSource: 'attom',
+      dataSource: 'batchdata',
       available: true,
       upgradeRequired: false,
-
-      foreclosure: foreclosure
-        ? {
-            active: true,
-            status: foreclosure.status,
-            filingDate: foreclosure.filingDate,
-            defaultAmount: foreclosure.amount.defaultAmount,
-            auctionDate: foreclosure.auction?.auctionDate ?? null,
-          }
-        : {
-            active: false,
-            status: null,
-            filingDate: null,
-            defaultAmount: null,
-            auctionDate: null,
-          },
-
-      taxDelinquent: taxStatus
-        ? {
-            isDelinquent: taxStatus.delinquency.isDelinquent,
-            delinquentAmount: taxStatus.delinquency.delinquentAmount,
-            delinquentYears: taxStatus.delinquency.delinquentYears,
-            taxLienAmount: taxStatus.delinquency.taxLienAmount,
-          }
-        : null,
-
+      foreclosure: null,
+      taxDelinquent: null,
       probate: null,
     }
   }
 
-  private async getDistressViaRentCast(): Promise<DistressSignals> {
+  private getDistressViaRentCast(): DistressSignals {
     return {
       dataSource: 'rentcast',
       available: false,
@@ -707,14 +692,14 @@ let _provider: DiscoveryDataProvider | null = null
 /**
  * Returns the singleton DiscoveryDataProvider.
  *
- * Uses ATTOM if ATTOM_API_KEY is set, otherwise falls back to RentCast.
+ * Priority: BatchData > RentCast.
  * This is the single entry point all API routes should use.
  */
 export function getDataProvider(): DiscoveryDataProvider {
   if (!_provider) {
-    const attom = getAttomClient()
+    const batchdata = getBatchDataClient()
     const rentcast = getRentCastClient()
-    _provider = new DiscoveryDataProvider(attom, rentcast)
+    _provider = new DiscoveryDataProvider(batchdata, rentcast)
   }
   return _provider
 }
@@ -788,10 +773,47 @@ function rentCastToDiscoveryProperty(p: RentCastProperty): DiscoveryProperty {
   }
 }
 
+/** Calculate days on market from listing data */
+function calculateDaysOnMarket(listing: BatchDataProperty['listing']): number | null {
+  if (!listing?.originalListingDate) return null
+  if (listing.status === 'Off Market' || listing.statusCategory === 'Failed') return null
+  const listDate = new Date(listing.originalListingDate)
+  const now = new Date()
+  const diff = Math.floor((now.getTime() - listDate.getTime()) / 86400000)
+  return diff >= 0 ? diff : null
+}
+
 /** Build "min:max" range string for RentCast API params */
 function buildRange(min?: number, max?: number): string | undefined {
   if (min == null && max == null) return undefined
   return `${min ?? ''}:${max ?? ''}`
+}
+
+/** Map generic property type to BatchData's expected values */
+function mapPropertyTypeForBatchData(type: string): string {
+  const map: Record<string, string> = {
+    SFR: 'Single Family Residential',
+    'Single Family': 'Single Family Residential',
+    'Multi-Family': 'Multi-Family',
+    'Multi Family': 'Multi-Family',
+    Condo: 'Condo',
+    Townhouse: 'Townhouse',
+    Land: 'Vacant Land',
+    Commercial: 'Commercial',
+  }
+  return map[type] ?? type
+}
+
+/** Generate a deterministic ID from an address for deduplication */
+function hashAddress(addr: { street?: string; city?: string; state?: string; zip?: string }): string {
+  const str = `${addr.street}-${addr.city}-${addr.state}-${addr.zip}`.toLowerCase().replace(/\s+/g, '')
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash |= 0
+  }
+  return Math.abs(hash).toString(36)
 }
 
 /** Check if an owner name looks like a business entity */

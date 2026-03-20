@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import Sidebar from '@/components/dashboard/Sidebar'
 import GlobalSearch from '@/components/dashboard/GlobalSearch'
+import TopBar from '@/components/layout/TopBar'
 import { ToastProvider } from '@/components/toast'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -20,10 +21,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#F9FAFB' }}>
       <Sidebar profile={profile} />
-      <main className="flex-1 overflow-y-auto">
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <TopBar />
+        <div className="flex-1 overflow-y-auto">
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </div>
       </main>
       <GlobalSearch />
     </div>

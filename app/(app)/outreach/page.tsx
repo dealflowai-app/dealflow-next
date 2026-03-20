@@ -1362,11 +1362,12 @@ const TEMPLATE_ICONS: Record<string, typeof Compass> = {
 }
 
 function NewCampaignModal({
-  onClose, onCreated, addToast,
+  onClose, onCreated, addToast, preselectedContactIds,
 }: {
   onClose: () => void
   onCreated: (c: Campaign) => void
   addToast: (msg: string, type: ToastData['type']) => void
+  preselectedContactIds?: string[]
 }) {
   const [step, setStep] = useState(0) // Step 0 = template browser
   const [submitting, setSubmitting] = useState(false)
@@ -1382,6 +1383,13 @@ function NewCampaignModal({
   const [market, setMarket] = useState('')
 
   // Step 2: Audience
+  const [audienceMode, setAudienceMode] = useState<'filter' | 'contacts'>(
+    (preselectedContactIds && preselectedContactIds.length > 0) ? 'contacts' : 'filter'
+  )
+  const [selectedContactIds, setSelectedContactIds] = useState<string[]>(preselectedContactIds ?? [])
+  const [contactSearch, setContactSearch] = useState('')
+  const [contactResults, setContactResults] = useState<Array<{ id: string; firstName: string | null; lastName: string | null; entityName: string | null; phone: string | null; email: string | null; contactType: string | null }>>([])
+  const [contactsLoading, setContactsLoading] = useState(false)
   const [audienceFilter, setAudienceFilter] = useState({
     statuses: [] as string[],
     minScore: 0,
@@ -1397,6 +1405,8 @@ function NewCampaignModal({
   // Step 3: Script & Settings
   const [scriptTemplate, setScriptTemplate] = useState('standard_qualification')
   const [customScript, setCustomScript] = useState('')
+  const [showScriptPreview, setShowScriptPreview] = useState(false)
+  const scriptRef = useRef<HTMLTextAreaElement>(null)
   const [companyName, setCompanyName] = useState('')
   const [agentName, setAgentName] = useState('')
   const [maxConcurrent, setMaxConcurrent] = useState(5)
@@ -1409,7 +1419,25 @@ function NewCampaignModal({
   const [maxRetries, setMaxRetries] = useState(2)
   const [retryDelayHours, setRetryDelayHours] = useState(24)
 
+  // Step 4: Scheduling
+  const [scheduleType, setScheduleType] = useState<'now' | 'later'>('now')
+  const [scheduledAt, setScheduledAt] = useState('')
+
   const steps = ['Choose Template', 'Campaign Setup', 'Select Audience', 'Script & Settings', 'Review & Launch']
+
+  // Contact picker search
+  useEffect(() => {
+    if (audienceMode !== 'contacts' || step !== 2) return
+    setContactsLoading(true)
+    const params = new URLSearchParams()
+    if (contactSearch) params.set('search', contactSearch)
+    params.set('limit', '100')
+    fetch(`/api/crm/buyers?${params}`)
+      .then(r => r.json())
+      .then(data => setContactResults(data.buyers ?? []))
+      .catch(() => {})
+      .finally(() => setContactsLoading(false))
+  }, [contactSearch, audienceMode, step])
 
   // Fetch templates + voicemail options on mount
   useEffect(() => {
@@ -1520,7 +1548,8 @@ function NewCampaignModal({
 
       const payload: Record<string, unknown> = {
         name, market, mode: 'AI', channel,
-        audienceFilter: filter, scriptTemplate,
+        audienceFilter: audienceMode === 'contacts' ? { contactIds: selectedContactIds } : filter,
+        scriptTemplate,
         customScript: customScript || undefined,
         companyName: companyName || undefined,
         agentName: agentName || undefined,
@@ -1529,6 +1558,7 @@ function NewCampaignModal({
         callingHoursEnd: callHoursEnd,
         timezone, leaveVoicemail, maxRetries, retryDelayHours,
         ...(voicemailRecordingId ? { voicemailRecordingId } : {}),
+        ...(scheduleType === 'later' && scheduledAt ? { scheduledAt: new Date(scheduledAt).toISOString() } : {}),
       }
 
       const createRes = await fetch('/api/outreach/campaigns', {
@@ -1564,7 +1594,9 @@ function NewCampaignModal({
   }
 
   const canProceedStep1 = name.trim() && market.trim()
-  const canProceedStep2 = preview && (preview.totalAfterDNC || 0) > 0
+  const canProceedStep2 = audienceMode === 'contacts'
+    ? selectedContactIds.length > 0
+    : preview && (preview.totalAfterDNC || 0) > 0
 
   const typeOptions = [
     { key: 'VOICE', icon: Phone, label: 'AI Voice', desc: 'AI-powered voice calls to your buyer list' },
@@ -1579,6 +1611,9 @@ function NewCampaignModal({
     { key: 'reactivation', label: 'Reactivation', desc: 'Re-engage dormant buyers who haven\'t been active' },
     { key: 'follow_up', label: 'Follow-Up', desc: 'Follow up on a previous conversation or interest' },
     { key: 'proof_of_funds', label: 'Proof of Funds', desc: 'Verify buyer\'s ability to close — funding source and timeline' },
+    { key: 'seller_introduction', label: 'Seller Introduction', desc: 'First contact with property owners about selling' },
+    { key: 'seller_follow_up', label: 'Seller Follow-Up', desc: 'Follow up with sellers you\'ve previously spoken to' },
+    { key: 'warm_lead', label: 'Warm Lead', desc: 'Qualify inbound leads who expressed interest' },
   ]
 
   const STATUSES = ['ACTIVE', 'HIGH_CONFIDENCE', 'RECENTLY_VERIFIED', 'DORMANT', 'NEW_LEAD']
@@ -1732,6 +1767,73 @@ function NewCampaignModal({
           {/* Step 2: Select Audience */}
           {step === 2 && (
             <div className="space-y-4">
+              {/* Audience mode toggle */}
+              <div className="flex items-center gap-1 bg-[rgba(5,14,36,0.03)] rounded-[8px] p-0.5 w-fit">
+                <button onClick={() => setAudienceMode('filter')}
+                  className={`px-3 py-1.5 rounded-[7px] text-[0.76rem] font-medium border-0 cursor-pointer transition-all ${
+                    audienceMode === 'filter' ? 'bg-white text-[#0B1224] shadow-sm' : 'bg-transparent text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.6)]'
+                  }`}>
+                  Filter Audience
+                </button>
+                <button onClick={() => setAudienceMode('contacts')}
+                  className={`px-3 py-1.5 rounded-[7px] text-[0.76rem] font-medium border-0 cursor-pointer transition-all ${
+                    audienceMode === 'contacts' ? 'bg-white text-[#0B1224] shadow-sm' : 'bg-transparent text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.6)]'
+                  }`}>
+                  Pick Contacts {selectedContactIds.length > 0 && `(${selectedContactIds.length})`}
+                </button>
+              </div>
+
+              {/* Contact picker mode */}
+              {audienceMode === 'contacts' && (
+                <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+                  <div className="flex items-center gap-2 p-3 border-b border-gray-100 bg-gray-50/50">
+                    <Search className="w-4 h-4 text-gray-400" />
+                    <input value={contactSearch} onChange={e => setContactSearch(e.target.value)} placeholder="Search contacts..."
+                      className="flex-1 bg-transparent border-0 outline-none text-[0.82rem]" />
+                  </div>
+                  <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+                    <span className="text-[0.74rem] text-gray-500">{selectedContactIds.length} contacts selected</span>
+                    {selectedContactIds.length > 0 && (
+                      <button onClick={() => setSelectedContactIds([])} className="text-[0.72rem] text-red-500 bg-transparent border-0 cursor-pointer">Clear all</button>
+                    )}
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto divide-y divide-gray-100">
+                    {contactsLoading ? (
+                      <div className="flex items-center justify-center py-8 text-gray-400">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      </div>
+                    ) : contactResults.length === 0 ? (
+                      <div className="text-center py-8 text-[0.82rem] text-gray-400">No contacts found</div>
+                    ) : contactResults.map(c => {
+                      const isSelected = selectedContactIds.includes(c.id)
+                      const cName = [c.firstName, c.lastName].filter(Boolean).join(' ') || c.entityName || 'Unknown'
+                      return (
+                        <label key={c.id} className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${isSelected ? 'bg-blue-50/50' : 'hover:bg-gray-50'}`}>
+                          <input type="checkbox" checked={isSelected}
+                            onChange={() => {
+                              if (isSelected) setSelectedContactIds(prev => prev.filter(id => id !== c.id))
+                              else setSelectedContactIds(prev => [...prev, c.id])
+                            }}
+                            className="accent-[#2563EB] w-4 h-4" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{cName}</div>
+                            <div className="text-[0.7rem] text-gray-400 truncate">{c.phone ?? 'No phone'} · {c.email ?? 'No email'}</div>
+                          </div>
+                          {c.contactType && (
+                            <span className={`text-[0.62rem] font-medium px-1.5 py-0.5 rounded-full ${
+                              c.contactType === 'BUYER' ? 'bg-blue-50 text-blue-600' : c.contactType === 'SELLER' ? 'bg-orange-50 text-orange-600' : 'bg-purple-50 text-purple-600'
+                            }`}>{c.contactType}</span>
+                          )}
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Filter mode */}
+              {audienceMode === 'filter' && (
+              <>
               <div>
                 <label className="text-[0.78rem] text-gray-600 mb-2 block font-medium">Buyer Status</label>
                 <div className="flex flex-wrap gap-2">
@@ -1847,6 +1949,8 @@ function NewCampaignModal({
                   <AlertCircle className="w-4 h-4 flex-shrink-0" /> No eligible buyers match your filters. Try broadening your criteria.
                 </div>
               )}
+              </>
+              )}
             </div>
           )}
 
@@ -1870,9 +1974,48 @@ function NewCampaignModal({
                     </div>
                   </div>
                   <div>
-                    <label className="text-[0.78rem] text-gray-600 mb-1.5 block font-medium">Custom Instructions (optional)</label>
-                    <textarea value={customScript} onChange={e => setCustomScript(e.target.value)} rows={3} placeholder="Add additional instructions for the AI agent..."
-                      className="w-full bg-white border border-[#D1D5DB] rounded-md px-4 py-2.5 text-[0.82rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] resize-none" />
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[0.78rem] text-gray-600 font-medium">Custom Instructions (optional)</label>
+                      <div className="flex items-center gap-2">
+                        <select
+                          onChange={e => {
+                            if (e.target.value && scriptRef.current) {
+                              const ta = scriptRef.current
+                              const start = ta.selectionStart
+                              const before = customScript.slice(0, start)
+                              const after = customScript.slice(ta.selectionEnd)
+                              setCustomScript(`${before}{{${e.target.value}}}${after}`)
+                              setTimeout(() => { ta.selectionStart = ta.selectionEnd = start + e.target.value.length + 4; ta.focus() }, 0)
+                              e.target.value = ''
+                            }
+                          }}
+                          defaultValue=""
+                          className="text-[0.72rem] border border-gray-200 rounded-[8px] px-2 py-1 bg-white cursor-pointer text-[#2563EB]"
+                        >
+                          <option value="" disabled>+ Insert variable</option>
+                          {['firstName', 'fullName', 'companyName', 'agentName', 'propertyAddress', 'propertyType', 'askingPrice', 'arv', 'market'].map(v => (
+                            <option key={v} value={v}>{`{{${v}}}`}</option>
+                          ))}
+                        </select>
+                        <button type="button" onClick={() => setShowScriptPreview(!showScriptPreview)}
+                          className={`text-[0.72rem] px-2 py-1 rounded-[8px] border cursor-pointer transition-colors ${
+                            showScriptPreview ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                          }`}>
+                          {showScriptPreview ? 'Edit' : 'Preview'}
+                        </button>
+                      </div>
+                    </div>
+                    {showScriptPreview ? (
+                      <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-4 text-[0.82rem] text-[#0B1224] whitespace-pre-wrap min-h-[80px]">
+                        {customScript.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+                          const samples: Record<string, string> = { firstName: 'John', fullName: 'John Smith', companyName: companyName || 'DealFlow Properties', agentName: agentName || 'Sarah', propertyAddress: '123 Main St, Phoenix, AZ', propertyType: 'Single Family', askingPrice: '$150,000', arv: '$220,000', market: market || 'Phoenix, AZ' }
+                          return samples[key] ?? match
+                        }) || 'No custom instructions yet'}
+                      </div>
+                    ) : (
+                      <textarea ref={scriptRef} value={customScript} onChange={e => setCustomScript(e.target.value)} rows={3} placeholder="Add additional instructions for the AI agent. Use {{variables}} for personalization..."
+                        className="w-full bg-white border border-[#D1D5DB] rounded-md px-4 py-2.5 text-[0.82rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] resize-y" />
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -1890,23 +2033,48 @@ function NewCampaignModal({
               )}
 
               {channel === 'SMS' && (
-                <div>
-                  <label className="text-[0.78rem] text-gray-600 mb-2 block font-medium">SMS Template</label>
-                  <div className="space-y-2">
-                    {[
-                      { key: 'deal_alert', label: 'Deal Alert', desc: 'Notify buyer about a specific property' },
-                      { key: 'buyer_qualification', label: 'Buyer Qualification', desc: 'Quick qualification text sequence' },
-                      { key: 'follow_up', label: 'Follow-Up', desc: 'Follow up after a call or expression of interest' },
-                      { key: 'reactivation', label: 'Reactivation', desc: 'Re-engage inactive buyers' },
-                    ].map(t => (
-                      <button key={t.key} onClick={() => setScriptTemplate(t.key)}
-                        className={`w-full text-left px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                          scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
-                        }`}>
-                        <div className={`text-[0.82rem] font-medium ${scriptTemplate === t.key ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.label}</div>
-                        <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
-                      </button>
-                    ))}
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[0.78rem] text-gray-600 mb-2 block font-medium">SMS Template</label>
+                    <div className="space-y-2">
+                      {[
+                        { key: 'deal_alert', label: 'Deal Alert', desc: 'Notify buyer about a specific property' },
+                        { key: 'buyer_qualification', label: 'Buyer Qualification', desc: 'Quick qualification text sequence' },
+                        { key: 'follow_up', label: 'Follow-Up', desc: 'Follow up after a call or expression of interest' },
+                        { key: 'reactivation', label: 'Reactivation', desc: 'Re-engage inactive buyers' },
+                        { key: 'seller_intro', label: 'Seller Introduction', desc: 'Reach out to property owners about selling' },
+                      ].map(t => (
+                        <button key={t.key} onClick={() => setScriptTemplate(t.key)}
+                          className={`w-full text-left px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
+                            scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
+                          }`}>
+                          <div className={`text-[0.82rem] font-medium ${scriptTemplate === t.key ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.label}</div>
+                          <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[0.78rem] text-gray-600 font-medium">Custom SMS Message (optional)</label>
+                      <select onChange={e => {
+                        if (e.target.value) {
+                          setCustomScript(prev => prev + `{{${e.target.value}}}`)
+                          e.target.value = ''
+                        }
+                      }} defaultValue="" className="text-[0.72rem] border border-gray-200 rounded-[8px] px-2 py-1 bg-white cursor-pointer text-[#2563EB]">
+                        <option value="" disabled>+ Insert variable</option>
+                        {['firstName', 'fullName', 'companyName', 'agentName', 'agentPhone', 'propertyAddress', 'askingPrice', 'market'].map(v => (
+                          <option key={v} value={v}>{`{{${v}}}`}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <textarea value={customScript} onChange={e => setCustomScript(e.target.value)} rows={3}
+                      placeholder="Hi {{firstName}}, this is {{agentName}} from {{companyName}}..."
+                      className="w-full bg-white border border-[#D1D5DB] rounded-md px-4 py-2.5 text-[0.82rem] text-[#374151] placeholder-gray-400 outline-none focus:border-[#2563EB] resize-none" />
+                    <div className={`text-[0.68rem] mt-1 text-right ${customScript.length > 160 ? 'text-amber-600' : 'text-gray-400'}`}>
+                      {customScript.length}/160 characters {customScript.length > 160 && `(${Math.ceil(customScript.length / 160)} segments)`}
+                    </div>
                   </div>
                 </div>
               )}
@@ -2047,7 +2215,7 @@ function NewCampaignModal({
                 </div>
                 <div className="flex justify-between text-[0.82rem]">
                   <span className="text-gray-500">Audience</span>
-                  <span className="text-gray-800 font-medium">{preview?.totalAfterDNC ?? '—'} buyers</span>
+                  <span className="text-gray-800 font-medium">{audienceMode === 'contacts' ? `${selectedContactIds.length} contacts` : `${preview?.totalAfterDNC ?? '—'} buyers`}</span>
                 </div>
                 {preview?.removedDNC ? (
                   <div className="flex justify-between text-[0.78rem]">
@@ -2067,6 +2235,32 @@ function NewCampaignModal({
                 </div>
               </div>
 
+              {/* Scheduling */}
+              <div className="space-y-2">
+                <div className="text-[0.78rem] font-medium text-gray-600 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5" /> Schedule
+                </div>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="schedule" value="now" checked={scheduleType === 'now'} onChange={() => setScheduleType('now')} className="accent-[#2563EB]" />
+                    <span className="text-[0.82rem]">Send immediately</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="schedule" value="later" checked={scheduleType === 'later'} onChange={() => setScheduleType('later')} className="accent-[#2563EB]" />
+                    <span className="text-[0.82rem]">Schedule for later</span>
+                  </label>
+                </div>
+                {scheduleType === 'later' && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)}
+                      min={new Date().toISOString().slice(0, 16)}
+                      className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-3 py-2 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                    <span className="text-[0.74rem] text-gray-400">Your local time</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Compliance */}
               <div className="space-y-2">
                 <div className="text-[0.78rem] font-medium text-gray-600 flex items-center gap-1.5">
                   <Shield className="w-3.5 h-3.5" /> Compliance Checklist
@@ -2112,12 +2306,12 @@ function NewCampaignModal({
                   Save as Draft
                 </button>
                 <button
-                  onClick={() => handleCreate(true)}
-                  disabled={submitting}
+                  onClick={() => handleCreate(scheduleType === 'now')}
+                  disabled={submitting || (scheduleType === 'later' && !scheduledAt)}
                   className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50"
                 >
-                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                  Launch Campaign
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : scheduleType === 'later' ? <Calendar className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  {scheduleType === 'later' ? 'Schedule Campaign' : 'Launch Campaign'}
                 </button>
               </>
             )}
@@ -4450,6 +4644,7 @@ function CallbacksTab({ addToast }: { addToast: (msg: string, type: ToastData['t
 export default function AIOutreachPage() {
   const [subTab, setSubTab] = useState<SubTab>('campaigns')
   const [showNewCampaign, setShowNewCampaign] = useState(false)
+  const [preselectedContactIds, setPreselectedContactIds] = useState<string[]>([])
   const [toasts, setToasts] = useState<ToastData[]>([])
 
   // Campaign list state
@@ -4468,6 +4663,22 @@ export default function AIOutreachPage() {
   // Power dialer
   const [dialerBuyers, setDialerBuyers] = useState<DialerBuyer[] | null>(null)
   const [dialerCampaignId, setDialerCampaignId] = useState<string | undefined>()
+
+  // Auto-open campaign creation from URL params (e.g. from CRM bulk action)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('action') === 'create') {
+      const contactIds = params.get('contactIds')?.split(',').filter(Boolean) ?? []
+      const buyerId = params.get('buyerId')
+      if (buyerId) contactIds.push(buyerId)
+      if (contactIds.length > 0) {
+        setPreselectedContactIds(contactIds)
+      }
+      setShowNewCampaign(true)
+      // Clean URL without reload
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   // Toast helpers
   const addToast = useCallback((message: string, type: ToastData['type'] = 'info') => {
@@ -4550,14 +4761,14 @@ export default function AIOutreachPage() {
   const isDetailView = !!detailCampaignId
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)]">
+    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
       {/* Header */}
       <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
         <div>
-          <h1 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em' }} className="text-[#0B1224] mb-1">
+          <h1 style={{ fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em' }} className="text-[#0B1224] mb-1">
             Outreach
           </h1>
-          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="text-[14px] font-normal text-[rgba(5,14,36,0.5)]">
+          <p className="text-[14px] font-normal text-[rgba(5,14,36,0.5)]">
             Launch AI-powered campaigns to qualify and engage your buyers.
           </p>
         </div>
@@ -4706,9 +4917,10 @@ export default function AIOutreachPage() {
       {/* New Campaign modal */}
       {showNewCampaign && (
         <NewCampaignModal
-          onClose={() => setShowNewCampaign(false)}
-          onCreated={() => { fetchCampaigns(); setShowNewCampaign(false) }}
+          onClose={() => { setShowNewCampaign(false); setPreselectedContactIds([]) }}
+          onCreated={() => { fetchCampaigns(); setShowNewCampaign(false); setPreselectedContactIds([]) }}
           addToast={addToast}
+          preselectedContactIds={preselectedContactIds}
         />
       )}
 

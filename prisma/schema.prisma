@@ -43,11 +43,23 @@ enum CallOutcome {
 }
 
 enum BuyerStatus {
+  // ── Shared stages ──
+  NEW
+  CONTACTED
   ACTIVE
+  UNDER_CONTRACT
+  CLOSED
   DORMANT
+  DO_NOT_CALL
+  // ── Buyer-specific ──
+  QUALIFIED
   HIGH_CONFIDENCE
   RECENTLY_VERIFIED
-  DO_NOT_CALL
+  // ── Seller-specific ──
+  NEGOTIATING
+  FINDING_BUYER
+  ASSIGNED
+  DEAD
 }
 
 enum DealStatus {
@@ -101,6 +113,12 @@ enum BuyerType {
   DEVELOPER
   OWNER_OCCUPANT
   HEDGE_FUND
+}
+
+enum ContactType {
+  BUYER
+  SELLER
+  BOTH
 }
 
 enum FundingSource {
@@ -189,6 +207,7 @@ model Profile {
   tags                 Tag[]
   discoveryProperties  DiscoveryProperty[]
   contactReveals       ContactReveal[]
+  skipTraceResults     SkipTraceResult[]
   contracts            Contract[]
   marketplaceListings  MarketplaceListing[]
   buyerBoardPosts      BuyerBoardPost[]
@@ -205,45 +224,57 @@ model Profile {
   smsConversations     SMSConversation[]
   liveCallSessions     LiveCallSession[]
   usageRecords         Usage[]
+  usageAllowances      UsageAllowance[]
   paymentHistory       PaymentHistory[]
+  matchAlerts          MatchAlert[]
+  notifications        Notification[]
 
   @@map("profiles")
 }
 
-// ─── DISCOVERY CACHE (RentCast) ─────────────────────────────────────────────
+// ─── DISCOVERY CACHE ────────────────────────────────────────────────────────
 
 model DiscoveryProperty {
-  id            String   @id @default(uuid())
-  userId        String?
-  rentcastId    String?  @unique
-  addressLine1  String
-  city          String
-  state         String   // 2-letter code
-  zipCode       String?
-  county        String?
-  latitude      Float?
-  longitude     Float?
-  propertyType  String?  // Single Family, Multi Family, Condo, Townhouse, Land, Commercial
-  bedrooms      Int?
-  bathrooms     Float?
-  sqft          Int?
-  lotSize       Int?
-  yearBuilt     Int?
-  assessedValue Int?
-  taxAmount     Float?   // annual taxes
-  lastSaleDate  DateTime? @db.Date
-  lastSalePrice Int?
-  ownerName     String?
-  ownerOccupied Boolean?
-  features      Json?    // raw features from RentCast
-  rawResponse   Json?    // full RentCast response for future use
-  searchCity    String?  // the city that was searched (cache lookup key)
-  searchZip     String?  // the zip that was searched (cache lookup key)
-  cachedAt      DateTime @default(now())
-  expiresAt     DateTime @default(dbgenerated("now() + interval '7 days'"))
+  id              String   @id @default(uuid())
+  userId          String?
+  rentcastId      String?  @unique
+  addressLine1    String
+  city            String
+  state           String   // 2-letter code
+  zipCode         String?
+  county          String?
+  latitude        Float?
+  longitude       Float?
+  propertyType    String?  // Single Family, Multi Family, Condo, Townhouse, Land, Commercial
+  bedrooms        Int?
+  bathrooms       Float?
+  sqft            Int?
+  lotSize         Int?
+  yearBuilt       Int?
+  assessedValue   Int?
+  taxAmount       Float?   // annual taxes
+  lastSaleDate    DateTime? @db.Date
+  lastSalePrice   Int?
+  ownerName       String?
+  ownerOccupied   Boolean?
+  enrichmentLevel Int      @default(0)  // 0=basic (search), 1=core/tax, 2=full detail
+  daysOnMarket    Int?     // Populated from listing data enrichment
+  listingStatus   String?  // Active, Pending, Sold, Off-Market
+  listPrice       Int?     // Current list price
+  features        Json?    // raw features from RentCast
+  rawResponse     Json?    // Full provider response. For BatchData:
+                           // rawResponse.enrichmentLevel, .enrichedAt, .owner, .assessment, .mortgage, .lastSale
+  searchCity      String?  // the city that was searched (cache lookup key)
+  searchZip       String?  // the zip that was searched (cache lookup key)
+  cachedAt        DateTime @default(now())
+  expiresAt       DateTime @default(dbgenerated("now() + interval '7 days'"))
 
   profile Profile? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skipTraceResults  SkipTraceResult[]
+  sellerContacts    CashBuyer[]      // Sellers linked to this property
+  matchAlerts       MatchAlert[]
 
+  @@unique([addressLine1, city, state], name: "addressCityState")
   @@index([searchCity])
   @@index([searchZip])
   @@index([expiresAt])
@@ -275,6 +306,58 @@ model ContactReveal {
   @@index([expiresAt])
   @@index([cachedAt])
   @@map("contact_reveals")
+}
+
+// ─── SKIP TRACE RESULTS (enriched contact data with DNC/TCPA flags) ────────
+
+model SkipTraceResult {
+  id              String   @id @default(uuid())
+  propertyId      String?
+  userId          String
+
+  // Input
+  ownerName       String
+  propertyAddress String
+  city            String
+  state           String
+  zipCode         String?
+
+  // Results - phones
+  // Each phone: { number, type, verified, doNotCall, litigator, carrier?, lastVerified? }
+  phones          Json
+
+  // Results - emails
+  // Each email: { address, type?, score, verified }
+  emails          Json
+
+  // Results - mailing
+  mailingAddress  Json?
+
+  // Metadata
+  confidence      Int      @default(0)
+  provider        String   @default("batchdata")
+  phoneCount      Int      @default(0)
+  emailCount      Int      @default(0)
+  mobileCount     Int      @default(0)
+  hasDoNotCall    Boolean  @default(false)
+  hasLitigator   Boolean  @default(false)
+
+  // Cost tracking
+  estimatedCost   Float?
+
+  // Cache
+  cachedAt        DateTime @default(now())
+  expiresAt       DateTime @default(dbgenerated("now() + interval '30 days'"))
+
+  // Relations
+  profile         Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property        DiscoveryProperty? @relation(fields: [propertyId], references: [id])
+
+  @@unique([ownerName, propertyAddress])
+  @@index([userId])
+  @@index([propertyId])
+  @@index([expiresAt])
+  @@map("skip_trace_results")
 }
 
 // ─── SCORING CONFIGURATION (per-user) ──────────────────────────────────────
@@ -347,7 +430,9 @@ model CashBuyer {
   entityType       String?     // "individual" | "llc" | "corporation" | "trust"
   // Contact (enriched via Melissa Data)
   phone            String?
+  phoneSecondary   String?
   email            String?
+  emailSecondary   String?
   address          String?
   city             String?
   state            String?
@@ -379,6 +464,7 @@ model CashBuyer {
   portfolioSize       Int?                 // How many properties they currently own
   avgPurchasePrice    Int?                 // Average purchase price from history
   followUpDate        DateTime?            // Next scheduled follow-up
+  followUpNote        String?              // What to discuss on follow-up
   source              String?              // Lead source (referral, driving, list, etc.)
   assignedTo          String?              // Team member assigned to this buyer
   // Manual scoring overrides
@@ -395,6 +481,22 @@ model CashBuyer {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
+  // Contact type (buyer, seller, or both)
+  contactType       ContactType  @default(BUYER)
+
+  // Seller-specific fields (null for pure buyers)
+  sellerMotivation   String?    // "Pre-foreclosure", "Tax delinquent", "Tired landlord", etc.
+  sellerAskingPrice  Int?       // What the seller wants
+  sellerPropertyId   String?    // Links to DiscoveryProperty if found via Discovery
+  sellerTimeline     String?    // "Urgent (30 days)", "Flexible (90 days)", "No rush"
+  sellerNotes        String?    // Free-form notes about the seller situation
+  sellerPropertyAddress String? // Readable address for quick display
+
+  // Alert preferences (for buyer-type contacts)
+  alertsEnabled      Boolean    @default(false)  // Opt-in to auto-match notifications
+  alertFrequency     String     @default("daily") // "realtime", "daily", "weekly"
+  lastAlertSentAt    DateTime?  // Track when last alert was sent
+
   // Buy box preferences (captured from AI calls)
   preferredMarkets    String[]
   preferredTypes      PropertyType[]
@@ -403,9 +505,15 @@ model CashBuyer {
   maxPrice            Int?
   closeSpeedDays      Int?          // how fast they can close
   proofOfFundsVerified Boolean     @default(false)
+  maxRehab            Int?         // max rehab budget they'll take on
+  minBeds             Int?
+  minBaths            Int?
+  minSqft             Int?
+  yearBuiltMin        Int?         // won't buy older than this
 
   savedMarket      SavedMarket?   @relation(fields: [savedMarketId], references: [id])
   profile          Profile?       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  discoveryProperty DiscoveryProperty? @relation(fields: [sellerPropertyId], references: [id])
   campaignCalls    CampaignCall[]
   dealMatches      DealMatch[]
   offers           Offer[]
@@ -415,6 +523,7 @@ model CashBuyer {
   scheduledCallbacks ScheduledCallback[]
   inboundCalls       InboundCall[]
   smsConversations   SMSConversation[]
+  matchAlerts        MatchAlert[]
 
   @@index([savedMarketId])
   @@index([profileId])
@@ -422,6 +531,7 @@ model CashBuyer {
   @@index([buyerScore])
   @@index([profileId, isOptedOut])
   @@index([profileId, isOptedOut, status])
+  @@index([contactType])
   @@map("cash_buyers")
 }
 
@@ -1308,6 +1418,47 @@ model Usage {
   @@map("usage")
 }
 
+// ─── USAGE ALLOWANCES (Sprint 6) ────────────────────────────────────────────
+
+model UsageAllowance {
+  id                  String   @id @default(uuid())
+  profileId           String
+
+  // Billing period
+  periodStart         DateTime
+  periodEnd           DateTime
+
+  // Plan allowances (set from Stripe subscription metadata on creation/renewal)
+  revealsAllowed      Int      @default(0)
+  callMinutesAllowed  Int      @default(0)
+  smsAllowed          Int      @default(0)
+  analysesAllowed     Int      @default(-1) // -1 = unlimited
+
+  // Current usage
+  revealsUsed         Int      @default(0)
+  callMinutesUsed     Int      @default(0)
+  smsUsed             Int      @default(0)
+  analysesUsed        Int      @default(0)
+
+  // Overage tracking (units consumed beyond allowance)
+  revealsOverage      Int      @default(0)
+  callMinutesOverage  Int      @default(0)
+  smsOverage          Int      @default(0)
+
+  // Cost tracking
+  estimatedCost       Float    @default(0) // running total of data API costs this period
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  profile             Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, periodStart])
+  @@index([profileId])
+  @@index([periodEnd])
+  @@map("usage_allowances")
+}
+
 // ─── PAYMENT HISTORY ─────────────────────────────────────────────────────────
 
 model PaymentHistory {
@@ -1325,4 +1476,48 @@ model PaymentHistory {
 
   @@index([userId])
   @@map("payment_history")
+}
+
+// ─── MATCH ALERTS ──────────────────────────────────────────────────────────
+
+model MatchAlert {
+  id          String    @id @default(uuid())
+  profileId   String
+  buyerId     String
+  propertyId  String
+  matchScore  Int       @default(0)  // 0-100
+  status      String    @default("NEW")  // NEW, SENT, VIEWED, DISMISSED, ACTED_ON
+
+  notifiedAt  DateTime?  // When notification was sent
+  viewedAt    DateTime?  // When user viewed it
+
+  createdAt   DateTime  @default(now())
+
+  profile     Profile           @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  buyer       CashBuyer         @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  property    DiscoveryProperty @relation(fields: [propertyId], references: [id])
+
+  @@unique([buyerId, propertyId])
+  @@index([profileId, status])
+  @@index([createdAt])
+  @@map("match_alerts")
+}
+
+// ─── NOTIFICATIONS ─────────────────────────────────────────────────────────
+
+model Notification {
+  id         String   @id @default(uuid())
+  profileId  String
+  type       String   // "match_alert", "campaign_complete", "deal_update", "system"
+  title      String
+  body       String
+  data       Json?    // { buyerId, propertyId, campaignId, etc. }
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, read])
+  @@index([createdAt])
+  @@map("notifications")
 }

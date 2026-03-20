@@ -90,7 +90,7 @@ export interface PropertyAnalysis {
 
   meta: {
     analyzedAt: string
-    dataSource: 'rentcast' | 'attom'
+    dataSource: 'rentcast' | 'batchdata'
     apiCallsUsed: number
     cached: boolean
   }

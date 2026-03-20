@@ -1,14 +1,14 @@
 // ─── Unified Discovery Types ─────────────────────────────────────────────────
-// Abstraction layer over ATTOM and RentCast data sources.
+// Abstraction layer over BatchData and RentCast data sources.
 // Every response carries a `dataSource` field so the UI can show
 // "verified" vs "estimated" badges accordingly.
 
-export type DataSource = 'attom' | 'rentcast'
+export type DataSource = 'batchdata' | 'rentcast'
 
 // ── UnifiedProperty (search results) ─────────────────────────────────────────
 
 export interface UnifiedProperty {
-  /** Internal ID — attomId (string) or discovery_properties.id */
+  /** Internal ID — discovery_properties.id */
   id: string
   dataSource: DataSource
 
@@ -39,10 +39,28 @@ export interface UnifiedProperty {
   ownerName: string | null
   ownerOccupied: boolean | null
 
-  // ATTOM-only fields (null when source is RentCast)
+  // Extended owner fields (null when source is RentCast)
   absenteeOwner: boolean | null
   corporateOwner: boolean | null
   propIndicator: number | null   // 10=SFR, 11=Condo, 20=Commercial
+
+  /** Tracks which data tiers have been fetched for this property.
+   *  0 = basic (search), 1 = core/tax, 2 = full (AVM + distress + mortgage)
+   *  Used to avoid re-fetching data that's already cached. */
+  enrichmentLevel?: 0 | 1 | 2
+
+  // Listing data (Tier 2 enrichment, conditional)
+  listingStatus?: string | null          // 'Active', 'Pending', 'Sold', etc.
+  daysOnMarket?: number | null
+  listPrice?: number | null
+  originalListPrice?: number | null
+  priceReduced?: boolean | null
+  priceReductionAmount?: number | null
+  listingDate?: string | null
+  listingAgent?: string | null
+
+  /** Internal: full BatchData response for caching. Not sent to client. */
+  _batchdataRaw?: unknown
 }
 
 // ── UnifiedPropertyDetail ────────────────────────────────────────────────────
@@ -90,7 +108,7 @@ export interface UnifiedPropertyDetail extends UnifiedProperty {
     yearBuiltEffective: number | null
   } | null
 
-  // Mortgage (ATTOM-only)
+  // Mortgage
   mortgage: {
     totalLienAmount: number | null
     liens: Array<{
@@ -104,7 +122,7 @@ export interface UnifiedPropertyDetail extends UnifiedProperty {
     }>
   } | null
 
-  // Raw features from RentCast (null for ATTOM)
+  // Raw features from RentCast
   features: Record<string, unknown> | null
 }
 
@@ -129,7 +147,7 @@ export interface UnifiedBuyer {
   propertyTypes: string[]
   markets: string[]
 
-  /** ATTOM = real transaction data, RentCast = heuristic */
+  /** BatchData = real transaction data, RentCast = heuristic */
   confidence: 'verified' | 'inferred'
 }
 
@@ -165,7 +183,7 @@ export interface UnifiedOwnerProfile {
 
 export interface EquityData {
   dataSource: DataSource
-  source: 'attom' | 'estimated'
+  source: 'batchdata' | 'estimated'
   confidence: 'high' | 'low'
 
   estimatedValue: number | null
@@ -174,7 +192,7 @@ export interface EquityData {
   equityPercent: number | null
   ltv: number | null
 
-  /** Breakdown only available from ATTOM */
+  /** AVM breakdown */
   avm: {
     low: number | null
     mid: number | null
@@ -188,7 +206,7 @@ export interface EquityData {
 export interface DistressSignals {
   dataSource: DataSource
 
-  /** Whether real distress data is available (true = ATTOM) */
+  /** Whether real distress data is available (true = BatchData) */
   available: boolean
   /** If false, UI should show "Upgrade for distress data" */
   upgradeRequired: boolean

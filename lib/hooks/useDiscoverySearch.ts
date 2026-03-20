@@ -26,6 +26,7 @@ export interface DiscoveryFilters {
   equityMin: number | null
   equityMax: number | null
   ownershipMin: number | null // min years of ownership
+  daysOnMarketMin: number | null
 }
 
 export interface DiscoveryPagination {
@@ -33,6 +34,27 @@ export interface DiscoveryPagination {
   limit: number
   total: number
   hasMore: boolean
+}
+
+export type PresetKey = 'motivatedSellers' | 'cashBuyers' | null
+
+export const FILTER_PRESETS: Record<Exclude<PresetKey, null>, { label: string; filters: Partial<DiscoveryFilters> }> = {
+  motivatedSellers: {
+    label: 'Motivated Sellers',
+    filters: {
+      absenteeOnly: true,
+      ownershipMin: 5,
+      preForeclosure: true,
+      taxDelinquent: true,
+      daysOnMarketMin: 60,
+    },
+  },
+  cashBuyers: {
+    label: 'Cash Buyers',
+    filters: {
+      ownerType: ['LLC/Corp'],
+    },
+  },
 }
 
 export interface UseDiscoverySearchReturn {
@@ -44,11 +66,15 @@ export interface UseDiscoverySearchReturn {
   filters: DiscoveryFilters
   pagination: DiscoveryPagination
   activeProperty: DiscoveryProperty | null
+  activePreset: PresetKey
+  buyerMatchBanner: string | null
   search: () => void
   searchWithQuery: (query: string) => void
   searchByBounds: (bounds: { north: number; south: number; east: number; west: number }) => void
   setFilter: <K extends keyof DiscoveryFilters>(key: K, value: DiscoveryFilters[K]) => void
   clearFilters: () => void
+  clearBuyerMatch: () => void
+  applyPreset: (preset: PresetKey) => void
   setActiveProperty: (property: DiscoveryProperty | null) => void
   nextPage: () => void
   prevPage: () => void
@@ -75,6 +101,7 @@ const DEFAULT_FILTERS: DiscoveryFilters = {
   equityMin: null,
   equityMax: null,
   ownershipMin: null,
+  daysOnMarketMin: null,
 }
 
 const DEFAULT_LIMIT = 50
@@ -139,6 +166,9 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [activeProperty, setActiveProperty] = useState<DiscoveryProperty | null>(null)
+  const [activePreset, setActivePreset] = useState<PresetKey>(null)
+  const [buyerMatchBanner, setBuyerMatchBanner] = useState<string | null>(null)
+  const initRef = useRef(false)
 
   const abortRef = useRef<AbortController | null>(null)
 
@@ -178,6 +208,7 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
       if (currentFilters.absenteeOnly) params.set('absenteeOnly', 'true')
       if (currentFilters.ownerType.length > 0) params.set('ownerType', currentFilters.ownerType.join(','))
       if (currentFilters.ownershipMin !== null) params.set('ownershipMin', String(currentFilters.ownershipMin))
+      if (currentFilters.daysOnMarketMin !== null) params.set('daysOnMarketMin', String(currentFilters.daysOnMarketMin))
       params.set('limit', String(DEFAULT_LIMIT))
       params.set('offset', String((currentPage - 1) * DEFAULT_LIMIT))
 
@@ -264,7 +295,29 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
     setSearchLocation(null)
     setActiveProperty(null)
     setPage(1)
+    setActivePreset(null)
+    setBuyerMatchBanner(null)
   }, [])
+
+  const clearBuyerMatch = useCallback(() => {
+    setBuyerMatchBanner(null)
+    // Clear URL params without resetting filters
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
+
+  const applyPreset = useCallback((preset: PresetKey) => {
+    if (preset === null || preset === activePreset) {
+      // Toggle off: reset filter-only fields back to defaults, keep query
+      setFilters(prev => ({ ...DEFAULT_FILTERS, query: prev.query }))
+      setActivePreset(null)
+    } else {
+      const presetConfig = FILTER_PRESETS[preset]
+      setFilters(prev => ({ ...DEFAULT_FILTERS, query: prev.query, ...presetConfig.filters }))
+      setActivePreset(preset)
+    }
+  }, [activePreset])
 
   const nextPage = useCallback(() => {
     const maxPage = Math.ceil(total / DEFAULT_LIMIT)
@@ -282,6 +335,34 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
       fetchResults(filters, prev)
     }
   }, [page, filters, fetchResults])
+
+  // Read URL params for pre-filled buyer filters (from CRM "Find Deals" button)
+  useEffect(() => {
+    if (initRef.current) return
+    initRef.current = true
+
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const buyerName = params.get('buyerName')
+    const city = params.get('city')
+    const propertyType = params.get('propertyType')
+    const valueMin = params.get('valueMin')
+    const valueMax = params.get('valueMax')
+
+    if (!city && !params.get('state')) return // no buyer filter params
+
+    const newFilters = { ...DEFAULT_FILTERS }
+    if (city) newFilters.query = city + (params.get('state') ? `, ${params.get('state')}` : '')
+    if (propertyType) newFilters.propertyType = [propertyType]
+    if (valueMin) newFilters.valueMin = parseInt(valueMin, 10)
+    if (valueMax) newFilters.valueMax = parseInt(valueMax, 10)
+
+    setFilters(newFilters)
+    setBuyerMatchBanner(buyerName ? `Showing results matching ${buyerName}'s criteria` : 'Showing results from buyer criteria')
+
+    // Auto-search
+    fetchResults(newFilters, 1)
+  }, [fetchResults])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -304,11 +385,15 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
       hasMore: page * DEFAULT_LIMIT < total,
     },
     activeProperty,
+    activePreset,
+    buyerMatchBanner,
     search,
     searchWithQuery,
     searchByBounds,
     setFilter,
     clearFilters,
+    clearBuyerMatch,
+    applyPreset,
     setActiveProperty,
     nextPage,
     prevPage,

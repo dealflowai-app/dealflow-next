@@ -54,7 +54,7 @@ export async function PATCH(
 
   switch (action) {
     case 'change_tier': {
-      const validTiers = ['free', 'starter', 'pro', 'enterprise']
+      const validTiers = ['free', 'starter', 'pro', 'business', 'enterprise']
       if (!validTiers.includes(tier)) {
         return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
       }

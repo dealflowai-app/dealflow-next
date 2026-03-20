@@ -53,7 +53,7 @@ export default function AdminRevenuePage() {
   if (loading) return <PageShell><p style={{ color: 'rgba(5,14,36,0.5)', fontSize: '0.85rem' }}>Loading revenue data...</p></PageShell>
   if (!data) return <PageShell><p style={{ color: '#EF4444', fontSize: '0.85rem' }}>Failed to load revenue data.</p></PageShell>
 
-  const tierPrices: Record<string, number> = { starter: 149, pro: 299, enterprise: 499 }
+  const tierPrices: Record<string, number> = { starter: 149, pro: 299, business: 499, enterprise: 499 }
 
   return (
     <PageShell>

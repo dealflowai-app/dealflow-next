@@ -3687,15 +3687,15 @@ export default function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<Tab>('deals')
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[var(--cream,#FAF9F6)]">
+    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
       {/* Header */}
       <div className="mb-5">
-        <h1 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '24px', fontWeight: 700, color: '#0B1224', letterSpacing: '-0.02em' }}
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0B1224', letterSpacing: '-0.02em' }}
           className="mb-1"
         >
           Marketplace
         </h1>
-        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: 400, color: 'rgba(5,14,36,0.5)' }}>
+        <p style={{ fontSize: '14px', fontWeight: 400, color: 'rgba(5,14,36,0.5)' }}>
           Browse deals, post listings, and connect with active buyers.
         </p>
       </div>

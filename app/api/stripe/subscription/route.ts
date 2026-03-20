@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { TIERS } from '@/lib/tiers'
+import { getCurrentAllowance } from '@/lib/billing/allowances'
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,9 +10,10 @@ export async function GET(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const dbUser = await prisma.profile.findUnique({
+    const profile = await prisma.profile.findUnique({
       where: { userId: user.id },
       select: {
+        id: true,
         tier: true,
         tierStatus: true,
         trialEndsAt: true,
@@ -20,31 +22,51 @@ export async function GET(req: NextRequest) {
       },
     })
 
-    if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    if (!profile) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-    const tierConfig = TIERS[dbUser.tier as keyof typeof TIERS]
-    const isTrialing = dbUser.tier === 'free' && dbUser.trialEndsAt && new Date(dbUser.trialEndsAt) > new Date()
+    // Map 'enterprise' to 'business' for backward compat
+    const effectiveTier = profile.tier === 'enterprise' ? 'business' : profile.tier
+    const tierConfig = TIERS[effectiveTier as keyof typeof TIERS] ?? TIERS.free
+    const isTrialing = profile.tierStatus === 'trialing' && profile.trialEndsAt && new Date(profile.trialEndsAt) > new Date()
     const trialDaysLeft = isTrialing
-      ? Math.ceil((new Date(dbUser.trialEndsAt!).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+      ? Math.ceil((new Date(profile.trialEndsAt!).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
       : 0
 
-    // Get current period usage
-    const profile = await prisma.profile.findUnique({ where: { userId: user.id } })
-    const usage = profile
-      ? await prisma.usage.findFirst({
-          where: { userId: profile.id },
-          orderBy: { periodStart: 'desc' },
-        })
-      : null
+    // Get current allowance
+    const allowance = await getCurrentAllowance(profile.id)
+
+    // Legacy usage (for backward compat with any remaining consumers)
+    const usage = await prisma.usage.findFirst({
+      where: { userId: profile.id },
+      orderBy: { periodStart: 'desc' },
+    })
 
     return NextResponse.json({
-      tier: dbUser.tier,
-      tierName: tierConfig?.name || 'Free Trial',
-      tierStatus: dbUser.tierStatus,
+      tier: effectiveTier,
+      tierName: tierConfig.name,
+      tierStatus: profile.tierStatus,
       isTrialing,
       trialDaysLeft,
-      currentPeriodEnd: dbUser.currentPeriodEnd,
+      currentPeriodEnd: profile.currentPeriodEnd,
       limits: tierConfig,
+      // New allowance-based usage
+      allowance: {
+        reveals: { used: allowance.revealsUsed, limit: allowance.revealsAllowed },
+        callMinutes: { used: allowance.callMinutesUsed, limit: allowance.callMinutesAllowed },
+        sms: { used: allowance.smsUsed, limit: allowance.smsAllowed },
+        analyses: { used: allowance.analysesUsed, limit: allowance.analysesAllowed },
+        overages: {
+          reveals: allowance.revealsOverage,
+          callMinutes: allowance.callMinutesOverage,
+          sms: allowance.smsOverage,
+        },
+        estimatedCost: allowance.estimatedCost,
+        period: {
+          start: allowance.periodStart.toISOString(),
+          end: allowance.periodEnd.toISOString(),
+        },
+      },
+      // Legacy usage (kept for backward compat)
       usage: usage ? {
         aiCallMinutes: usage.aiCallMinutes,
         smsCount: usage.smsCount,
