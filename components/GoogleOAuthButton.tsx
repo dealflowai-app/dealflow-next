@@ -18,14 +18,11 @@ export default function GoogleOAuthButton({
     setLoading(true)
     const supabase = createClient()
     const origin = window.location.origin
-    const next = mode === 'signup'
-      ? encodeURIComponent('/signup?step=2')
-      : encodeURIComponent('/dashboard')
 
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${origin}/api/auth/callback?next=${next}`,
+        redirectTo: `${origin}/api/auth/callback`,
       },
     })
   }

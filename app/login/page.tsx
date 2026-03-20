@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import Nav from '@/components/Nav'
+import Image from 'next/image'
 import GoogleOAuthButton from '@/components/GoogleOAuthButton'
 import { createClient } from '@/lib/supabase/client'
 
@@ -11,21 +11,20 @@ const SERIF = "'DM Serif Display', Georgia, serif"
 const NAVY = '#0B1224'
 const BLUE = '#2563EB'
 const BODY = 'rgba(5, 14, 36, 0.5)'
-const MUTED = 'rgba(5, 14, 36, 0.35)'
-const BORDER = '#E5E7EB'
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  padding: '12px 14px',
+  padding: '10px 14px',
   borderRadius: 10,
-  border: `1px solid ${BORDER}`,
+  border: '1px solid rgba(5,14,36,0.1)',
   background: '#ffffff',
   fontFamily: F,
   fontSize: 15,
   color: NAVY,
   outline: 'none',
   boxSizing: 'border-box',
-  transition: 'border-color 0.15s, box-shadow 0.15s',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+  boxShadow: '0 1px 2px rgba(5,14,36,0.04)',
 }
 
 const inputWithToggle: React.CSSProperties = {
@@ -124,35 +123,39 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
-      <Nav currentPage="login" />
+    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
+      {/* Logo — links back to landing page */}
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 32 }}>
+        <Image src="/Logo.png" alt="DealFlow AI logo" width={28} height={28} style={{ objectFit: 'contain', flexShrink: 0 }} />
+        <span style={{ fontFamily: F, fontWeight: 600, fontSize: '1.02rem', color: NAVY, letterSpacing: '-0.01em' }}>
+          DealFlow AI
+        </span>
+      </Link>
 
-      {/* Card */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px 80px' }}>
-        <div className="auth-card" style={{
-          background: '#ffffff', borderRadius: 16, padding: '40px 36px',
-          width: '100%', maxWidth: 400,
-          boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
-          border: '1px solid rgba(5,14,36,0.06)',
-        }}>
-          <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15 }}>
+      <div style={{ width: '100%', maxWidth: 420, padding: '0 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <h1 style={{ fontFamily: SERIF, fontSize: '1.75rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15, textAlign: 'center' }}>
             Welcome back
           </h1>
-          <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 24, lineHeight: 1.6, fontFamily: F }}>
+          <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 20, lineHeight: 1.6, fontFamily: F, textAlign: 'center' }}>
             Sign in to access your deals, buyers, and platform tools.
           </p>
 
           {/* Google OAuth */}
-          <GoogleOAuthButton mode="login" />
+          <div style={{
+            borderRadius: 10,
+            transition: 'transform 0.15s, box-shadow 0.15s',
+          }}>
+            <GoogleOAuthButton mode="login" />
+          </div>
 
           {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '20px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '16px 0' }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
             <span style={{ fontSize: 12, color: 'rgba(5,14,36,0.35)', fontFamily: F, fontWeight: 500 }}>or</span>
             <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {/* Email */}
             <div>
               <label style={labelStyle}>Email address</label>
@@ -221,13 +224,23 @@ export default function LoginPage() {
               disabled={loading || isLocked}
               className="auth-submit"
               style={{
-                width: '100%', padding: 12, borderRadius: 10,
-                background: (loading || isLocked) ? '#60A5FA' : BLUE,
-                color: 'white', border: 'none',
-                fontFamily: F, fontWeight: 600, fontSize: 15,
+                width: '100%',
+                padding: '10px 20px',
+                borderRadius: 10,
+                background: (loading || isLocked) ? '#60A5FA' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                color: 'white',
+                border: 'none',
+                fontFamily: F,
+                fontWeight: 600,
+                fontSize: 15,
                 cursor: (loading || isLocked) ? 'not-allowed' : 'pointer',
-                transition: 'background 0.2s',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                boxShadow: (loading || isLocked) ? 'none' : '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
+                letterSpacing: '-0.01em',
               }}
             >
               {loading ? (
@@ -244,20 +257,28 @@ export default function LoginPage() {
             <Link href="/signup" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>Sign up</Link>
           </p>
         </div>
-      </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
+        /* Input focus */
         .auth-input:focus {
           border-color: ${BLUE} !important;
-          box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+          box-shadow: 0 0 0 3px rgba(37,99,235,0.06), 0 1px 2px rgba(5,14,36,0.04) !important;
         }
         .auth-input::placeholder {
-          color: rgba(5,14,36,0.35);
+          color: rgba(5,14,36,0.3);
           font-family: ${F};
         }
+
+        /* Button hover */
         .auth-submit:hover:not(:disabled) {
-          background: #1D4ED8 !important;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(37,99,235,0.3), 0 2px 4px rgba(37,99,235,0.15) !important;
         }
+        .auth-submit:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        /* Spinner */
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
@@ -269,8 +290,11 @@ export default function LoginPage() {
           animation: spin 0.7s linear infinite;
           flex-shrink: 0;
         }
+
         @media (max-width: 480px) {
-          .auth-card { padding: 28px 22px !important; border-radius: 14px !important; }
+          .auth-card-wrap {
+            padding: 0 16px !important;
+          }
         }
       ` }} />
     </div>

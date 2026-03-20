@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Nav from '@/components/Nav'
+import Image from 'next/image'
 import GoogleOAuthButton from '@/components/GoogleOAuthButton'
 import { createClient } from '@/lib/supabase/client'
 
@@ -12,20 +12,20 @@ const SERIF = "'DM Serif Display', Georgia, serif"
 const NAVY = '#0B1224'
 const BLUE = '#2563EB'
 const BODY = 'rgba(5, 14, 36, 0.5)'
-const BORDER = '#E5E7EB'
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  padding: '12px 14px',
+  padding: '10px 14px',
   borderRadius: 10,
-  border: `1px solid ${BORDER}`,
+  border: '1px solid rgba(5,14,36,0.1)',
   background: '#ffffff',
   fontFamily: F,
   fontSize: 15,
   color: NAVY,
   outline: 'none',
   boxSizing: 'border-box',
-  transition: 'border-color 0.15s, box-shadow 0.15s',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+  boxShadow: '0 1px 2px rgba(5,14,36,0.04)',
 }
 
 const inputWithToggle: React.CSSProperties = {
@@ -315,24 +315,43 @@ function SignUpFlow() {
   /* ── Render ─────────────────────────────────────────── */
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
-      <Nav currentPage="signup" />
+    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
+      {/* Logo — links back to landing page */}
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 32 }}>
+        <Image src="/Logo.png" alt="DealFlow AI logo" width={28} height={28} style={{ objectFit: 'contain', flexShrink: 0 }} />
+        <span style={{ fontFamily: F, fontWeight: 600, fontSize: '1.02rem', color: NAVY, letterSpacing: '-0.01em' }}>
+          DealFlow AI
+        </span>
+      </Link>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px 80px' }}>
-        <div className="auth-card" style={{
-          background: '#ffffff', borderRadius: 16, padding: '40px 36px',
-          width: '100%', maxWidth: 440,
-          boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
-          border: '1px solid rgba(5,14,36,0.06)',
-          overflow: 'hidden',
-        }}>
-          {/* Step indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 28 }}>
-            <StepIndicator step={1} label="Create account" status={step === 1 ? 'current' : 'done'} />
-            <StepLine />
-            <StepIndicator step={2} label="Set up profile" status={step < 2 ? 'upcoming' : step === 2 ? 'current' : 'done'} />
-            <StepLine />
-            <StepIndicator step={3} label="Start using DealFlow" status={step < 3 ? 'upcoming' : 'current'} />
+      <div style={{ width: '100%', maxWidth: 420, padding: '0 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          {/* Minimal step progress */}
+          <div style={{ marginBottom: 36 }}>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+              {[1, 2, 3].map(s => (
+                <div key={s} style={{
+                  flex: 1,
+                  height: 3,
+                  borderRadius: 2,
+                  background: s <= step ? BLUE : 'rgba(5,14,36,0.08)',
+                  transition: 'background 0.4s ease',
+                }} />
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              {['Create account', 'Set up profile', 'Get started'].map((label, i) => (
+                <span key={label} style={{
+                  fontSize: 11,
+                  fontWeight: i + 1 <= step ? 600 : 400,
+                  color: i + 1 <= step ? NAVY : 'rgba(5,14,36,0.3)',
+                  fontFamily: F,
+                  transition: 'color 0.3s',
+                  letterSpacing: '0.01em',
+                }}>
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Step content with transitions */}
@@ -342,18 +361,23 @@ function SignUpFlow() {
               className={`step-panel ${step === 1 ? 'step-active' : animating ? (direction === 'forward' ? 'step-exit-left' : 'step-exit-right') : 'step-hidden'}`}
               style={{ display: step === 1 || animating ? undefined : 'none' }}
             >
-              <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15 }}>
+              <h1 style={{ fontFamily: SERIF, fontSize: '1.75rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15, textAlign: 'center' }}>
                 Create your account
               </h1>
-              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 24, lineHeight: 1.6, fontFamily: F }}>
+              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 20, lineHeight: 1.6, fontFamily: F, textAlign: 'center' }}>
                 Start finding buyers and closing deals today.
               </p>
 
               {/* Google OAuth */}
-              <GoogleOAuthButton mode="signup" />
+              <div style={{
+                borderRadius: 10,
+                transition: 'transform 0.15s, box-shadow 0.15s',
+              }}>
+                <GoogleOAuthButton mode="signup" />
+              </div>
 
               {/* Divider */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '20px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '16px 0' }}>
                 <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
                 <span style={{ fontSize: 12, color: 'rgba(5,14,36,0.35)', fontFamily: F, fontWeight: 500 }}>or</span>
                 <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
@@ -366,7 +390,7 @@ function SignUpFlow() {
                   return
                 }
                 setShowPasswordFields(true)
-              }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              }} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {/* Email */}
                 <div>
                   <label style={labelStyle}>Email address</label>
@@ -478,13 +502,23 @@ function SignUpFlow() {
                   disabled={loading}
                   className="auth-submit"
                   style={{
-                    width: '100%', padding: 12, borderRadius: 10,
-                    background: loading ? '#60A5FA' : BLUE,
-                    color: 'white', border: 'none',
-                    fontFamily: F, fontWeight: 600, fontSize: 15,
+                    width: '100%',
+                    padding: '10px 20px',
+                    borderRadius: 10,
+                    background: loading ? '#60A5FA' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                    color: 'white',
+                    border: 'none',
+                    fontFamily: F,
+                    fontWeight: 600,
+                    fontSize: 15,
                     cursor: loading ? 'not-allowed' : 'pointer',
-                    transition: 'background 0.2s',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    boxShadow: loading ? 'none' : '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
+                    letterSpacing: '-0.01em',
                   }}
                 >
                   {loading ? (
@@ -514,14 +548,14 @@ function SignUpFlow() {
               className={`step-panel ${step === 2 ? 'step-active' : animating ? (direction === 'forward' ? 'step-enter-right' : 'step-enter-left') : 'step-hidden'}`}
               style={{ display: step === 2 || animating ? undefined : 'none' }}
             >
-              <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15 }}>
+              <h1 style={{ fontFamily: SERIF, fontSize: '1.75rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15 }}>
                 Set up your profile
               </h1>
-              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 24, lineHeight: 1.6, fontFamily: F }}>
+              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 20, lineHeight: 1.6, fontFamily: F }}>
                 Tell us a bit about yourself to get started.
               </p>
 
-              <form onSubmit={handleProfile} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <form onSubmit={handleProfile} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {/* Name row */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
@@ -617,11 +651,12 @@ function SignUpFlow() {
                           style={{
                             padding: '12px 8px',
                             borderRadius: 10,
-                            border: selected ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
+                            border: selected ? `2px solid ${BLUE}` : '1px solid rgba(5,14,36,0.1)',
                             background: selected ? 'rgba(37,99,235,0.04)' : '#ffffff',
                             cursor: 'pointer',
                             textAlign: 'center',
-                            transition: 'border-color 0.15s, background 0.15s',
+                            transition: 'border-color 0.15s, background 0.15s, box-shadow 0.15s',
+                            boxShadow: selected ? '0 2px 8px rgba(37,99,235,0.1)' : '0 1px 2px rgba(5,14,36,0.04)',
                           }}
                         >
                           <div style={{ fontSize: 14, fontWeight: 600, color: selected ? BLUE : NAVY, fontFamily: F, marginBottom: 2 }}>
@@ -649,13 +684,23 @@ function SignUpFlow() {
                   disabled={loading}
                   className="auth-submit"
                   style={{
-                    width: '100%', padding: 12, borderRadius: 10,
-                    background: loading ? '#60A5FA' : BLUE,
-                    color: 'white', border: 'none',
-                    fontFamily: F, fontWeight: 600, fontSize: 15,
+                    width: '100%',
+                    padding: '10px 20px',
+                    borderRadius: 10,
+                    background: loading ? '#60A5FA' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                    color: 'white',
+                    border: 'none',
+                    fontFamily: F,
+                    fontWeight: 600,
+                    fontSize: 15,
                     cursor: loading ? 'not-allowed' : 'pointer',
-                    transition: 'background 0.2s',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    boxShadow: loading ? 'none' : '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
+                    letterSpacing: '-0.01em',
                   }}
                 >
                   {loading ? (
@@ -688,10 +733,10 @@ function SignUpFlow() {
                 </svg>
               </div>
 
-              <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 8, lineHeight: 1.15 }}>
+              <h1 style={{ fontFamily: SERIF, fontSize: '1.8rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 8, lineHeight: 1.15 }}>
                 Almost there!
               </h1>
-              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 28, lineHeight: 1.6, fontFamily: F }}>
+              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 20, lineHeight: 1.6, fontFamily: F }}>
                 Just a couple more steps — we need to verify your email and phone number.
               </p>
 
@@ -699,10 +744,19 @@ function SignUpFlow() {
                 onClick={() => { router.push('/verify-email'); router.refresh() }}
                 className="auth-submit"
                 style={{
-                  width: '100%', padding: 12, borderRadius: 10,
-                  background: BLUE, color: 'white', border: 'none',
-                  fontFamily: F, fontWeight: 600, fontSize: 15,
-                  cursor: 'pointer', transition: 'background 0.2s',
+                  width: '100%',
+                  padding: '10px 20px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                  color: 'white',
+                  border: 'none',
+                  fontFamily: F,
+                  fontWeight: 600,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
+                  letterSpacing: '-0.01em',
                 }}
               >
                 Verify my account
@@ -710,23 +764,34 @@ function SignUpFlow() {
             </div>
           </div>
         </div>
-      </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
+        /* Input focus */
         .auth-input:focus {
           border-color: ${BLUE} !important;
-          box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+          box-shadow: 0 0 0 3px rgba(37,99,235,0.06), 0 1px 2px rgba(5,14,36,0.04) !important;
         }
         .auth-input::placeholder {
-          color: rgba(5,14,36,0.35);
+          color: rgba(5,14,36,0.3);
           font-family: ${F};
         }
+
+        /* Button hover */
         .auth-submit:hover:not(:disabled) {
-          background: #1D4ED8 !important;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(37,99,235,0.3), 0 2px 4px rgba(37,99,235,0.15) !important;
         }
+        .auth-submit:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        /* Experience buttons */
         .exp-btn:hover {
-          border-color: #D1D5DB !important;
+          border-color: rgba(5,14,36,0.15) !important;
+          box-shadow: 0 1px 4px rgba(5,14,36,0.06);
         }
+
+        /* Spinner */
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
@@ -747,7 +812,7 @@ function SignUpFlow() {
           transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
         }
         .password-reveal-show {
-          max-height: 300px;
+          max-height: 340px;
           opacity: 1;
         }
 
@@ -790,7 +855,9 @@ function SignUpFlow() {
         }
 
         @media (max-width: 480px) {
-          .auth-card { padding: 28px 22px !important; border-radius: 14px !important; }
+          .auth-card-wrap {
+            padding: 0 16px !important;
+          }
         }
       ` }} />
     </div>
@@ -798,39 +865,6 @@ function SignUpFlow() {
 }
 
 /* ── Shared components ────────────────────────────────── */
-
-function StepIndicator({ step, label, status }: { step: number; label: string; status: 'done' | 'current' | 'upcoming' }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flex: 1 }}>
-      <div style={{
-        width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        background: status === 'done' ? BLUE : status === 'current' ? BLUE : 'rgba(5,14,36,0.06)',
-        border: status === 'upcoming' ? '1px solid rgba(5,14,36,0.1)' : 'none',
-        transition: 'background 0.3s, border 0.3s',
-      }}>
-        {status === 'done' ? (
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        ) : (
-          <span style={{
-            fontSize: 11, fontWeight: 700, fontFamily: F,
-            color: status === 'current' ? 'white' : 'rgba(5,14,36,0.3)',
-          }}>{step}</span>
-        )}
-      </div>
-      <span style={{
-        fontSize: 11, fontWeight: 500, fontFamily: F, whiteSpace: 'nowrap',
-        color: status === 'upcoming' ? 'rgba(5,14,36,0.3)' : status === 'current' ? NAVY : 'rgba(5,14,36,0.5)',
-        transition: 'color 0.3s',
-      }}>{label}</span>
-    </div>
-  )
-}
-
-function StepLine() {
-  return <div style={{ width: 40, height: 1, background: 'rgba(5,14,36,0.1)', flexShrink: 0, marginTop: -18 }} />
-}
 
 function EyeIcon({ open }: { open: boolean }) {
   if (open) {

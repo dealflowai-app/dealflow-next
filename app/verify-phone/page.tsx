@@ -62,11 +62,30 @@ export default function VerifyPhonePage() {
         router.push('/signup?step=2')
         return
       }
-      // Pre-fill phone from profile metadata if available
+      // Auto-send OTP if phone is already known from onboarding
       if (user.user_metadata?.phone) {
         const digits = user.user_metadata.phone.replace(/\D/g, '').replace(/^1/, '')
         if (digits.length === 10) {
-          setPhone(formatPhone(digits))
+          const formatted = formatPhone(digits)
+          setPhone(formatted)
+          // Auto-send the code so user doesn't have to enter phone again
+          setSending(true)
+          fetch('/api/auth/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: formatted }),
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.error) {
+                setError(data.error)
+              } else {
+                setCodeSent(true)
+                setResendCooldown(120)
+              }
+            })
+            .catch(() => setError('Failed to send code'))
+            .finally(() => setSending(false))
         }
       }
     })

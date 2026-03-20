@@ -7,9 +7,10 @@ import Link from 'next/link'
 interface NavProps {
   isAbout?: boolean
   currentPage?: 'about' | 'pricing' | 'login' | 'signup' | 'onboarding'
+  forceWhite?: boolean
 }
 
-export default function Nav({ isAbout = false, currentPage }: NavProps) {
+export default function Nav({ isAbout = false, currentPage, forceWhite = false }: NavProps) {
   const activePage = currentPage ?? (isAbout ? 'about' : undefined)
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -41,8 +42,8 @@ export default function Nav({ isAbout = false, currentPage }: NavProps) {
   }, [menuOpen])
 
   const hasLightHero = !!activePage
-  const showWhiteNav = isScrolled
-  const darkText = isScrolled || hasLightHero
+  const showWhiteNav = isScrolled || forceWhite
+  const darkText = isScrolled || hasLightHero || forceWhite
 
   const mobileLinks = activePage
     ? [
