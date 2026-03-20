@@ -2,6 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Handle OAuth code landing on homepage — redirect to auth callback
+  if (request.nextUrl.pathname === '/' && request.nextUrl.searchParams.has('code')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/api/auth/callback'
+    return NextResponse.redirect(url)
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -97,5 +104,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/community/:path*', '/marketplace/:path*', '/buyers/:path*', '/crm/:path*', '/outreach/:path*', '/analyzer/:path*', '/contracts/:path*', '/gpt/:path*', '/settings/:path*', '/deals/:path*', '/admin/:path*', '/login', '/signup', '/verify-email', '/verify-phone'],
+  matcher: ['/', '/dashboard/:path*', '/community/:path*', '/marketplace/:path*', '/buyers/:path*', '/crm/:path*', '/outreach/:path*', '/analyzer/:path*', '/contracts/:path*', '/gpt/:path*', '/settings/:path*', '/deals/:path*', '/admin/:path*', '/login', '/signup', '/verify-email', '/verify-phone'],
 }
