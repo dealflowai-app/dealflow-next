@@ -26,10 +26,14 @@ export async function GET(request: Request) {
       // Otherwise, determine destination based on user state
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
+        const isOAuth = user.app_metadata?.provider !== 'email'
+
         if (!user.user_metadata?.onboarded) {
           return NextResponse.redirect(`${origin}/signup?step=2`)
         }
-        if (!user.user_metadata?.phone_verified) {
+
+        // Skip phone verification for OAuth users (already verified via Google etc.)
+        if (!isOAuth && !user.user_metadata?.phone_verified) {
           return NextResponse.redirect(`${origin}/verify-phone`)
         }
       }
