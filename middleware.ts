@@ -35,11 +35,8 @@ export async function middleware(request: NextRequest) {
   const protectedPaths = ['/dashboard', '/community', '/marketplace', '/discovery', '/crm', '/outreach', '/contracts', '/gpt', '/settings', '/deals', '/admin']
   const isProtected = protectedPaths.some(p => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(p + '/'))
 
-  const verificationPaths = ['/verify-email', '/verify-phone']
-  const isVerificationPage = verificationPaths.some(p => request.nextUrl.pathname === p)
-
-  // Redirect unauthenticated users away from protected pages and verification pages
-  if (!user && (isProtected || isVerificationPage)) {
+  // Redirect unauthenticated users away from protected pages
+  if (!user && isProtected) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
