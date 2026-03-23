@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     where: { userId: user.id },
   })
 
-  if (!profile) redirect('/onboarding')
+  if (!profile) redirect('/signup?step=2')
 
   const profileSettings = (profile.settings as Record<string, unknown>) || {}
   const demoMode = profileSettings.demoMode === true

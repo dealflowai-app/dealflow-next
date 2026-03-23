@@ -42,6 +42,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Handle /onboarding — redirect to the right place server-side
+  if (request.nextUrl.pathname === '/onboarding') {
+    const url = request.nextUrl.clone()
+    if (user) {
+      url.pathname = '/signup'
+      url.searchParams.set('step', '2')
+    } else {
+      url.pathname = '/signup'
+    }
+    return NextResponse.redirect(url)
+  }
+
   // Redirect authenticated users away from auth pages (unless completing signup step 2)
   const authPaths = ['/login', '/signup']
   const isAuthPage = authPaths.some(p => request.nextUrl.pathname === p)
