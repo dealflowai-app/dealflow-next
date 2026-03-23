@@ -1379,8 +1379,8 @@ export default function DiscoveryPage() {
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* ═══ TOP SEARCH BAR ═══ */}
-      <div className="flex-shrink-0 bg-white border-b border-[rgba(5,14,36,0.06)] px-4 py-2.5 z-20">
-        <div className="flex items-center gap-2 pl-3">
+      <div className="flex-shrink-0 bg-white border-b border-[rgba(5,14,36,0.06)] px-2 sm:px-4 py-2.5 z-20">
+        <div className="flex items-center gap-2 pl-1 sm:pl-3 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Search icon + input */}
           <div className="flex items-center gap-2 flex-1 relative">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -1420,7 +1420,7 @@ export default function DiscoveryPage() {
                 setTimeout(() => setShowSuggestions(false), 150)
               }}
               placeholder="Address, city, county, state, zip..."
-              className="flex-1 bg-transparent border-0 outline-none text-[14px] font-[400] text-[rgba(5,14,36,0.65)] placeholder-[rgba(5,14,36,0.4)] min-w-[180px]"
+              className="flex-1 bg-transparent border-0 outline-none text-[14px] font-[400] text-[rgba(5,14,36,0.65)] placeholder-[rgba(5,14,36,0.4)] min-w-[120px] sm:min-w-[180px]"
             />
             {loading && (
               <Loader2 className="w-4 h-4 text-[#2563EB] animate-spin flex-shrink-0" />
@@ -1899,9 +1899,9 @@ export default function DiscoveryPage() {
       </div>
 
       {/* ═══ MAIN CONTENT: MAP + SIDEBAR ═══ */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* ── Map (left) ── */}
-        <div className="flex-1 relative">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        {/* ── Map (left / top on mobile) ── */}
+        <div className="flex-1 relative min-h-[280px] md:min-h-0">
           <DiscoveryMapbox
             properties={filteredProperties}
             onPinClick={handlePinClick}
@@ -1977,19 +1977,19 @@ export default function DiscoveryPage() {
           </div>
 
           {/* Search as I move checkbox */}
-          <label className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-[8px] border border-[rgba(5,14,36,0.06)] shadow-sm px-3 py-1.5 cursor-pointer select-none">
+          <label className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-[8px] border border-[rgba(5,14,36,0.06)] shadow-sm px-2 sm:px-3 py-1.5 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={searchAsMove}
               onChange={e => setSearchAsMove(e.target.checked)}
               className="w-3.5 h-3.5 accent-[#2563EB] cursor-pointer"
             />
-            <span className="text-[14px] font-[400] text-[rgba(5,14,36,0.65)]">Search as I move the map</span>
+            <span className="text-[12px] sm:text-[14px] font-[400] text-[rgba(5,14,36,0.65)]"><span className="hidden sm:inline">Search as I move the map</span><span className="sm:hidden">Auto-search</span></span>
           </label>
         </div>
 
         {/* ── Right Sidebar (property list) ── */}
-        <div className="w-[420px] flex-shrink-0 border-l border-[rgba(5,14,36,0.06)] bg-white flex flex-col disc-sidebar">
+        <div className="w-full md:w-[420px] flex-shrink-0 border-t md:border-t-0 md:border-l border-[rgba(5,14,36,0.06)] bg-white flex flex-col disc-sidebar">
           {/* Buyer match banner */}
           {buyerMatchBanner && (
             <div className="flex items-center justify-between px-4 py-2 bg-[rgba(37,99,235,0.06)] border-b border-[rgba(37,99,235,0.12)] flex-shrink-0">
@@ -2624,14 +2624,10 @@ export default function DiscoveryPage() {
           from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
           .disc-sidebar {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 100% !important;
-            z-index: 15;
+            max-height: 50vh;
+            min-height: 200px;
           }
         }
       ` }} />

@@ -156,11 +156,11 @@ const integrationsData = {
     { name: 'Google Sheets', desc: 'Export reports', color: 'bg-green-500', letter: 'G' },
     { name: 'Slack', desc: 'Get deal alerts in your channel', color: 'bg-purple-500', letter: 'S' },
   ],
-  comingSoon: [
-    { name: 'Mailchimp', color: 'bg-yellow-600', letter: 'M' },
-    { name: 'HubSpot', color: 'bg-orange-600', letter: 'H' },
-    { name: 'Salesforce', color: 'bg-blue-500', letter: 'S' },
-    { name: 'Privy', color: 'bg-teal-500', letter: 'P' },
+  proEnterprise: [
+    { name: 'Mailchimp', desc: 'Sync buyer lists to email campaigns', color: 'bg-yellow-600', letter: 'M' },
+    { name: 'HubSpot', desc: 'Two-way CRM sync', color: 'bg-orange-600', letter: 'H' },
+    { name: 'Salesforce', desc: 'Enterprise CRM integration', color: 'bg-blue-500', letter: 'S' },
+    { name: 'Privy', desc: 'Import motivated seller leads', color: 'bg-teal-500', letter: 'P' },
   ],
 }
 
@@ -1192,18 +1192,26 @@ export default function SettingsPage() {
                 ))}
               </div>
 
-              {/* Coming Soon */}
-              <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Coming Soon</h3>
+              {/* Pro / Enterprise Integrations */}
+              <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Available on Pro &amp; Enterprise</h3>
               <div className="grid grid-cols-4 gap-4">
-                {integrationsData.comingSoon.map((int, i) => (
-                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white opacity-50">
+                {integrationsData.proEnterprise.map((int, i) => (
+                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white opacity-60">
                     <div className="flex items-start justify-between mb-3">
                       <div className={`w-10 h-10 rounded-[8px] ${int.color} flex items-center justify-center`}>
                         <span className="text-white font-bold text-sm">{int.letter}</span>
                       </div>
-                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="bg-gray-100 px-2 py-0.5 rounded-full">Coming Soon</span>
+                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: '11px', color: '#2563EB' }} className="bg-[rgba(37,99,235,0.08)] px-2 py-0.5 rounded-full">Pro / Enterprise</span>
                     </div>
-                    <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }}>{int.name}</h4>
+                    <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }} className="mb-0.5">{int.name}</h4>
+                    <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="mb-3">{int.desc}</p>
+                    <button
+                      onClick={() => window.location.href = '/settings?section=billing'}
+                      style={{ borderRadius: '8px', padding: '8px 16px', fontWeight: 600, fontSize: '13px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid rgba(37,99,235,0.3)', background: 'rgba(37,99,235,0.04)' }}
+                      className="text-[#2563EB] hover:bg-[rgba(37,99,235,0.1)] transition-colors cursor-pointer"
+                    >
+                      Upgrade
+                    </button>
                   </div>
                 ))}
               </div>

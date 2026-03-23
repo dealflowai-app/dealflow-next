@@ -287,36 +287,42 @@ function useToasts() {
 /* ═══════════════════════════════════════════════
    SKELETON LOADERS
    ═══════════════════════════════════════════════ */
+const CRM_SHIMMER = {
+  background: 'linear-gradient(90deg, rgba(5,14,36,0.04) 25%, rgba(5,14,36,0.08) 50%, rgba(5,14,36,0.04) 75%)',
+  backgroundSize: '200% 100%',
+  animation: 'shimmer 1.5s infinite',
+} as React.CSSProperties
+
 function SkeletonRow() {
   return (
     <tr className="border-b border-[rgba(5,14,36,0.04)]">
-      <td className="px-3 py-3"><div className="w-3.5 h-3.5 bg-gray-200 rounded animate-pulse" /></td>
+      <td className="px-3 py-3"><div className="w-3.5 h-3.5 rounded" style={CRM_SHIMMER} /></td>
       <td className="px-3 py-3"><div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse" />
-        <div className="w-28 h-4 bg-gray-200 rounded animate-pulse" />
+        <div className="w-7 h-7 rounded-full" style={CRM_SHIMMER} />
+        <div className="w-28 h-4 rounded" style={CRM_SHIMMER} />
       </div></td>
-      <td className="px-3 py-3"><div className="w-24 h-4 bg-gray-200 rounded animate-pulse" /></td>
-      <td className="px-3 py-3"><div className="w-16 h-4 bg-gray-200 rounded animate-pulse" /></td>
-      <td className="px-3 py-3"><div className="w-32 h-4 bg-gray-200 rounded animate-pulse" /></td>
-      <td className="px-3 py-3 text-center"><div className="w-8 h-5 bg-gray-200 rounded-full animate-pulse mx-auto" /></td>
-      <td className="px-3 py-3"><div className="w-12 h-5 bg-gray-200 rounded-full animate-pulse" /></td>
-      <td className="px-3 py-3"><div className="w-16 h-5 bg-gray-200 rounded-full animate-pulse" /></td>
-      <td className="px-3 py-3"><div className="w-14 h-4 bg-gray-200 rounded animate-pulse" /></td>
-      <td className="px-3 py-3 text-center"><div className="w-6 h-4 bg-gray-200 rounded animate-pulse mx-auto" /></td>
-      <td className="px-3 py-3"><div className="w-16 h-4 bg-gray-200 rounded animate-pulse" /></td>
-      <td className="px-3 py-3"><div className="w-5 h-5 bg-gray-200 rounded animate-pulse ml-auto" /></td>
+      <td className="px-3 py-3"><div className="w-24 h-4 rounded" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3"><div className="w-16 h-4 rounded" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3"><div className="w-32 h-4 rounded" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3 text-center"><div className="w-8 h-5 rounded-full mx-auto" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3"><div className="w-12 h-5 rounded-full" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3"><div className="w-16 h-5 rounded-full" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3"><div className="w-14 h-4 rounded" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3 text-center"><div className="w-6 h-4 rounded mx-auto" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3"><div className="w-16 h-4 rounded" style={CRM_SHIMMER} /></td>
+      <td className="px-3 py-3"><div className="w-5 h-5 rounded ml-auto" style={CRM_SHIMMER} /></td>
     </tr>
   )
 }
 
 function TableSkeleton() {
   return (
-    <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-none overflow-hidden">
+    <div className="crm-table-wrap bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-none overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
       <table className="w-full min-w-[1000px]">
         <thead>
           <tr className="border-b border-[rgba(5,14,36,0.04)]" style={{ background: 'rgba(5,14,36,0.02)' }}>
             {Array.from({ length: 12 }).map((_, i) => (
-              <th key={i} className="px-3 py-3"><div className="w-12 h-3 bg-gray-200 rounded animate-pulse" /></th>
+              <th key={i} className="px-3 py-3"><div className="w-12 h-3 rounded" style={CRM_SHIMMER} /></th>
             ))}
           </tr>
         </thead>
@@ -332,23 +338,23 @@ function DetailSkeleton() {
   return (
     <div className="px-6 pt-6 pb-4 space-y-6">
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
+        <div className="w-12 h-12 rounded-full" style={CRM_SHIMMER} />
         <div className="space-y-2">
-          <div className="w-36 h-5 bg-gray-200 rounded animate-pulse" />
+          <div className="w-36 h-5 rounded" style={CRM_SHIMMER} />
           <div className="flex gap-2">
-            <div className="w-16 h-5 bg-gray-200 rounded-full animate-pulse" />
-            <div className="w-20 h-5 bg-gray-200 rounded-full animate-pulse" />
+            <div className="w-16 h-5 rounded-full" style={CRM_SHIMMER} />
+            <div className="w-20 h-5 rounded-full" style={CRM_SHIMMER} />
           </div>
         </div>
       </div>
       {[1, 2, 3].map((i) => (
         <div key={i} className="space-y-2">
-          <div className="w-24 h-3 bg-gray-200 rounded animate-pulse" />
+          <div className="w-24 h-3 rounded" style={CRM_SHIMMER} />
           <div className="bg-gray-50 rounded-[8px] p-4 space-y-3">
             {[1, 2, 3].map((j) => (
               <div key={j} className="flex justify-between">
-                <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="w-28 h-4 bg-gray-200 rounded animate-pulse" />
+                <div className="w-20 h-4 rounded" style={CRM_SHIMMER} />
+                <div className="w-28 h-4 rounded" style={CRM_SHIMMER} />
               </div>
             ))}
           </div>
@@ -1241,16 +1247,18 @@ function ListView({
   if (buyers.length === 0 && !hasFilters) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px]">
-        <Users className="w-14 h-14 mb-3 text-gray-300" />
-        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">No {ctLabelPlural} yet</p>
-        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="mb-5">Add a {ctLabel} manually or import from a CSV file.</p>
-        <div className="flex gap-2">
-          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openAddModal'))} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
-            <UserPlus className="w-4 h-4" /> Add Contact
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+          <Users className="w-7 h-7 text-[#2563EB]" />
+        </div>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '16px', color: '#0B1224' }} className="mb-1">No buyers yet</p>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Add your first buyer to start building your CRM.</p>
+        <div className="flex gap-2.5">
+          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openAddModal'))} style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }} className="flex items-center gap-1.5 hover:opacity-90 text-white border-0 rounded-[8px] px-5 py-2.5 text-sm font-medium cursor-pointer transition-all shadow-sm">
+            <UserPlus className="w-4 h-4" /> Add your first buyer
           </button>
-          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openImportModal'))} className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
-            <Upload className="w-4 h-4" /> Import CSV
-          </button>
+          <a href="/find-buyers" className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.1)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-5 py-2.5 text-sm font-medium cursor-pointer transition-colors no-underline">
+            <Search className="w-4 h-4" /> Import from Find Buyers
+          </a>
         </div>
       </div>
     )
@@ -1299,7 +1307,7 @@ function ListView({
       />
 
       {/* Table */}
-      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-none overflow-x-auto">
+      <div className="crm-table-wrap bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-none overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
         <table className="w-full min-w-[1000px]">
           <thead>
             <tr className="border-b border-[rgba(5,14,36,0.04)]" style={{ background: 'rgba(5,14,36,0.02)' }}>
@@ -1912,9 +1920,9 @@ export default function BuyerCrmPage() {
         className="flex-shrink-0 bg-white"
         style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
       >
-        <div className="px-8">
-          <div className="flex items-center justify-between">
-            <nav className="flex gap-0.5 -mb-px">
+        <div className="px-4 sm:px-8">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <nav className="flex gap-0.5 -mb-px overflow-x-auto">
               {[
                 { key: '', label: 'All Contacts', icon: Users },
                 { key: 'BUYER', label: 'Buyers', icon: UserCheck },
@@ -1956,24 +1964,24 @@ export default function BuyerCrmPage() {
                 )
               })}
             </nav>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => { setShowArchived(!showArchived); setPage(1) }}
-                className={`flex items-center gap-1.5 border rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors ${
+                className={`flex items-center gap-1.5 border rounded-[8px] px-3 sm:px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors ${
                   showArchived
                     ? 'bg-[rgba(245,158,11,0.08)] border-[rgba(245,158,11,0.2)] text-[#F59E0B] hover:bg-[rgba(245,158,11,0.12)]'
                     : 'bg-white border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224]'
                 }`}
               >
                 <Archive className="w-4 h-4" />
-                {showArchived ? 'Viewing Archived' : 'Archived'}
+                <span className="hidden sm:inline">{showArchived ? 'Viewing Archived' : 'Archived'}</span>
               </button>
               <button
                 onClick={() => setShowDuplicatesModal(true)}
-                className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+                className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-3 sm:px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
               >
                 <Copy className="w-4 h-4" />
-                Check Duplicates
+                <span className="hidden sm:inline">Check Duplicates</span>
               </button>
               <button
                 onClick={async () => {
@@ -1983,35 +1991,35 @@ export default function BuyerCrmPage() {
                     if (data.buyers) exportToCSV(data.buyers, `crm-export-${new Date().toISOString().split('T')[0]}.csv`)
                   } catch {}
                 }}
-                className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+                className="hidden sm:flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
               >
                 <Download className="w-4 h-4" />
                 Export CSV
               </button>
               <button
                 onClick={() => setShowImportModal(true)}
-                className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+                className="hidden sm:flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
               >
                 <Upload className="w-4 h-4" />
                 Import CSV
               </button>
               <button
                 onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-3 sm:px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
               >
                 <UserPlus className="w-4 h-4" />
-                Add Contact
+                <span className="hidden sm:inline">Add Contact</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="p-8 max-w-[1200px]">
+      <div className="p-4 sm:p-8 max-w-[1200px]">
 
       {/* Search + Filters + View toggle */}
       <div className="flex items-center gap-2 mb-3 flex-wrap">
-        <div className="relative w-[260px]">
+        <div className="relative w-full sm:w-[260px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             ref={searchInputRef}
@@ -2022,7 +2030,7 @@ export default function BuyerCrmPage() {
             style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
             className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] pl-10 pr-16 py-2 text-[14px] text-[#0B1224] placeholder-[rgba(5,14,36,0.3)] outline-none focus:border-[#2563EB] transition-colors"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.58rem] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5">Cmd+K</kbd>
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.58rem] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 hidden sm:inline">Cmd+K</kbd>
         </div>
         <FilterSelect label="Market" value={marketFilter} onChange={setMarketFilter}
           options={[{ value: 'Dallas', label: 'Dallas' }, { value: 'Atlanta', label: 'Atlanta' }, { value: 'Phoenix', label: 'Phoenix' }, { value: 'Tampa', label: 'Tampa' }]} />
@@ -2179,6 +2187,7 @@ export default function BuyerCrmPage() {
       {showDuplicatesModal && <DuplicatesModal onClose={() => setShowDuplicatesModal(false)} onMerged={(msg) => { addToast(msg); refetch() }} />}
 
       <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         @keyframes slideInRight {
           from { transform: translateX(100%); }
           to { transform: translateX(0); }

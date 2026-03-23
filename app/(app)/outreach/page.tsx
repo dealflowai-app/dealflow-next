@@ -247,20 +247,26 @@ function useDebounce<T>(value: T, ms: number): T {
 /* ═══════════════════════════════════════════════════════════════════════════
    SKELETONS
    ═══════════════════════════════════════════════════════════════════════════ */
+const OUTREACH_SHIMMER = {
+  background: 'linear-gradient(90deg, rgba(5,14,36,0.04) 25%, rgba(5,14,36,0.08) 50%, rgba(5,14,36,0.04) 75%)',
+  backgroundSize: '200% 100%',
+  animation: 'shimmer 1.5s infinite',
+} as React.CSSProperties
+
 function CampaignSkeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3].map(i => (
-        <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-5 py-4 animate-pulse">
+        <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-5 py-4">
           <div className="flex items-center gap-3 mb-3">
-            <div className="h-4 bg-gray-200 rounded w-56" />
-            <div className="h-5 bg-gray-100 rounded-full w-16" />
-            <div className="h-5 bg-gray-100 rounded-full w-14" />
+            <div className="h-4 rounded w-56" style={OUTREACH_SHIMMER} />
+            <div className="h-5 rounded-full w-16" style={OUTREACH_SHIMMER} />
+            <div className="h-5 rounded-full w-14" style={OUTREACH_SHIMMER} />
           </div>
-          <div className="h-3 bg-gray-100 rounded w-80 mb-3" />
-          <div className="h-1.5 bg-gray-100 rounded-full w-full mb-3" />
+          <div className="h-3 rounded w-80 mb-3" style={OUTREACH_SHIMMER} />
+          <div className="h-1.5 rounded-full w-full mb-3" style={OUTREACH_SHIMMER} />
           <div className="flex gap-6">
-            {[1, 2, 3, 4, 5].map(j => <div key={j} className="h-3 bg-gray-100 rounded w-20" />)}
+            {[1, 2, 3, 4, 5].map(j => <div key={j} className="h-3 rounded w-20" style={OUTREACH_SHIMMER} />)}
           </div>
         </div>
       ))}
@@ -272,17 +278,17 @@ function TableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
     <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden">
       <div className="border-b border-[#F3F4F6] px-4 py-3">
-        <div className="flex gap-4">{[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-3 bg-gray-100 rounded w-20" />)}</div>
+        <div className="flex gap-4">{[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-3 rounded w-20" style={OUTREACH_SHIMMER} />)}</div>
       </div>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="px-4 py-3 border-b border-[#F3F4F6] animate-pulse">
+        <div key={i} className="px-4 py-3 border-b border-[#F3F4F6]">
           <div className="flex items-center gap-4">
-            <div className="h-3 bg-gray-100 rounded w-24" />
-            <div className="h-3 bg-gray-100 rounded w-36" />
-            <div className="h-3 bg-gray-200 rounded w-28" />
-            <div className="h-3 bg-gray-100 rounded w-24" />
-            <div className="h-3 bg-gray-100 rounded w-12" />
-            <div className="h-5 bg-gray-100 rounded-full w-16" />
+            <div className="h-3 rounded w-24" style={OUTREACH_SHIMMER} />
+            <div className="h-3 rounded w-36" style={OUTREACH_SHIMMER} />
+            <div className="h-3 rounded w-28" style={OUTREACH_SHIMMER} />
+            <div className="h-3 rounded w-24" style={OUTREACH_SHIMMER} />
+            <div className="h-3 rounded w-12" style={OUTREACH_SHIMMER} />
+            <div className="h-5 rounded-full w-16" style={OUTREACH_SHIMMER} />
           </div>
         </div>
       ))}
@@ -341,12 +347,12 @@ function CampaignList({
 
   if (error) {
     return (
-      <div className="bg-white border border-red-200 rounded-[8px] px-6 py-8 text-center">
-        <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-        <p className="text-[0.88rem] text-gray-700 mb-1">Failed to load campaigns</p>
-        <p className="text-[0.78rem] text-gray-400 mb-3">{error}</p>
-        <button onClick={onRetry} className="inline-flex items-center gap-1.5 text-[0.82rem] text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer">
-          <RotateCcw className="w-3.5 h-3.5" /> Retry
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-6 py-8 text-center" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <AlertCircle className="w-7 h-7 mx-auto mb-3" style={{ color: '#F59E0B' }} />
+        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0B1224', marginBottom: 4 }}>Failed to load campaigns</div>
+        <div style={{ fontSize: '0.78rem', color: 'rgba(5,14,36,0.4)', marginBottom: 16 }}>{error}</div>
+        <button onClick={onRetry} className="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg text-white text-[0.78rem] font-semibold cursor-pointer border-none transition-colors hover:bg-[#1d4ed8]" style={{ background: '#2563EB', fontFamily: 'inherit' }}>
+          <RotateCcw className="w-3.5 h-3.5" /> Try again
         </button>
       </div>
     )
@@ -386,14 +392,22 @@ function CampaignList({
       </div>
 
       {loading ? <CampaignSkeleton /> : campaigns.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-6 py-8 text-center">
-          <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-            <LayoutTemplate className="w-6 h-6 text-gray-400" />
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-6 py-12 text-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+            <Radio className="w-7 h-7 text-[#2563EB]" />
           </div>
-          <p className="text-[0.9rem] text-gray-700 font-medium mb-1">No campaigns yet</p>
-          <p className="text-[0.78rem] text-gray-400 mb-5">Get started with a pre-built playbook or create your own campaign.</p>
+          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '16px', color: '#0B1224' }} className="mb-1">No campaigns yet</p>
+          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Launch your first AI-powered outreach campaign to connect with buyers.</p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 text-left">
+          <button
+            onClick={onNewCampaign}
+            style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
+            className="inline-flex items-center gap-1.5 hover:opacity-90 text-white border-0 rounded-[8px] px-5 py-2.5 text-[0.84rem] font-medium cursor-pointer transition-all shadow-sm mb-6"
+          >
+            <Plus className="w-4 h-4" /> Create your first campaign
+          </button>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
             {[
               { icon: Compass, name: 'New Market Entry', desc: 'Find and qualify cash buyers in a new market', cat: 'qualification' },
               { icon: Zap, name: 'Deal Blast', desc: 'Blast a hot deal to your best buyers', cat: 'deal_alert' },
@@ -412,13 +426,6 @@ function CampaignList({
               </button>
             ))}
           </div>
-
-          <button
-            onClick={onNewCampaign}
-            className="inline-flex items-center gap-1.5 text-[0.82rem] font-medium text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer transition-colors"
-          >
-            <Plus className="w-4 h-4" /> Browse all templates
-          </button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -590,10 +597,17 @@ function CampaignDetailView({
       <button onClick={onBack} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 mb-4 bg-transparent border-0 cursor-pointer">
         <ArrowLeft className="w-4 h-4" /> Back to Campaigns
       </button>
-      <div className="bg-white border border-red-200 rounded-[8px] px-6 py-8 text-center">
-        <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-        <p className="text-[0.82rem] text-gray-600">{error || 'Campaign not found'}</p>
-        <button onClick={() => fetchDetail()} className="mt-2 text-[0.78rem] text-[#2563EB] bg-transparent border-0 cursor-pointer">Retry</button>
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-6 py-8 text-center" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <AlertCircle className="w-7 h-7 mx-auto mb-3" style={{ color: '#F59E0B' }} />
+        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0B1224', marginBottom: 4 }}>Failed to load campaign</div>
+        <div style={{ fontSize: '0.78rem', color: 'rgba(5,14,36,0.4)', marginBottom: 16 }}>{error || 'Campaign not found'}</div>
+        <button
+          onClick={() => fetchDetail()}
+          className="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg text-white text-[0.78rem] font-semibold cursor-pointer border-none transition-colors hover:bg-[#1d4ed8]"
+          style={{ background: '#2563EB', fontFamily: 'inherit' }}
+        >
+          <RotateCcw className="w-3.5 h-3.5" /> Try again
+        </button>
       </div>
     </div>
   )
@@ -1068,11 +1082,16 @@ function CallLogTab({
 
   if (error && !loading) {
     return (
-      <div className="bg-white border border-red-200 rounded-[8px] px-6 py-8 text-center">
-        <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-        <p className="text-[0.82rem] text-gray-600 mb-2">{error}</p>
-        <button onClick={() => fetchCalls()} className="text-[0.78rem] text-[#2563EB] bg-transparent border-0 cursor-pointer inline-flex items-center gap-1">
-          <RotateCcw className="w-3.5 h-3.5" /> Retry
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-6 py-8 text-center" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <AlertCircle className="w-7 h-7 mx-auto mb-3" style={{ color: '#F59E0B' }} />
+        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0B1224', marginBottom: 4 }}>Failed to load call log</div>
+        <div style={{ fontSize: '0.78rem', color: 'rgba(5,14,36,0.4)', marginBottom: 16 }}>{error}</div>
+        <button
+          onClick={() => fetchCalls()}
+          className="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg text-white text-[0.78rem] font-semibold cursor-pointer border-none transition-colors hover:bg-[#1d4ed8]"
+          style={{ background: '#2563EB', fontFamily: 'inherit' }}
+        >
+          <RotateCcw className="w-3.5 h-3.5" /> Try again
         </button>
       </div>
     )
@@ -4949,6 +4968,7 @@ export default function AIOutreachPage() {
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }

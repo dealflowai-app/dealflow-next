@@ -241,16 +241,41 @@ function FeedSection() {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-5 h-5 animate-spin text-gray-300" />
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white" style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: '16px 20px' }}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full animate-pulse" style={{ background: 'rgba(5,14,36,0.06)' }} />
+                <div className="flex-1">
+                  <div className="h-3 w-24 rounded animate-pulse mb-1.5" style={{ background: 'rgba(5,14,36,0.06)' }} />
+                  <div className="h-2 w-16 rounded animate-pulse" style={{ background: 'rgba(5,14,36,0.04)' }} />
+                </div>
+              </div>
+              <div className="h-3 w-full rounded animate-pulse mb-2" style={{ background: 'rgba(5,14,36,0.05)' }} />
+              <div className="h-3 w-3/4 rounded animate-pulse" style={{ background: 'rgba(5,14,36,0.04)' }} />
+            </div>
+          ))}
         </div>
       )}
 
       {/* Empty */}
       {!loading && posts.length === 0 && (
-        <div className="text-center py-16">
-          <Rss className="w-8 h-8 mx-auto mb-3 opacity-20" style={{ color: 'rgba(5,14,36,0.4)' }} />
-          <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(5,14,36,0.45)', fontFamily: FONT }}>No posts yet. Be the first to share!</p>
+        <div className="flex flex-col items-center justify-center py-20 bg-white" style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10 }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+            <Rss className="w-7 h-7 text-[#2563EB]" />
+          </div>
+          <p style={{ fontSize: 16, fontWeight: 600, color: '#0B1224', fontFamily: FONT }} className="mb-1">No posts yet</p>
+          <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.5)', fontFamily: FONT }} className="mb-6">Be the first to share something with the wholesaler community.</p>
+          <button
+            onClick={() => {
+              const textarea = document.querySelector('textarea[placeholder*="Share something"]') as HTMLTextAreaElement | null
+              if (textarea) { textarea.focus(); textarea.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
+            }}
+            style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
+            className="flex items-center gap-1.5 hover:opacity-90 text-white border-0 rounded-[8px] px-5 py-2.5 text-sm font-medium cursor-pointer transition-all shadow-sm"
+          >
+            <MessageSquare className="w-4 h-4" /> Start a discussion
+          </button>
         </div>
       )}
 
@@ -609,17 +634,34 @@ function GroupsSection() {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-5 h-5 animate-spin text-gray-300" />
+        <div className="grid grid-cols-2 gap-4 community-groups">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-white" style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20 }}>
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg animate-pulse" style={{ background: 'rgba(5,14,36,0.06)' }} />
+                <div className="flex-1">
+                  <div className="h-3 w-28 rounded animate-pulse mb-1.5" style={{ background: 'rgba(5,14,36,0.06)' }} />
+                  <div className="h-2 w-20 rounded animate-pulse" style={{ background: 'rgba(5,14,36,0.04)' }} />
+                </div>
+              </div>
+              <div className="h-2.5 w-full rounded animate-pulse mb-1.5" style={{ background: 'rgba(5,14,36,0.04)' }} />
+              <div className="h-2.5 w-2/3 rounded animate-pulse" style={{ background: 'rgba(5,14,36,0.04)' }} />
+            </div>
+          ))}
         </div>
       )}
 
       {/* Empty */}
       {!loading && groups.length === 0 && (
-        <div className="text-center py-16">
-          <Users className="w-8 h-8 mx-auto mb-3 opacity-20" style={{ color: 'rgba(5,14,36,0.4)' }} />
-          <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(5,14,36,0.45)', fontFamily: FONT }}>
-            {search ? 'No groups match your search.' : 'No groups yet. Create the first one!'}
+        <div className="flex flex-col items-center justify-center py-20 bg-white" style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10 }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+            <Users className="w-7 h-7 text-[#2563EB]" />
+          </div>
+          <p style={{ fontSize: 16, fontWeight: 600, color: '#0B1224', fontFamily: FONT }} className="mb-1">
+            {search ? 'No groups found' : 'No groups yet'}
+          </p>
+          <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.5)', fontFamily: FONT }} className="mb-6">
+            {search ? 'Try a different search term.' : 'Create the first group and invite other wholesalers.'}
           </p>
         </div>
       )}
@@ -669,7 +711,7 @@ function GroupsSection() {
 }
 
 /* ═══════════════════════════════════════════════
-   MESSAGES SECTION (mock — coming soon)
+   MESSAGES SECTION (Direct Messages)
    ═══════════════════════════════════════════════ */
 /* ─── DM types ─── */
 type DMUser = { id: string; firstName: string | null; lastName: string | null; avatarUrl: string | null; company?: string | null }

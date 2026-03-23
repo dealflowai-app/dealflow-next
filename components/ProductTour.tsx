@@ -3,10 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Search, Users, PhoneOutgoing,
-  FolderOpen, FileSignature, Store, MessagesSquare,
-  Sparkles, Settings, ArrowRight, X, ChevronRight,
-  Map, Bell, Handshake, Rocket,
+  LayoutDashboard, Users, PhoneOutgoing,
+  FolderOpen, FileSignature, Store,
+  Sparkles, X, ChevronRight,
+  Map, Rocket,
 } from 'lucide-react'
 
 const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
@@ -24,127 +24,91 @@ interface TourStep {
 }
 
 const TOUR_STEPS: TourStep[] = [
-  // 1. Welcome modal (centered, no navigation)
+  // 1. Welcome modal
   {
     target: null,
     title: 'Welcome to DealFlow AI',
-    description: "Let's take a quick tour of your new platform. We'll walk through each section so you know exactly where everything is. This only takes about a minute.",
+    description: "Let's take a quick 60-second tour so you can start closing deals faster. We'll show you exactly where to go first.",
     icon: <Rocket className="w-6 h-6" />,
     position: 'center',
   },
-  // 2. Dashboard - highlight sidebar, explain navigation
-  {
-    target: '[data-tour="sidebar"]',
-    title: 'Navigation Sidebar',
-    description: 'This sidebar is your main way to move between sections. Every tool you need is one click away. You can collapse it anytime for more screen space.',
-    icon: <LayoutDashboard className="w-5 h-5" />,
-    position: 'right',
-    route: '/dashboard',
-  },
-  // 3. Stay on dashboard, explain the page
+  // 2. Dashboard overview
   {
     target: '[data-tour="dashboard-content"]',
     title: 'Your Dashboard',
-    description: 'This is your command center. Track KPIs like revenue and deal count, view pipeline charts, monitor campaign performance, and see recent activity all in one place.',
+    description: 'Check your KPIs, revenue, and pipeline at a glance. Use the quick-action buttons to jump straight into your most common tasks.',
     icon: <LayoutDashboard className="w-5 h-5" />,
     position: 'left',
     route: '/dashboard',
   },
-  // 4. Navigate to /discovery
+  // 3. Discovery
   {
     target: '[data-tour="discovery-content"]',
-    title: 'Discovery',
-    description: 'Search for properties and cash buyers by city or zip code. Use the interactive map to explore results, filter by property type, equity, and owner status, then import leads directly to your CRM.',
+    title: 'Find Cash Buyers',
+    description: 'Type a city or zip code to search for properties and cash buyers. Use the map and filters to zero in on your ideal leads, then import them to your CRM with one click.',
     icon: <Map className="w-5 h-5" />,
     position: 'bottom',
     route: '/discovery',
   },
-  // 5. Navigate to /crm
+  // 4. CRM
   {
     target: '[data-tour="crm-content"]',
-    title: 'CRM',
-    description: 'Manage all your buyer contacts here. Import leads from Discovery, organize with tags and scoring, log calls and notes, and track every interaction through your pipeline.',
+    title: 'Manage Your Buyers',
+    description: 'Add your first buyer or import leads from Discovery. Tag, score, and track every conversation so no deal slips through the cracks.',
     icon: <Users className="w-5 h-5" />,
     position: 'bottom',
     route: '/crm',
   },
-  // 6. Navigate to /outreach
+  // 5. Outreach
   {
     target: '[data-tour="outreach-content"]',
-    title: 'Outreach',
-    description: 'Run multi-channel campaigns powered by your CRM. AI voice calling, SMS, and email are all built in with full recording, transcripts, and performance analytics.',
+    title: 'Launch Campaigns',
+    description: 'Select buyers from your CRM and start an AI-powered calling, SMS, or email campaign. Every call is recorded and transcribed automatically.',
     icon: <PhoneOutgoing className="w-5 h-5" />,
     position: 'bottom',
     route: '/outreach',
   },
-  // 7. Navigate to /deals
+  // 6. My Deals
   {
     target: '[data-tour="deals-content"]',
-    title: 'My Deals',
-    description: 'Track every property you are working on. View asking price, ARV, spread, matched buyers, and incoming offers. You can also analyze new deals and generate reports from here.',
+    title: 'Track Your Deals',
+    description: 'Add a property address to analyze comps, ARV, and profit potential. Track every active deal, match it to buyers, and monitor incoming offers.',
     icon: <FolderOpen className="w-5 h-5" />,
     position: 'bottom',
     route: '/deals',
   },
-  // 8. Navigate to /marketplace
+  // 7. Marketplace
   {
     target: '[data-tour="marketplace-content"]',
-    title: 'Marketplace',
-    description: 'Browse deals posted by other wholesalers or list your own. Connect with active buyers, share buy-box criteria, and build your reputation score over time.',
+    title: 'Browse the Marketplace',
+    description: 'List your deals for other wholesalers to see, or browse listings to find opportunities. Great for JV partnerships and moving inventory fast.',
     icon: <Store className="w-5 h-5" />,
     position: 'bottom',
     route: '/marketplace',
   },
-  // 9. Navigate to /contracts
+  // 8. Contracts
   {
     target: '[data-tour="contracts-content"]',
-    title: 'Contracts',
-    description: 'Create state-specific assignment contracts that auto-fill from your deal data. Send for e-signatures and keep a complete audit trail of every document.',
+    title: 'Send Contracts',
+    description: 'Create assignment contracts that auto-fill from your deal data. Pick a state-specific template, customize it, and send for e-signature in minutes.',
     icon: <FileSignature className="w-5 h-5" />,
     position: 'bottom',
     route: '/contracts',
   },
-  // 10. Navigate to /community
-  {
-    target: '[data-tour="community-content"]',
-    title: 'Community',
-    description: 'Connect with other wholesalers through the feed, join groups, share wins, ask questions, and send direct messages. This is where deals and partnerships start.',
-    icon: <MessagesSquare className="w-5 h-5" />,
-    position: 'bottom',
-    route: '/community',
-  },
-  // 11. Back to dashboard, highlight search button
-  {
-    target: '[data-tour="search-btn"]',
-    title: 'Quick Search (Ctrl+K)',
-    description: 'Press Ctrl+K anytime to open the command palette. Search pages, actions, buyers, and deals instantly from anywhere in the app.',
-    icon: <Search className="w-5 h-5" />,
-    position: 'bottom',
-    route: '/dashboard',
-  },
-  // 12. Highlight Ask AI button
+  // 9. Ask AI
   {
     target: '[data-tour="ask-ai-btn"]',
-    title: 'Ask AI',
-    description: 'Your AI assistant has full context on your deals, buyers, and campaigns. Ask it for deal advice, buyer recommendations, market analysis, or strategy coaching.',
+    title: 'Ask AI Anything',
+    description: 'Stuck on a deal? Click here to chat with your AI assistant. It knows your buyers, deals, and campaigns and can help with pricing, strategy, and next steps.',
     icon: <Sparkles className="w-5 h-5" />,
     position: 'bottom',
     route: '/dashboard',
   },
-  // 13. Highlight inbox/notification bell
-  {
-    target: '[data-tour="inbox-btn"]',
-    title: 'Inbox & Notifications',
-    description: 'Stay on top of everything. You will get notified when someone likes your post, comments, joins your group, sends you a message, or when a deal status changes.',
-    icon: <Bell className="w-5 h-5" />,
-    position: 'bottom',
-    route: '/dashboard',
-  },
-  // 14. Final centered modal
+  // 10. Finish
   {
     target: null,
-    title: "You're All Set!",
-    description: "Your dashboard is populated with demo data so you can explore every feature. When you're ready to start fresh with real data, clear the demo from the banner at the top of the page.",
+    title: "You're Ready to Go!",
+    description: "Your dashboard has demo data so you can explore everything risk-free. When you're ready, clear the demo from the banner at the top and start adding real deals.",
     icon: <Rocket className="w-6 h-6" />,
     position: 'center',
     route: '/dashboard',

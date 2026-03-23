@@ -233,6 +233,116 @@ function RowMenu({
 }
 
 /* ═══════════════════════════════════════════════
+   SHIMMER SKELETON HELPERS
+   ═══════════════════════════════════════════════ */
+const SHIMMER_BG = 'linear-gradient(90deg, rgba(5,14,36,0.04) 25%, rgba(5,14,36,0.08) 50%, rgba(5,14,36,0.04) 75%)'
+
+function ShimmerBox({ height, width, style }: { height: number | string; width: number | string; style?: React.CSSProperties }) {
+  return (
+    <div style={{
+      background: SHIMMER_BG,
+      backgroundSize: '200% 100%',
+      animation: 'shimmer 1.5s infinite',
+      borderRadius: 6,
+      height,
+      width,
+      ...style,
+    }} />
+  )
+}
+
+function DealsTableSkeleton() {
+  return (
+    <div className="bg-white rounded-[10px] overflow-hidden" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
+      {/* header */}
+      <div
+        className="grid px-5 py-3 items-center"
+        style={{ gridTemplateColumns: '36px 2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px', background: 'rgba(5,14,36,0.02)', borderBottom: '1px solid rgba(5,14,36,0.04)' }}
+      >
+        {Array.from({ length: 9 }).map((_, i) => <ShimmerBox key={i} height={10} width={i === 0 ? 16 : '60%'} />)}
+      </div>
+      {/* rows */}
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="grid px-5 py-3.5 items-center"
+          style={{ gridTemplateColumns: '36px 2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px', borderBottom: '1px solid rgba(5,14,36,0.04)' }}
+        >
+          <ShimmerBox height={16} width={16} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <ShimmerBox height={14} width="70%" />
+            <ShimmerBox height={10} width="45%" />
+          </div>
+          <ShimmerBox height={14} width="55%" />
+          <ShimmerBox height={14} width="55%" />
+          <ShimmerBox height={14} width="50%" />
+          <ShimmerBox height={14} width="40%" />
+          <ShimmerBox height={14} width="40%" />
+          <ShimmerBox height={22} width="65%" style={{ borderRadius: 12 }} />
+          <ShimmerBox height={16} width={20} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function DealsPipelineSkeleton() {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+      {Array.from({ length: 4 }).map((_, col) => (
+        <div key={col} style={{ background: 'white', borderRadius: 10, border: '1px solid rgba(5,14,36,0.06)', padding: '16px 12px' }}>
+          <ShimmerBox height={12} width="50%" style={{ marginBottom: 12 }} />
+          {Array.from({ length: 3 }).map((_, row) => (
+            <div key={row} style={{ background: 'rgba(5,14,36,0.02)', borderRadius: 8, padding: 12, marginBottom: 8 }}>
+              <ShimmerBox height={12} width="75%" style={{ marginBottom: 8 }} />
+              <ShimmerBox height={10} width="50%" style={{ marginBottom: 6 }} />
+              <ShimmerBox height={10} width="40%" />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function DealsErrorCard({ error, onRetry }: { error: string; onRetry: () => void }) {
+  return (
+    <div style={{
+      background: 'white',
+      borderRadius: 12,
+      border: '1px solid rgba(5,14,36,0.06)',
+      textAlign: 'center',
+      padding: '40px 20px',
+      fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+    }}>
+      <AlertCircle style={{ width: 28, height: 28, color: '#F59E0B', margin: '0 auto 12px' }} />
+      <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0B1224', marginBottom: 6 }}>Failed to load deals</div>
+      <div style={{ fontSize: '0.78rem', color: 'rgba(5,14,36,0.4)', marginBottom: 16 }}>{error}</div>
+      <button
+        onClick={onRetry}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '8px 20px',
+          borderRadius: 8,
+          background: '#2563EB',
+          color: 'white',
+          fontSize: '0.78rem',
+          fontWeight: 600,
+          fontFamily: 'inherit',
+          border: 'none',
+          cursor: 'pointer',
+        }}
+      >
+        <RefreshCw style={{ width: 14, height: 14 }} />
+        Try again
+      </button>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
    MAIN PAGE
    ═══════════════════════════════════════════════ */
 export default function DealsPage() {
@@ -241,6 +351,7 @@ export default function DealsPage() {
 
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'list' | 'pipeline'>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('dealflow-deals-view') as 'list' | 'pipeline') || 'list'
@@ -283,12 +394,17 @@ export default function DealsPage() {
 
   // Fetch deals
   const fetchDeals = useCallback(() => {
+    setLoading(true)
+    setError(null)
     fetch('/api/deals')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) return r.json().then(e => { throw new Error(e.detail || e.error || `HTTP ${r.status}`) })
+        return r.json()
+      })
       .then((data) => {
         setDeals(data.deals || [])
       })
-      .catch(() => {})
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load deals'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -835,19 +951,24 @@ export default function DealsPage() {
         </div>
       )}
 
+      {/* Error state */}
+      {error && deals.length === 0 && !loading && (
+        <DealsErrorCard error={error} onRetry={fetchDeals} />
+      )}
+
       {/* Pipeline View */}
       {viewMode === 'pipeline' ? (
         loading ? (
-          <div className="py-16 px-6 text-center">
-            <Loader2 className="w-5 h-5 text-gray-300 animate-spin mx-auto mb-2" />
-            <div className="text-[0.84rem] text-[rgba(5,14,36,0.4)]">Loading deals...</div>
-          </div>
-        ) : (
+          <DealsPipelineSkeleton />
+        ) : error && deals.length === 0 ? null : (
           <PipelineView deals={deals} onDealsChange={fetchDeals} />
         )
       ) : (
 
       /* List / Table View */
+      loading ? (
+        <DealsTableSkeleton />
+      ) : error && deals.length === 0 ? null : (
       <div className="bg-white rounded-[10px] overflow-hidden" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
         {/* Table header */}
         <div
@@ -869,21 +990,19 @@ export default function DealsPage() {
           ))}
         </div>
 
-        {loading ? (
-          <div className="py-16 px-6 text-center">
-            <Loader2 className="w-5 h-5 text-gray-300 animate-spin mx-auto mb-2" />
-            <div className="text-[0.84rem] text-[rgba(5,14,36,0.4)]">Loading deals...</div>
-          </div>
-        ) : visibleDeals.length === 0 && deals.length === 0 ? (
-          <div className="py-16 px-6 text-center">
-            <div className="text-[0.86rem] text-[rgba(5,14,36,0.65)] mb-5 max-w-[340px] mx-auto">
-              No deals yet. Submit a property and the AI will start finding matched cash buyers.
+        {visibleDeals.length === 0 && deals.length === 0 ? (
+          <div className="py-20 px-6 text-center">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+              <FolderOpen className="w-7 h-7 text-[#2563EB]" />
             </div>
+            <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '16px', color: '#0B1224' }} className="mb-1">No deals yet</p>
+            <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Submit a property and the AI will start finding matched cash buyers.</p>
             <Link
               href="/deals/new"
-              className="inline-flex items-center gap-1.5 border border-gray-300 text-gray-700 rounded-md px-4 py-2 text-[0.84rem] no-underline hover:bg-gray-50 transition-colors"
+              style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
+              className="inline-flex items-center gap-1.5 hover:opacity-90 text-white border-0 rounded-[8px] px-5 py-2.5 text-[0.84rem] font-medium no-underline transition-all shadow-sm"
             >
-              Submit your first deal
+              <Plus className="w-4 h-4" /> Create your first deal
             </Link>
           </div>
         ) : visibleDeals.length === 0 ? (
@@ -1003,7 +1122,7 @@ export default function DealsPage() {
           </div>
         )}
       </div>
-
+      )
       )}
 
       {/* Delete confirmation dialog */}
@@ -1068,6 +1187,7 @@ export default function DealsPage() {
       />
 
       <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         @media (max-width: 800px) {
           .deals-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .deals-controls { flex-direction: column; align-items: stretch !important; }

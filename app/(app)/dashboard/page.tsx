@@ -699,8 +699,14 @@ function DonutChart({ segments, size = 140, showTotal = false }: {
 function Skeleton({ height = 16, width, className = '' }: { height?: number; width?: string | number; className?: string }) {
   return (
     <div
-      className={`animate-pulse bg-[#F3F4F6] rounded-lg ${className}`}
-      style={{ height, width: width || '100%' }}
+      className={`rounded-lg ${className}`}
+      style={{
+        height,
+        width: width || '100%',
+        background: 'linear-gradient(90deg, rgba(5,14,36,0.04) 25%, rgba(5,14,36,0.08) 50%, rgba(5,14,36,0.04) 75%)',
+        backgroundSize: '200% 100%',
+        animation: 'shimmer 1.5s infinite',
+      }}
     />
   )
 }
@@ -710,7 +716,11 @@ function SkeletonCard() {
     <div className="ds-card bg-white border border-[rgba(5,14,36,0.06)]">
       <div className="flex items-start justify-between mb-3">
         <Skeleton height={10} width="40%" />
-        <div className="w-9 h-9 rounded-lg animate-pulse bg-[#F3F4F6]" />
+        <div className="w-9 h-9 rounded-lg" style={{
+          background: 'linear-gradient(90deg, rgba(5,14,36,0.04) 25%, rgba(5,14,36,0.08) 50%, rgba(5,14,36,0.04) 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'shimmer 1.5s infinite',
+        }} />
       </div>
       <Skeleton height={32} width="50%" className="mb-2" />
       <Skeleton height={10} width="60%" />
@@ -1627,8 +1637,8 @@ export default function DashboardPage() {
         className="flex-shrink-0 bg-white"
         style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
       >
-        <div className="px-8">
-          <nav className="flex gap-0.5 -mb-px">
+        <div className="px-4 sm:px-8">
+          <nav className="flex gap-0.5 -mb-px overflow-x-auto">
             {TABS.map(tab => {
               const Icon = tab.icon
               const isActive = activeTab === tab.key
@@ -1642,7 +1652,7 @@ export default function DashboardPage() {
                     fontWeight: isActive ? 550 : 420,
                     letterSpacing: '-0.005em',
                   }}
-                  className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all ${
+                  className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all whitespace-nowrap ${
                     isActive
                       ? 'text-[#0B1224]'
                       : 'text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.7)]'
@@ -1658,7 +1668,8 @@ export default function DashboardPage() {
                       transition: 'color 0.18s ease',
                     }}
                   />
-                  {tab.label}
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
                   {isActive && (
                     <div style={{ position: 'absolute', bottom: -1, left: 12, right: 12, height: 2, borderRadius: 1, background: '#2563EB' }} />
                   )}
@@ -1669,7 +1680,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="p-8 max-w-[1200px]">
+      <div className="p-4 sm:p-8 max-w-[1200px]">
       {/* Verification reminder */}
       <VerificationBanner />
 
@@ -1737,6 +1748,7 @@ export default function DashboardPage() {
       )}
 
       <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .ds-card { border-radius: 10px; padding: 20px 24px; }
         .dash-row { transition: background 0.1s; }
         .dash-row:hover { background: rgba(37,99,235,0.02); }
@@ -1746,6 +1758,8 @@ export default function DashboardPage() {
         }
         @media (max-width: 600px) {
           .dash-grid-4 { grid-template-columns: 1fr !important; }
+          .dash-grid-4, .dash-grid-2 { gap: 12px !important; }
+          .ds-card { padding: 16px !important; }
         }
       ` }} />
       </div>

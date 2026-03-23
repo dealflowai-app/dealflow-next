@@ -1050,14 +1050,26 @@ function DealListingsSection() {
 
       {/* Map View */}
       {showMapView && (loading ? <ListingSkeleton /> : listings.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-12 text-center">
-          <Map className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-20 text-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+            <Map className="w-7 h-7 text-[#2563EB]" />
+          </div>
           {(searchText || stateFilter || typeFilter || minPrice || maxPrice) ? (
-            <p className="text-[0.82rem] text-[#9CA3AF]">No listings match your filters. Try adjusting your search criteria.</p>
+            <>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 600, fontSize: 16, color: '#0B1224' }} className="mb-1">No listings found</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>Try adjusting your search criteria.</p>
+            </>
           ) : (
             <>
-              <p className="text-[0.9rem] text-[#6B7280] mb-1">No deals listed yet</p>
-              <p className="text-[0.78rem] text-[#9CA3AF]">Be the first to list a deal on the marketplace.</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 600, fontSize: 16, color: '#0B1224' }} className="mb-1">No deals listed yet</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }} className="mb-6">Be the first to list a deal on the marketplace.</p>
+              <button
+                onClick={() => { /* navigate to create listing */ }}
+                style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
+                className="inline-flex items-center gap-1.5 hover:opacity-90 text-white border-0 rounded-[8px] px-5 py-2.5 text-[0.84rem] font-medium cursor-pointer transition-all shadow-sm"
+              >
+                <Plus className="w-4 h-4" /> List a Deal
+              </button>
             </>
           )}
         </div>
@@ -1070,25 +1082,28 @@ function DealListingsSection() {
 
       {/* Grid View */}
       {!showMapView && (loading ? <ListingSkeleton /> : displayListings.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-12 text-center">
-          <Store className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-20 text-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+            <Store className="w-7 h-7 text-[#2563EB]" />
+          </div>
           {showSavedOnly ? (
             <>
-              <p className="text-[0.9rem] text-[#6B7280] mb-1">No saved listings</p>
-              <p className="text-[0.78rem] text-[#9CA3AF]">Bookmark deals to save them for later.</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 600, fontSize: 16, color: '#0B1224' }} className="mb-1">No saved listings</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>Bookmark deals to save them for later.</p>
             </>
           ) : (searchText || stateFilter || typeFilter || minPrice || maxPrice) ? (
             <>
-              <p className="text-[0.9rem] text-[#6B7280] mb-1">No listings found</p>
-              <p className="text-[0.78rem] text-[#9CA3AF]">Try adjusting your filters.</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 600, fontSize: 16, color: '#0B1224' }} className="mb-1">No listings found</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>Try adjusting your filters.</p>
             </>
           ) : (
             <>
-              <p className="text-[0.9rem] text-[#6B7280] mb-1">No deals listed yet</p>
-              <p className="text-[0.78rem] text-[#9CA3AF] mb-3">Be the first to list a deal on the marketplace.</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 600, fontSize: 16, color: '#0B1224' }} className="mb-1">No deals listed yet</p>
+              <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }} className="mb-6">Be the first to list a deal on the marketplace.</p>
               <button
                 onClick={() => { /* navigate to create listing */ }}
-                className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+                style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
+                className="inline-flex items-center gap-1.5 hover:opacity-90 text-white border-0 rounded-[8px] px-5 py-2.5 text-[0.84rem] font-medium cursor-pointer transition-all shadow-sm"
               >
                 <Plus className="w-4 h-4" /> List a Deal
               </button>
@@ -2595,18 +2610,19 @@ function MyListingsSection() {
       </div>
 
       {listings.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-16 text-center">
-          <Store className="w-12 h-12 text-[#D1D5DB] mx-auto mb-4" />
-          <h3 className="text-[1rem] font-medium text-[#374151] mb-2">No listings yet</h3>
-          <p className="text-[0.82rem] text-[#9CA3AF] mb-5 max-w-sm mx-auto">
-            List your first deal to start getting inquiries from buyers on the marketplace.
-          </p>
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-20 text-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+            <Store className="w-7 h-7 text-[#2563EB]" />
+          </div>
+          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '16px', color: '#0B1224' }} className="mb-1">No listings yet</p>
+          <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">List your first deal to start getting inquiries from buyers on the marketplace.</p>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+            style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 hover:opacity-90 text-white border-0 rounded-[8px] text-[0.84rem] font-medium cursor-pointer transition-all shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            List Your First Deal
+            List a deal
           </button>
         </div>
       ) : (

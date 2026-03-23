@@ -673,3 +673,51 @@ body {
     min-width: 160px !important;
   }
 }
+
+/* ─── MOBILE RESPONSIVE UTILITIES ────────────────────────── */
+
+/* Hide sidebar from document flow on mobile (handled via transform) */
+@media (max-width: 767px) {
+  /* Prevent body scroll when mobile sidebar is open */
+  body.mobile-sidebar-active {
+    overflow: hidden;
+  }
+
+  /* Modal dialogs: constrain width on mobile */
+  .crm-modal-content {
+    width: calc(100vw - 32px) !important;
+    max-width: 540px !important;
+  }
+
+  /* Discovery detail panel grids: 2 cols on mobile */
+  .disc-sidebar .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .disc-sidebar .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Dashboard card padding reduction on mobile */
+  .ds-card {
+    padding: 16px !important;
+  }
+
+  /* CRM pipeline: horizontal scroll on mobile */
+  .crm-pipeline {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Small phone adjustments */
+@media (max-width: 480px) {
+  /* Reduce topbar height slightly */
+  :root {
+    --topbar-h: 48px;
+  }
+
+  /* Tighter padding on cards */
+  .ds-card {
+    padding: 12px 14px !important;
+  }
+}

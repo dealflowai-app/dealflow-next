@@ -443,6 +443,7 @@ function ActiveContractsSection({
   onViewDetail,
   onStatusChange,
   onSendContract,
+  onCreateFromTemplate,
 }: {
   contracts: ContractRow[]
   loading: boolean
@@ -450,12 +451,32 @@ function ActiveContractsSection({
   onViewDetail: (id: string) => void
   onStatusChange: (id: string, status: string, extra?: Record<string, string>) => void
   onSendContract: (contract: ContractRow) => void
+  onCreateFromTemplate?: () => void
 }) {
   if (loading) return <ContractSkeleton />
 
   const active = pipelineFilter
     ? contracts.filter(c => c.status === pipelineFilter)
     : contracts.filter(c => c.status === 'DRAFT' || c.status === 'SENT')
+
+  if (active.length === 0 && !pipelineFilter && contracts.length === 0) {
+    return (
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-20 text-center">
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(37,99,235,0.08)' }}>
+          <FileSignature className="w-7 h-7 text-[#2563EB]" />
+        </div>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '16px', color: '#0B1224' }} className="mb-1">No contracts yet</p>
+        <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Generate your first assignment contract from a template.</p>
+        <button
+          onClick={onCreateFromTemplate}
+          style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
+          className="inline-flex items-center gap-1.5 hover:opacity-90 text-white border-0 rounded-[8px] px-5 py-2.5 text-[0.84rem] font-medium cursor-pointer transition-all shadow-sm"
+        >
+          <Plus className="w-4 h-4" /> Create from template
+        </button>
+      </div>
+    )
+  }
 
   if (active.length === 0) {
     return (
@@ -2134,6 +2155,7 @@ export default function ContractsPage() {
               onViewDetail={id => setDetailContractId(id)}
               onStatusChange={handleStatusChange}
               onSendContract={handleSendContract}
+              onCreateFromTemplate={() => setActiveTab('templates')}
             />
           )}
           {activeTab === 'templates' && <TemplatesSection onUseTemplate={handleUseTemplate} />}
