@@ -86,7 +86,7 @@ function SpeakerStatsBar({ stats }: { stats: SpeakerStats[] }) {
   const buyer = stats.find(s => s.speaker === 'buyer')
 
   return (
-    <div className="rounded-lg bg-gray-800/50 p-3 mb-3">
+    <div className="rounded-[8px] bg-gray-800/50 p-3 mb-3">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-xs font-medium text-gray-400">Talk Ratio</span>
       </div>
@@ -126,7 +126,7 @@ function KeyMomentsList({
   if (moments.length === 0) return null
 
   return (
-    <div className="rounded-lg bg-gray-800/50 p-3 mb-3">
+    <div className="rounded-[8px] bg-gray-800/50 p-3 mb-3">
       <span className="text-xs font-medium text-gray-400 mb-2 block">Key Moments</span>
       <div className="flex flex-wrap gap-1.5">
         {moments.map((km, i) => {
@@ -226,7 +226,7 @@ export default function TranscriptViewer({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search transcript..."
-            className="w-full rounded-lg bg-gray-800 py-1.5 pl-8 pr-3 text-sm text-gray-200 placeholder-gray-500 outline-none ring-1 ring-gray-700 focus:ring-brand-blue-500 transition-colors"
+            className="w-full rounded-[8px] bg-gray-800 py-1.5 pl-8 pr-3 text-sm text-gray-200 placeholder-gray-500 outline-none ring-1 ring-gray-700 focus:ring-brand-blue-500 transition-colors"
           />
           {searchQuery && (
             <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-500">
@@ -236,7 +236,7 @@ export default function TranscriptViewer({
         </div>
         <button
           onClick={() => setShowStats(s => !s)}
-          className="rounded-lg bg-gray-800 px-2.5 py-1.5 text-xs text-gray-400 hover:text-white ring-1 ring-gray-700 transition-colors"
+          className="rounded-[8px] bg-gray-800 px-2.5 py-1.5 text-xs text-gray-400 hover:text-white ring-1 ring-gray-700 transition-colors"
           title={showStats ? 'Hide stats' : 'Show stats'}
         >
           Stats
@@ -268,11 +268,11 @@ export default function TranscriptViewer({
               <div
                 key={seg.id}
                 ref={el => { if (el) segmentRefs.current.set(seg.id, el) }}
-                className={`group flex gap-2 ${isAgent ? '' : 'flex-row-reverse'} ${isActive ? 'ring-1 ring-brand-blue-500/40 rounded-lg' : ''}`}
+                className={`group flex gap-2 ${isAgent ? '' : 'flex-row-reverse'} ${isActive ? 'ring-1 ring-brand-blue-500/40 rounded-[8px]' : ''}`}
               >
                 {/* Bubble */}
                 <div
-                  className={`relative max-w-[80%] rounded-lg px-3 py-2 text-sm transition-colors ${
+                  className={`relative max-w-[80%] rounded-[8px] px-3 py-2 text-sm transition-colors ${
                     isSystem
                       ? 'bg-gray-800/50 text-gray-500 italic text-xs mx-auto max-w-full text-center'
                       : isAgent

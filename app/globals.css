@@ -51,11 +51,29 @@
   --green-bg: rgba(22, 163, 74, 0.08);
   --shadow-brand: 5, 14, 36;
 
+  /* Navigation tokens */
+  --nav-width: 190px;
+  --nav-width-collapsed: 56px;
+  --nav-header-h: 52px;
+  --nav-item-radius: 8px;
+  --nav-font-size: 13.5px;
+  --nav-icon-size: 18px;
+  --nav-active-bg: rgba(37, 99, 235, 0.05);
+  --nav-active-text: #2563EB;
+  --nav-active-icon: #2563EB;
+  --nav-hover-bg: rgba(5, 14, 36, 0.035);
+  --nav-inactive-text: rgba(5, 14, 36, 0.55);
+  --nav-inactive-icon: rgba(5, 14, 36, 0.35);
+  --nav-section-label: rgba(5, 14, 36, 0.3);
+  --nav-border: rgba(5, 14, 36, 0.05);
+  --topbar-h: 52px;
+  --topbar-border: rgba(5, 14, 36, 0.04);
+
   /* Dashboard design tokens */
   --dash-bg: #F9FAFB;
   --dash-card: #ffffff;
   --dash-card-border: rgba(5, 14, 36, 0.08);
-  --dash-card-radius: 12px;
+  --dash-card-radius: 10px;
   --dash-text: #0B1224;
   --dash-body: rgba(5, 14, 36, 0.65);
   --dash-muted: rgba(5, 14, 36, 0.4);

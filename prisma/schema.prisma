@@ -228,6 +228,11 @@ model Profile {
   paymentHistory       PaymentHistory[]
   matchAlerts          MatchAlert[]
   notifications        Notification[]
+  communityPosts       CommunityPost[]
+  postComments         PostComment[]
+  postLikes            PostLike[]
+  createdGroups        CommunityGroup[] @relation("groupCreator")
+  groupMemberships     GroupMember[]
 
   @@map("profiles")
 }
@@ -1520,4 +1525,81 @@ model Notification {
   @@index([profileId, read])
   @@index([createdAt])
   @@map("notifications")
+}
+
+// ─── COMMUNITY FEED ──────────────────────────────────────────────────────────
+
+model CommunityPost {
+  id         String   @id @default(uuid())
+  profileId  String
+  content    String
+  imageUrl   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  profile    Profile         @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  comments   PostComment[]
+  likes      PostLike[]
+
+  @@index([profileId])
+  @@index([createdAt])
+  @@map("community_posts")
+}
+
+model PostComment {
+  id         String   @id @default(uuid())
+  postId     String
+  profileId  String
+  content    String
+  createdAt  DateTime @default(now())
+
+  post       CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  profile    Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([profileId])
+  @@map("post_comments")
+}
+
+model PostLike {
+  id         String   @id @default(uuid())
+  postId     String
+  profileId  String
+  createdAt  DateTime @default(now())
+
+  post       CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  profile    Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, profileId])
+  @@index([postId])
+  @@map("post_likes")
+}
+
+model CommunityGroup {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy   Profile        @relation("groupCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+
+  @@index([createdAt])
+  @@map("community_groups")
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  groupId   String
+  profileId String
+  createdAt DateTime @default(now())
+
+  group     CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  profile   Profile        @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, profileId])
+  @@index([profileId])
+  @@map("group_members")
 }

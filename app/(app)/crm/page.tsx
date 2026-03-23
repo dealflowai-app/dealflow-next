@@ -34,6 +34,7 @@ import {
   CheckCircle2,
   FileDown,
   Merge,
+  UserCheck,
 } from 'lucide-react'
 import {
   useBuyers,
@@ -242,7 +243,7 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`flex items-center gap-2 px-4 py-3 rounded-[12px] shadow-lg text-sm font-medium animate-slideInRight ${
+          className={`flex items-center gap-2 px-4 py-3 rounded-[10px] shadow-lg text-sm font-medium animate-slideInRight ${
             t.type === 'success' ? 'bg-[#2563EB] text-white'
               : t.type === 'error' ? 'bg-red-600 text-white'
                 : 'bg-gray-800 text-white'
@@ -305,7 +306,7 @@ function SkeletonRow() {
 
 function TableSkeleton() {
   return (
-    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] shadow-none overflow-hidden">
+    <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-none overflow-hidden">
       <table className="w-full min-w-[1000px]">
         <thead>
           <tr className="border-b border-[rgba(5,14,36,0.04)]" style={{ background: 'rgba(5,14,36,0.02)' }}>
@@ -338,7 +339,7 @@ function DetailSkeleton() {
       {[1, 2, 3].map((i) => (
         <div key={i} className="space-y-2">
           <div className="w-24 h-3 bg-gray-200 rounded animate-pulse" />
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+          <div className="bg-gray-50 rounded-[8px] p-4 space-y-3">
             {[1, 2, 3].map((j) => (
               <div key={j} className="flex justify-between">
                 <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
@@ -385,7 +386,7 @@ function FilterSelect({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
-        className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] pl-3 pr-7 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
+        className="appearance-none bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] pl-3 pr-7 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
       >
         <option value="">{label}</option>
         {options.map((o) => (
@@ -445,7 +446,7 @@ function AddBuyerModal({ onClose, onCreated, defaultType }: { onClose: () => voi
   }
 
   const scoreVal = Number(form.buyerScore) || 0
-  const inputCls = "w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-3 py-2.5 text-[0.82rem] outline-none focus:border-[#2563EB] transition-colors bg-white"
+  const inputCls = "w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-3 py-2.5 text-[0.82rem] outline-none focus:border-[#2563EB] transition-colors bg-white"
   const labelCls = "text-[0.72rem] font-medium text-[rgba(5,14,36,0.45)] mb-1.5 block uppercase tracking-wide"
   const selectCls = inputCls + " cursor-pointer"
 
@@ -550,7 +551,7 @@ function AddBuyerModal({ onClose, onCreated, defaultType }: { onClose: () => voi
                   <button key={m.value} type="button"
                     onClick={() => setForm(p => ({ ...p, motivation: p.motivation === m.value ? '' : m.value }))}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] text-[0.74rem] font-medium border cursor-pointer transition-all ${
-                      form.motivation === m.value ? 'bg-[#0B1224] text-white border-[#0B1224]' : 'bg-white border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.5)] hover:border-[rgba(5,14,36,0.15)]'
+                      form.motivation === m.value ? 'bg-[#0B1224] text-white border-[#0B1224]' : 'bg-white border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.5)] hover:border-[rgba(5,14,36,0.15)]'
                     }`}>
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: m.dot }} />
                     {m.label}
@@ -558,7 +559,7 @@ function AddBuyerModal({ onClose, onCreated, defaultType }: { onClose: () => voi
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-[rgba(5,14,36,0.02)] rounded-[10px] p-3">
+            <div className="flex items-center gap-3 bg-[rgba(5,14,36,0.02)] rounded-[8px] p-3">
               <span className="text-[0.72rem] font-medium text-[rgba(5,14,36,0.4)] whitespace-nowrap">Score</span>
               <input type="range" min="0" max="100" value={form.buyerScore} onChange={e => setForm(p => ({ ...p, buyerScore: e.target.value }))}
                 className="flex-1 h-1.5 accent-[#2563EB] cursor-pointer" />
@@ -696,9 +697,9 @@ function AddBuyerModal({ onClose, onCreated, defaultType }: { onClose: () => voi
 
         {/* Footer */}
         <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: '1px solid rgba(5,14,36,0.06)' }}>
-          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[0.82rem] font-medium text-[rgba(5,14,36,0.5)] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-[rgba(5,14,36,0.02)] transition-colors">Cancel</button>
+          <button type="button" onClick={onClose} className="px-4 py-2.5 text-[0.82rem] font-medium text-[rgba(5,14,36,0.5)] bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] cursor-pointer hover:bg-[rgba(5,14,36,0.02)] transition-colors">Cancel</button>
           <button type="submit" disabled={saving}
-            className="px-5 py-2.5 text-[0.82rem] font-semibold text-white rounded-[10px] border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 hover:opacity-90 transition-opacity bg-[#2563EB]"
+            className="px-5 py-2.5 text-[0.82rem] font-semibold text-white rounded-[8px] border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 hover:opacity-90 transition-opacity bg-[#2563EB]"
           >
             {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             {saving ? 'Saving...' : 'Add Contact'}
@@ -792,7 +793,7 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
-      <div className="relative bg-white rounded-[12px] shadow-xl p-6 w-[580px] max-h-[85vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+      <div className="relative bg-white rounded-[10px] shadow-xl p-6 w-[580px] max-h-[85vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
         <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Import Buyers (CSV)</h3>
         <div className="flex items-center gap-3 mb-4">
           <p className="text-xs text-gray-400">Upload a CSV or paste data below.</p>
@@ -878,11 +879,11 @@ function ImportModal({ onClose, onImported }: { onClose: () => void; onImported:
         )}
 
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-gray-50">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] cursor-pointer hover:bg-gray-50">
             {result ? 'Done' : 'Cancel'}
           </button>
           {!result && (
-            <button onClick={handleImport} disabled={importing || !csvText.trim()} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-[10px] border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+            <button onClick={handleImport} disabled={importing || !csvText.trim()} className="px-4 py-2 text-sm text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-[8px] border-0 cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
               {importing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {importing ? 'Importing...' : 'Import'}
             </button>
@@ -954,7 +955,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm crm-modal-overlay" onClick={onClose} />
-      <div className="relative bg-white rounded-[12px] shadow-xl p-6 w-[560px] max-h-[85vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+      <div className="relative bg-white rounded-[10px] shadow-xl p-6 w-[560px] max-h-[85vh] overflow-y-auto crm-modal-content" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
         <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Duplicate Detection</h3>
         {summary && (
           <div className="flex gap-3 text-xs text-gray-500 mb-4">
@@ -980,7 +981,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
 
         {/* Merge sub-view */}
         {mergeTarget && (
-          <div className="border border-[rgba(37,99,235,0.15)] bg-[rgba(37,99,235,0.05)] rounded-[12px] p-4 mb-4">
+          <div className="border border-[rgba(37,99,235,0.15)] bg-[rgba(37,99,235,0.05)] rounded-[10px] p-4 mb-4">
             <div className="text-sm font-medium text-gray-800 mb-2">Select primary buyer (keeps this record):</div>
             <div className="space-y-1.5 mb-3">
               {mergeTarget.group.buyers.map((b) => (
@@ -998,11 +999,11 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
               ))}
             </div>
             <div className="flex gap-2">
-              <button onClick={handleMerge} disabled={!!merging} className="px-3 py-1.5 text-sm bg-[#2563EB] text-white rounded-[10px] border-0 cursor-pointer hover:bg-[#1D4ED8] disabled:opacity-50 flex items-center gap-1">
+              <button onClick={handleMerge} disabled={!!merging} className="px-3 py-1.5 text-sm bg-[#2563EB] text-white rounded-[8px] border-0 cursor-pointer hover:bg-[#1D4ED8] disabled:opacity-50 flex items-center gap-1">
                 {merging && <Loader2 className="w-3 h-3 animate-spin" />}
                 Confirm Merge
               </button>
-              <button onClick={() => setMergeTarget(null)} className="px-3 py-1.5 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-gray-50">Cancel</button>
+              <button onClick={() => setMergeTarget(null)} className="px-3 py-1.5 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] cursor-pointer hover:bg-gray-50">Cancel</button>
             </div>
           </div>
         )}
@@ -1010,7 +1011,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
         {/* Groups list */}
         <div className="space-y-3">
           {groups.map((g, gi) => (
-            <div key={gi} className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3">
+            <div key={gi} className="border border-[rgba(5,14,36,0.06)] rounded-[10px] p-3">
               <div className="flex items-center gap-2 mb-2">
                 <span className={`text-[0.64rem] font-medium px-1.5 py-0.5 rounded-full border ${confBadge(g.confidence)}`}>
                   {g.confidence}
@@ -1038,7 +1039,7 @@ function DuplicatesModal({ onClose, onMerged }: { onClose: () => void; onMerged:
         </div>
 
         <div className="flex justify-end mt-4">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer hover:bg-gray-50">Close</button>
+          <button onClick={onClose} className="px-4 py-2 text-sm text-[#0B1224] bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] cursor-pointer hover:bg-gray-50">Close</button>
         </div>
       </div>
     </div>
@@ -1067,7 +1068,7 @@ function PaginationBar({
         <button
           disabled={page <= 1}
           onClick={() => onPage(page - 1)}
-          className="p-1.5 rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+          className="p-1.5 rounded-[8px] border border-[rgba(5,14,36,0.06)] bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -1075,7 +1076,7 @@ function PaginationBar({
         <button
           disabled={page >= totalPages}
           onClick={() => onPage(page + 1)}
-          className="p-1.5 rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+          className="p-1.5 rounded-[8px] border border-[rgba(5,14,36,0.06)] bg-white hover:bg-gray-50 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -1116,7 +1117,7 @@ function RowMenu({ isOpen, onToggle, onClose, actions }: {
         <>
           <div className="fixed inset-0 z-[100]" onClick={onClose} />
           <div
-            className="fixed z-[101] bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] shadow-lg py-1 min-w-[160px] crm-dropdown"
+            className="fixed z-[101] bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-lg py-1 min-w-[160px] crm-dropdown"
             style={{ top: pos.top, left: pos.left }}
           >
             {actions.map((a) => (
@@ -1219,15 +1220,15 @@ function ListView({
   // Empty state: no buyers at all
   if (buyers.length === 0 && !hasFilters) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px]">
+      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px]">
         <Users className="w-14 h-14 mb-3 text-gray-300" />
         <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">No {ctLabelPlural} yet</p>
         <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="mb-5">Add a {ctLabel} manually or import from a CSV file.</p>
         <div className="flex gap-2">
-          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openAddModal'))} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
+          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openAddModal'))} className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
             <UserPlus className="w-4 h-4" /> Add Contact
           </button>
-          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openImportModal'))} className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[10px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
+          <button onClick={() => document.dispatchEvent(new CustomEvent('crm:openImportModal'))} className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-sm font-medium cursor-pointer transition-colors">
             <Upload className="w-4 h-4" /> Import CSV
           </button>
         </div>
@@ -1238,7 +1239,7 @@ function ListView({
   // Empty state: no search results
   if (buyers.length === 0 && hasFilters) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px]">
+      <div className="flex flex-col items-center justify-center py-20 bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px]">
         <Search className="w-12 h-12 mb-3 text-gray-300" />
         <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }}>No {ctLabelPlural} match your filters</p>
         <button onClick={onClearFilters} className="mt-3 text-sm text-[#2563EB] hover:text-[#1D4ED8] bg-transparent border-0 cursor-pointer">Clear all filters</button>
@@ -1250,7 +1251,7 @@ function ListView({
     <div>
       {/* Bulk action bar */}
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.15)] rounded-[12px] px-4 py-2.5 mb-3">
+        <div className="flex items-center gap-3 bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.15)] rounded-[10px] px-4 py-2.5 mb-3">
           <span className="text-[0.8rem] text-[#2563EB] font-medium">{selected.size} selected</span>
           <div className="flex items-center gap-1.5 ml-auto">
             <button
@@ -1290,7 +1291,7 @@ function ListView({
       )}
 
       {/* Table */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] shadow-none overflow-x-auto">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-none overflow-x-auto">
         <table className="w-full min-w-[1000px]">
           <thead>
             <tr className="border-b border-[rgba(5,14,36,0.04)]" style={{ background: 'rgba(5,14,36,0.02)' }}>
@@ -1388,7 +1389,7 @@ function ListView({
                     {statusDropdown === b.id && (
                       <>
                         <div className="fixed inset-0 z-[100]" onClick={() => setStatusDropdown(null)} />
-                        <div className="absolute top-full left-0 mt-1 z-[101] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] shadow-lg py-1 min-w-[150px] max-h-[260px] overflow-y-auto crm-dropdown">
+                        <div className="absolute top-full left-0 mt-1 z-[101] bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] shadow-lg py-1 min-w-[150px] max-h-[260px] overflow-y-auto crm-dropdown">
                           {Object.entries(STATUS_DISPLAY).map(([key, label]) => (
                             <button
                               key={key}
@@ -1567,7 +1568,7 @@ function PipelineView({
             <div className={`bg-gray-50 rounded-xl border-t-[3px] ${s.borderColor} p-3 min-h-[400px]`}>
               <div className="w-20 h-4 bg-gray-200 rounded animate-pulse mb-3" />
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3 mb-2">
+                <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-3 mb-2">
                   <div className="w-24 h-4 bg-gray-200 rounded animate-pulse mb-2" />
                   <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
                 </div>
@@ -1615,7 +1616,7 @@ function PipelineView({
                       onDragStart={(e) => handleDragStart(e, b.id)}
                       onDragEnd={handleDragEnd}
                       onClick={() => onOpenDetail(b.id)}
-                      className={`w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-3 py-2.5 text-left cursor-grab active:cursor-grabbing shadow-none group crm-card ${dragId === b.id ? 'opacity-50' : ''}`}
+                      className={`w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-3 py-2.5 text-left cursor-grab active:cursor-grabbing shadow-none group crm-card ${dragId === b.id ? 'opacity-50' : ''}`}
                       style={{ transition: 'box-shadow 0.15s ease, opacity 0.15s ease' }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
@@ -1651,7 +1652,7 @@ function PipelineView({
                 })}
               </div>
               {isOver && cards.length === 0 && (
-                <div className="border-2 border-dashed border-[rgba(37,99,235,0.3)] rounded-[12px] py-8 text-center text-[0.74rem] text-[rgba(37,99,235,0.5)]">
+                <div className="border-2 border-dashed border-[rgba(37,99,235,0.3)] rounded-[10px] py-8 text-center text-[0.74rem] text-[rgba(37,99,235,0.5)]">
                   Drop here
                 </div>
               )}
@@ -1708,7 +1709,7 @@ function MapView({
             onMouseEnter={() => setHoverBuyer(b.id)} onMouseLeave={() => setHoverBuyer(null)}>
             <div className="w-3 h-3 rounded-full border-2 border-white/60 group-hover:scale-150 crm-map-dot" style={{ background: scoreDot(grade) }} />
             {hoverBuyer === b.id && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#12141a] border border-gray-700 rounded-lg px-3 py-2.5 shadow-xl z-10 min-w-[180px] crm-tooltip">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#12141a] border border-gray-700 rounded-[8px] px-3 py-2.5 shadow-xl z-10 min-w-[180px] crm-tooltip">
                 <div className="flex items-center gap-2 mb-1.5">
                   <div className="w-8 h-8 rounded-full bg-[#0B1224] flex items-center justify-center flex-shrink-0">
                     <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '10px', color: 'white' }}>{buyerInitials(b)}</span>
@@ -1729,7 +1730,7 @@ function MapView({
         <span className="text-[0.72rem] text-gray-300 font-medium">All Markets</span>
       </div>
 
-      <div className="absolute bottom-3 left-3 bg-[#12141a]/90 backdrop-blur-sm rounded-lg px-3 py-2.5 border border-gray-700/50">
+      <div className="absolute bottom-3 left-3 bg-[#12141a]/90 backdrop-blur-sm rounded-[8px] px-3 py-2.5 border border-gray-700/50">
         <div className="text-[0.62rem] text-gray-400 uppercase tracking-wide mb-1.5">Buyer Score</div>
         <div className="space-y-1">
           {[
@@ -1895,75 +1896,97 @@ export default function BuyerCrmPage() {
   }, [addToast, refetch])
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
+    <div className="bg-[#F9FAFB]">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5">
-        <div>
-          <h1 style={{ fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">CRM</h1>
-          <p style={{ fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>Manage your buyer and seller relationships.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => { setShowArchived(!showArchived); setPage(1) }}
-            className={`flex items-center gap-1.5 border rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors ${
-              showArchived
-                ? 'bg-[rgba(245,158,11,0.08)] border-[rgba(245,158,11,0.2)] text-[#F59E0B] hover:bg-[rgba(245,158,11,0.12)]'
-                : 'bg-white border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224]'
-            }`}
-          >
-            <Archive className="w-4 h-4" />
-            {showArchived ? 'Viewing Archived' : 'Archived'}
-          </button>
-          <button
-            onClick={() => setShowDuplicatesModal(true)}
-            className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
-          >
-            <Copy className="w-4 h-4" />
-            Check Duplicates
-          </button>
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.08)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
-          >
-            <Upload className="w-4 h-4" />
-            Import CSV
-          </button>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
-          >
-            <UserPlus className="w-4 h-4" />
-            Add Contact
-          </button>
+      {/* Vercel-style tab bar */}
+      <div
+        className="flex-shrink-0 bg-white"
+        style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
+      >
+        <div className="px-8">
+          <div className="flex items-center justify-between">
+            <nav className="flex gap-0.5 -mb-px">
+              {[
+                { key: '', label: 'All Contacts', icon: Users },
+                { key: 'BUYER', label: 'Buyers', icon: UserCheck },
+                { key: 'SELLER', label: 'Sellers', icon: UserPlus },
+              ].map((tab) => {
+                const Icon = tab.icon
+                const isActive = contactTypeFilter === tab.key
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setContactTypeFilter(tab.key)}
+                    style={{
+                      fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+                      fontSize: '13px',
+                      fontWeight: isActive ? 550 : 420,
+                      letterSpacing: '-0.005em',
+                    }}
+                    className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all ${
+                      isActive
+                        ? 'text-[#0B1224]'
+                        : 'text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.7)]'
+                    }`}
+                  >
+                    <Icon
+                      className="flex-shrink-0"
+                      style={{
+                        width: 14,
+                        height: 14,
+                        strokeWidth: isActive ? 2 : 1.6,
+                        color: isActive ? '#2563EB' : 'rgba(5,14,36,0.3)',
+                        transition: 'color 0.18s ease',
+                      }}
+                    />
+                    {tab.label}
+                    {isActive && (
+                      <div style={{ position: 'absolute', bottom: -1, left: 12, right: 12, height: 2, borderRadius: 1, background: '#2563EB' }} />
+                    )}
+                  </button>
+                )
+              })}
+            </nav>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { setShowArchived(!showArchived); setPage(1) }}
+                className={`flex items-center gap-1.5 border rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors ${
+                  showArchived
+                    ? 'bg-[rgba(245,158,11,0.08)] border-[rgba(245,158,11,0.2)] text-[#F59E0B] hover:bg-[rgba(245,158,11,0.12)]'
+                    : 'bg-white border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224]'
+                }`}
+              >
+                <Archive className="w-4 h-4" />
+                {showArchived ? 'Viewing Archived' : 'Archived'}
+              </button>
+              <button
+                onClick={() => setShowDuplicatesModal(true)}
+                className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+              >
+                <Copy className="w-4 h-4" />
+                Check Duplicates
+              </button>
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+              >
+                <Upload className="w-4 h-4" />
+                Import CSV
+              </button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+              >
+                <UserPlus className="w-4 h-4" />
+                Add Contact
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Contact type tabs */}
-      <div className="flex items-center gap-0 mb-4 border-b border-[rgba(5,14,36,0.08)]">
-        {[
-          { key: '', label: 'All Contacts' },
-          { key: 'BUYER', label: 'Buyers' },
-          { key: 'SELLER', label: 'Sellers' },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setContactTypeFilter(tab.key)}
-            style={{
-              fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
-              fontSize: '14px',
-              fontWeight: contactTypeFilter === tab.key ? 600 : 400,
-              color: contactTypeFilter === tab.key ? '#2563EB' : 'rgba(5,14,36,0.45)',
-              borderBottom: contactTypeFilter === tab.key ? '2px solid #2563EB' : '2px solid transparent',
-              padding: '10px 16px',
-            }}
-            className="bg-transparent border-0 cursor-pointer transition-colors hover:text-[rgba(5,14,36,0.65)]"
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <div className="p-8 max-w-[1200px]">
 
       {/* Search + Filters + View toggle */}
       <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -1976,7 +1999,7 @@ export default function BuyerCrmPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search name, phone, market... (/ to focus)"
             style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
-            className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] pl-10 pr-16 py-2 text-[14px] text-[#0B1224] placeholder-[rgba(5,14,36,0.3)] outline-none focus:border-[#2563EB] transition-colors"
+            className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] pl-10 pr-16 py-2 text-[14px] text-[#0B1224] placeholder-[rgba(5,14,36,0.3)] outline-none focus:border-[#2563EB] transition-colors"
           />
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.58rem] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5">Cmd+K</kbd>
         </div>
@@ -2011,7 +2034,7 @@ export default function BuyerCrmPage() {
         )}
 
         {/* View toggle */}
-        <div className="ml-auto flex items-center border-b border-[rgba(5,14,36,0.08)]">
+        <div className="ml-auto flex items-center border-b border-[rgba(5,14,36,0.06)]">
           {[
             { key: 'list' as const, icon: List, label: 'List' },
             { key: 'pipeline' as const, icon: Columns3, label: 'Pipeline' },
@@ -2048,7 +2071,7 @@ export default function BuyerCrmPage() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.15)] rounded-[12px] px-4 py-3 mb-4 text-sm text-[#EF4444]">
+        <div className="flex items-center gap-2 bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.15)] rounded-[10px] px-4 py-3 mb-4 text-sm text-[#EF4444]">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span className="flex-1">{error}</span>
           <button onClick={refetch} className="text-red-600 hover:text-red-800 bg-transparent border-0 cursor-pointer text-sm font-medium">Try Again</button>
@@ -2057,7 +2080,7 @@ export default function BuyerCrmPage() {
 
       {/* Archived banner */}
       {showArchived && (
-        <div className="flex items-center gap-2 bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.15)] rounded-[12px] px-4 py-2.5 mb-3">
+        <div className="flex items-center gap-2 bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.15)] rounded-[10px] px-4 py-2.5 mb-3">
           <Archive className="w-4 h-4 text-[#F59E0B]" />
           <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: '14px', color: '#F59E0B' }}>Viewing archived buyers</span>
           <button onClick={() => { setShowArchived(false); setPage(1) }} className="ml-auto text-[0.78rem] text-[#F59E0B] hover:text-[#D97706] bg-transparent border-0 cursor-pointer underline">
@@ -2091,6 +2114,7 @@ export default function BuyerCrmPage() {
         }
         @media (max-width: 1000px) { .crm-pipeline { overflow-x: auto; } }
       ` }} />
+      </div>
     </div>
   )
 }

@@ -168,7 +168,7 @@ function linkLabel(link: string): string {
   if (link.startsWith('/contracts')) return 'Contract'
   if (link.startsWith('/marketplace')) return 'Marketplace'
   if (link.startsWith('/outreach')) return 'Outreach'
-  if (link.startsWith('/analyzer')) return 'Deal Analyzer'
+  if (link.startsWith('/deals/analyze')) return 'Deal Analyzer'
   if (link.startsWith('/discovery')) return 'Discovery'
   return 'View'
 }
@@ -298,7 +298,7 @@ function buildMarkdownComponents(entityLinks: EntityLink[]): Components {
       </div>
     ),
     thead: ({ children }) => (
-      <thead className="border-b border-[rgba(5,14,36,0.08)] font-semibold text-[#0B1224]">
+      <thead className="border-b border-[rgba(5,14,36,0.06)] font-semibold text-[#0B1224]">
         {children}
       </thead>
     ),
@@ -313,7 +313,7 @@ function buildMarkdownComponents(entityLinks: EntityLink[]): Components {
       const isBlock = className?.includes('language-')
       if (isBlock) {
         return (
-          <pre className="bg-[#F3F4F6] rounded-lg p-3 my-2 overflow-x-auto text-xs">
+          <pre className="bg-[#F3F4F6] rounded-[8px] p-3 my-2 overflow-x-auto text-xs">
             <code>{children}</code>
           </pre>
         )
@@ -1112,12 +1112,12 @@ export default function DealFlowGPTPage() {
       <div
         className={`${
           historyOpen ? 'w-[280px]' : 'w-0'
-        } transition-all duration-300 overflow-hidden border-r border-[rgba(5,14,36,0.08)] bg-white flex flex-col flex-shrink-0 history-sidebar`}
+        } transition-all duration-300 overflow-hidden border-r border-[rgba(5,14,36,0.06)] bg-white flex flex-col flex-shrink-0 history-sidebar`}
         role="complementary"
         aria-label="Conversation history"
       >
         {/* History header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(5,14,36,0.08)]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(5,14,36,0.06)]">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-[#6B7280]" />
             <span className="text-sm font-medium" style={{ color: '#0B1224' }}>History</span>
@@ -1149,7 +1149,7 @@ export default function DealFlowGPTPage() {
               value={historySearch}
               onChange={(e) => setHistorySearch(e.target.value)}
               placeholder="Search conversations…"
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-[rgba(5,14,36,0.08)] placeholder-[#9CA3AF] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-[rgba(5,14,36,0.06)] placeholder-[#9CA3AF] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
               style={{ color: 'rgba(5,14,36,0.65)' }}
             />
             {historySearch && (
@@ -1258,8 +1258,8 @@ export default function DealFlowGPTPage() {
                       {menuOpenId === conv.id && (
                         <div
                           ref={menuRef}
-                          className="absolute right-0 top-7 w-36 bg-white rounded-[12px] z-50 py-1"
-                          style={{ border: '1px solid rgba(5,14,36,0.08)', boxShadow: '0 4px 16px rgba(5,14,36,0.08)' }}
+                          className="absolute right-0 top-7 w-36 bg-white rounded-[10px] z-50 py-1"
+                          style={{ border: '1px solid rgba(5,14,36,0.06)', boxShadow: '0 4px 16px rgba(5,14,36,0.06)' }}
                         >
                           <button
                             onClick={(e) => {
@@ -1285,7 +1285,7 @@ export default function DealFlowGPTPage() {
                               <><Pin className="w-3 h-3" /> Pin</>
                             )}
                           </button>
-                          <div className="border-t border-[rgba(5,14,36,0.08)] my-1" />
+                          <div className="border-t border-[rgba(5,14,36,0.06)] my-1" />
                           {deleteConfirmId === conv.id ? (
                             <button
                               onClick={(e) => {
@@ -1322,7 +1322,7 @@ export default function DealFlowGPTPage() {
       <div className="flex flex-col flex-1 min-w-0">
         <OfflineBanner />
         {/* Chat Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(5,14,36,0.08)] bg-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(5,14,36,0.06)] bg-white">
           <div className="flex items-center gap-3">
             {!historyOpen && (
               <button
@@ -1333,17 +1333,8 @@ export default function DealFlowGPTPage() {
                 <PanelLeftOpen className="w-5 h-5 text-[#6B7280]" />
               </button>
             )}
-            <div className="w-9 h-9 rounded-lg bg-[#F3F4F6] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-[8px] bg-[#F3F4F6] flex items-center justify-center">
               <Bot className="w-5 h-5 text-[#6B7280]" />
-            </div>
-            <div>
-              <h1
-                style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em', color: '#0B1224' }}
-                className="flex items-center gap-2.5"
-              >
-                Ask AI
-              </h1>
-              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>AI assistant with full account context</p>
             </div>
             <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1" style={{ background: 'rgba(37,99,235,0.08)', color: '#2563EB' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse" />
@@ -1353,7 +1344,7 @@ export default function DealFlowGPTPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleNewChat}
-              className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-[10px] hover:bg-[#F9FAFB] transition-colors"
+              className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-[8px] hover:bg-[#F9FAFB] transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               New Chat
@@ -1362,13 +1353,13 @@ export default function DealFlowGPTPage() {
               <div className="relative" ref={shareRef}>
                 <button
                   onClick={handleShare}
-                  className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-[10px] hover:bg-[#F9FAFB] transition-colors"
+                  className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-[8px] hover:bg-[#F9FAFB] transition-colors"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                   Share
                 </button>
                 {shareOpen && (
-                  <div className="absolute right-0 top-10 w-80 bg-white rounded-[12px] z-50 p-4" style={{ border: '1px solid rgba(5,14,36,0.08)', boxShadow: '0 4px 16px rgba(5,14,36,0.08)' }}>
+                  <div className="absolute right-0 top-10 w-80 bg-white rounded-[10px] z-50 p-4" style={{ border: '1px solid rgba(5,14,36,0.06)', boxShadow: '0 4px 16px rgba(5,14,36,0.06)' }}>
                     <div className="flex items-center gap-2 mb-3">
                       <Link className="w-4 h-4 text-[#6B7280]" />
                       <span className="text-sm font-medium" style={{ color: '#0B1224' }}>
@@ -1386,8 +1377,8 @@ export default function DealFlowGPTPage() {
                           <input
                             readOnly
                             value={shareUrl}
-                            className="flex-1 text-xs px-2.5 py-1.5 rounded-[10px] bg-[#F9FAFB] truncate focus:outline-none"
-                            style={{ border: '1px solid rgba(5,14,36,0.08)', color: 'rgba(5,14,36,0.65)' }}
+                            className="flex-1 text-xs px-2.5 py-1.5 rounded-[8px] bg-[#F9FAFB] truncate focus:outline-none"
+                            style={{ border: '1px solid rgba(5,14,36,0.06)', color: 'rgba(5,14,36,0.65)' }}
                           />
                           <button
                             onClick={handleCopyShareUrl}
@@ -1424,7 +1415,7 @@ export default function DealFlowGPTPage() {
             )}
             <button
               onClick={() => setContextOpen(!contextOpen)}
-              className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-[10px] hover:bg-[#F9FAFB] transition-colors"
+              className="text-xs text-[#374151] bg-white border border-[#D1D5DB] flex items-center gap-1 px-3 py-1.5 rounded-[8px] hover:bg-[#F9FAFB] transition-colors"
             >
               <Database className="w-3.5 h-3.5" />
               {contextOpen ? 'Hide' : 'Show'} Context
@@ -1471,7 +1462,7 @@ export default function DealFlowGPTPage() {
                             key={i}
                             onClick={() => handlePromptChip(prompt)}
                             className="text-xs px-3 py-1.5 rounded-full bg-white hover:bg-[#F9FAFB] transition-all text-left"
-                            style={{ border: '1px solid rgba(5,14,36,0.08)', color: 'rgba(5,14,36,0.65)' }}
+                            style={{ border: '1px solid rgba(5,14,36,0.06)', color: 'rgba(5,14,36,0.65)' }}
                           >
                             {prompt}
                           </button>
@@ -1488,7 +1479,7 @@ export default function DealFlowGPTPage() {
             if (msg.role === 'system') {
               return (
                 <div key={msg.id} className="flex justify-center">
-                  <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-sm text-red-700 max-w-lg text-center">
+                  <div className="bg-red-50 border border-red-200 rounded-[8px] px-4 py-2 text-sm text-red-700 max-w-lg text-center">
                     {msg.content}
                     {msg.content.includes('interrupted') && (
                       <button
@@ -1514,7 +1505,7 @@ export default function DealFlowGPTPage() {
             return (
               <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-[8px] bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
                     <Bot className="w-4 h-4 text-[#6B7280]" />
                   </div>
                 )}
@@ -1525,7 +1516,7 @@ export default function DealFlowGPTPage() {
                         ? 'bg-[#2563EB] text-white rounded-br-md'
                         : 'text-[#0B1224] rounded-bl-md'
                     }`}
-                    style={msg.role === 'assistant' ? { background: 'rgba(5,14,36,0.03)', border: '1px solid rgba(5,14,36,0.08)' } : undefined}
+                    style={msg.role === 'assistant' ? { background: 'rgba(5,14,36,0.03)', border: '1px solid rgba(5,14,36,0.06)' } : undefined}
                   >
                     {msg.role === 'assistant' ? (
                       <div className="prose prose-sm max-w-none prose-headings:text-[#0B1224] prose-strong:text-[#0B1224] prose-p:text-[#0B1224]">
@@ -1632,7 +1623,7 @@ export default function DealFlowGPTPage() {
                   </div>
                 </div>
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'rgba(37,99,235,0.08)' }}>
+                  <div className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'rgba(37,99,235,0.08)' }}>
                     <User className="w-4 h-4 text-[#2563EB]" />
                   </div>
                 )}
@@ -1643,11 +1634,11 @@ export default function DealFlowGPTPage() {
           {/* Thinking indicator */}
           {showThinking && (
             <div className="flex gap-3" role="status" aria-live="assertive" aria-label="AI is thinking">
-              <div className="w-8 h-8 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-[8px] bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mt-1">
                 <Bot className="w-4 h-4 text-[#6B7280]" />
               </div>
               <div>
-                <div className="rounded-2xl rounded-bl-md px-4 py-3" style={{ background: 'rgba(5,14,36,0.03)', border: '1px solid rgba(5,14,36,0.08)' }}>
+                <div className="rounded-2xl rounded-bl-md px-4 py-3" style={{ background: 'rgba(5,14,36,0.03)', border: '1px solid rgba(5,14,36,0.06)' }}>
                   <div className="flex items-center gap-2 text-sm text-[#6B7280]">
                     <span>DealFlow AI is thinking</span>
                     <span className="inline-flex gap-0.5">
@@ -1693,7 +1684,7 @@ export default function DealFlowGPTPage() {
             if (entry.status === 'success' && entry.result) {
               return (
                 <div key={cardId} className="pl-11">
-                  <div className="rounded-[12px] px-4 py-3 max-w-[75%]" style={{ border: '1px solid rgba(37,99,235,0.2)', background: 'rgba(37,99,235,0.08)' }}>
+                  <div className="rounded-[10px] px-4 py-3 max-w-[75%]" style={{ border: '1px solid rgba(37,99,235,0.2)', background: 'rgba(37,99,235,0.08)' }}>
                     <div className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-[#2563EB] flex-shrink-0 mt-0.5" />
                       <div>
@@ -1725,7 +1716,7 @@ export default function DealFlowGPTPage() {
             if (entry.status === 'error' && entry.result) {
               return (
                 <div key={cardId} className="pl-11">
-                  <div className="rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 max-w-[75%]">
+                  <div className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 max-w-[75%]">
                     <div className="flex items-start gap-2">
                       <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
                       <div>
@@ -1767,9 +1758,9 @@ export default function DealFlowGPTPage() {
 
             return (
               <div key={cardId} className="pl-11">
-                <div className={`rounded-[12px] border ${borderColor} ${bgColor} px-4 py-4 max-w-[75%]`}>
+                <div className={`rounded-[10px] border ${borderColor} ${bgColor} px-4 py-4 max-w-[75%]`}>
                   <div className="flex items-start gap-3">
-                    <div className={`w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center flex-shrink-0`}>
+                    <div className={`w-9 h-9 rounded-[8px] ${iconBg} flex items-center justify-center flex-shrink-0`}>
                       <Icon className={`w-4.5 h-4.5 ${iconColor}`} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1794,7 +1785,7 @@ export default function DealFlowGPTPage() {
                         <button
                           onClick={() => handleActionConfirm(cardId)}
                           disabled={entry.status === 'executing'}
-                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[10px] text-xs font-medium text-white disabled:opacity-60 transition-colors ${
+                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] text-xs font-medium text-white disabled:opacity-60 transition-colors ${
                             isDestructive
                               ? 'bg-red-600 hover:bg-red-700'
                               : 'bg-[#2563EB] hover:bg-[#1D4ED8]'
@@ -1814,7 +1805,7 @@ export default function DealFlowGPTPage() {
                         <button
                           onClick={() => handleActionDismiss(cardId)}
                           disabled={entry.status === 'executing'}
-                          className={`px-3.5 py-1.5 rounded-[10px] text-xs text-[#6B7280] hover:text-[#374151] disabled:opacity-60 transition-colors ${
+                          className={`px-3.5 py-1.5 rounded-[8px] text-xs text-[#6B7280] hover:text-[#374151] disabled:opacity-60 transition-colors ${
                             isDestructive ? 'hover:bg-red-100' : 'hover:bg-blue-100'
                           }`}
                         >
@@ -1832,7 +1823,7 @@ export default function DealFlowGPTPage() {
         </div>
 
         {/* Input area */}
-        <div className="px-6 py-4 border-t border-[rgba(5,14,36,0.08)] bg-white">
+        <div className="px-6 py-4 border-t border-[rgba(5,14,36,0.06)] bg-white">
           <div className="flex items-end gap-3">
             <div className="flex-1 relative">
               <textarea
@@ -1845,7 +1836,7 @@ export default function DealFlowGPTPage() {
                 aria-label="Message input"
                 maxLength={4200}
                 rows={1}
-                className="w-full resize-none rounded-[10px] px-4 py-3 pr-12 text-sm placeholder-[#9CA3AF] focus:outline-none focus:border-[#2563EB]"
+                className="w-full resize-none rounded-[8px] px-4 py-3 pr-12 text-sm placeholder-[#9CA3AF] focus:outline-none focus:border-[#2563EB]"
                 style={{ background: '#fff', border: '1px solid rgba(5,14,36,0.15)', color: 'rgba(5,14,36,0.65)', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", minHeight: '44px', maxHeight: '120px' }}
               />
               <div className="absolute right-2 bottom-2 flex items-center gap-1">
@@ -1857,7 +1848,7 @@ export default function DealFlowGPTPage() {
             {isStreaming ? (
               <button
                 onClick={() => abortRef.current?.abort()}
-                className="w-10 h-10 rounded-[10px] flex items-center justify-center bg-red-500 hover:bg-red-600 text-white transition-all"
+                className="w-10 h-10 rounded-[8px] flex items-center justify-center bg-red-500 hover:bg-red-600 text-white transition-all"
                 title="Stop generating"
                 aria-label="Stop generating"
               >
@@ -1868,7 +1859,7 @@ export default function DealFlowGPTPage() {
                 onClick={handleSend}
                 disabled={!input.trim() || !isOnline || input.trim().length > 4000}
                 aria-label="Send message"
-                className={`w-10 h-10 rounded-[10px] flex items-center justify-center transition-all ${
+                className={`w-10 h-10 rounded-[8px] flex items-center justify-center transition-all ${
                   input.trim() && isOnline && input.trim().length <= 4000
                     ? 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
                     : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed'
@@ -1891,13 +1882,13 @@ export default function DealFlowGPTPage() {
 
       {/* ── Context Sidebar ── */}
       {contextOpen && (
-        <div className="w-[320px] border-l border-[rgba(5,14,36,0.08)] bg-white flex flex-col overflow-y-auto flex-shrink-0 context-sidebar" role="complementary" aria-label="Context data">
+        <div className="w-[320px] border-l border-[rgba(5,14,36,0.06)] bg-white flex flex-col overflow-y-auto flex-shrink-0 context-sidebar" role="complementary" aria-label="Context data">
           {contextLoading ? (
             <ContextSidebarSkeleton />
           ) : (
           <>
           {/* Connected Data */}
-          <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+          <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
             <h3 className="text-xs font-medium uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5" style={{ color: 'rgba(5,14,36,0.4)' }}>
               <Database className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
               Connected Data
@@ -1919,7 +1910,7 @@ export default function DealFlowGPTPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+          <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
             <h3 className="text-xs font-medium uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5" style={{ color: 'rgba(5,14,36,0.4)' }}>
               <Clock className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
               Recent Activity
@@ -1947,7 +1938,7 @@ export default function DealFlowGPTPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+          <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
             <h3 className="text-xs font-medium uppercase tracking-[0.05em] mb-3 flex items-center gap-1.5" style={{ color: 'rgba(5,14,36,0.4)' }}>
               <Zap className="w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
               Quick Actions
@@ -1957,8 +1948,8 @@ export default function DealFlowGPTPage() {
                 <button
                   key={i}
                   onClick={() => handlePromptChip(prompt)}
-                  className="w-full text-left flex items-center justify-between px-3 py-2 rounded-[12px] bg-white hover:bg-[#F9FAFB] transition-all group"
-                  style={{ border: '1px solid rgba(5,14,36,0.08)' }}
+                  className="w-full text-left flex items-center justify-between px-3 py-2 rounded-[10px] bg-white hover:bg-[#F9FAFB] transition-all group"
+                  style={{ border: '1px solid rgba(5,14,36,0.06)' }}
                 >
                   <span className="text-xs truncate" style={{ color: 'rgba(5,14,36,0.65)' }}>{prompt}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#374151] flex-shrink-0" />
@@ -1969,7 +1960,7 @@ export default function DealFlowGPTPage() {
 
           {/* GPT Info */}
           <div className="px-5 py-4">
-            <div className="bg-white rounded-[12px] p-4" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+            <div className="bg-white rounded-[10px] p-4" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-[#9CA3AF]" />
                 <span className="text-xs font-medium text-[#9CA3AF]">Powered by AI</span>

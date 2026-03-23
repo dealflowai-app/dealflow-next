@@ -388,43 +388,71 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex h-full overflow-hidden bg-[#F9FAFB]">
-      {/* ── Settings side nav ── */}
-      <div style={{ borderRight: '1px solid rgba(5,14,36,0.08)' }} className="w-[220px] bg-white flex flex-col py-6 flex-shrink-0">
-        <h2 style={{ fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="px-5 mb-5">
-          Settings
-        </h2>
-        <nav className="flex-1 px-3 space-y-0.5">
-          {sections.map(s => {
-            const Icon = s.icon
-            const isActive = activeSection === s.key
-            return (
-              <button
-                key={s.key}
-                onClick={() => setActiveSection(s.key)}
-                style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: isActive ? 600 : 400, borderRadius: '10px' }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 transition-colors text-left ${
-                  isActive
-                    ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB]'
-                    : 'text-[rgba(5,14,36,0.45)] hover:bg-gray-50 hover:text-[#0B1224]'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#2563EB]' : 'text-gray-400'}`} />
-                {s.label}
-              </button>
-            )
-          })}
-        </nav>
+    <div className="flex flex-col h-full overflow-hidden bg-[#F9FAFB]">
+      {/* ── Settings top bar ── */}
+      <div
+        className="flex-shrink-0 bg-white"
+        style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
+      >
+        <div className="px-8">
+          <nav className="flex gap-0.5 -mb-px">
+            {sections.map(s => {
+              const Icon = s.icon
+              const isActive = activeSection === s.key
+              return (
+                <button
+                  key={s.key}
+                  onClick={() => setActiveSection(s.key)}
+                  style={{
+                    fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+                    fontSize: '13px',
+                    fontWeight: isActive ? 550 : 420,
+                    letterSpacing: '-0.005em',
+                  }}
+                  className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all ${
+                    isActive
+                      ? 'text-[#0B1224]'
+                      : 'text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.7)]'
+                  }`}
+                >
+                  <Icon
+                    className="flex-shrink-0"
+                    style={{
+                      width: 14,
+                      height: 14,
+                      strokeWidth: isActive ? 2 : 1.6,
+                      color: isActive ? '#2563EB' : 'rgba(5,14,36,0.3)',
+                      transition: 'color 0.18s ease',
+                    }}
+                  />
+                  {s.label}
+                  {isActive && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: -1,
+                        left: 12,
+                        right: 12,
+                        height: 2,
+                        borderRadius: 1,
+                        background: '#2563EB',
+                      }}
+                    />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
       </div>
 
       {/* ── Content area ── */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-8 py-8">
+        <div className="max-w-3xl px-8 py-8">
           {/* ════════════ PROFILE ════════════ */}
           {activeSection === 'profile' && (
             <div>
-              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Profile</h2>
-              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Manage your personal and business information.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-6">Profile</h2>
 
               {/* Avatar */}
               <div className="flex items-center gap-5 mb-8">
@@ -444,7 +472,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Personal info */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Personal Information</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -452,7 +480,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.firstName}
                       onChange={e => setProfile(p => ({ ...p, firstName: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
@@ -460,7 +488,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.lastName}
                       onChange={e => setProfile(p => ({ ...p, lastName: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
@@ -468,7 +496,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.company}
                       onChange={e => setProfile(p => ({ ...p, company: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
@@ -476,7 +504,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.email}
                       onChange={e => setProfile(p => ({ ...p, email: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
@@ -484,7 +512,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.phone}
                       onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
@@ -492,7 +520,7 @@ export default function SettingsPage() {
                     <select
                       value={profile.timezone}
                       onChange={e => setProfile(p => ({ ...p, timezone: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     >
                       <option value="America/New_York">Eastern (ET)</option>
                       <option value="America/Chicago">Central (CT)</option>
@@ -526,7 +554,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Business details */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Business Details</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -534,7 +562,7 @@ export default function SettingsPage() {
                     <select
                       value={profile.companyType}
                       onChange={e => setProfile(p => ({ ...p, companyType: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     >
                       <option>Solo Wholesaler</option>
                       <option>Small Team</option>
@@ -547,7 +575,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.yearsInBusiness}
                       onChange={e => setProfile(p => ({ ...p, yearsInBusiness: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
@@ -555,7 +583,7 @@ export default function SettingsPage() {
                     <input
                       value={profile.dealsPerMonth}
                       onChange={e => setProfile(p => ({ ...p, dealsPerMonth: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
@@ -563,13 +591,13 @@ export default function SettingsPage() {
                     <input
                       value={profile.website}
                       onChange={e => setProfile(p => ({ ...p, website: e.target.value }))}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                 </div>
               </div>
 
-              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save Changes'}
               </button>
             </div>
@@ -578,8 +606,7 @@ export default function SettingsPage() {
           {/* ════════════ BILLING & PLAN ════════════ */}
           {activeSection === 'billing' && (
             <div>
-              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Billing & Plan</h2>
-              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Manage your subscription, payment methods, and view invoices.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-6">Billing & Plan</h2>
 
               {billingLoading ? (
                 <div className="space-y-4">
@@ -588,9 +615,9 @@ export default function SettingsPage() {
                   ))}
                 </div>
               ) : billingError ? (
-                <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '40px 24px' }} className="bg-white text-center">
+                <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '40px 24px' }} className="bg-white text-center">
                   <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-3">Unable to load billing information. Please try again.</p>
-                  <button onClick={fetchBillingData} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+                  <button onClick={fetchBillingData} style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                     Retry
                   </button>
                 </div>
@@ -598,21 +625,21 @@ export default function SettingsPage() {
                 <>
                   {/* Past due warning */}
                   {subscription?.tierStatus === 'past_due' && (
-                    <div style={{ border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', padding: '16px 20px', backgroundColor: 'rgba(239,68,68,0.04)' }} className="mb-6 flex items-center justify-between gap-4">
+                    <div style={{ border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px', padding: '16px 20px', backgroundColor: 'rgba(239,68,68,0.04)' }} className="mb-6 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
                         <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
                         <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: 500, color: '#991B1B' }}>
                           Your last payment failed. Please update your payment method to avoid losing access.
                         </p>
                       </div>
-                      <button onClick={openPortal} disabled={portalLoading} style={{ borderRadius: '10px', padding: '8px 16px', fontWeight: 600, fontSize: '13px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", whiteSpace: 'nowrap' }} className="bg-red-600 text-white hover:bg-red-700 transition-colors flex-shrink-0">
+                      <button onClick={openPortal} disabled={portalLoading} style={{ borderRadius: '8px', padding: '8px 16px', fontWeight: 600, fontSize: '13px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", whiteSpace: 'nowrap' }} className="bg-red-600 text-white hover:bg-red-700 transition-colors flex-shrink-0">
                         Update payment method
                       </button>
                     </div>
                   )}
 
                   {/* Current plan card */}
-                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                  <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                     <div className="flex items-start justify-between flex-wrap gap-4">
                       <div>
                         <div className="flex items-center gap-2.5 mb-2">
@@ -657,15 +684,15 @@ export default function SettingsPage() {
                       </div>
                       <div className="flex gap-2 flex-wrap">
                         {subscription?.tier === 'free' ? (
-                          <button onClick={() => { const el = document.getElementById('plan-comparison'); el?.scrollIntoView({ behavior: 'smooth' }) }} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+                          <button onClick={() => { const el = document.getElementById('plan-comparison'); el?.scrollIntoView({ behavior: 'smooth' }) }} style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                             Upgrade now
                           </button>
                         ) : (
                           <>
-                            <button onClick={openPortal} disabled={portalLoading} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
+                            <button onClick={openPortal} disabled={portalLoading} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
                               {portalLoading ? 'Loading...' : 'Manage subscription'}
                             </button>
-                            <button onClick={() => { const el = document.getElementById('plan-comparison'); el?.scrollIntoView({ behavior: 'smooth' }) }} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
+                            <button onClick={() => { const el = document.getElementById('plan-comparison'); el?.scrollIntoView({ behavior: 'smooth' }) }} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
                               Change plan
                             </button>
                           </>
@@ -680,7 +707,7 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Usage this period */}
-                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                  <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                     <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Usage This Period</h3>
                     {(() => {
                       const a = subscription?.allowance
@@ -762,7 +789,7 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Payment method card */}
-                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+                  <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-1">Payment Method</h3>
@@ -777,7 +804,7 @@ export default function SettingsPage() {
                         )}
                       </div>
                       {subscription?.tier !== 'free' && (
-                        <button onClick={openPortal} disabled={portalLoading} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors flex-shrink-0">
+                        <button onClick={openPortal} disabled={portalLoading} style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors flex-shrink-0">
                           Update payment method
                         </button>
                       )}
@@ -785,7 +812,7 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Billing history */}
-                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white overflow-hidden mb-6">
+                  <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px' }} className="bg-white overflow-hidden mb-6">
                     <div className="px-6 py-4 border-b border-gray-100">
                       <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>Billing History</h3>
                     </div>
@@ -854,7 +881,7 @@ export default function SettingsPage() {
                         return (
                           <div
                             key={plan.key}
-                            style={{ border: isCurrent ? '2px solid #2563EB' : '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }}
+                            style={{ border: isCurrent ? '2px solid #2563EB' : '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }}
                             className="bg-white relative"
                           >
                             {isCurrent && (
@@ -885,17 +912,17 @@ export default function SettingsPage() {
                               ))}
                             </div>
                             {isCurrent ? (
-                              <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-gray-100 text-gray-500 cursor-default">Current Plan</button>
+                              <button style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-gray-100 text-gray-500 cursor-default">Current Plan</button>
                             ) : isUpgrade && plan.stripePriceId ? (
-                              <button onClick={() => handleCheckout(plan.stripePriceId!)} disabled={checkoutLoading} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+                              <button onClick={() => handleCheckout(plan.stripePriceId!)} disabled={checkoutLoading} style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                                 {checkoutLoading ? 'Loading...' : 'Upgrade'}
                               </button>
                             ) : isDowngrade ? (
-                              <button onClick={openPortal} disabled={portalLoading} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid rgba(5,14,36,0.15)' }} className="w-full bg-white text-[#0B1224] hover:bg-gray-50 transition-colors">
+                              <button onClick={openPortal} disabled={portalLoading} style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid rgba(5,14,36,0.15)' }} className="w-full bg-white text-[#0B1224] hover:bg-gray-50 transition-colors">
                                 {portalLoading ? 'Loading...' : 'Downgrade'}
                               </button>
                             ) : plan.stripePriceId ? (
-                              <button onClick={() => handleCheckout(plan.stripePriceId!)} disabled={checkoutLoading} style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+                              <button onClick={() => handleCheckout(plan.stripePriceId!)} disabled={checkoutLoading} style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="w-full bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                                 {checkoutLoading ? 'Loading...' : 'Subscribe'}
                               </button>
                             ) : null}
@@ -913,13 +940,10 @@ export default function SettingsPage() {
           {activeSection === 'team' && (
             <div>
               <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Team</h2>
-                  <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>Manage team members and permissions.</p>
-                </div>
+                <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }}>Team</h2>
                 <button
                   onClick={() => setShowInviteForm(!showInviteForm)}
-                  style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors"
+                  style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   Invite Team Member
@@ -928,7 +952,7 @@ export default function SettingsPage() {
 
               {/* Invite form */}
               {showInviteForm && (
-                <div style={{ backgroundColor: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: '12px', padding: '20px 24px' }} className="mb-6">
+                <div style={{ backgroundColor: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: '10px', padding: '20px 24px' }} className="mb-6">
                   <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Invite a new team member</h4>
                   <div className="flex items-end gap-3">
                     <div className="flex-1">
@@ -937,7 +961,7 @@ export default function SettingsPage() {
                         value={inviteEmail}
                         onChange={e => setInviteEmail(e.target.value)}
                         placeholder="colleague@company.com"
-                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       />
                     </div>
                     <div className="w-40">
@@ -945,14 +969,14 @@ export default function SettingsPage() {
                       <select
                         value={inviteRole}
                         onChange={e => setInviteRole(e.target.value)}
-                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       >
                         <option>Admin</option>
                         <option>Manager</option>
                         <option>Member</option>
                       </select>
                     </div>
-                    <button style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors whitespace-nowrap">
+                    <button style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors whitespace-nowrap">
                       Send Invite
                     </button>
                     <button onClick={() => setShowInviteForm(false)} className="px-3 py-2 text-[#2563EB] hover:text-[#1D4ED8]">
@@ -963,7 +987,7 @@ export default function SettingsPage() {
               )}
 
               {/* Team table */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white overflow-hidden mb-4">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px' }} className="bg-white overflow-hidden mb-4">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-100 text-left">
@@ -1015,7 +1039,7 @@ export default function SettingsPage() {
                 </table>
               </div>
 
-              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)', borderRadius: '12px' }} className="bg-gray-100 px-4 py-2.5">
+              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)', borderRadius: '10px' }} className="bg-gray-100 px-4 py-2.5">
                 Your plan allows up to <strong>3 team members</strong>. Upgrade to Enterprise for unlimited.
               </p>
             </div>
@@ -1024,12 +1048,12 @@ export default function SettingsPage() {
           {/* ════════════ NOTIFICATIONS ════════════ */}
           {activeSection === 'notifications' && (
             <div>
-              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Notifications</h2>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Notifications</h2>
               <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Choose what you want to be notified about and how.</p>
 
               <div className="space-y-6">
                 {notifications.map((cat, ci) => (
-                  <div key={ci} style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="bg-white overflow-hidden">
+                  <div key={ci} style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px' }} className="bg-white overflow-hidden">
                     <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
                       <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>{cat.category}</h3>
                     </div>
@@ -1070,7 +1094,7 @@ export default function SettingsPage() {
                 ))}
               </div>
 
-              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="mt-6 bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="mt-6 bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save Notification Preferences'}
               </button>
             </div>
@@ -1079,16 +1103,16 @@ export default function SettingsPage() {
           {/* ════════════ INTEGRATIONS ════════════ */}
           {activeSection === 'integrations' && (
             <div>
-              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Integrations</h2>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Integrations</h2>
               <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Connect your favorite tools and services.</p>
 
               {/* Connected */}
               <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Connected</h3>
               <div className="grid grid-cols-3 gap-4 mb-8">
                 {integrationsData.connected.map((int, i) => (
-                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white">
+                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white">
                     <div className="flex items-start justify-between mb-3">
-                      <div className={`w-10 h-10 rounded-lg ${int.color} flex items-center justify-center`}>
+                      <div className={`w-10 h-10 rounded-[8px] ${int.color} flex items-center justify-center`}>
                         <span className="text-white font-bold text-sm">{int.letter}</span>
                       </div>
                       <span style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: '#2563EB' }} className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full">
@@ -1110,15 +1134,15 @@ export default function SettingsPage() {
               <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Available</h3>
               <div className="grid grid-cols-3 gap-4 mb-8">
                 {integrationsData.available.map((int, i) => (
-                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white">
+                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white">
                     <div className="flex items-start justify-between mb-3">
-                      <div className={`w-10 h-10 rounded-lg ${int.color} flex items-center justify-center`}>
+                      <div className={`w-10 h-10 rounded-[8px] ${int.color} flex items-center justify-center`}>
                         <span className="text-white font-bold text-sm">{int.letter}</span>
                       </div>
                     </div>
                     <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }} className="mb-0.5">{int.name}</h4>
                     <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="mb-4">{int.desc}</p>
-                    <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid #2563EB' }} className="text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] transition-colors">
+                    <button style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", border: '1px solid #2563EB' }} className="text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] transition-colors">
                       Connect
                     </button>
                   </div>
@@ -1129,9 +1153,9 @@ export default function SettingsPage() {
               <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Coming Soon</h3>
               <div className="grid grid-cols-4 gap-4">
                 {integrationsData.comingSoon.map((int, i) => (
-                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white opacity-50">
+                  <div key={i} style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white opacity-50">
                     <div className="flex items-start justify-between mb-3">
-                      <div className={`w-10 h-10 rounded-lg ${int.color} flex items-center justify-center`}>
+                      <div className={`w-10 h-10 rounded-[8px] ${int.color} flex items-center justify-center`}>
                         <span className="text-white font-bold text-sm">{int.letter}</span>
                       </div>
                       <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="bg-gray-100 px-2 py-0.5 rounded-full">Coming Soon</span>
@@ -1146,50 +1170,50 @@ export default function SettingsPage() {
           {/* ════════════ AI SETTINGS ════════════ */}
           {activeSection === 'ai' && (
             <div>
-              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">AI Settings</h2>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">AI Settings</h2>
               <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Configure how the AI voice agent behaves on calls.</p>
 
               {/* Company Identity */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Company Identity</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Company Name for Calls</label>
                     <input
                       defaultValue="RiverPoint Capital"
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
                     <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Caller ID Name</label>
                     <input
                       defaultValue="RiverPoint Capital"
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                   <div>
                     <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Call-back Number</label>
                     <input
                       defaultValue="(214) 555-0187"
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Voice Settings */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Voice Settings</h3>
                 <div className="grid grid-cols-5 gap-3 mb-4">
                   {voiceOptions.map((v, i) => (
                     <button
                       key={i}
                       onClick={() => setSelectedVoice(v.name)}
-                      style={{ borderRadius: '12px', padding: '12px' }}
+                      style={{ borderRadius: '10px', padding: '12px' }}
                       className={`border-2 text-center transition-all ${
                         selectedVoice === v.name
                           ? 'border-[#2563EB] bg-[rgba(37,99,235,0.08)]'
-                          : 'border-[rgba(5,14,36,0.08)] hover:border-gray-300'
+                          : 'border-[rgba(5,14,36,0.06)] hover:border-gray-300'
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${
@@ -1202,13 +1226,13 @@ export default function SettingsPage() {
                     </button>
                   ))}
                 </div>
-                <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
+                <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
                   Preview Voice
                 </button>
               </div>
 
               {/* Call Behavior */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Call Behavior</h3>
                 <div className="space-y-5">
                   {/* Duration slider */}
@@ -1224,7 +1248,7 @@ export default function SettingsPage() {
                       step={15}
                       value={callDuration}
                       onChange={e => setCallDuration(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
+                      className="w-full h-2 bg-gray-200 rounded-[8px] appearance-none cursor-pointer accent-[#2563EB]"
                     />
                     <div className="flex justify-between text-[10px] text-gray-400 mt-1">
                       <span>30 sec</span>
@@ -1239,7 +1263,7 @@ export default function SettingsPage() {
                       <select
                         value={retryAttempts}
                         onChange={e => setRetryAttempts(e.target.value)}
-                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       >
                         <option>1</option>
                         <option>2</option>
@@ -1251,7 +1275,7 @@ export default function SettingsPage() {
                       <select
                         value={callStart}
                         onChange={e => setCallStart(e.target.value)}
-                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       >
                         {['8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', '10:00 AM'].map(t => <option key={t}>{t}</option>)}
                       </select>
@@ -1261,7 +1285,7 @@ export default function SettingsPage() {
                       <select
                         value={callEnd}
                         onChange={e => setCallEnd(e.target.value)}
-                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                       >
                         {['5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '8:00 PM'].map(t => <option key={t}>{t}</option>)}
                       </select>
@@ -1276,7 +1300,7 @@ export default function SettingsPage() {
                         <button
                           key={day}
                           onClick={() => setCallDays(d => ({ ...d, [day]: !d[day as keyof typeof d] }))}
-                          className={`w-11 h-11 rounded-lg text-xs font-medium transition-all ${
+                          className={`w-11 h-11 rounded-[8px] text-xs font-medium transition-all ${
                             active ? 'bg-[#2563EB] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                           }`}
                         >
@@ -1287,7 +1311,7 @@ export default function SettingsPage() {
                   </div>
 
                   {/* DNC toggle */}
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-[8px]">
                     <div className="flex items-center gap-2">
                       <Lock className="w-4 h-4 text-gray-500" />
                       <div>
@@ -1303,22 +1327,22 @@ export default function SettingsPage() {
               </div>
 
               {/* Qualification Script */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>Qualification Script</h3>
-                  <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
+                  <button style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="hover:bg-gray-50 transition-colors">
                     Edit Script
                   </button>
                 </div>
                 <textarea
                   defaultValue={aiScript}
                   rows={10}
-                  style={{ backgroundColor: '#fafafa', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: 'monospace', color: '#0B1224' }} className="w-full leading-relaxed focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] focus:bg-white resize-none"
+                  style={{ backgroundColor: '#fafafa', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: 'monospace', color: '#0B1224' }} className="w-full leading-relaxed focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] focus:bg-white resize-none"
                 />
                 <p className="text-[10px] text-gray-500 mt-2">Changes to the script will apply to all future campaigns.</p>
               </div>
 
-              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
+              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save AI Settings'}
               </button>
             </div>
@@ -1327,11 +1351,10 @@ export default function SettingsPage() {
           {/* ════════════ DATA & PRIVACY ════════════ */}
           {activeSection === 'privacy' && (
             <div>
-              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-1">Data & Privacy</h2>
-              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }} className="mb-6">Manage your data, exports, and privacy settings.</p>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-6">Data & Privacy</h2>
 
               {/* Export Data */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Export Data</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
@@ -1342,7 +1365,7 @@ export default function SettingsPage() {
                   ].map((label, i) => (
                     <button
                       key={i}
-                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
                     >
                       <Download className="w-4 h-4 text-gray-400" />
                       {label}
@@ -1352,14 +1375,14 @@ export default function SettingsPage() {
               </div>
 
               {/* Data Retention */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Data Retention</h3>
                 <div className="max-w-xs">
                   <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1.5">Keep call recordings for</label>
                   <select
                     value={dataRetention}
                     onChange={e => setDataRetention(e.target.value)}
-                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                   >
                     <option>30 days</option>
                     <option>90 days</option>
@@ -1371,12 +1394,12 @@ export default function SettingsPage() {
               </div>
 
               {/* DNC Management */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Do Not Call Management</h3>
                 <div className="flex items-center gap-3 mb-3">
                   <button
                     onClick={openDNCList}
-                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
                   >
                     <Shield className="w-4 h-4 text-gray-400" />
                     View DNC List
@@ -1384,7 +1407,7 @@ export default function SettingsPage() {
                   </button>
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                    style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
                   >
                     <Upload className="w-4 h-4 text-gray-400" />
                     Upload DNC List
@@ -1401,7 +1424,7 @@ export default function SettingsPage() {
 
                 {/* DNC Message */}
                 {dncMessage && (
-                  <div className={`mt-3 px-3 py-2 rounded-[10px] text-sm ${
+                  <div className={`mt-3 px-3 py-2 rounded-[8px] text-sm ${
                     dncMessage.type === 'success' ? 'border' : 'bg-red-50 text-red-700 border border-red-200'
                   }`} style={dncMessage.type === 'success' ? { backgroundColor: 'rgba(37,99,235,0.08)', color: '#2563EB', borderColor: 'rgba(37,99,235,0.2)' } : undefined}>
                     {dncMessage.text}
@@ -1410,7 +1433,7 @@ export default function SettingsPage() {
 
                 {/* DNC Panel */}
                 {dncOpen && (
-                  <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px' }} className="mt-4 overflow-hidden">
+                  <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px' }} className="mt-4 overflow-hidden">
                     {/* Search & Add */}
                     <div className="p-4 bg-gray-50 border-b border-[#E5E7EB] space-y-3">
                       <div className="flex gap-2">
@@ -1425,7 +1448,7 @@ export default function SettingsPage() {
                               setDncOffset(0)
                               fetchDNCList(e.target.value, 0)
                             }}
-                            style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', paddingLeft: '36px', paddingRight: '14px', paddingTop: '10px', paddingBottom: '10px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                            style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', paddingLeft: '36px', paddingRight: '14px', paddingTop: '10px', paddingBottom: '10px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                           />
                         </div>
                         <button
@@ -1441,19 +1464,19 @@ export default function SettingsPage() {
                           placeholder="Phone number"
                           value={addPhoneInput}
                           onChange={e => setAddPhoneInput(e.target.value)}
-                          style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex-1 focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                          style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex-1 focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                         />
                         <input
                           type="text"
                           placeholder="Reason (optional)"
                           value={addPhoneReason}
                           onChange={e => setAddPhoneReason(e.target.value)}
-                          style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex-1 focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
+                          style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="flex-1 focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
                         />
                         <button
                           onClick={addPhoneToDNC}
                           disabled={addingPhone || !addPhoneInput.trim()}
-                          style={{ padding: '10px 20px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-1.5 bg-[#2563EB] text-white hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
+                          style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-1.5 bg-[#2563EB] text-white hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
                         >
                           {addingPhone ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                           Add
@@ -1539,14 +1562,14 @@ export default function SettingsPage() {
                           <button
                             disabled={dncOffset === 0}
                             onClick={() => { const n = Math.max(0, dncOffset - 50); setDncOffset(n); fetchDNCList(dncSearch, n) }}
-                            style={{ border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', color: '#0B1224' }} className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
+                            style={{ border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', color: '#0B1224' }} className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
                           >
                             Previous
                           </button>
                           <button
                             disabled={dncOffset + 50 >= dncTotal}
                             onClick={() => { const n = dncOffset + 50; setDncOffset(n); fetchDNCList(dncSearch, n) }}
-                            style={{ border: '1px solid rgba(5,14,36,0.15)', borderRadius: '10px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', color: '#0B1224' }} className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
+                            style={{ border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '12px', color: '#0B1224' }} className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
                           >
                             Next
                           </button>
@@ -1558,14 +1581,14 @@ export default function SettingsPage() {
               </div>
 
               {/* Account Actions */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white mb-6">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Account Actions</h3>
                 <div className="space-y-3">
-                  <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 border border-yellow-300 bg-yellow-50 text-yellow-800 hover:bg-yellow-100 transition-colors">
+                  <button style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 border border-yellow-300 bg-yellow-50 text-yellow-800 hover:bg-yellow-100 transition-colors">
                     <AlertTriangle className="w-4 h-4" />
                     Deactivate Account
                   </button>
-                  <button style={{ borderRadius: '10px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 bg-[#EF4444] text-white hover:bg-red-600 transition-colors">
+                  <button style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 bg-[#EF4444] text-white hover:bg-red-600 transition-colors">
                     <Trash2 className="w-4 h-4" />
                     Delete Account and All Data
                   </button>
@@ -1576,7 +1599,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Legal Links */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: '12px', padding: '20px 24px' }} className="bg-white">
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white">
                 <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Legal</h3>
                 <div className="space-y-2.5">
                   {[

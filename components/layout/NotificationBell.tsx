@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Check, CheckCheck, Loader2, X } from 'lucide-react'
+import Link from 'next/link'
+import { Inbox, Bell, MessageSquare, Check, CheckCheck, Loader2, X, ArrowRight } from 'lucide-react'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -15,6 +16,8 @@ interface Notification {
   read: boolean
   createdAt: string
 }
+
+type Tab = 'notifications' | 'messages'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -63,6 +66,7 @@ function getNotificationHref(notification: Notification): string | null {
 export default function NotificationBell() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [tab, setTab] = useState<Tab>('notifications')
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -159,40 +163,41 @@ export default function NotificationBell() {
     }
   }
 
+  // Recent messages preview (would come from API in production)
+  const recentMessages = [
+    { id: 1, name: 'Kevin Nguyen', initials: 'KN', preview: 'I can do $285k cash, close in 14 days. Send me the contract.', time: '10m', unread: true },
+    { id: 2, name: 'Sarah Kim', initials: 'SK', preview: 'Let\'s JV on that Atlanta portfolio. I have the buyers.', time: '1h', unread: true },
+    { id: 3, name: 'Marcus Thompson', initials: 'MT', preview: 'Thanks for the tip on the AI campaigns! Connect rates are way up.', time: '3h', unread: false },
+    { id: 4, name: 'Lisa Park', initials: 'LP', preview: 'Can you send me the address? I\'ll run comps on my end.', time: '1d', unread: false },
+  ]
+
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: 'notifications', label: 'Notifications', icon: <Bell className="w-3.5 h-3.5" /> },
+    { key: 'messages', label: 'Messages', icon: <MessageSquare className="w-3.5 h-3.5" /> },
+  ]
+
   return (
     <div ref={dropdownRef} style={{ position: 'relative' }}>
-      {/* Bell button */}
+      {/* Inbox button */}
       <button
         onClick={() => setOpen(!open)}
-        style={{
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 36,
-          height: 36,
-          borderRadius: 8,
-          border: 'none',
-          background: open ? 'rgba(5,14,36,0.06)' : 'transparent',
-          cursor: 'pointer',
-          transition: 'background 0.15s ease',
-        }}
-        title="Notifications"
+        className="relative flex items-center justify-center w-[34px] h-[34px] rounded-[8px] border-0 cursor-pointer transition-colors"
+        style={{ background: open ? 'rgba(5,14,36,0.06)' : 'transparent' }}
+        title="Inbox"
       >
-        <Bell
+        <Inbox
+          className="w-[18px] h-[18px]"
           style={{
-            width: 18,
-            height: 18,
             color: unreadCount > 0 ? '#2563EB' : '#6B7280',
             strokeWidth: 1.8,
           }}
         />
         {unreadCount > 0 && (
           <span
+            className="absolute flex items-center justify-center"
             style={{
-              position: 'absolute',
-              top: 4,
-              right: 4,
+              top: 3,
+              right: 3,
               minWidth: 16,
               height: 16,
               borderRadius: 8,
@@ -200,9 +205,6 @@ export default function NotificationBell() {
               color: 'white',
               fontSize: '0.6rem',
               fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
               padding: '0 4px',
               lineHeight: 1,
             }}
@@ -215,222 +217,216 @@ export default function NotificationBell() {
       {/* Dropdown */}
       {open && (
         <div
+          className="absolute z-[200] flex flex-col"
           style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
+            top: 'calc(100% + 10px)',
             right: 0,
-            width: 380,
-            maxHeight: 480,
+            width: 400,
+            maxHeight: 520,
             background: 'white',
             borderRadius: 12,
-            boxShadow: '0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)',
-            border: '1px solid rgba(5,14,36,0.08)',
+            boxShadow: '0 24px 80px rgba(5,14,36,0.18), 0 8px 24px rgba(5,14,36,0.08), 0 0 0 1px rgba(5,14,36,0.06)',
             overflow: 'hidden',
-            zIndex: 50,
-            display: 'flex',
-            flexDirection: 'column',
           }}
         >
-          {/* Header */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 16px',
-              borderBottom: '1px solid rgba(5,14,36,0.06)',
-            }}
-          >
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0B1224' }}>
-              Notifications
-              {unreadCount > 0 && (
-                <span
-                  style={{
-                    marginLeft: 8,
-                    fontSize: '0.7rem',
-                    fontWeight: 600,
-                    color: '#2563EB',
-                    background: 'rgba(37,99,235,0.08)',
-                    padding: '2px 8px',
-                    borderRadius: 10,
-                  }}
-                >
-                  {unreadCount} new
-                </span>
-              )}
-            </span>
-            <div style={{ display: 'flex', gap: 4 }}>
-              {unreadCount > 0 && (
+          {/* Header with tabs */}
+          <div style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
+            <div className="flex items-center justify-between px-4 pt-3.5 pb-0">
+              <span className="text-[0.88rem] font-[600] text-[#0B1224]">Inbox</span>
+              <div className="flex items-center gap-1">
+                {tab === 'notifications' && unreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllRead}
+                    disabled={markingAll}
+                    className="flex items-center gap-1 px-2 py-1 rounded-[6px] border-0 text-[0.68rem] font-[500] text-[rgba(5,14,36,0.45)] hover:text-[rgba(5,14,36,0.7)] hover:bg-[rgba(5,14,36,0.04)] cursor-pointer transition-colors"
+                    style={{ background: 'transparent' }}
+                  >
+                    {markingAll ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <CheckCheck className="w-3 h-3" />
+                    )}
+                    Mark all read
+                  </button>
+                )}
                 <button
-                  onClick={handleMarkAllRead}
-                  disabled={markingAll}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    border: 'none',
-                    background: 'rgba(5,14,36,0.04)',
-                    color: '#6B7280',
-                    fontSize: '0.72rem',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    transition: 'background 0.15s ease',
-                  }}
-                  title="Mark all as read"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center w-7 h-7 rounded-[6px] border-0 bg-transparent cursor-pointer text-[#9CA3AF] hover:text-[rgba(5,14,36,0.6)] hover:bg-[rgba(5,14,36,0.04)] transition-colors"
                 >
-                  {markingAll ? (
-                    <Loader2 style={{ width: 12, height: 12, animation: 'spin 1s linear infinite' }} />
-                  ) : (
-                    <CheckCheck style={{ width: 12, height: 12 }} />
-                  )}
-                  Mark all read
+                  <X className="w-3.5 h-3.5" />
                 </button>
-              )}
-              <button
-                onClick={() => setOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 28,
-                  height: 28,
-                  borderRadius: 6,
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  color: '#9CA3AF',
-                }}
-              >
-                <X style={{ width: 14, height: 14 }} />
-              </button>
+              </div>
+            </div>
+
+            {/* Tab bar */}
+            <div className="flex px-4 gap-1 mt-2.5">
+              {tabs.map(t => (
+                <button
+                  key={t.key}
+                  onClick={() => setTab(t.key)}
+                  className="flex items-center gap-1.5 px-3 pb-2.5 border-0 cursor-pointer transition-colors text-[0.76rem] font-[500]"
+                  style={{
+                    background: 'transparent',
+                    color: tab === t.key ? '#2563EB' : 'rgba(5,14,36,0.4)',
+                    borderBottom: tab === t.key ? '2px solid #2563EB' : '2px solid transparent',
+                    marginBottom: -1,
+                  }}
+                >
+                  {t.icon}
+                  {t.label}
+                  {t.key === 'messages' && recentMessages.filter(m => m.unread).length > 0 && (
+                    <span
+                      className="text-[0.6rem] font-[600] rounded-full px-1.5 py-[1px] leading-none"
+                      style={{
+                        background: tab === t.key ? 'rgba(37,99,235,0.1)' : 'rgba(5,14,36,0.06)',
+                        color: tab === t.key ? '#2563EB' : 'rgba(5,14,36,0.4)',
+                      }}
+                    >
+                      {recentMessages.filter(m => m.unread).length}
+                    </span>
+                  )}
+                  {t.key === 'notifications' && unreadCount > 0 && (
+                    <span
+                      className="text-[0.6rem] font-[600] rounded-full px-1.5 py-[1px] leading-none"
+                      style={{
+                        background: tab === t.key ? 'rgba(37,99,235,0.1)' : 'rgba(5,14,36,0.06)',
+                        color: tab === t.key ? '#2563EB' : 'rgba(5,14,36,0.4)',
+                      }}
+                    >
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Notifications list */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {loading ? (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 40,
-                  color: '#9CA3AF',
-                }}
-              >
-                <Loader2 style={{ width: 20, height: 20, animation: 'spin 1s linear infinite' }} />
-              </div>
-            ) : notifications.length === 0 ? (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '40px 20px',
-                  color: '#9CA3AF',
-                }}
-              >
-                <Bell style={{ width: 28, height: 28, marginBottom: 12, opacity: 0.5 }} />
-                <p style={{ margin: 0, fontSize: '0.82rem', fontWeight: 500 }}>No notifications yet</p>
-                <p style={{ margin: '4px 0 0', fontSize: '0.72rem' }}>
-                  Enable match alerts on your CRM contacts to get notified
-                </p>
-              </div>
-            ) : (
-              notifications.map(n => (
-                <button
-                  key={n.id}
-                  onClick={() => handleClick(n)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 10,
-                    width: '100%',
-                    padding: '12px 16px',
-                    border: 'none',
-                    borderBottom: '1px solid rgba(5,14,36,0.04)',
-                    background: n.read ? 'transparent' : 'rgba(37,99,235,0.03)',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 0.15s ease',
-                  }}
-                >
-                  {/* Icon */}
-                  <span style={{ fontSize: '1rem', lineHeight: 1, flexShrink: 0, marginTop: 2 }}>
-                    {typeIcon(n.type)}
-                  </span>
-
-                  {/* Content */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span
-                        style={{
-                          fontSize: '0.78rem',
-                          fontWeight: n.read ? 400 : 600,
-                          color: '#0B1224',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {n.title}
-                      </span>
-                      {!n.read && (
-                        <span
-                          style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: '50%',
-                            background: '#2563EB',
-                            flexShrink: 0,
-                          }}
-                        />
-                      )}
-                    </div>
-                    <p
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto">
+            {tab === 'notifications' && (
+              <>
+                {loading ? (
+                  <div className="flex items-center justify-center py-12 text-[#9CA3AF]">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 px-5 text-[#9CA3AF]">
+                    <Bell className="w-7 h-7 mb-3 opacity-40" />
+                    <p className="m-0 text-[0.82rem] font-[500]">No notifications yet</p>
+                    <p className="m-0 mt-1 text-[0.72rem]">
+                      You&apos;ll see match alerts, deal updates, and campaign results here.
+                    </p>
+                  </div>
+                ) : (
+                  notifications.map(n => (
+                    <button
+                      key={n.id}
+                      onClick={() => handleClick(n)}
+                      className="flex items-start gap-2.5 w-full px-4 py-3 border-0 text-left cursor-pointer transition-colors hover:bg-[rgba(5,14,36,0.02)]"
                       style={{
-                        margin: '2px 0 0',
-                        fontSize: '0.72rem',
-                        color: '#6B7280',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
+                        borderBottom: '1px solid rgba(5,14,36,0.04)',
+                        background: n.read ? 'transparent' : 'rgba(37,99,235,0.02)',
                       }}
                     >
-                      {n.body}
-                    </p>
-                    <span style={{ fontSize: '0.65rem', color: '#9CA3AF', marginTop: 2, display: 'block' }}>
-                      {timeAgo(n.createdAt)}
-                    </span>
-                  </div>
+                      <span className="text-[0.95rem] leading-none flex-shrink-0 mt-0.5">
+                        {typeIcon(n.type)}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="text-[0.78rem] text-[#0B1224] truncate"
+                            style={{ fontWeight: n.read ? 400 : 600 }}
+                          >
+                            {n.title}
+                          </span>
+                          {!n.read && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] flex-shrink-0" />
+                          )}
+                        </div>
+                        <p className="m-0 mt-0.5 text-[0.72rem] text-[#6B7280] truncate">
+                          {n.body}
+                        </p>
+                        <span className="text-[0.65rem] text-[#9CA3AF] mt-0.5 block">
+                          {timeAgo(n.createdAt)}
+                        </span>
+                      </div>
+                      {n.read && (
+                        <Check className="w-3 h-3 text-[#D1D5DB] flex-shrink-0 mt-1" />
+                      )}
+                    </button>
+                  ))
+                )}
+              </>
+            )}
 
-                  {/* Read indicator */}
-                  {n.read && (
-                    <Check
+            {tab === 'messages' && (
+              <>
+                {recentMessages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 px-5 text-[#9CA3AF]">
+                    <MessageSquare className="w-7 h-7 mb-3 opacity-40" />
+                    <p className="m-0 text-[0.82rem] font-[500] text-[rgba(5,14,36,0.5)]">No messages yet</p>
+                    <p className="m-0 mt-1 text-[0.72rem] text-center">
+                      Connect with other wholesalers in the community.
+                    </p>
+                  </div>
+                ) : (
+                  recentMessages.map(msg => (
+                    <Link
+                      key={msg.id}
+                      href="/community?tab=messages"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2.5 w-full px-4 py-3 no-underline transition-colors hover:bg-[rgba(5,14,36,0.02)]"
                       style={{
-                        width: 12,
-                        height: 12,
-                        color: '#D1D5DB',
-                        flexShrink: 0,
-                        marginTop: 4,
+                        borderBottom: '1px solid rgba(5,14,36,0.04)',
+                        background: msg.unread ? 'rgba(37,99,235,0.02)' : 'transparent',
                       }}
-                    />
-                  )}
-                </button>
-              ))
+                    >
+                      <div className="relative flex-shrink-0">
+                        <div
+                          className="rounded-full flex items-center justify-center"
+                          style={{ width: 32, height: 32, backgroundColor: '#0B1224' }}
+                        >
+                          <span className="text-[0.55rem] font-[600] text-white">{msg.initials}</span>
+                        </div>
+                        {msg.unread && (
+                          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white bg-[#2563EB]" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span
+                            className="text-[0.78rem] text-[#0B1224]"
+                            style={{ fontWeight: msg.unread ? 600 : 400 }}
+                          >
+                            {msg.name}
+                          </span>
+                          <span className="text-[0.65rem] text-[#9CA3AF] flex-shrink-0">{msg.time}</span>
+                        </div>
+                        <p className="m-0 text-[0.72rem] text-[#6B7280] truncate">
+                          {msg.preview}
+                        </p>
+                      </div>
+                    </Link>
+                  ))
+                )}
+              </>
             )}
           </div>
 
-          {/* Spin animation */}
-          <style dangerouslySetInnerHTML={{ __html: `
-            @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-          ` }} />
+          {/* Footer */}
+          <div
+            className="flex items-center justify-center px-4 py-2.5"
+            style={{ borderTop: '1px solid rgba(5,14,36,0.04)', background: 'rgba(5,14,36,0.015)' }}
+          >
+            <Link
+              href={tab === 'messages' ? '/community?tab=messages' : '/dashboard'}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-1 text-[0.7rem] text-[#2563EB] hover:text-[#1D4ED8] no-underline font-[500] transition-colors"
+            >
+              {tab === 'messages' ? 'View all messages' : 'View all activity'}
+              <ArrowRight className="w-2.5 h-2.5" />
+            </Link>
+          </div>
         </div>
       )}
     </div>

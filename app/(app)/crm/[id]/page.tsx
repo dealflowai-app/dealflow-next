@@ -326,7 +326,7 @@ function NoteComposer({ buyerId, onNoteAdded }: { buyerId: string; onNoteAdded: 
   }
 
   return (
-    <div className={`rounded-xl border transition-all ${flash ? 'border-[#2563EB] bg-[rgba(37,99,235,0.08)]' : focused ? 'border-[#2563EB] bg-white' : 'border-[rgba(5,14,36,0.08)] bg-gray-50'}`}>
+    <div className={`rounded-xl border transition-all ${flash ? 'border-[#2563EB] bg-[rgba(37,99,235,0.08)]' : focused ? 'border-[#2563EB] bg-white' : 'border-[rgba(5,14,36,0.06)] bg-gray-50'}`}>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -345,7 +345,7 @@ function NoteComposer({ buyerId, onNoteAdded }: { buyerId: string; onNoteAdded: 
           <button
             onClick={save}
             disabled={saving || !text.trim()}
-            className="text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[10px] px-3 py-1.5 cursor-pointer disabled:opacity-50 flex items-center gap-1 font-semibold"
+            className="text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[8px] px-3 py-1.5 cursor-pointer disabled:opacity-50 flex items-center gap-1 font-semibold"
             style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
           >
             {saving && <Loader2 className="w-3 h-3 animate-spin" />}
@@ -365,7 +365,7 @@ type TabName = typeof TABS[number]
 
 function TabBar({ active, onChange }: { active: TabName; onChange: (t: TabName) => void }) {
   return (
-    <div className="flex border-b border-[rgba(5,14,36,0.08)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+    <div className="flex border-b border-[rgba(5,14,36,0.06)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       {TABS.map(t => (
         <button
           key={t}
@@ -411,7 +411,7 @@ function AiInsightsCard({ buyerId, cached }: { buyerId: string; cached: { insigh
 
   if (noKey) {
     return (
-      <div className="bg-gray-50 border border-[rgba(5,14,36,0.08)] rounded-xl p-5" style={{ padding: '20px 24px' }}>
+      <div className="bg-gray-50 border border-[rgba(5,14,36,0.06)] rounded-xl p-5" style={{ padding: '20px 24px' }}>
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-4 h-4 text-[rgba(5,14,36,0.4)]" />
           <span className="text-[14px] font-medium text-[rgba(5,14,36,0.5)]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>AI Insight</span>
@@ -423,7 +423,7 @@ function AiInsightsCard({ buyerId, cached }: { buyerId: string; cached: { insigh
 
   if (loading) {
     return (
-      <div className="border border-[rgba(5,14,36,0.08)] rounded-xl space-y-2" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
+      <div className="border border-[rgba(5,14,36,0.06)] rounded-xl space-y-2" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-[#2563EB]" />
           <span className="text-[14px] font-medium text-[#2563EB]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Generating AI Insight...</span>
@@ -439,13 +439,13 @@ function AiInsightsCard({ buyerId, cached }: { buyerId: string; cached: { insigh
 
   if (!insight) {
     return (
-      <div className="border border-[rgba(5,14,36,0.08)] rounded-xl" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
+      <div className="border border-[rgba(5,14,36,0.06)] rounded-xl" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#2563EB]" />
             <span className="text-[14px] font-medium text-[#2563EB]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>AI Insight</span>
           </div>
-          <button onClick={() => generate(false)} className="text-[14px] text-[#2563EB] hover:text-[#1D4ED8] bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] px-3 py-1.5 cursor-pointer font-medium" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <button onClick={() => generate(false)} className="text-[14px] text-[#2563EB] hover:text-[#1D4ED8] bg-white border border-[rgba(5,14,36,0.15)] rounded-[8px] px-3 py-1.5 cursor-pointer font-medium" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             Generate Insight
           </button>
         </div>
@@ -454,7 +454,7 @@ function AiInsightsCard({ buyerId, cached }: { buyerId: string; cached: { insigh
   }
 
   return (
-    <div className="border border-[rgba(5,14,36,0.08)] rounded-xl" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
+    <div className="border border-[rgba(5,14,36,0.06)] rounded-xl" style={{ padding: '20px 24px', backgroundColor: 'rgba(37,99,235,0.08)' }}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-[#2563EB]" />
@@ -514,7 +514,7 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
   const gradeStyle = scoreColorStyle(grade)
 
   return (
-    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+    <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       {/* Score */}
       <div className="flex items-center justify-between mb-1">
         <span className="text-[11px] font-semibold uppercase text-[rgba(5,14,36,0.4)]" style={{ letterSpacing: '0.05em' }}>Buyer Score</span>
@@ -531,7 +531,7 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
           type="number"
           min={0} max={100} value={score}
           onChange={e => handleScoreChange(Number(e.target.value))}
-          className="w-14 text-center text-lg font-bold text-[#0B1224] border border-[rgba(5,14,36,0.08)] rounded-[10px] py-1 outline-none focus:border-[#2563EB]"
+          className="w-14 text-center text-lg font-bold text-[#0B1224] border border-[rgba(5,14,36,0.06)] rounded-[8px] py-1 outline-none focus:border-[#2563EB]"
         />
       </div>
 
@@ -543,7 +543,7 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
             <button
               key={m.value}
               onClick={() => handleMotivationChange(motivation === m.value ? '' : m.value)}
-              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-[10px] text-[14px] font-medium border cursor-pointer crm-btn ${
+              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-[8px] text-[14px] font-medium border cursor-pointer crm-btn ${
                 motivation === m.value
                   ? motivationStyle(m.value) + ' border-current'
                   : 'bg-white border-[rgba(5,14,36,0.15)] text-[rgba(5,14,36,0.45)] hover:bg-gray-50'
@@ -557,7 +557,7 @@ function ScoreMotivationCard({ buyerId, currentScore, currentMotivation, onUpdat
       </div>
 
       {dirty && (
-        <button onClick={save} disabled={saving} className="w-full text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[10px] py-2.5 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 font-semibold crm-btn" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <button onClick={save} disabled={saving} className="w-full text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[8px] py-2.5 cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 font-semibold crm-btn" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
           {saving ? 'Saving...' : 'Save Score & Motivation'}
         </button>
@@ -597,7 +597,7 @@ function ScoreBreakdownCard({ buyerId }: { buyerId: string }) {
   ]
 
   return (
-    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px' }}>
+    <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px' }}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-semibold uppercase text-[rgba(5,14,36,0.4)]" style={{ letterSpacing: '0.05em' }}>Score Breakdown</span>
         <button
@@ -705,7 +705,7 @@ function FollowUpCard({ buyerId, currentDate, currentNote, onUpdated }: {
   }
 
   return (
-    <div className={`border rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow ${isOverdue ? 'bg-[rgba(239,68,68,0.03)] border-[rgba(239,68,68,0.15)]' : 'bg-white border-[rgba(5,14,36,0.08)]'}`} style={{ padding: '20px 24px' }}>
+    <div className={`border rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow ${isOverdue ? 'bg-[rgba(239,68,68,0.03)] border-[rgba(239,68,68,0.15)]' : 'bg-white border-[rgba(5,14,36,0.06)]'}`} style={{ padding: '20px 24px' }}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-semibold uppercase text-[rgba(5,14,36,0.4)]" style={{ letterSpacing: '0.05em' }}>Follow-Up</span>
         {isOverdue && <span className="text-[10px] font-semibold text-[#EF4444] bg-[rgba(239,68,68,0.08)] px-1.5 py-0.5 rounded-full">Overdue</span>}
@@ -718,19 +718,19 @@ function FollowUpCard({ buyerId, currentDate, currentNote, onUpdated }: {
           { label: '2 weeks', days: 14 },
         ].map(q => (
           <button key={q.days} onClick={() => setQuickDate(q.days)}
-            className="text-[11px] px-2 py-1 rounded-full border border-[rgba(5,14,36,0.08)] bg-white text-[rgba(5,14,36,0.5)] hover:bg-[rgba(5,14,36,0.03)] hover:border-[rgba(5,14,36,0.15)] cursor-pointer transition-all">
+            className="text-[11px] px-2 py-1 rounded-full border border-[rgba(5,14,36,0.06)] bg-white text-[rgba(5,14,36,0.5)] hover:bg-[rgba(5,14,36,0.03)] hover:border-[rgba(5,14,36,0.15)] cursor-pointer transition-all">
             {q.label}
           </button>
         ))}
       </div>
       <input type="date" value={date} onChange={e => { setDate(e.target.value); setDirty(true) }}
-        className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[13px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] mb-2" />
+        className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[13px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] mb-2" />
       <input value={note} onChange={e => { setNote(e.target.value); setDirty(true) }} placeholder="Follow-up note..."
-        className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[13px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] mb-2" />
+        className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[13px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] mb-2" />
       <div className="flex items-center gap-2">
         {dirty && (
           <button onClick={save} disabled={saving}
-            className="flex-1 text-[12px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[10px] py-2 cursor-pointer font-semibold disabled:opacity-50 flex items-center justify-center gap-1">
+            className="flex-1 text-[12px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[8px] py-2 cursor-pointer font-semibold disabled:opacity-50 flex items-center justify-center gap-1">
             {saving && <Loader2 className="w-3 h-3 animate-spin" />}
             Save
           </button>
@@ -808,17 +808,17 @@ function FindDealsCard({ buyer }: { buyer: BuyerDetail }) {
       <div className="flex items-center gap-3">
         <a
           href={discoveryUrl}
-          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors no-underline"
+          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors no-underline"
         >
           <Search className="w-3.5 h-3.5" /> Search Discovery
         </a>
         <button
           onClick={toggleAlerts}
           disabled={savingAlert}
-          className={`flex items-center gap-1.5 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors border ${
+          className={`flex items-center gap-1.5 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors border ${
             alertsEnabled
               ? 'bg-[rgba(37,99,235,0.08)] border-[rgba(37,99,235,0.2)] text-[#2563EB]'
-              : 'bg-white border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.65)] hover:bg-gray-50'
+              : 'bg-white border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.65)] hover:bg-gray-50'
           }`}
         >
           {savingAlert ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
@@ -828,7 +828,7 @@ function FindDealsCard({ buyer }: { buyer: BuyerDetail }) {
           <select
             value={alertFrequency}
             onChange={(e) => updateFrequency(e.target.value)}
-            className="border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] bg-white outline-none focus:border-[#2563EB] cursor-pointer"
+            className="border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] bg-white outline-none focus:border-[#2563EB] cursor-pointer"
           >
             <option value="realtime">Real-time</option>
             <option value="daily">Daily digest</option>
@@ -863,14 +863,14 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
         <div className="flex items-center justify-between rounded-xl px-4 py-2.5" style={{ backgroundColor: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)' }}>
           <span className="text-[14px] text-[#2563EB] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Editing buyer profile</span>
           <div className="flex gap-2">
-            <button onClick={onCancel} disabled={saving} className="text-[14px] text-[rgba(5,14,36,0.65)] bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] px-3 py-1.5 cursor-pointer hover:bg-gray-50" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Cancel</button>
-            <button onClick={onSave} disabled={saving} className="text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[10px] px-3 py-1.5 cursor-pointer disabled:opacity-50 flex items-center gap-1 font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+            <button onClick={onCancel} disabled={saving} className="text-[14px] text-[rgba(5,14,36,0.65)] bg-white border border-[rgba(5,14,36,0.15)] rounded-[8px] px-3 py-1.5 cursor-pointer hover:bg-gray-50" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Cancel</button>
+            <button onClick={onSave} disabled={saving} className="text-[14px] text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 rounded-[8px] px-3 py-1.5 cursor-pointer disabled:opacity-50 flex items-center gap-1 font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
               {saving && <Loader2 className="w-3 h-3 animate-spin" />}
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Contact Info</div>
           <div className="grid grid-cols-2 gap-3">
             {[
@@ -889,18 +889,18 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               <div key={f.key}>
                 <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">{f.label}</label>
                 <input value={editForm[f.key] || ''} onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
-                  className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+                  className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
               </div>
             ))}
           </div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buy Box</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Strategy</label>
               <select value={editForm.strategy || ''} onChange={e => setEditForm(p => ({ ...p, strategy: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">None</option>
                 <option value="FLIP">Flip</option><option value="HOLD">Hold</option>
                 <option value="BOTH">Both</option><option value="LAND">Land</option>
@@ -910,7 +910,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Status</label>
               <select value={editForm.status || 'ACTIVE'} onChange={e => setEditForm(p => ({ ...p, status: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <optgroup label="Buyer Pipeline">
                   <option value="NEW">New</option><option value="CONTACTED">Contacted</option>
                   <option value="ACTIVE">Active</option><option value="QUALIFIED">Qualified</option>
@@ -940,20 +940,20 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
               <div key={f.key}>
                 <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">{f.label}</label>
                 <input type={f.type} value={editForm[f.key] || ''} onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
-                  className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+                  className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
               </div>
             ))}
           </div>
         </div>
 
         {/* Buyer Profile */}
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buyer Profile</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Buyer Type</label>
               <select value={editForm.buyerType || ''} onChange={e => setEditForm(p => ({ ...p, buyerType: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.buyerType.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -961,7 +961,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Funding Source</label>
               <select value={editForm.fundingSource || ''} onChange={e => setEditForm(p => ({ ...p, fundingSource: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.fundingSource.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -969,7 +969,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Condition Preference</label>
               <select value={editForm.conditionPreference || ''} onChange={e => setEditForm(p => ({ ...p, conditionPreference: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.conditionPreference.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -977,7 +977,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Communication Preference</label>
               <select value={editForm.communicationPref || ''} onChange={e => setEditForm(p => ({ ...p, communicationPref: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.communicationPref.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -985,7 +985,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Entity Type</label>
               <select value={editForm.entityType || ''} onChange={e => setEditForm(p => ({ ...p, entityType: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 <option value="individual">Individual</option>
                 <option value="llc">LLC</option>
@@ -996,17 +996,17 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Portfolio Size</label>
               <input type="number" value={editForm.portfolioSize || ''} onChange={e => setEditForm(p => ({ ...p, portfolioSize: e.target.value }))}
-                placeholder="# of properties" className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+                placeholder="# of properties" className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Avg Purchase Price</label>
               <input type="number" value={editForm.avgPurchasePrice || ''} onChange={e => setEditForm(p => ({ ...p, avgPurchasePrice: e.target.value }))}
-                placeholder="$" className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+                placeholder="$" className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Lead Source</label>
               <select value={editForm.source || ''} onChange={e => setEditForm(p => ({ ...p, source: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] bg-white">
                 <option value="">Select...</option>
                 {ENUM_OPTIONS.source.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -1014,30 +1014,30 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Preferred Zips</label>
               <input value={editForm.preferredZips || ''} onChange={e => setEditForm(p => ({ ...p, preferredZips: e.target.value }))}
-                placeholder="75201, 75202, ..." className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+                placeholder="75201, 75202, ..." className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Follow-Up Date</label>
               <input type="date" value={editForm.followUpDate || ''} onChange={e => setEditForm(p => ({ ...p, followUpDate: e.target.value }))}
-                className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+                className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div className="col-span-2">
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Follow-Up Note</label>
               <input value={editForm.followUpNote || ''} onChange={e => setEditForm(p => ({ ...p, followUpNote: e.target.value }))}
-                placeholder="What to discuss on follow-up..." className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+                placeholder="What to discuss on follow-up..." className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
             <div>
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] mb-1 block">Assigned To</label>
               <input value={editForm.assignedTo || ''} onChange={e => setEditForm(p => ({ ...p, assignedTo: e.target.value }))}
-                placeholder="Team member" className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
+                placeholder="Team member" className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Notes</div>
           <textarea value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))}
-            rows={4} className="w-full border border-[rgba(5,14,36,0.08)] rounded-[10px] px-3 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] resize-y"
+            rows={4} className="w-full border border-[rgba(5,14,36,0.06)] rounded-[8px] px-3 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] resize-y"
             placeholder="Notes about this buyer..." />
         </div>
       </div>
@@ -1047,7 +1047,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
   return (
     <div className="space-y-5">
       {/* Contact Info Card */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
         <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Contact Info</div>
         <div className="space-y-2.5">
           {buyer.phone && (
@@ -1124,7 +1124,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
 
       {/* Buy Box Card — hidden for pure sellers */}
       {buyer.contactType !== 'SELLER' && (
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
         <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buy Box</div>
         <div className="grid grid-cols-2 gap-y-2.5">
           <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Types</span><div className="text-[14px] text-[#0B1224]">{buyer.preferredTypes?.join(', ') || '—'}</div></div>
@@ -1143,7 +1143,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
       )}
 
       {/* Buyer Profile Card */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
         <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Buyer Profile</div>
         <div className="grid grid-cols-2 gap-y-2.5">
           <div><span className="text-[12px] text-[rgba(5,14,36,0.4)]">Buyer Type</span><div className="text-[14px] text-[#0B1224]">{buyer.buyerType ? displayStatus(buyer.buyerType) : '—'}</div></div>
@@ -1183,7 +1183,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
           { label: 'Offers', value: totalOffers },
           { label: 'Closed', value: closedDeals },
         ].map(s => (
-          <div key={s.label} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
+          <div key={s.label} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
             <div className="text-xl font-bold text-[#0B1224]">{s.value}</div>
             <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase" style={{ letterSpacing: '0.05em' }}>{s.label}</div>
           </div>
@@ -1195,7 +1195,7 @@ function OverviewTab({ buyer, editing, editForm, setEditForm, onSave, onCancel, 
 
       {/* Notes */}
       {buyer.notes && (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Notes</div>
           <p className="text-[14px] text-[rgba(5,14,36,0.65)] whitespace-pre-wrap">{buyer.notes}</p>
         </div>
@@ -1266,7 +1266,7 @@ function TimelineTab({ buyerId }: { buyerId: string }) {
             className={`text-[12px] font-medium px-2.5 py-1 rounded-full border cursor-pointer transition-all ${
               filter === f.key
                 ? 'bg-[#0B1224] text-white border-[#0B1224]'
-                : 'bg-white text-[rgba(5,14,36,0.5)] border-[rgba(5,14,36,0.08)] hover:border-[rgba(5,14,36,0.15)]'
+                : 'bg-white text-[rgba(5,14,36,0.5)] border-[rgba(5,14,36,0.06)] hover:border-[rgba(5,14,36,0.15)]'
             }`}
           >
             {f.label}
@@ -1279,7 +1279,7 @@ function TimelineTab({ buyerId }: { buyerId: string }) {
       )}
 
       <div className="relative pl-6">
-        {filtered.length > 0 && <div className="absolute left-[9px] top-2 bottom-2 w-px bg-[rgba(5,14,36,0.08)]" />}
+        {filtered.length > 0 && <div className="absolute left-[9px] top-2 bottom-2 w-px bg-[rgba(5,14,36,0.06)]" />}
         <div className="space-y-4">
           {filtered.map(e => (
             <div key={e.id} className="relative">
@@ -1330,7 +1330,7 @@ function DealsTab({ matches, offers, buyer }: { matches: BuyerDetail['dealMatche
         <Home className="w-10 h-10 text-gray-300 mx-auto mb-3" />
         <p className="text-[14px] text-gray-500 font-medium mb-1">No deals matched yet</p>
         <p className="text-[12px] text-gray-400 mb-4">Find properties that match this buyer&apos;s buy box criteria.</p>
-        <a href={`/discovery?${discoveryParams.toString()}`} className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors no-underline">
+        <a href={`/discovery?${discoveryParams.toString()}`} className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors no-underline">
           <Search className="w-3.5 h-3.5" /> Search Discovery
         </a>
       </div>
@@ -1345,7 +1345,7 @@ function DealsTab({ matches, offers, buyer }: { matches: BuyerDetail['dealMatche
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Offers ({offers!.length})</div>
           <div className="space-y-2">
             {offers!.map(o => (
-              <div key={o.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 flex items-center justify-between">
+              <div key={o.id} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3 flex items-center justify-between">
                 <div>
                   <div className="text-[14px] font-medium text-[#0B1224]">{o.deal.address}</div>
                   <div className="text-[12px] text-[rgba(5,14,36,0.4)]">{o.deal.city}, {o.deal.state}</div>
@@ -1370,7 +1370,7 @@ function DealsTab({ matches, offers, buyer }: { matches: BuyerDetail['dealMatche
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-2" style={{ letterSpacing: '0.05em' }}>Matched Deals ({matches!.length})</div>
           <div className="space-y-3">
             {matches!.map(m => (
-              <div key={m.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '16px 20px' }}>
+              <div key={m.id} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '16px 20px' }}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="text-[15px] font-semibold text-[#0B1224]">{m.deal.address}</div>
@@ -1442,7 +1442,7 @@ function CallsTab({ calls, inboundCalls }: { calls: BuyerDetail['campaignCalls']
   return (
     <div className="space-y-3">
       {unified.map(c => (
-        <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               {c.direction === 'inbound' ? (
@@ -1537,7 +1537,7 @@ function BuyerCallbacksTab({ buyerId }: { buyerId: string }) {
   return (
     <div className="space-y-2 py-2">
       {callbacks.map((cb: any) => (
-        <div key={cb.id} className={`border rounded-xl p-3 ${cb.status === 'scheduled' && new Date(cb.scheduledAt) < new Date() ? 'border-red-200 bg-red-50/30' : 'border-[rgba(5,14,36,0.08)] bg-white'}`} style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+        <div key={cb.id} className={`border rounded-xl p-3 ${cb.status === 'scheduled' && new Date(cb.scheduledAt) < new Date() ? 'border-red-200 bg-red-50/30' : 'border-[rgba(5,14,36,0.06)] bg-white'}`} style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <span className="text-[12px] font-medium px-1.5 py-0.5 rounded-full" style={STATUS_COLOR_STYLES[cb.status] || { color: 'rgba(5,14,36,0.4)', backgroundColor: 'rgba(5,14,36,0.04)' }}>
@@ -1646,17 +1646,17 @@ function BuyerIntelligenceTab({ buyerId }: { buyerId: string }) {
     <div className="space-y-5 py-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       {/* Summary row */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="border border-[rgba(5,14,36,0.08)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
+        <div className="border border-[rgba(5,14,36,0.06)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
           <div className={`text-[1.1rem] font-bold ${avgSentiment > 20 ? 'text-[#2563EB]' : avgSentiment < -20 ? 'text-red-600' : 'text-amber-600'}`}>
             {avgSentiment > 0 ? '+' : ''}{avgSentiment}
           </div>
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase" style={{ letterSpacing: '0.05em' }}>Avg Sentiment</div>
         </div>
-        <div className="border border-[rgba(5,14,36,0.08)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
+        <div className="border border-[rgba(5,14,36,0.06)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
           <div className="text-[1.1rem] font-bold text-[#0B1224]">{avgEngagement}</div>
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase" style={{ letterSpacing: '0.05em' }}>Avg Engagement</div>
         </div>
-        <div className="border border-[rgba(5,14,36,0.08)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
+        <div className="border border-[rgba(5,14,36,0.06)] rounded-xl p-3 text-center hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow">
           <div className="text-[1.1rem] font-bold text-[#0B1224]">{records.length}</div>
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase" style={{ letterSpacing: '0.05em' }}>Calls Analyzed</div>
         </div>
@@ -1773,7 +1773,7 @@ function NotesTab({ buyerId }: { buyerId: string }) {
 
       <div className="space-y-3">
         {notes.map(n => (
-          <div key={n.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+          <div key={n.id} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[14px] font-semibold text-[#0B1224]">You</span>
               <span className="text-[12px] text-[rgba(5,14,36,0.4)]">{relativeTime(n.createdAt)}</span>
@@ -1825,7 +1825,7 @@ function TagsCard({ buyer, onRefetch }: { buyer: BuyerDetail; onRefetch: () => v
   }
 
   return (
-    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+    <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
       <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Tags</div>
       {(!buyer.tags || buyer.tags.length === 0) ? (
         <p className="text-[14px] text-[rgba(5,14,36,0.4)] mb-3">No tags applied.</p>
@@ -1847,7 +1847,7 @@ function TagsCard({ buyer, onRefetch }: { buyer: BuyerDetail; onRefetch: () => v
           ))}
         </div>
       )}
-      <button onClick={runAutoTags} className="w-full text-[14px] text-[rgba(5,14,36,0.65)] hover:bg-gray-50 bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] py-1.5 cursor-pointer flex items-center justify-center gap-1 crm-btn">
+      <button onClick={runAutoTags} className="w-full text-[14px] text-[rgba(5,14,36,0.65)] hover:bg-gray-50 bg-white border border-[rgba(5,14,36,0.15)] rounded-[8px] py-1.5 cursor-pointer flex items-center justify-center gap-1 crm-btn">
         <Tag className="w-3 h-3" /> Run Auto-Tags
       </button>
     </div>
@@ -2048,7 +2048,7 @@ export default function BuyerDetailPage() {
         </button>
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
           <p className="text-red-600 font-medium text-[15px]">{error || 'Buyer not found'}</p>
-          <button onClick={fetchBuyer} className="mt-3 text-[14px] text-red-600 bg-transparent border border-red-300 rounded-[10px] px-4 py-2 cursor-pointer">Try Again</button>
+          <button onClick={fetchBuyer} className="mt-3 text-[14px] text-red-600 bg-transparent border border-red-300 rounded-[8px] px-4 py-2 cursor-pointer">Try Again</button>
         </div>
       </div>
     )
@@ -2085,7 +2085,7 @@ export default function BuyerDetailPage() {
                 {displayStatus(buyer.status)}
               </span>
               {buyer.preferredMarkets?.map(m => (
-                <span key={m} className="text-[12px] text-[rgba(5,14,36,0.5)] bg-[rgba(5,14,36,0.04)] border border-[rgba(5,14,36,0.08)] rounded-full px-2 py-0.5 flex items-center gap-1">
+                <span key={m} className="text-[12px] text-[rgba(5,14,36,0.5)] bg-[rgba(5,14,36,0.04)] border border-[rgba(5,14,36,0.06)] rounded-full px-2 py-0.5 flex items-center gap-1">
                   <MapPin className="w-2.5 h-2.5" />{m}
                 </span>
               ))}
@@ -2142,21 +2142,21 @@ export default function BuyerDetailPage() {
           <FollowUpCard buyerId={buyerId} currentDate={buyer.followUpDate} currentNote={buyer.followUpNote} onUpdated={fetchBuyer} />
 
           {/* Quick Actions */}
-          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px' }}>
+          <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)] transition-shadow" style={{ padding: '20px 24px' }}>
             <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase mb-3" style={{ letterSpacing: '0.05em' }}>Quick Actions</div>
             <div className="grid grid-cols-2 gap-2">
-              <button className="flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] py-2.5 text-[14px] font-semibold cursor-pointer transition-colors">
+              <button className="flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] py-2.5 text-[14px] font-semibold cursor-pointer transition-colors">
                 <PhoneOutgoing className="w-3.5 h-3.5" /> Outreach
               </button>
-              <button className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[10px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
+              <button className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[8px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
                 <Send className="w-3.5 h-3.5" /> Send Deal
               </button>
               <button onClick={startEditing}
-                className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[10px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
+                className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[8px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
                 <Pencil className="w-3.5 h-3.5" /> Edit
               </button>
               <button onClick={handleArchive}
-                className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[10px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
+                className="flex items-center justify-center gap-1.5 bg-white border border-[rgba(5,14,36,0.15)] hover:bg-gray-50 text-[rgba(5,14,36,0.65)] rounded-[8px] py-2.5 text-[14px] font-medium cursor-pointer transition-colors">
                 <Archive className="w-3.5 h-3.5" /> Archive
               </button>
             </div>

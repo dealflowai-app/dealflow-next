@@ -982,13 +982,13 @@ async function handleAnalyzeProperty(
         baths: analysis.property?.property?.baths ?? null,
         sqft: analysis.property?.property?.sqft ?? null,
       },
-      link: `/analyzer?address=${encodedAddress}`,
+      link: `/deals/analyze?address=${encodedAddress}`,
     })
   } catch (err) {
     return NextResponse.json({
       success: false,
       message: `Analysis failed: ${err instanceof Error ? err.message : 'Unknown error'}. Try running it directly from the Analyze Deal page.`,
-      link: '/analyzer',
+      link: '/deals/analyze',
     })
   }
 }

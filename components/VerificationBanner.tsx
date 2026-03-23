@@ -21,7 +21,7 @@ export default function VerificationBanner() {
   if (dismissed || (emailVerified && phoneVerified)) return null
 
   return (
-    <div className="mb-5 rounded-xl border px-4 py-3 flex items-center justify-between gap-3"
+    <div className="mb-5 rounded-[10px] border px-4 py-3 flex items-center justify-between gap-3"
       style={{
         background: 'rgba(37,99,235,0.04)',
         borderColor: 'rgba(37,99,235,0.12)',
@@ -49,7 +49,7 @@ export default function VerificationBanner() {
       <div className="flex items-center gap-2 flex-shrink-0">
         {!emailVerified && (
           <Link href="/verify-email"
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+            className="text-xs font-semibold px-3 py-1.5 rounded-[8px]"
             style={{ background: '#2563EB', color: '#fff', textDecoration: 'none' }}
           >
             Verify email
@@ -57,7 +57,7 @@ export default function VerificationBanner() {
         )}
         {emailVerified && !phoneVerified && (
           <Link href="/verify-phone"
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg"
+            className="text-xs font-semibold px-3 py-1.5 rounded-[8px]"
             style={{ background: '#2563EB', color: '#fff', textDecoration: 'none' }}
           >
             Verify phone

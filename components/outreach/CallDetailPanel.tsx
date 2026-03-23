@@ -279,7 +279,7 @@ export default function CallDetailPanel({
           <div className="h-full overflow-y-auto space-y-3">
             {/* AI Summary */}
             {call.aiSummary && (
-              <div className="rounded-lg bg-gray-800/50 p-3">
+              <div className="rounded-[8px] bg-gray-800/50 p-3">
                 <span className="text-xs font-medium text-gray-400 block mb-1">AI Summary</span>
                 <p className="text-sm text-gray-200">{call.aiSummary}</p>
               </div>
@@ -287,7 +287,7 @@ export default function CallDetailPanel({
 
             {/* Extracted fields */}
             {extracted && (
-              <div className="rounded-lg bg-gray-800/50 p-3">
+              <div className="rounded-[8px] bg-gray-800/50 p-3">
                 <span className="text-xs font-medium text-gray-400 block mb-2">Extracted Preferences</span>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
@@ -351,7 +351,7 @@ export default function CallDetailPanel({
             )}
 
             {/* Buyer profile snapshot */}
-            <div className="rounded-lg bg-gray-800/50 p-3">
+            <div className="rounded-[8px] bg-gray-800/50 p-3">
               <span className="text-xs font-medium text-gray-400 block mb-2">Buyer Profile</span>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
@@ -393,7 +393,7 @@ export default function CallDetailPanel({
 
             {/* SMS/Email response data */}
             {call.channel !== 'voice' && call.channel && (
-              <div className="rounded-lg bg-gray-800/50 p-3">
+              <div className="rounded-[8px] bg-gray-800/50 p-3">
                 <span className="text-xs font-medium text-gray-400 block mb-2">Message Details</span>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
@@ -438,17 +438,17 @@ export default function CallDetailPanel({
               <>
                 {/* Sentiment & engagement */}
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="bg-gray-900 rounded-lg p-3 text-center">
+                  <div className="bg-gray-900 rounded-[8px] p-3 text-center">
                     <div className={`text-lg font-bold ${intel.sentimentScore > 20 ? 'text-blue-400' : intel.sentimentScore < -20 ? 'text-red-400' : 'text-amber-400'}`}>
                       {intel.sentimentScore > 0 ? '+' : ''}{intel.sentimentScore}
                     </div>
                     <div className="text-[0.65rem] text-gray-500">Sentiment</div>
                   </div>
-                  <div className="bg-gray-900 rounded-lg p-3 text-center">
+                  <div className="bg-gray-900 rounded-[8px] p-3 text-center">
                     <div className="text-lg font-bold text-gray-200">{intel.engagementScore}</div>
                     <div className="text-[0.65rem] text-gray-500">Engagement</div>
                   </div>
-                  <div className="bg-gray-900 rounded-lg p-3 text-center">
+                  <div className="bg-gray-900 rounded-[8px] p-3 text-center">
                     <div className={`text-lg font-bold ${
                       intel.overallBuyingIntent === 'high' ? 'text-blue-400' :
                       intel.overallBuyingIntent === 'medium' ? 'text-amber-400' : 'text-gray-400'
@@ -623,14 +623,14 @@ export default function CallDetailPanel({
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Add notes about this call..."
-                className="flex-1 resize-none rounded-lg bg-gray-800 p-3 text-sm text-gray-200 placeholder-gray-600 outline-none ring-1 ring-gray-700 focus:ring-brand-blue-500 transition-colors"
+                className="flex-1 resize-none rounded-[8px] bg-gray-800 p-3 text-sm text-gray-200 placeholder-gray-600 outline-none ring-1 ring-gray-700 focus:ring-brand-blue-500 transition-colors"
               />
             </div>
 
             <button
               onClick={handleSaveNotes}
               disabled={saving || notes === (call.aiSummary || '')}
-              className="rounded-lg bg-brand-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-[8px] bg-brand-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {saving ? 'Saving...' : 'Save Notes'}
             </button>

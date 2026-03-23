@@ -1,640 +1,768 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useToast } from '@/components/toast'
 import {
   Heart,
   MessageCircle,
-  Image as ImageIcon,
   Send,
   Users,
-  Megaphone,
-  Inbox,
   Rss,
   Check,
-  ExternalLink,
   Search,
+  MessageSquare,
+  Loader2,
+  Trash2,
+  MoreHorizontal,
 } from 'lucide-react'
 
-const FONT_FAMILY = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
+const FONT = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
 
 /* ═══════════════════════════════════════════════
-   SUB-SECTION TABS
+   TYPES
    ═══════════════════════════════════════════════ */
-const tabs = [
+type Author = { id: string; firstName: string | null; lastName: string | null; avatarUrl: string | null }
+type FeedPost = {
+  id: string
+  content: string
+  imageUrl: string | null
+  createdAt: string
+  author: Author
+  likeCount: number
+  commentCount: number
+  liked: boolean
+  isOwn: boolean
+}
+type Comment = {
+  id: string
+  content: string
+  createdAt: string
+  author: Author
+  isOwn: boolean
+}
+
+/* ═══════════════════════════════════════════════
+   TABS
+   ═══════════════════════════════════════════════ */
+const pageTabs = [
   { key: 'feed', label: 'Feed', icon: Rss },
   { key: 'groups', label: 'Groups', icon: Users },
-  { key: 'news', label: 'News & Announcements', icon: Megaphone },
-  { key: 'inbox', label: 'Inbox', icon: Inbox },
+  { key: 'messages', label: 'Messages', icon: MessageSquare },
 ] as const
-
-type Tab = (typeof tabs)[number]['key']
-
-/* ═══════════════════════════════════════════════
-   MOCK DATA:FEED
-   ═══════════════════════════════════════════════ */
-const feedPosts = [
-  {
-    id: 1,
-    name: 'Marcus Thompson',
-    initials: 'MT',
-    color: 'from-blue-500 to-blue-600',
-    time: '2 hours ago',
-    text: 'Just closed my first deal in Phoenix using AI outreach. 47 calls, 8 interested buyers, contract signed in 3 days. This platform is unreal.',
-    likes: 42,
-    comments: 11,
-    liked: false,
-  },
-  {
-    id: 2,
-    name: 'Jessica Rivera',
-    initials: 'JR',
-    color: 'from-violet-500 to-purple-600',
-    time: '4 hours ago',
-    text: 'Anyone working Tampa right now? Seeing a lot of inventory in 33610. Would love to connect with someone who has buyers in that zip.',
-    likes: 18,
-    comments: 7,
-    liked: true,
-  },
-  {
-    id: 3,
-    name: 'David Chen',
-    initials: 'DC',
-    color: 'from-blue-500 to-cyan-600',
-    time: '6 hours ago',
-    text: 'Pro tip: run your AI campaigns Tuesday through Thursday mornings. My connect rates jumped 40%. Weekends and Mondays are dead for cold outreach.',
-    likes: 97,
-    comments: 23,
-    liked: false,
-  },
-  {
-    id: 4,
-    name: 'Aisha Williams',
-    initials: 'AW',
-    color: 'from-amber-500 to-orange-600',
-    time: '8 hours ago',
-    text: 'Closed a $32k assignment fee on a duplex in Dallas. Found the buyer through Find Buyers in under 20 minutes. Shoutout to the DFW Wholesalers group for the comps help!',
-    likes: 134,
-    comments: 31,
-    liked: false,
-  },
-  {
-    id: 5,
-    name: 'Ryan Mitchell',
-    initials: 'RM',
-    color: 'from-rose-500 to-pink-600',
-    time: '12 hours ago',
-    text: 'Just uploaded 4 new land deals in Georgia. Looking for builders and developers. Check them out on the Marketplace if you have buyers in the Athens/Augusta area.',
-    likes: 26,
-    comments: 9,
-    liked: false,
-  },
-  {
-    id: 6,
-    name: 'Carlos Medina',
-    initials: 'CM',
-    color: 'from-cyan-500 to-blue-600',
-    time: '1 day ago',
-    text: 'Question for the experienced wholesalers: what\'s your average time from first AI call to signed contract? I\'m sitting at about 11 days and wondering if that\'s competitive.',
-    likes: 53,
-    comments: 19,
-    liked: true,
-  },
-]
+type Tab = (typeof pageTabs)[number]['key']
 
 /* ═══════════════════════════════════════════════
-   MOCK DATA:GROUPS
+   HELPERS
    ═══════════════════════════════════════════════ */
-const groups = [
-  { id: 1, name: 'Dallas/Fort Worth Wholesalers', members: 1247, desc: 'Connect with wholesalers in the DFW metroplex. Share deals, comps, and buyer contacts.', joined: true, color: 'from-blue-500 to-blue-600' },
-  { id: 2, name: 'Land Deals Only', members: 389, desc: 'Vacant land flips, subdivisions, and rural acreage. Builders and developers welcome.', joined: false, color: 'from-blue-500 to-cyan-600' },
-  { id: 3, name: 'New Wholesalers: Getting Started', members: 2104, desc: 'Ask questions, learn the basics, and get mentorship from experienced wholesalers.', joined: true, color: 'from-violet-500 to-purple-600' },
-  { id: 4, name: 'Virtual Wholesale Strategies', members: 756, desc: 'Wholesale deals in markets you don\'t live in. Tools, tips, and virtual closing strategies.', joined: false, color: 'from-amber-500 to-orange-600' },
-  { id: 5, name: 'Multifamily & Commercial', members: 412, desc: 'Apartment buildings, retail, and commercial property wholesale deals and strategies.', joined: false, color: 'from-rose-500 to-pink-600' },
-  { id: 6, name: 'Marketing & Lead Gen', members: 923, desc: 'SEO, PPC, direct mail, cold calling scripts, and lead generation strategies.', joined: true, color: 'from-cyan-500 to-blue-600' },
-]
+function getInitials(author: Author): string {
+  if (author.firstName && author.lastName) return `${author.firstName[0]}${author.lastName[0]}`.toUpperCase()
+  if (author.firstName) return author.firstName.slice(0, 2).toUpperCase()
+  return '??'
+}
 
-/* ═══════════════════════════════════════════════
-   MOCK DATA:NEWS
-   ═══════════════════════════════════════════════ */
-const newsItems = [
-  {
-    id: 1,
-    title: 'New: Outreach now supports email campaigns',
-    date: 'Mar 12, 2026',
-    source: 'DealFlow AI',
-    preview: 'You can now create AI-powered email sequences alongside voice and SMS campaigns. Set up drip campaigns with personalized messaging based on buyer profiles.',
-  },
-  {
-    id: 2,
-    title: 'Fed holds rates steady, investor activity expected to rise',
-    date: 'Mar 11, 2026',
-    source: 'Industry',
-    preview: 'The Federal Reserve held interest rates unchanged at their March meeting, signaling a potential cut later this year. Analysts expect increased investor activity in residential markets.',
-  },
-  {
-    id: 3,
-    title: 'Contract templates now available for Florida and Georgia',
-    date: 'Mar 10, 2026',
-    source: 'DealFlow AI',
-    preview: 'State-specific assignment contract templates are now live for FL and GA. Auto-fill from your deal data and send for e-signature directly from the Contracts tab.',
-  },
-  {
-    id: 4,
-    title: 'Wholesale volume up 12% in Q1 across Sun Belt markets',
-    date: 'Mar 8, 2026',
-    source: 'Industry',
-    preview: 'New data shows wholesale transaction volume increased 12% year-over-year in Sun Belt markets, led by Phoenix, Dallas, and Atlanta. Average assignment fees rose to $18,400.',
-  },
-  {
-    id: 5,
-    title: 'Ask AI now available in beta',
-    date: 'Mar 6, 2026',
-    source: 'DealFlow AI',
-    preview: 'Our AI assistant can now access your Buyer List, deals, and campaign data to help with deal analysis, buyer recommendations, and strategy coaching. Available to Pro and Enterprise users.',
-  },
-]
+function getDisplayName(author: Author): string {
+  if (author.firstName) return `${author.firstName} ${author.lastName ?? ''}`.trim()
+  return 'Anonymous'
+}
 
-/* ═══════════════════════════════════════════════
-   MOCK DATA:INBOX
-   ═══════════════════════════════════════════════ */
-const conversations = [
-  {
-    id: 1,
-    name: 'Kevin Nguyen',
-    initials: 'KN',
-    color: 'from-blue-500 to-blue-600',
-    lastMessage: 'I can do $285k cash, close in 14 days. Send me the contract.',
-    time: '10 min ago',
-    unread: true,
-    messages: [
-      { from: 'them', text: 'Hey, I saw your listing on the Marketplace for the property on Elm Ave. Is it still available?', time: '2:15 PM' },
-      { from: 'me', text: 'Yes, still available! ARV is around $340k and I have it under contract at $260k. Assignment fee is $25k.', time: '2:18 PM' },
-      { from: 'them', text: 'That ARV seems right based on the comps I\'m seeing. What\'s the rehab estimate?', time: '2:22 PM' },
-      { from: 'me', text: 'Roughly $45-50k. Needs kitchen, bathrooms, flooring, and some exterior work. Roof is good though, replaced in 2021.', time: '2:25 PM' },
-      { from: 'them', text: 'I can do $285k cash, close in 14 days. Send me the contract.', time: '2:31 PM' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Sarah Kim',
-    initials: 'SK',
-    color: 'from-violet-500 to-purple-600',
-    lastMessage: 'Let\'s JV on that Atlanta portfolio. I have the buyers.',
-    time: '1 hr ago',
-    unread: true,
-    messages: [
-      { from: 'them', text: 'Hey! I noticed you\'re active in the Atlanta market. I have a strong buyer list for that area.', time: '1:02 PM' },
-      { from: 'me', text: 'Nice, I actually have 3 SFRs I\'m trying to move in the Decatur/East Atlanta area. Interested in a JV?', time: '1:10 PM' },
-      { from: 'them', text: 'Absolutely. What kind of split are you thinking?', time: '1:14 PM' },
-      { from: 'me', text: '50/50 on the assignment fee? I bring the deals, you bring the buyers. I can share the property details if you\'re in.', time: '1:18 PM' },
-      { from: 'them', text: 'Let\'s JV on that Atlanta portfolio. I have the buyers.', time: '1:22 PM' },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Marcus Thompson',
-    initials: 'MT',
-    color: 'from-blue-500 to-cyan-600',
-    lastMessage: 'Thanks for the tip on the AI campaigns! Connect rates are way up.',
-    time: '3 hrs ago',
-    unread: false,
-    messages: [
-      { from: 'me', text: 'Hey Marcus, saw your post about Phoenix. What script are you using for AI outreach?', time: '10:05 AM' },
-      { from: 'them', text: 'I keep it simple: intro, mention the property type they usually buy, and ask if they\'re actively looking. Works way better than a long pitch.', time: '10:12 AM' },
-      { from: 'me', text: 'Smart. I\'ve been overcomplicating mine. Going to trim it down.', time: '10:15 AM' },
-      { from: 'them', text: 'Thanks for the tip on the AI campaigns! Connect rates are way up.', time: '10:20 AM' },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Lisa Park',
-    initials: 'LP',
-    color: 'from-amber-500 to-orange-600',
-    lastMessage: 'Can you send me the address? I\'ll run comps on my end.',
-    time: 'Yesterday',
-    unread: false,
-    messages: [
-      { from: 'them', text: 'Hi! I\'m looking for SFRs in the $150-250k range in Houston. Do you have anything?', time: 'Yesterday' },
-      { from: 'me', text: 'I might have one coming. 3/2 in Spring Branch, needs about $30k rehab. Should be under contract by Friday.', time: 'Yesterday' },
-      { from: 'them', text: 'Can you send me the address? I\'ll run comps on my end.', time: 'Yesterday' },
-    ],
-  },
-]
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const min = Math.floor(diff / 60000)
+  const hr = Math.floor(diff / 3600000)
+  const day = Math.floor(diff / 86400000)
+  if (min < 1) return 'Just now'
+  if (min < 60) return `${min}m ago`
+  if (hr < 24) return `${hr}h ago`
+  if (day === 1) return 'Yesterday'
+  if (day < 7) return `${day}d ago`
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
 
-/* ═══════════════════════════════════════════════
-   AVATAR COMPONENT
-   ═══════════════════════════════════════════════ */
-function Avatar({ initials, size = 32 }: { initials: string; color?: string; size?: number }) {
+function Avatar({ initials, size = 32 }: { initials: string; size?: number }) {
   return (
     <div
       className="rounded-full flex items-center justify-center flex-shrink-0"
       style={{ width: size, height: size, backgroundColor: '#0B1224' }}
     >
-      <span style={{ fontSize: size * 0.38, fontWeight: 600, color: '#FFFFFF', fontFamily: FONT_FAMILY }}>
-        {initials}
-      </span>
+      <span style={{ fontSize: size * 0.38, fontWeight: 600, color: '#FFFFFF', fontFamily: FONT }}>{initials}</span>
     </div>
   )
 }
 
 /* ═══════════════════════════════════════════════
-   FEED SECTION
+   FEED SECTION (real API)
    ═══════════════════════════════════════════════ */
 function FeedSection() {
   const toast = useToast()
-  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set(feedPosts.filter(p => p.liked).map(p => p.id)))
+  const [posts, setPosts] = useState<FeedPost[]>([])
+  const [loading, setLoading] = useState(true)
+  const [posting, setPosting] = useState(false)
+  const [newPostText, setNewPostText] = useState('')
+  const [expandedComments, setExpandedComments] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState<string | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
-  function toggleLike(id: number) {
-    setLikedPosts(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  // Fetch posts on mount
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch('/api/feed/posts?limit=30')
+        if (!res.ok) throw new Error()
+        const data = await res.json()
+        if (!cancelled) setPosts(data.posts ?? [])
+      } catch {
+        // silent - empty feed is fine
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Close menu on click outside
+  useEffect(() => {
+    if (!menuOpen) return
+    function handle(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(null)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [menuOpen])
+
+  // Create post
+  async function handlePost() {
+    const text = newPostText.trim()
+    if (!text || posting) return
+    setPosting(true)
+    try {
+      const res = await fetch('/api/feed/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text }),
+      })
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error ?? 'Failed'); }
+      const data = await res.json()
+      setPosts(prev => [data.post, ...prev])
+      setNewPostText('')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to create post')
+    } finally {
+      setPosting(false)
+    }
+  }
+
+  // Toggle like
+  async function toggleLike(postId: string) {
+    // Optimistic update
+    setPosts(prev => prev.map(p =>
+      p.id === postId
+        ? { ...p, liked: !p.liked, likeCount: p.liked ? p.likeCount - 1 : p.likeCount + 1 }
+        : p,
+    ))
+    try {
+      const res = await fetch(`/api/feed/posts/${postId}/like`, { method: 'POST' })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setPosts(prev => prev.map(p =>
+        p.id === postId ? { ...p, liked: data.liked, likeCount: data.likeCount } : p,
+      ))
+    } catch {
+      // Revert on error
+      setPosts(prev => prev.map(p =>
+        p.id === postId
+          ? { ...p, liked: !p.liked, likeCount: p.liked ? p.likeCount - 1 : p.likeCount + 1 }
+          : p,
+      ))
+    }
+  }
+
+  // Delete post
+  async function deletePost(postId: string) {
+    setMenuOpen(null)
+    try {
+      const res = await fetch(`/api/feed/posts/${postId}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error()
+      setPosts(prev => prev.filter(p => p.id !== postId))
+      toast('Post deleted')
+    } catch {
+      toast('Failed to delete post')
+    }
   }
 
   return (
     <div className="max-w-[680px]">
       {/* Create post */}
-      <div
-        className="bg-white px-5 py-4 mb-4"
-        style={{ border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12 }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ width: 32, height: 32, backgroundColor: '#0B1224' }}
-          >
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFFFFF', fontFamily: FONT_FAMILY }}>You</span>
+      <div className="bg-white px-5 py-4 mb-4" style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10 }}>
+        <div className="flex items-start gap-3">
+          <div className="pt-1">
+            <Avatar initials="You" size={32} />
           </div>
           <div className="flex-1">
-            <input
-              type="text"
+            <textarea
+              value={newPostText}
+              onChange={e => setNewPostText(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handlePost() }}
               placeholder="Share something with the community..."
-              className="w-full outline-none transition-colors"
+              rows={2}
+              className="w-full outline-none transition-colors resize-none"
               style={{
                 backgroundColor: '#F9FAFB',
-                border: '1px solid rgba(5,14,36,0.08)',
-                borderRadius: 10,
+                border: '1px solid rgba(5,14,36,0.06)',
+                borderRadius: 8,
                 padding: '10px 16px',
                 fontSize: 14,
                 fontWeight: 400,
-                color: 'rgba(5,14,36,0.65)',
-                fontFamily: FONT_FAMILY,
+                color: '#0B1224',
+                fontFamily: FONT,
               }}
             />
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-[0.68rem]" style={{ color: newPostText.length > 1800 ? '#EF4444' : 'rgba(5,14,36,0.25)' }}>
+                {newPostText.length > 0 && `${newPostText.length}/2000`}
+              </span>
+              <button
+                onClick={handlePost}
+                disabled={!newPostText.trim() || posting || newPostText.length > 2000}
+                className="text-white border-0 cursor-pointer transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ backgroundColor: '#2563EB', borderRadius: 8, padding: '8px 16px', fontSize: 14, fontWeight: 600, fontFamily: FONT }}
+              >
+                {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                Post
+              </button>
+            </div>
           </div>
-          <button onClick={() => toast('Coming soon')} className="flex items-center gap-1.5 cursor-pointer bg-transparent border-0 transition-colors" style={{ color: 'rgba(5,14,36,0.4)' }}>
-            <ImageIcon className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => toast('Coming soon')}
-            className="text-white border-0 cursor-pointer transition-colors flex items-center gap-1.5"
-            style={{
-              backgroundColor: '#2563EB',
-              borderRadius: 10,
-              padding: '8px 16px',
-              fontSize: 14,
-              fontWeight: 600,
-              fontFamily: FONT_FAMILY,
-            }}
-          >
-            <Send className="w-3.5 h-3.5" />
-            Post
-          </button>
         </div>
       </div>
 
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="w-5 h-5 animate-spin text-gray-300" />
+        </div>
+      )}
+
+      {/* Empty */}
+      {!loading && posts.length === 0 && (
+        <div className="text-center py-16">
+          <Rss className="w-8 h-8 mx-auto mb-3 opacity-20" style={{ color: 'rgba(5,14,36,0.4)' }} />
+          <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(5,14,36,0.45)', fontFamily: FONT }}>No posts yet. Be the first to share!</p>
+        </div>
+      )}
+
       {/* Posts */}
       <div className="space-y-3">
-        {feedPosts.map(post => {
-          const isLiked = likedPosts.has(post.id)
-          const likeCount = post.likes + (isLiked && !post.liked ? 1 : !isLiked && post.liked ? -1 : 0)
-
-          return (
+        {posts.map(post => (
+          <div key={post.id}>
             <div
-              key={post.id}
               className="bg-white transition-all"
-              style={{
-                border: '1px solid rgba(5,14,36,0.08)',
-                borderRadius: 12,
-                padding: '16px 20px',
-              }}
+              style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: '16px 20px' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
             >
-              {/* Post header */}
+              {/* Header */}
               <div className="flex items-center gap-3 mb-3">
-                <Avatar initials={post.initials} size={32} />
+                <Avatar initials={getInitials(post.author)} size={32} />
                 <div className="flex-1 min-w-0">
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0B1224', fontFamily: FONT_FAMILY }}>{post.name}</div>
-                  <div style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>{post.time}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0B1224', fontFamily: FONT }}>{getDisplayName(post.author)}</div>
+                  <div style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>{timeAgo(post.createdAt)}</div>
                 </div>
+                {post.isOwn && (
+                  <div className="relative" ref={menuOpen === post.id ? menuRef : undefined}>
+                    <button
+                      onClick={() => setMenuOpen(menuOpen === post.id ? null : post.id)}
+                      className="flex items-center justify-center w-7 h-7 rounded-[8px] border-0 bg-transparent cursor-pointer transition-colors hover:bg-[rgba(5,14,36,0.04)]"
+                      style={{ color: 'rgba(5,14,36,0.3)' }}
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    {menuOpen === post.id && (
+                      <div
+                        className="absolute top-full right-0 mt-1 w-[140px] bg-white rounded-[8px] py-1 z-20"
+                        style={{ boxShadow: '0 8px 24px rgba(5,14,36,0.12), 0 0 0 1px rgba(5,14,36,0.06)' }}
+                      >
+                        <button
+                          onClick={() => deletePost(post.id)}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-[0.78rem] text-red-500 hover:bg-red-50 border-0 bg-transparent cursor-pointer transition-colors text-left"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Delete post
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* Post text */}
-              <p className="leading-relaxed mb-3.5" style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.65)', fontFamily: FONT_FAMILY }}>{post.text}</p>
+              {/* Content */}
+              <p className="leading-relaxed mb-3.5 whitespace-pre-wrap" style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.65)', fontFamily: FONT }}>{post.content}</p>
 
-              {/* Post actions */}
-              <div className="flex items-center gap-5 pt-2" style={{ borderTop: '1px solid rgba(5,14,36,0.08)' }}>
+              {/* Actions */}
+              <div className="flex items-center gap-5 pt-2" style={{ borderTop: '1px solid rgba(5,14,36,0.06)' }}>
                 <button
                   onClick={() => toggleLike(post.id)}
-                  className={`flex items-center gap-1.5 cursor-pointer bg-transparent border-0 transition-colors ${
-                    isLiked ? 'text-rose-500' : 'hover:text-rose-500'
-                  }`}
-                  style={{ fontSize: 12, fontWeight: 400, color: isLiked ? undefined : 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}
+                  className={`flex items-center gap-1.5 cursor-pointer bg-transparent border-0 transition-colors ${post.liked ? 'text-rose-500' : 'hover:text-rose-500'}`}
+                  style={{ fontSize: 12, fontWeight: 400, color: post.liked ? undefined : 'rgba(5,14,36,0.4)', fontFamily: FONT }}
                 >
-                  <Heart className="w-4 h-4" fill={isLiked ? 'currentColor' : 'none'} />
-                  {likeCount}
+                  <Heart className="w-4 h-4" fill={post.liked ? 'currentColor' : 'none'} />
+                  {post.likeCount}
                 </button>
                 <button
-                  onClick={() => toast('Coming soon')}
-                  className="flex items-center gap-1.5 cursor-pointer bg-transparent border-0 transition-colors"
-                  style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}
+                  onClick={() => setExpandedComments(expandedComments === post.id ? null : post.id)}
+                  className="flex items-center gap-1.5 cursor-pointer bg-transparent border-0 transition-colors hover:text-[#2563EB]"
+                  style={{ fontSize: 12, fontWeight: 400, color: expandedComments === post.id ? '#2563EB' : 'rgba(5,14,36,0.4)', fontFamily: FONT }}
                 >
                   <MessageCircle className="w-4 h-4" />
-                  {post.comments}
+                  {post.commentCount}
                 </button>
               </div>
             </div>
-          )
-        })}
+
+            {/* Comments panel */}
+            {expandedComments === post.id && (
+              <CommentsPanel
+                postId={post.id}
+                onCommentAdded={() => setPosts(prev => prev.map(p => p.id === post.id ? { ...p, commentCount: p.commentCount + 1 } : p))}
+              />
+            )}
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
 /* ═══════════════════════════════════════════════
-   GROUPS SECTION
+   COMMENTS PANEL
    ═══════════════════════════════════════════════ */
-function GroupsSection() {
-  const [joinedGroups, setJoinedGroups] = useState<Set<number>>(new Set(groups.filter(g => g.joined).map(g => g.id)))
+function CommentsPanel({ postId, onCommentAdded }: { postId: string; onCommentAdded: () => void }) {
+  const toast = useToast()
+  const [comments, setComments] = useState<Comment[]>([])
+  const [loading, setLoading] = useState(true)
+  const [text, setText] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  function toggleJoin(id: number) {
-    setJoinedGroups(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch(`/api/feed/posts/${postId}/comments`)
+        if (!res.ok) throw new Error()
+        const data = await res.json()
+        if (!cancelled) setComments(data.comments ?? [])
+      } catch {
+        if (!cancelled) toast('Failed to load comments')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [postId, toast])
+
+  useEffect(() => {
+    if (!loading) inputRef.current?.focus()
+  }, [loading])
+
+  async function submit() {
+    const content = text.trim()
+    if (!content || submitting) return
+    setSubmitting(true)
+    try {
+      const res = await fetch(`/api/feed/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setComments(prev => [...prev, data.comment])
+      setText('')
+      onCommentAdded()
+    } catch {
+      toast('Failed to add comment')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div
+      className="bg-white ml-6 mt-0"
+      style={{ border: '1px solid rgba(5,14,36,0.06)', borderTop: 'none', borderRadius: '0 0 12px 12px', padding: '12px 20px 16px' }}
+    >
+      {loading ? (
+        <div className="flex items-center justify-center py-4">
+          <Loader2 className="w-4 h-4 animate-spin text-gray-300" />
+        </div>
+      ) : (
+        <>
+          {comments.length === 0 && (
+            <p className="text-center py-3" style={{ fontSize: 12, color: 'rgba(5,14,36,0.35)', fontFamily: FONT }}>No comments yet</p>
+          )}
+          <div className="space-y-3 mb-3">
+            {comments.map(c => (
+              <div key={c.id} className="flex gap-2.5">
+                <Avatar initials={getInitials(c.author)} size={24} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#0B1224', fontFamily: FONT }}>{getDisplayName(c.author)}</span>
+                    <span style={{ fontSize: 11, color: 'rgba(5,14,36,0.35)', fontFamily: FONT }}>{timeAgo(c.createdAt)}</span>
+                  </div>
+                  <p style={{ fontSize: 13, color: 'rgba(5,14,36,0.6)', fontFamily: FONT, margin: 0, lineHeight: 1.5 }}>{c.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Comment input */}
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              value={text}
+              onChange={e => setText(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') submit() }}
+              placeholder="Write a comment..."
+              className="flex-1 outline-none"
+              style={{
+                backgroundColor: '#F9FAFB',
+                border: '1px solid rgba(5,14,36,0.06)',
+                borderRadius: 8,
+                padding: '8px 12px',
+                fontSize: 13,
+                fontWeight: 400,
+                color: '#0B1224',
+                fontFamily: FONT,
+              }}
+            />
+            <button
+              onClick={submit}
+              disabled={!text.trim() || submitting}
+              className="flex items-center justify-center w-8 h-8 rounded-[8px] border-0 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ backgroundColor: '#2563EB' }}
+            >
+              {submitting ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" /> : <Send className="w-3.5 h-3.5 text-white" />}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   GROUPS SECTION (real API)
+   ═══════════════════════════════════════════════ */
+type Group = { id: string; name: string; description: string; memberCount: number; joined: boolean; isOwn: boolean }
+
+function GroupsSection() {
+  const toast = useToast()
+  const [groups, setGroups] = useState<Group[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [showCreate, setShowCreate] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newDesc, setNewDesc] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+  const debounceRef = useRef<NodeJS.Timeout>()
+
+  // Fetch groups
+  const fetchGroups = useCallback(async (q?: string) => {
+    try {
+      const url = q ? `/api/feed/groups?q=${encodeURIComponent(q)}` : '/api/feed/groups'
+      const res = await fetch(url)
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setGroups(data.groups ?? [])
+    } catch {
+      // silent
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { fetchGroups() }, [fetchGroups])
+
+  // Debounced search
+  function handleSearch(value: string) {
+    setSearch(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => fetchGroups(value.trim() || undefined), 300)
+  }
+
+  // Toggle join/leave
+  async function toggleJoin(groupId: string) {
+    setTogglingId(groupId)
+    // Optimistic
+    setGroups(prev => prev.map(g =>
+      g.id === groupId ? { ...g, joined: !g.joined, memberCount: g.joined ? g.memberCount - 1 : g.memberCount + 1 } : g
+    ))
+    try {
+      const res = await fetch(`/api/feed/groups/${groupId}/join`, { method: 'POST' })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setGroups(prev => prev.map(g =>
+        g.id === groupId ? { ...g, joined: data.joined, memberCount: data.memberCount } : g
+      ))
+    } catch {
+      // Revert
+      setGroups(prev => prev.map(g =>
+        g.id === groupId ? { ...g, joined: !g.joined, memberCount: g.joined ? g.memberCount - 1 : g.memberCount + 1 } : g
+      ))
+      toast('Failed to update membership')
+    } finally {
+      setTogglingId(null)
+    }
+  }
+
+  // Create group
+  async function handleCreate() {
+    if (!newName.trim() || !newDesc.trim() || creating) return
+    setCreating(true)
+    try {
+      const res = await fetch('/api/feed/groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName.trim(), description: newDesc.trim() }),
+      })
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error ?? 'Failed') }
+      const data = await res.json()
+      setGroups(prev => [data.group, ...prev])
+      setNewName('')
+      setNewDesc('')
+      setShowCreate(false)
+      toast('Group created')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to create group')
+    } finally {
+      setCreating(false)
+    }
   }
 
   return (
     <div>
-      {/* Search */}
-      <div className="mb-5 max-w-[400px]">
-        <div className="relative">
+      {/* Search + Create */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="relative flex-1 max-w-[400px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(5,14,36,0.4)' }} />
           <input
             type="text"
+            value={search}
+            onChange={e => handleSearch(e.target.value)}
             placeholder="Search groups..."
             className="w-full outline-none transition-colors"
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid rgba(5,14,36,0.08)',
-              borderRadius: 10,
-              paddingLeft: 40,
-              paddingRight: 16,
-              paddingTop: 10,
-              paddingBottom: 10,
-              fontSize: 14,
-              fontWeight: 400,
-              color: 'rgba(5,14,36,0.65)',
-              fontFamily: FONT_FAMILY,
-            }}
+            style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, paddingLeft: 40, paddingRight: 16, paddingTop: 10, paddingBottom: 10, fontSize: 14, fontFamily: FONT, color: 'rgba(5,14,36,0.65)' }}
           />
         </div>
+        <button
+          onClick={() => setShowCreate(!showCreate)}
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-[8px] text-[0.84rem] font-[600] cursor-pointer transition-colors border-0"
+          style={{ backgroundColor: '#2563EB', color: '#FFFFFF', fontFamily: FONT }}
+        >
+          Create Group
+        </button>
       </div>
 
+      {/* Create form */}
+      {showCreate && (
+        <div className="bg-white mb-5 p-5" style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10 }}>
+          <div className="mb-3">
+            <input
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              placeholder="Group name"
+              className="w-full outline-none"
+              style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, padding: '10px 16px', fontSize: 14, fontFamily: FONT, color: '#0B1224' }}
+            />
+          </div>
+          <div className="mb-3">
+            <textarea
+              value={newDesc}
+              onChange={e => setNewDesc(e.target.value)}
+              placeholder="What is this group about?"
+              rows={2}
+              className="w-full outline-none resize-none"
+              style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, padding: '10px 16px', fontSize: 14, fontFamily: FONT, color: '#0B1224' }}
+            />
+          </div>
+          <div className="flex items-center gap-2 justify-end">
+            <button onClick={() => { setShowCreate(false); setNewName(''); setNewDesc('') }} className="px-4 py-2 rounded-[8px] text-[0.84rem] cursor-pointer border-0 bg-transparent" style={{ color: 'rgba(5,14,36,0.5)', fontFamily: FONT }}>
+              Cancel
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={!newName.trim() || !newDesc.trim() || creating}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-[8px] text-[0.84rem] font-[600] cursor-pointer transition-colors border-0 disabled:opacity-40"
+              style={{ backgroundColor: '#2563EB', color: '#FFFFFF', fontFamily: FONT }}
+            >
+              {creating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Create
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="w-5 h-5 animate-spin text-gray-300" />
+        </div>
+      )}
+
+      {/* Empty */}
+      {!loading && groups.length === 0 && (
+        <div className="text-center py-16">
+          <Users className="w-8 h-8 mx-auto mb-3 opacity-20" style={{ color: 'rgba(5,14,36,0.4)' }} />
+          <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(5,14,36,0.45)', fontFamily: FONT }}>
+            {search ? 'No groups match your search.' : 'No groups yet. Create the first one!'}
+          </p>
+        </div>
+      )}
+
       {/* Grid */}
-      <div className="grid grid-cols-2 gap-4 community-groups">
-        {groups.map(g => {
-          const isJoined = joinedGroups.has(g.id)
-          return (
+      {!loading && groups.length > 0 && (
+        <div className="grid grid-cols-2 gap-4 community-groups">
+          {groups.map(g => (
             <div
               key={g.id}
               className="bg-white flex flex-col transition-all"
-              style={{
-                border: '1px solid rgba(5,14,36,0.08)',
-                borderRadius: 12,
-                padding: '20px',
-              }}
+              style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: '20px' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
             >
               <div className="flex items-start gap-3 mb-3">
-                <div
-                  className="flex items-center justify-center flex-shrink-0"
-                  style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(37,99,235,0.08)' }}
-                >
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 40, height: 40, borderRadius: 8, backgroundColor: 'rgba(37,99,235,0.08)' }}>
                   <Users style={{ width: 18, height: 18, color: '#2563EB' }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT_FAMILY, marginBottom: 2 }}>{g.name}</div>
-                  <div style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>{g.members.toLocaleString()} members</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT, marginBottom: 2 }}>{g.name}</div>
+                  <div style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>{g.memberCount.toLocaleString()} {g.memberCount === 1 ? 'member' : 'members'}</div>
                 </div>
               </div>
-              <p className="leading-relaxed mb-4 flex-1" style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.65)', fontFamily: FONT_FAMILY }}>{g.desc}</p>
+              <p className="leading-relaxed mb-4 flex-1" style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.65)', fontFamily: FONT }}>{g.description}</p>
               <button
                 onClick={() => toggleJoin(g.id)}
-                className="w-full cursor-pointer transition-all"
+                disabled={togglingId === g.id}
+                className="w-full cursor-pointer transition-all disabled:opacity-60"
                 style={{
-                  padding: '8px 0',
-                  borderRadius: 10,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  fontFamily: FONT_FAMILY,
-                  backgroundColor: isJoined ? '#FFFFFF' : '#2563EB',
-                  border: isJoined ? '1px solid rgba(5,14,36,0.08)' : '1px solid #2563EB',
-                  color: isJoined ? 'rgba(5,14,36,0.65)' : '#FFFFFF',
+                  padding: '8px 0', borderRadius: 8, fontSize: 14, fontWeight: 600, fontFamily: FONT,
+                  backgroundColor: g.joined ? '#FFFFFF' : '#2563EB',
+                  border: g.joined ? '1px solid rgba(5,14,36,0.06)' : '1px solid #2563EB',
+                  color: g.joined ? 'rgba(5,14,36,0.65)' : '#FFFFFF',
                 }}
               >
-                {isJoined ? (
-                  <span className="flex items-center justify-center gap-1.5">
-                    <Check className="w-3.5 h-3.5" />
-                    Joined
-                  </span>
-                ) : (
-                  'Join Group'
-                )}
+                {g.joined ? (
+                  <span className="flex items-center justify-center gap-1.5"><Check className="w-3.5 h-3.5" /> Joined</span>
+                ) : 'Join Group'}
               </button>
             </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-/* ═══════════════════════════════════════════════
-   NEWS SECTION
-   ═══════════════════════════════════════════════ */
-function NewsSection() {
-  return (
-    <div className="max-w-[780px] space-y-3">
-      {newsItems.map(item => (
-        <div
-          key={item.id}
-          className="bg-white cursor-pointer group transition-all"
-          style={{
-            border: '1px solid rgba(5,14,36,0.08)',
-            borderRadius: 12,
-            padding: '16px 20px',
-          }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(5,14,36,0.06)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
-        >
-          <div className="flex items-center gap-2.5 mb-2">
-            <span
-              className="uppercase tracking-wide px-2 py-0.5 rounded-full"
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                fontFamily: FONT_FAMILY,
-                color: item.source === 'DealFlow AI' ? '#2563EB' : '#92400E',
-                backgroundColor: item.source === 'DealFlow AI' ? 'rgba(37,99,235,0.08)' : 'rgba(245,158,11,0.08)',
-              }}
-            >
-              {item.source}
-            </span>
-            <span style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>{item.date}</span>
-          </div>
-          <h3 className="mb-1.5 group-hover:text-[#2563EB] transition-colors flex items-center gap-1.5" style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT_FAMILY }}>
-            {item.title}
-            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </h3>
-          <p className="leading-relaxed" style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.65)', fontFamily: FONT_FAMILY }}>{item.preview}</p>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   )
 }
 
 /* ═══════════════════════════════════════════════
-   INBOX SECTION
+   MESSAGES SECTION (mock — coming soon)
    ═══════════════════════════════════════════════ */
-function InboxSection() {
+const conversations = [
+  {
+    id: 1, name: 'Kevin Nguyen', initials: 'KN',
+    lastMessage: 'I can do $285k cash, close in 14 days. Send me the contract.', time: '10 min ago', unread: true,
+    messages: [
+      { from: 'them', text: 'Hey, I saw your listing on the Marketplace for the property on Elm Ave. Is it still available?', time: '2:15 PM' },
+      { from: 'me', text: 'Yes, still available! ARV is around $340k and I have it under contract at $260k. Assignment fee is $25k.', time: '2:18 PM' },
+      { from: 'them', text: 'I can do $285k cash, close in 14 days. Send me the contract.', time: '2:31 PM' },
+    ],
+  },
+  {
+    id: 2, name: 'Sarah Kim', initials: 'SK',
+    lastMessage: 'Let\'s JV on that Atlanta portfolio. I have the buyers.', time: '1 hr ago', unread: true,
+    messages: [
+      { from: 'them', text: 'Hey! I noticed you\'re active in the Atlanta market. I have a strong buyer list for that area.', time: '1:02 PM' },
+      { from: 'me', text: '50/50 on the assignment fee? I bring the deals, you bring the buyers.', time: '1:18 PM' },
+      { from: 'them', text: 'Let\'s JV on that Atlanta portfolio. I have the buyers.', time: '1:22 PM' },
+    ],
+  },
+  {
+    id: 3, name: 'Marcus Thompson', initials: 'MT',
+    lastMessage: 'Thanks for the tip on the AI campaigns! Connect rates are way up.', time: '3 hrs ago', unread: false,
+    messages: [
+      { from: 'me', text: 'Hey Marcus, saw your post about Phoenix. What script are you using for AI outreach?', time: '10:05 AM' },
+      { from: 'them', text: 'Thanks for the tip on the AI campaigns! Connect rates are way up.', time: '10:20 AM' },
+    ],
+  },
+]
+
+function MessagesSection() {
   const toast = useToast()
   const [activeConvo, setActiveConvo] = useState(conversations[0].id)
   const active = conversations.find(c => c.id === activeConvo) ?? conversations[0]
 
   return (
-    <div
-      className="bg-white overflow-hidden flex community-inbox"
-      style={{ height: 520, border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12 }}
-    >
-      {/* Conversation list */}
-      <div className="w-[320px] flex flex-col flex-shrink-0 community-inbox-list" style={{ borderRight: '1px solid rgba(5,14,36,0.08)' }}>
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+    <div className="bg-white overflow-hidden flex community-inbox" style={{ height: 520, border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10 }}>
+      <div className="w-[320px] flex flex-col flex-shrink-0 community-inbox-list" style={{ borderRight: '1px solid rgba(5,14,36,0.06)' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
-            <input
-              type="text"
-              placeholder="Search messages..."
-              className="w-full outline-none transition-colors"
-              style={{
-                backgroundColor: '#F9FAFB',
-                border: '1px solid rgba(5,14,36,0.08)',
-                borderRadius: 10,
-                paddingLeft: 36,
-                paddingRight: 12,
-                paddingTop: 8,
-                paddingBottom: 8,
-                fontSize: 14,
-                fontWeight: 400,
-                color: 'rgba(5,14,36,0.65)',
-                fontFamily: FONT_FAMILY,
-              }}
+            <input type="text" placeholder="Search messages..." className="w-full outline-none"
+              style={{ backgroundColor: '#F9FAFB', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, paddingLeft: 36, paddingRight: 12, paddingTop: 8, paddingBottom: 8, fontSize: 14, fontFamily: FONT, color: 'rgba(5,14,36,0.65)' }}
             />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
           {conversations.map(c => (
-            <button
-              key={c.id}
-              onClick={() => setActiveConvo(c.id)}
-              className="w-full flex items-center gap-3 px-4 py-3.5 cursor-pointer border-0 text-left transition-colors"
-              style={{
-                backgroundColor: activeConvo === c.id ? 'rgba(37,99,235,0.08)' : '#FFFFFF',
-              }}
+            <button key={c.id} onClick={() => setActiveConvo(c.id)} className="w-full flex items-center gap-3 px-4 py-3.5 cursor-pointer border-0 text-left transition-colors"
+              style={{ backgroundColor: activeConvo === c.id ? 'rgba(37,99,235,0.08)' : '#FFFFFF' }}
               onMouseEnter={e => { if (activeConvo !== c.id) (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
               onMouseLeave={e => { if (activeConvo !== c.id) (e.currentTarget as HTMLElement).style.backgroundColor = '#FFFFFF' }}
             >
               <div className="relative flex-shrink-0">
                 <Avatar initials={c.initials} size={32} />
-                {c.unread && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{ backgroundColor: '#2563EB' }} />
-                )}
+                {c.unread && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{ backgroundColor: '#2563EB' }} />}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span style={{ fontSize: 14, fontWeight: c.unread ? 600 : 400, color: '#0B1224', fontFamily: FONT_FAMILY }}>
-                    {c.name}
-                  </span>
-                  <span className="flex-shrink-0" style={{ fontSize: 12, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>{c.time}</span>
+                  <span style={{ fontSize: 14, fontWeight: c.unread ? 600 : 400, color: '#0B1224', fontFamily: FONT }}>{c.name}</span>
+                  <span className="flex-shrink-0" style={{ fontSize: 12, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>{c.time}</span>
                 </div>
-                <p className="truncate" style={{ fontSize: 12, fontWeight: 400, color: c.unread ? 'rgba(5,14,36,0.65)' : 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>
-                  {c.lastMessage}
-                </p>
+                <p className="truncate" style={{ fontSize: 12, color: c.unread ? 'rgba(5,14,36,0.65)' : 'rgba(5,14,36,0.4)', fontFamily: FONT, margin: 0 }}>{c.lastMessage}</p>
               </div>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Active conversation */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+        <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
           <Avatar initials={active.initials} size={32} />
-          <span style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT_FAMILY }}>{active.name}</span>
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT }}>{active.name}</span>
         </div>
-
-        {/* Messages */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
           {active.messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-              <div
-                className="max-w-[75%] px-4 py-2.5"
+              <div className="max-w-[75%] px-4 py-2.5"
                 style={{
                   borderRadius: msg.from === 'me' ? '16px 16px 6px 16px' : '16px 16px 16px 6px',
                   backgroundColor: msg.from === 'me' ? '#2563EB' : '#F3F4F6',
                   color: msg.from === 'me' ? '#FFFFFF' : '#0B1224',
                 }}
               >
-                <p className="leading-relaxed" style={{ fontSize: 14, fontWeight: 400, fontFamily: FONT_FAMILY }}>{msg.text}</p>
-                <p style={{ fontSize: 11, fontWeight: 400, marginTop: 4, color: msg.from === 'me' ? '#BFDBFE' : 'rgba(5,14,36,0.4)', fontFamily: FONT_FAMILY }}>
-                  {msg.time}
-                </p>
+                <p style={{ fontSize: 14, fontFamily: FONT, margin: 0, lineHeight: 1.6 }}>{msg.text}</p>
+                <p style={{ fontSize: 11, marginTop: 4, marginBottom: 0, color: msg.from === 'me' ? '#BFDBFE' : 'rgba(5,14,36,0.4)', fontFamily: FONT }}>{msg.time}</p>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Input */}
-        <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(5,14,36,0.08)' }}>
+        <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(5,14,36,0.06)' }}>
           <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Type a message..."
-              className="flex-1 outline-none transition-colors"
-              style={{
-                backgroundColor: '#F9FAFB',
-                border: '1px solid rgba(5,14,36,0.08)',
-                borderRadius: 10,
-                padding: '10px 16px',
-                fontSize: 14,
-                fontWeight: 400,
-                color: 'rgba(5,14,36,0.65)',
-                fontFamily: FONT_FAMILY,
-              }}
+            <input type="text" placeholder="Type a message..." className="flex-1 outline-none"
+              style={{ backgroundColor: '#F9FAFB', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, padding: '10px 16px', fontSize: 14, fontFamily: FONT, color: 'rgba(5,14,36,0.65)' }}
             />
-            <button
-              onClick={() => toast('Coming soon')}
-              className="text-white border-0 cursor-pointer transition-colors flex items-center justify-center"
-              style={{ backgroundColor: '#2563EB', borderRadius: 10, padding: 10 }}
-            >
+            <button onClick={() => toast('Coming soon')} className="text-white border-0 cursor-pointer flex items-center justify-center" style={{ backgroundColor: '#2563EB', borderRadius: 8, padding: 10 }}>
               <Send className="w-4 h-4" />
             </button>
           </div>
@@ -649,83 +777,76 @@ function InboxSection() {
    ═══════════════════════════════════════════════ */
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState<Tab>('feed')
+  const unreadMessages = conversations.filter(c => c.unread).length
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
-      {/* Header */}
-      <div className="mb-6">
-        <h1
-          style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#0B1224',
-            letterSpacing: '-0.02em',
-            marginBottom: 4,
-          }}
-        >
-          Feed
-        </h1>
-        <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(5,14,36,0.5)' }}>
-          Connect with wholesalers, share strategies, and stay updated.
-        </p>
-      </div>
-
-      {/* Sub-section tabs */}
-      <div className="flex items-center gap-1 mb-6 pb-0" style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
-        {tabs.map(tab => {
-          const Icon = tab.icon
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className="flex items-center gap-2 cursor-pointer bg-transparent transition-colors"
-              style={{
-                padding: '10px 16px',
-                fontSize: 14,
-                fontWeight: isActive ? 600 : 400,
-                fontFamily: FONT_FAMILY,
-                color: isActive ? '#2563EB' : 'rgba(5,14,36,0.45)',
-                border: 'none',
-                borderBottom: isActive ? '2px solid #2563EB' : '2px solid transparent',
-                marginBottom: -1,
-              }}
-            >
-              <Icon className="w-4 h-4" />
-              {tab.label}
-              {tab.key === 'inbox' && (
-                <span
-                  className="text-white flex items-center justify-center rounded-full"
+    <div className="bg-[#F9FAFB]">
+      <div
+        className="flex-shrink-0 bg-white"
+        style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
+      >
+        <div className="px-8">
+          <nav className="flex gap-0.5 -mb-px">
+            {pageTabs.map(tab => {
+              const Icon = tab.icon
+              const isActive = activeTab === tab.key
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
                   style={{
-                    backgroundColor: '#2563EB',
-                    fontSize: 10,
-                    fontWeight: 600,
-                    width: 18,
-                    height: 18,
-                    fontFamily: FONT_FAMILY,
+                    fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+                    fontSize: '13px',
+                    fontWeight: isActive ? 550 : 420,
+                    letterSpacing: '-0.005em',
                   }}
+                  className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all ${
+                    isActive
+                      ? 'text-[#0B1224]'
+                      : 'text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.7)]'
+                  }`}
                 >
-                  2
-                </span>
-              )}
-            </button>
-          )
-        })}
+                  <Icon
+                    className="flex-shrink-0"
+                    style={{
+                      width: 14,
+                      height: 14,
+                      strokeWidth: isActive ? 2 : 1.6,
+                      color: isActive ? '#2563EB' : 'rgba(5,14,36,0.3)',
+                      transition: 'color 0.18s ease',
+                    }}
+                  />
+                  {tab.label}
+                  {tab.key === 'messages' && unreadMessages > 0 && (
+                    <span className="flex items-center justify-center rounded-full"
+                      style={{ backgroundColor: isActive ? '#2563EB' : 'rgba(5,14,36,0.15)', color: isActive ? '#FFFFFF' : 'rgba(5,14,36,0.6)', fontSize: 10, fontWeight: 600, width: 18, height: 18, fontFamily: FONT }}>
+                      {unreadMessages}
+                    </span>
+                  )}
+                  {isActive && (
+                    <div style={{ position: 'absolute', bottom: -1, left: 12, right: 12, height: 2, borderRadius: 1, background: '#2563EB' }} />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
       </div>
 
-      {/* Content */}
+      <div className="p-8 max-w-[1200px]">
+
       {activeTab === 'feed' && <FeedSection />}
       {activeTab === 'groups' && <GroupsSection />}
-      {activeTab === 'news' && <NewsSection />}
-      {activeTab === 'inbox' && <InboxSection />}
+      {activeTab === 'messages' && <MessagesSection />}
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {
           .community-groups { grid-template-columns: 1fr !important; }
           .community-inbox { flex-direction: column !important; height: auto !important; }
-          .community-inbox-list { width: 100% !important; max-height: 250px; border-right: none !important; border-bottom: 1px solid rgba(5,14,36,0.08); }
+          .community-inbox-list { width: 100% !important; max-height: 250px; border-right: none !important; border-bottom: 1px solid rgba(5,14,36,0.06); }
         }
       ` }} />
+      </div>
     </div>
   )
 }

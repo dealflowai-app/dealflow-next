@@ -187,7 +187,7 @@ export default function ContactReveal({
 
   if (!ownerName) {
     return (
-      <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+      <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
         <h3 className="text-[15px] font-[600] text-[#0B1224] mb-2">Contact Information</h3>
         <p className="text-[0.78rem] text-gray-400">No owner name on record</p>
       </div>
@@ -223,7 +223,7 @@ export default function ContactReveal({
   // Locked state
   if (!result && !upgradeRequired) {
     return (
-      <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+      <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
         <h3 className="text-[15px] font-[600] text-[#0B1224] mb-3">Contact Information</h3>
 
         {/* Blurred preview */}
@@ -241,7 +241,7 @@ export default function ContactReveal({
         <button
           onClick={handleReveal}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#93B4F8] text-white font-[600] border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] cursor-pointer transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#93B4F8] text-white font-[600] border-0 rounded-[8px] px-4 py-2.5 text-[0.82rem] cursor-pointer transition-colors"
         >
           {loading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Searching records...</>
@@ -262,9 +262,9 @@ export default function ContactReveal({
   // Upgrade required
   if (upgradeRequired) {
     return (
-      <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+      <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
         <h3 className="text-[15px] font-[600] text-[#0B1224] mb-3">Contact Information</h3>
-        <div className="bg-red-50 border border-red-200 rounded-[10px] p-3 mb-3">
+        <div className="bg-red-50 border border-red-200 rounded-[8px] p-3 mb-3">
           <p className="text-[0.82rem] font-medium text-red-700 mb-1">Monthly reveal limit reached</p>
           <p className="text-[0.74rem] text-red-600">
             You&apos;ve used all {usage?.limit} reveals this month.
@@ -272,7 +272,7 @@ export default function ContactReveal({
         </div>
         <a
           href="/settings"
-          className="w-full flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] cursor-pointer transition-colors no-underline"
+          className="w-full flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[8px] px-4 py-2.5 text-[0.82rem] cursor-pointer transition-colors no-underline"
         >
           Upgrade for More Reveals
         </a>
@@ -284,7 +284,7 @@ export default function ContactReveal({
   // Revealed state — result is guaranteed non-null here
   if (!result) return null
   return (
-    <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+    <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-[15px] font-[600] text-[#0B1224]">Contact Information</h3>
         <span className="text-[0.68rem] text-gray-400">
@@ -400,7 +400,7 @@ export default function ContactReveal({
       {result.phones.length > 0 && (
         <a
           href={`/outreach?phone=${encodeURIComponent(result.phones[0].number)}&name=${encodeURIComponent(result.ownerName)}`}
-          className="mt-3 w-full flex items-center justify-center gap-2 bg-[#F97316] hover:bg-[#EA580C] text-white font-[600] border-0 rounded-[10px] px-4 py-2.5 text-[0.82rem] cursor-pointer transition-colors no-underline"
+          className="mt-3 w-full flex items-center justify-center gap-2 bg-[#F97316] hover:bg-[#EA580C] text-white font-[600] border-0 rounded-[8px] px-4 py-2.5 text-[0.82rem] cursor-pointer transition-colors no-underline"
         >
           <Phone className="w-4 h-4" /> Start Outreach
         </a>

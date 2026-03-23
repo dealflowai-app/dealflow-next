@@ -3351,9 +3351,29 @@ export default function PropertyAnalyzerPage() {
 
   return (
     <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
-      {/* API Usage */}
-      {todayCount > 0 && (
-        <div className="flex justify-end mb-5">
+      {/* Back to My Deals */}
+      <Link
+        href="/deals"
+        className="inline-flex items-center gap-1.5 text-[0.78rem] text-[rgba(5,14,36,0.45)] hover:text-[rgba(5,14,36,0.7)] no-underline transition-colors mb-4"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" />
+        Back to My Deals
+      </Link>
+
+      {/* Header + API Usage */}
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <h1
+            style={{ fontWeight: 700, fontSize: '24px', color: '#0B1224', letterSpacing: '-0.02em' }}
+            className="mb-1"
+          >
+            Analyze Deal
+          </h1>
+          <p style={{ fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.5)' }}>
+            Instant ARV, comps, and deal scoring for any property.
+          </p>
+        </div>
+        {todayCount > 0 && (
           <div className={`flex items-center gap-1.5 text-[0.76rem] px-3 py-1.5 rounded-[8px] ${
             todayCount > 25 ? 'text-amber-700 bg-amber-50 border border-amber-200' : 'text-gray-500 bg-gray-50'
           }`}>
@@ -3361,8 +3381,8 @@ export default function PropertyAnalyzerPage() {
             {todayCount} analys{todayCount === 1 ? 'is' : 'es'} today
             {todayCount > 25 && <span className="font-medium ml-1">&middot; Approaching limit</span>}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-5 flex items-center gap-2 text-[0.84rem]">

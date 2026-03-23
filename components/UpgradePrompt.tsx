@@ -28,7 +28,7 @@ export default function UpgradePrompt({ message, feature, currentTier, suggested
     <div style={{
       background: 'rgba(37,99,235,0.04)',
       border: '1px solid rgba(37,99,235,0.15)',
-      borderRadius: 12,
+      borderRadius: 10,
       padding: '20px 24px',
       display: 'flex',
       alignItems: 'center',
@@ -51,7 +51,7 @@ export default function UpgradePrompt({ message, feature, currentTier, suggested
           background: '#2563EB',
           color: 'white',
           border: 'none',
-          borderRadius: 10,
+          borderRadius: 8,
           padding: '10px 20px',
           fontSize: 14,
           fontWeight: 600,

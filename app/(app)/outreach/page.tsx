@@ -251,7 +251,7 @@ function CampaignSkeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3].map(i => (
-        <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 animate-pulse">
+        <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-5 py-4 animate-pulse">
           <div className="flex items-center gap-3 mb-3">
             <div className="h-4 bg-gray-200 rounded w-56" />
             <div className="h-5 bg-gray-100 rounded-full w-16" />
@@ -270,7 +270,7 @@ function CampaignSkeleton() {
 
 function TableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
-    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+    <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden">
       <div className="border-b border-[#F3F4F6] px-4 py-3">
         <div className="flex gap-4">{[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-3 bg-gray-100 rounded w-20" />)}</div>
       </div>
@@ -300,7 +300,7 @@ function ToastContainer({ toasts, onDismiss }: { toasts: ToastData[]; onDismiss:
       {toasts.map(t => (
         <div
           key={t.id}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-lg text-[0.82rem] font-medium animate-fadeInUp ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-[8px] shadow-lg text-[0.82rem] font-medium animate-fadeInUp ${
             t.type === 'success' ? 'bg-[#2563EB] text-white'
             : t.type === 'error' ? 'bg-red-600 text-white'
             : 'bg-gray-800 text-white'
@@ -341,7 +341,7 @@ function CampaignList({
 
   if (error) {
     return (
-      <div className="bg-white border border-red-200 rounded-lg px-6 py-8 text-center">
+      <div className="bg-white border border-red-200 rounded-[8px] px-6 py-8 text-center">
         <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
         <p className="text-[0.88rem] text-gray-700 mb-1">Failed to load campaigns</p>
         <p className="text-[0.78rem] text-gray-400 mb-3">{error}</p>
@@ -364,7 +364,7 @@ function CampaignList({
               className={`px-3 py-1.5 rounded-full text-[14px] cursor-pointer transition-colors ${
                 statusFilter === tab.key
                   ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]'
-                  : 'font-normal border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
+                  : 'font-normal border border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
               }`}
             >
               {tab.label}
@@ -386,7 +386,7 @@ function CampaignList({
       </div>
 
       {loading ? <CampaignSkeleton /> : campaigns.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-6 py-8 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-6 py-8 text-center">
           <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
             <LayoutTemplate className="w-6 h-6 text-gray-400" />
           </div>
@@ -402,9 +402,9 @@ function CampaignList({
               <button
                 key={t.name}
                 onClick={onNewCampaign}
-                className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3.5 hover:border-[#BFDBFE] hover:bg-[#F9FAFB] cursor-pointer transition-all group text-left"
+                className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-4 py-3.5 hover:border-[#BFDBFE] hover:bg-[#F9FAFB] cursor-pointer transition-all group text-left"
               >
-                <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-blue-50 flex items-center justify-center mb-2 transition-colors">
+                <div className="w-8 h-8 rounded-[8px] bg-gray-100 group-hover:bg-blue-50 flex items-center justify-center mb-2 transition-colors">
                   <t.icon className="w-4 h-4 text-gray-400 group-hover:text-[#2563EB] transition-colors" />
                 </div>
                 <div className="text-[0.82rem] font-medium text-[#374151] group-hover:text-[#1E3A8A] mb-0.5 transition-colors">{t.name}</div>
@@ -426,7 +426,7 @@ function CampaignList({
             const pct = c.totalBuyers > 0 ? Math.round((c.callsCompleted / c.totalBuyers) * 100) : 0
             const avgDur = c.callsCompleted > 0 ? Math.round(c.totalTalkTime / c.callsCompleted) : 0
             return (
-              <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-[24px] py-[20px] hover:bg-[#F9FAFB] transition-colors">
+              <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-[24px] py-[20px] hover:bg-[#F9FAFB] transition-colors">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -441,7 +441,7 @@ function CampaignList({
                   <div className="flex items-center gap-1.5">
                     {c.status === 'DRAFT' && (
                       <>
-                        <button onClick={() => onAction(c.id, 'launch')} className="flex items-center gap-1 px-3 py-1.5 rounded-[10px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
+                        <button onClick={() => onAction(c.id, 'launch')} className="flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
                           <Play className="w-3.5 h-3.5" /> Launch
                         </button>
                         <button onClick={() => onAction(c.id, 'delete')} className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[0.76rem] font-medium text-red-400 hover:bg-red-50 bg-transparent border-0 cursor-pointer transition-colors">
@@ -456,7 +456,7 @@ function CampaignList({
                     )}
                     {c.status === 'PAUSED' && (
                       <>
-                        <button onClick={() => onAction(c.id, 'resume')} className="flex items-center gap-1 px-3 py-1.5 rounded-[10px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
+                        <button onClick={() => onAction(c.id, 'resume')} className="flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
                           <Play className="w-3.5 h-3.5" /> Resume
                         </button>
                         <button onClick={() => onAction(c.id, 'cancel')} className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[0.76rem] font-medium text-red-400 hover:bg-red-50 bg-transparent border-0 cursor-pointer transition-colors">
@@ -590,7 +590,7 @@ function CampaignDetailView({
       <button onClick={onBack} className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 mb-4 bg-transparent border-0 cursor-pointer">
         <ArrowLeft className="w-4 h-4" /> Back to Campaigns
       </button>
-      <div className="bg-white border border-red-200 rounded-lg px-6 py-8 text-center">
+      <div className="bg-white border border-red-200 rounded-[8px] px-6 py-8 text-center">
         <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
         <p className="text-[0.82rem] text-gray-600">{error || 'Campaign not found'}</p>
         <button onClick={() => fetchDetail()} className="mt-2 text-[0.78rem] text-[#2563EB] bg-transparent border-0 cursor-pointer">Retry</button>
@@ -664,14 +664,14 @@ function CampaignDetailView({
             </button>
           )}
           {c.status === 'PAUSED' && (
-            <button onClick={() => onAction(c.id, 'resume')} className="flex items-center gap-1 px-3 py-1.5 rounded-[10px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
+            <button onClick={() => onAction(c.id, 'resume')} className="flex items-center gap-1 px-3 py-1.5 rounded-[8px] text-[0.76rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.08)] bg-transparent border-0 cursor-pointer transition-colors">
               <Play className="w-3.5 h-3.5" /> Resume
             </button>
           )}
           {unreachedBuyers.length > 0 && (
             <button
               onClick={() => onPowerDial(unreachedBuyers, c.id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[0.76rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[0.76rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
             >
               <Zap className="w-3.5 h-3.5" /> Power Dial Remaining ({unreachedBuyers.length})
             </button>
@@ -738,7 +738,7 @@ function CampaignDetailView({
       {/* Metric cards */}
       <div className="grid grid-cols-4 gap-3 mb-5 outreach-metrics">
         {metrics.map(m => (
-          <div key={m.label} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3 text-center">
+          <div key={m.label} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-4 py-3 text-center">
             <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-1.5">{m.label}</div>
             <div className={`text-[1.3rem] font-medium leading-none ${m.cls || 'text-[#0B1224]'}`}>{m.value}</div>
           </div>
@@ -747,7 +747,7 @@ function CampaignDetailView({
 
       {/* Outcome breakdown bar */}
       {barSegments.length > 0 && (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-5 py-4 mb-5">
           <div className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em] mb-3">Outcome Breakdown</div>
           <div className="flex w-full h-4 rounded-full overflow-hidden mb-3">
             {barSegments.map(s => (
@@ -766,7 +766,7 @@ function CampaignDetailView({
       )}
 
       {/* Contact list */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden">
         <div className="px-5 py-3 border-b border-[#F3F4F6] flex items-center justify-between flex-wrap gap-2">
           <span className="text-xs font-medium text-[#6B7280] uppercase tracking-[0.05em]">Campaign Contacts ({filteredCalls.length})</span>
           <div className="flex items-center gap-1">
@@ -775,7 +775,7 @@ function CampaignDetailView({
                 key={o}
                 onClick={() => setOutcomeFilter(o)}
                 className={`px-2 py-1 rounded-full text-[0.68rem] cursor-pointer transition-colors ${
-                  outcomeFilter === o ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
+                  outcomeFilter === o ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
                 }`}
               >
                 {o === 'ALL' ? 'All' : OUTCOME_LABELS[o] || o}
@@ -786,7 +786,7 @@ function CampaignDetailView({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead>
-              <tr className="border-b border-[rgba(5,14,36,0.08)]">
+              <tr className="border-b border-[rgba(5,14,36,0.06)]">
                 <th className="text-left px-5 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Buyer</th>
                 <th className="text-left px-3 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Phone</th>
                 <th className="text-left px-3 py-2.5 text-[11px] uppercase tracking-[0.05em] text-[rgba(5,14,36,0.4)] font-semibold">Outcome</th>
@@ -845,7 +845,7 @@ function CampaignDetailView({
 
       {/* Campaign Analytics Section */}
       {campAnalyticsLoading ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-6 animate-pulse">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-6 animate-pulse">
           <div className="h-4 bg-gray-100 rounded w-40 mb-4" />
           <div className="h-32 bg-gray-50 rounded" />
         </div>
@@ -853,7 +853,7 @@ function CampaignDetailView({
         <div className="space-y-4">
           {/* Outcome timeline */}
           {campAnalytics.outcomeTimeline.length > 1 && (
-            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5">
               <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Outcome Timeline</div>
               {(() => {
                 const tl = campAnalytics.outcomeTimeline
@@ -887,7 +887,7 @@ function CampaignDetailView({
           {/* Best time slots + Buyer insights side by side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Best time slots */}
-            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5">
               <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Best Time Slots</div>
               <div className="space-y-1.5">
                 {campAnalytics.bestTimeSlots
@@ -914,7 +914,7 @@ function CampaignDetailView({
             </div>
 
             {/* Buyer insights */}
-            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5">
               <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Buyer Insights</div>
               {campAnalytics.buyerInsights.avgQualifiedScore > 0 && (
                 <div className="mb-3">
@@ -958,7 +958,7 @@ function CampaignDetailView({
 
           {/* Cost analysis */}
           {campAnalytics.costAnalysis.totalMinutes > 0 && (
-            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
+            <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5">
               <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Cost Analysis</div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
@@ -1068,7 +1068,7 @@ function CallLogTab({
 
   if (error && !loading) {
     return (
-      <div className="bg-white border border-red-200 rounded-lg px-6 py-8 text-center">
+      <div className="bg-white border border-red-200 rounded-[8px] px-6 py-8 text-center">
         <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
         <p className="text-[0.82rem] text-gray-600 mb-2">{error}</p>
         <button onClick={() => fetchCalls()} className="text-[0.78rem] text-[#2563EB] bg-transparent border-0 cursor-pointer inline-flex items-center gap-1">
@@ -1158,7 +1158,7 @@ function CallLogTab({
               <button
                 key={r.call.id}
                 onClick={() => onOpenCall(r.call.id)}
-                className="w-full text-left bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3 hover:bg-[#F9FAFB] cursor-pointer transition-colors block"
+                className="w-full text-left bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-4 py-3 hover:bg-[#F9FAFB] cursor-pointer transition-colors block"
               >
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[0.82rem] font-medium text-[#374151]">{r.call.buyerName}</span>
@@ -1186,7 +1186,7 @@ function CallLogTab({
 
       {/* Call log table */}
       {loading ? <TableSkeleton /> : (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px]">
               <thead>
@@ -1308,7 +1308,7 @@ function CallDetailSlideOver({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm animate-fadeIn" onClick={onClose} />
-      <div className="relative w-[560px] h-full bg-white border-l border-[rgba(5,14,36,0.08)] overflow-y-auto outreach-slide-panel animate-slideInRight">
+      <div className="relative w-[560px] h-full bg-white border-l border-[rgba(5,14,36,0.06)] overflow-y-auto outreach-slide-panel animate-slideInRight">
         <div className="px-5 py-3 border-b border-[#F3F4F6] flex items-center justify-between sticky top-0 bg-white z-10">
           <h3 className="text-[0.94rem] font-medium text-[#111827]">Call Detail</h3>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer border-0 transition-colors">
@@ -1624,7 +1624,7 @@ function NewCampaignModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-lg border border-[rgba(5,14,36,0.08)] w-[640px] max-h-[85vh] overflow-y-auto outreach-modal">
+      <div className="relative bg-white rounded-[8px] border border-[rgba(5,14,36,0.06)] w-[640px] max-h-[85vh] overflow-y-auto outreach-modal">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#F3F4F6] flex items-center justify-between">
           <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]">{step === 0 ? 'Choose a Template' : 'New Campaign'}</h2>
@@ -1659,7 +1659,7 @@ function NewCampaignModal({
                     key={cat.key}
                     onClick={() => setTemplateCategory(cat.key)}
                     className={`px-2.5 py-1 rounded-full text-[0.72rem] cursor-pointer transition-colors ${
-                      templateCategory === cat.key ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
+                      templateCategory === cat.key ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
                     }`}
                   >
                     {cat.label}
@@ -1669,7 +1669,7 @@ function NewCampaignModal({
               {templatesLoading ? (
                 <div className="space-y-2">
                   {[1, 2, 3].map(i => (
-                    <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-4 animate-pulse">
+                    <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-4 py-4 animate-pulse">
                       <div className="h-4 bg-gray-100 rounded w-40 mb-2" />
                       <div className="h-3 bg-gray-50 rounded w-64" />
                     </div>
@@ -1685,10 +1685,10 @@ function NewCampaignModal({
                       <button
                         key={t.id}
                         onClick={() => applyTemplate(t)}
-                        className="w-full text-left bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3.5 hover:bg-[#F9FAFB] hover:border-[#BFDBFE] cursor-pointer transition-all group"
+                        className="w-full text-left bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-4 py-3.5 hover:bg-[#F9FAFB] hover:border-[#BFDBFE] cursor-pointer transition-all group"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="w-9 h-9 rounded-lg bg-gray-100 group-hover:bg-blue-50 flex items-center justify-center flex-shrink-0 transition-colors">
+                          <div className="w-9 h-9 rounded-[8px] bg-gray-100 group-hover:bg-blue-50 flex items-center justify-center flex-shrink-0 transition-colors">
                             <IconComp className="w-4 h-4 text-gray-500 group-hover:text-[#2563EB] transition-colors" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1718,7 +1718,7 @@ function NewCampaignModal({
 
               <button
                 onClick={() => setStep(1)}
-                className="w-full text-center py-3 text-[0.82rem] text-gray-500 hover:text-[#2563EB] bg-transparent border border-dashed border-[#D1D5DB] hover:border-[#2563EB] rounded-lg cursor-pointer transition-colors"
+                className="w-full text-center py-3 text-[0.82rem] text-gray-500 hover:text-[#2563EB] bg-transparent border border-dashed border-[#D1D5DB] hover:border-[#2563EB] rounded-[8px] cursor-pointer transition-colors"
               >
                 Start from scratch
               </button>
@@ -1741,10 +1741,10 @@ function NewCampaignModal({
                     const selected = channel === t.key
                     return (
                       <button key={t.key} onClick={() => setChannel(t.key)}
-                        className={`flex items-start gap-3 px-4 py-3.5 rounded-lg border text-left cursor-pointer transition-all ${
-                          selected ? 'border-[#2563EB] bg-[#EFF6FF] ring-1 ring-[#BFDBFE]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
+                        className={`flex items-start gap-3 px-4 py-3.5 rounded-[8px] border text-left cursor-pointer transition-all ${
+                          selected ? 'border-[#2563EB] bg-[#EFF6FF] ring-1 ring-[#BFDBFE]' : 'border-[rgba(5,14,36,0.06)] bg-white hover:bg-[#F9FAFB]'
                         }`}>
-                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${selected ? 'bg-[#2563EB]' : 'bg-gray-100'}`}>
+                        <div className={`w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 ${selected ? 'bg-[#2563EB]' : 'bg-gray-100'}`}>
                           <Icon className={`w-4 h-4 ${selected ? 'text-white' : 'text-gray-500'}`} />
                         </div>
                         <div>
@@ -1785,7 +1785,7 @@ function NewCampaignModal({
 
               {/* Contact picker mode */}
               {audienceMode === 'contacts' && (
-                <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+                <div className="border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden">
                   <div className="flex items-center gap-2 p-3 border-b border-gray-100 bg-gray-50/50">
                     <Search className="w-4 h-4 text-gray-400" />
                     <input value={contactSearch} onChange={e => setContactSearch(e.target.value)} placeholder="Search contacts..."
@@ -1909,7 +1909,7 @@ function NewCampaignModal({
               </div>
 
               {/* Live preview */}
-              <div className={`rounded-lg border px-4 py-3 ${preview ? 'border-[#BFDBFE] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-gray-50'}`}>
+              <div className={`rounded-[8px] border px-4 py-3 ${preview ? 'border-[#BFDBFE] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.06)] bg-gray-50'}`}>
                 {previewLoading ? (
                   <div className="flex items-center gap-2 text-[0.78rem] text-gray-500">
                     <Loader2 className="w-4 h-4 animate-spin" /> Building audience preview...
@@ -1945,7 +1945,7 @@ function NewCampaignModal({
               </div>
 
               {preview && preview.totalAfterDNC === 0 && (
-                <div className="flex items-center gap-2 text-[0.78rem] text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 text-[0.78rem] text-amber-600 bg-amber-50 rounded-[8px] px-3 py-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" /> No eligible buyers match your filters. Try broadening your criteria.
                 </div>
               )}
@@ -1964,8 +1964,8 @@ function NewCampaignModal({
                     <div className="space-y-2">
                       {SCRIPT_TEMPLATES.map(t => (
                         <button key={t.key} onClick={() => setScriptTemplate(t.key)}
-                          className={`w-full text-left px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                            scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
+                          className={`w-full text-left px-4 py-3 rounded-[8px] border cursor-pointer transition-colors ${
+                            scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.06)] bg-white hover:bg-[#F9FAFB]'
                           }`}>
                           <div className={`text-[0.82rem] font-medium ${scriptTemplate === t.key ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.label}</div>
                           <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
@@ -2006,7 +2006,7 @@ function NewCampaignModal({
                       </div>
                     </div>
                     {showScriptPreview ? (
-                      <div className="bg-gray-50 border border-gray-200 rounded-[10px] p-4 text-[0.82rem] text-[#0B1224] whitespace-pre-wrap min-h-[80px]">
+                      <div className="bg-gray-50 border border-gray-200 rounded-[8px] p-4 text-[0.82rem] text-[#0B1224] whitespace-pre-wrap min-h-[80px]">
                         {customScript.replace(/\{\{(\w+)\}\}/g, (match, key) => {
                           const samples: Record<string, string> = { firstName: 'John', fullName: 'John Smith', companyName: companyName || 'DealFlow Properties', agentName: agentName || 'Sarah', propertyAddress: '123 Main St, Phoenix, AZ', propertyType: 'Single Family', askingPrice: '$150,000', arv: '$220,000', market: market || 'Phoenix, AZ' }
                           return samples[key] ?? match
@@ -2045,8 +2045,8 @@ function NewCampaignModal({
                         { key: 'seller_intro', label: 'Seller Introduction', desc: 'Reach out to property owners about selling' },
                       ].map(t => (
                         <button key={t.key} onClick={() => setScriptTemplate(t.key)}
-                          className={`w-full text-left px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                            scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
+                          className={`w-full text-left px-4 py-3 rounded-[8px] border cursor-pointer transition-colors ${
+                            scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.06)] bg-white hover:bg-[#F9FAFB]'
                           }`}>
                           <div className={`text-[0.82rem] font-medium ${scriptTemplate === t.key ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.label}</div>
                           <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
@@ -2090,8 +2090,8 @@ function NewCampaignModal({
                       { key: 'proof_of_funds', label: 'Proof of Funds Request', desc: 'Formal POF verification email' },
                     ].map(t => (
                       <button key={t.key} onClick={() => setScriptTemplate(t.key)}
-                        className={`w-full text-left px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                          scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.08)] bg-white hover:bg-[#F9FAFB]'
+                        className={`w-full text-left px-4 py-3 rounded-[8px] border cursor-pointer transition-colors ${
+                          scriptTemplate === t.key ? 'border-[#2563EB] bg-[#EFF6FF]' : 'border-[rgba(5,14,36,0.06)] bg-white hover:bg-[#F9FAFB]'
                         }`}>
                         <div className={`text-[0.82rem] font-medium ${scriptTemplate === t.key ? 'text-[#1E3A8A]' : 'text-[#374151]'}`}>{t.label}</div>
                         <div className="text-[0.72rem] text-gray-400">{t.desc}</div>
@@ -2139,7 +2139,7 @@ function NewCampaignModal({
                     </div>
                   </div>
                   {/* Voicemail Settings */}
-                  <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3 space-y-3">
+                  <div className="border border-[rgba(5,14,36,0.06)] rounded-[10px] p-3 space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" checked={leaveVoicemail} onChange={e => setLeaveVoicemail(e.target.checked)} className="rounded border-gray-300" />
@@ -2200,7 +2200,7 @@ function NewCampaignModal({
           {/* Step 4: Review & Launch */}
           {step === 4 && (
             <div className="space-y-4">
-              <div className="bg-[#F9FAFB] rounded-lg px-4 py-4 space-y-2">
+              <div className="bg-[#F9FAFB] rounded-[8px] px-4 py-4 space-y-2">
                 <div className="flex justify-between text-[0.82rem]">
                   <span className="text-gray-500">Campaign</span>
                   <span className="text-gray-800 font-medium">{name}</span>
@@ -2254,7 +2254,7 @@ function NewCampaignModal({
                   <div className="flex items-center gap-2 mt-1">
                     <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)}
                       min={new Date().toISOString().slice(0, 16)}
-                      className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-3 py-2 text-[0.82rem] outline-none focus:border-[#2563EB]" />
+                      className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-3 py-2 text-[0.82rem] outline-none focus:border-[#2563EB]" />
                     <span className="text-[0.74rem] text-gray-400">Your local time</span>
                   </div>
                 )}
@@ -2292,7 +2292,7 @@ function NewCampaignModal({
               <button
                 onClick={() => setStep(step + 1)}
                 disabled={(step === 1 && !canProceedStep1) || (step === 2 && !canProceedStep2)}
-                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue <ChevronRight className="w-4 h-4" />
               </button>
@@ -2308,7 +2308,7 @@ function NewCampaignModal({
                 <button
                   onClick={() => handleCreate(scheduleType === 'now')}
                   disabled={submitting || (scheduleType === 'later' && !scheduledAt)}
-                  className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-50"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : scheduleType === 'later' ? <Calendar className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                   {scheduleType === 'later' ? 'Schedule Campaign' : 'Launch Campaign'}
@@ -2637,7 +2637,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
         </div>
 
         {/* Call info bar */}
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 flex items-center justify-between">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-4 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
               <span className="text-[0.92rem] font-semibold text-gray-800">{monitoredCall.buyerName}</span>
@@ -2655,8 +2655,8 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: 400 }}>
           {/* Left: Transcript */}
-          <div className="lg:col-span-2 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] flex flex-col overflow-hidden">
-            <div className="px-4 py-3 border-b border-[rgba(5,14,36,0.08)] flex items-center gap-2">
+          <div className="lg:col-span-2 bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] flex flex-col overflow-hidden">
+            <div className="px-4 py-3 border-b border-[rgba(5,14,36,0.06)] flex items-center gap-2">
               <Activity className="w-4 h-4 text-[#2563EB]" />
               <span className="text-[0.82rem] font-semibold text-gray-800">Live Transcript</span>
               <span className="w-2 h-2 bg-[#2563EB] rounded-full animate-pulse ml-auto" />
@@ -2670,7 +2670,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
                     const content = line.replace(/^(AI|Buyer):\s*/, '')
                     return (
                       <div key={i} className={`flex ${isAI ? 'justify-start' : 'justify-end'}`}>
-                        <div className={`max-w-[80%] rounded-[12px] px-3 py-2 text-[0.8rem] ${
+                        <div className={`max-w-[80%] rounded-[10px] px-3 py-2 text-[0.8rem] ${
                           isAI ? 'bg-blue-100 text-blue-900' : isBuyer ? 'bg-[rgba(37,99,235,0.08)] text-[#0B1224]' : 'bg-gray-100 text-gray-700'
                         }`}>
                           <span className="text-[0.65rem] font-bold opacity-60 block mb-0.5">
@@ -2694,7 +2694,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
             </div>
 
             {/* Whisper input */}
-            <div className="px-4 py-3 border-t border-[rgba(5,14,36,0.08)] bg-white">
+            <div className="px-4 py-3 border-t border-[rgba(5,14,36,0.06)] bg-white">
               {whispers.length > 0 && (
                 <div className="mb-2 space-y-1 max-h-[80px] overflow-y-auto">
                   {whispers.map((w, i) => (
@@ -2713,12 +2713,12 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
                   onChange={e => setWhisperDraft(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleWhisper() } }}
                   placeholder="Whisper instruction to AI agent..."
-                  className="flex-1 text-[0.8rem] px-3 py-2 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-purple-50"
+                  className="flex-1 text-[0.8rem] px-3 py-2 border border-purple-200 rounded-[8px] focus:outline-none focus:ring-2 focus:ring-purple-500 bg-purple-50"
                 />
                 <button
                   onClick={handleWhisper}
                   disabled={!whisperDraft.trim()}
-                  className="px-3 py-2 bg-purple-600 text-white text-[0.78rem] rounded-lg hover:bg-purple-700 disabled:opacity-50 cursor-pointer"
+                  className="px-3 py-2 bg-purple-600 text-white text-[0.78rem] rounded-[8px] hover:bg-purple-700 disabled:opacity-50 cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
                 </button>
@@ -2732,32 +2732,32 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
           {/* Right: Controls + Buyer context */}
           <div className="space-y-4">
             {/* Barge-in card */}
-            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
+            <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-4">
               <h4 className="text-[0.82rem] font-semibold text-gray-800 mb-3">Call Actions</h4>
               <button
                 onClick={handleBargeIn}
-                className="w-full py-2.5 bg-orange-600 text-white text-[0.82rem] font-medium rounded-lg hover:bg-orange-700 cursor-pointer flex items-center justify-center gap-2 mb-2"
+                className="w-full py-2.5 bg-orange-600 text-white text-[0.82rem] font-medium rounded-[8px] hover:bg-orange-700 cursor-pointer flex items-center justify-center gap-2 mb-2"
               >
                 <PhoneCall className="w-4 h-4" /> Take Over Call
               </button>
               <div className="text-[0.68rem] text-gray-400 mb-3">Connects you directly to the buyer. AI will hand off.</div>
               <button
                 onClick={() => handleEndCall(monitoringCallId)}
-                className="w-full py-2 border border-red-200 text-red-600 text-[0.78rem] rounded-lg hover:bg-red-50 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-2 border border-red-200 text-red-600 text-[0.78rem] rounded-[8px] hover:bg-red-50 cursor-pointer flex items-center justify-center gap-2"
               >
                 <PhoneEndIcon className="w-4 h-4" /> End Call
               </button>
             </div>
 
             {/* Quick whispers */}
-            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
+            <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-4">
               <h4 className="text-[0.82rem] font-semibold text-gray-800 mb-2">Quick Whispers</h4>
               <div className="space-y-1.5">
                 {['Ask about their timeline', 'Ask if they have proof of funds', 'Mention we can close in 7 days', 'Offer to send deal details by email'].map(q => (
                   <button
                     key={q}
                     onClick={() => { setWhisperDraft(q) }}
-                    className="w-full text-left text-[0.75rem] px-3 py-1.5 bg-gray-50 hover:bg-purple-50 text-gray-600 hover:text-purple-700 rounded-lg cursor-pointer border-0 transition-colors"
+                    className="w-full text-left text-[0.75rem] px-3 py-1.5 bg-gray-50 hover:bg-purple-50 text-gray-600 hover:text-purple-700 rounded-[8px] cursor-pointer border-0 transition-colors"
                   >
                     {q}
                   </button>
@@ -2766,7 +2766,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
             </div>
 
             {/* Buyer context */}
-            <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
+            <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-4">
               <h4 className="text-[0.82rem] font-semibold text-gray-800 mb-2">Buyer Context</h4>
               <div className="space-y-1.5 text-[0.75rem]">
                 <div className="flex justify-between"><span className="text-gray-400">Score</span><span className="font-medium text-gray-700">{monitoredCall.buyerScore}/100</span></div>
@@ -2812,7 +2812,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
           <Loader2 className="w-6 h-6 animate-spin" />
         </div>
       ) : calls.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-12 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-12 text-center">
           <Radio className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <div className="text-[0.88rem] text-gray-500 font-medium mb-1">No calls in progress</div>
           <div className="text-[0.78rem] text-gray-400">Launch a voice campaign to start calling. Active calls will appear here in real-time.</div>
@@ -2820,7 +2820,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {calls.map(call => (
-            <div key={call.callId} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 hover:shadow-sm transition-shadow">
+            <div key={call.callId} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-4 hover:shadow-sm transition-shadow">
               {/* Card header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -2863,7 +2863,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleMonitor(call.callId)}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-blue-600 text-white text-[0.78rem] rounded-lg hover:bg-blue-700 cursor-pointer"
+                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-blue-600 text-white text-[0.78rem] rounded-[8px] hover:bg-blue-700 cursor-pointer"
                 >
                   <Headphones className="w-4 h-4" /> Listen
                 </button>
@@ -2871,7 +2871,7 @@ function LiveMonitorTab({ addToast }: { addToast: (msg: string, type: ToastData[
                   onClick={() => {
                     if (confirm(`End the call with ${call.buyerName}?`)) handleEndCall(call.callId)
                   }}
-                  className="py-2 px-3 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 cursor-pointer"
+                  className="py-2 px-3 border border-red-200 text-red-500 rounded-[8px] hover:bg-red-50 cursor-pointer"
                 >
                   <PhoneEndIcon className="w-4 h-4" />
                 </button>
@@ -3065,10 +3065,10 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
   }
 
   return (
-    <div className="flex border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden bg-white" style={{ height: 'calc(100vh - 320px)', minHeight: 500 }}>
+    <div className="flex border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden bg-white" style={{ height: 'calc(100vh - 320px)', minHeight: 500 }}>
       {/* ── Left panel: conversation list ─────────────────────────── */}
-      <div className="w-[340px] border-r border-[rgba(5,14,36,0.08)] flex flex-col">
-        <div className="p-3 border-b border-[rgba(5,14,36,0.08)] flex items-center justify-between">
+      <div className="w-[340px] border-r border-[rgba(5,14,36,0.06)] flex flex-col">
+        <div className="p-3 border-b border-[rgba(5,14,36,0.06)] flex items-center justify-between">
           <span className="text-[0.85rem] font-semibold text-gray-800">SMS Conversations</span>
           {totalUnread > 0 && (
             <span className="bg-red-500 text-white text-[0.65rem] font-bold px-2 py-0.5 rounded-full">{totalUnread}</span>
@@ -3133,7 +3133,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
         ) : (
           <>
             {/* Header */}
-            <div className="px-4 py-3 border-b border-[rgba(5,14,36,0.08)] flex items-center justify-between">
+            <div className="px-4 py-3 border-b border-[rgba(5,14,36,0.06)] flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[0.88rem] font-semibold text-gray-800">
@@ -3148,14 +3148,14 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
               </div>
               <div className="flex items-center gap-2">
                 {selectedConvo?.mode === 'auto' && (
-                  <button onClick={handleTakeover} className="text-[0.78rem] px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer">
+                  <button onClick={handleTakeover} className="text-[0.78rem] px-3 py-1.5 bg-blue-600 text-white rounded-[8px] hover:bg-blue-700 cursor-pointer">
                     Take Over
                   </button>
                 )}
                 <select
                   value={selectedConvo?.mode || 'auto'}
                   onChange={e => handleModeChange(e.target.value)}
-                  className="text-[0.75rem] border border-[rgba(5,14,36,0.08)] rounded-[12px] px-2 py-1.5 text-gray-600"
+                  className="text-[0.75rem] border border-[rgba(5,14,36,0.06)] rounded-[10px] px-2 py-1.5 text-gray-600"
                 >
                   <option value="auto">Auto-reply</option>
                   <option value="manual">Manual only</option>
@@ -3203,7 +3203,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
 
             {/* Compose bar */}
             {selectedConvo?.status !== 'closed' && (
-              <div className="px-4 py-3 border-t border-[rgba(5,14,36,0.08)] bg-white">
+              <div className="px-4 py-3 border-t border-[rgba(5,14,36,0.06)] bg-white">
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
@@ -3211,12 +3211,12 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
                     onChange={e => setDraft(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                     placeholder="Type a message..."
-                    className="flex-1 text-[0.82rem] px-3 py-2 border border-[rgba(5,14,36,0.08)] rounded-[12px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 text-[0.82rem] px-3 py-2 border border-[rgba(5,14,36,0.06)] rounded-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <button
                     onClick={handleSend}
                     disabled={!draft.trim() || sending}
-                    className="px-4 py-2 bg-blue-600 text-white text-[0.82rem] rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
+                    className="px-4 py-2 bg-blue-600 text-white text-[0.82rem] rounded-[8px] hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
                   >
                     {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send'}
                   </button>
@@ -3329,13 +3329,13 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
       <div className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 animate-pulse">
+            <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-4 animate-pulse">
               <div className="h-3 bg-gray-100 rounded w-24 mb-2" />
               <div className="h-7 bg-gray-200 rounded w-16" />
             </div>
           ))}
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-6 animate-pulse">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-6 animate-pulse">
           <div className="h-4 bg-gray-100 rounded w-40 mb-4" />
           <div className="h-48 bg-gray-50 rounded" />
         </div>
@@ -3381,7 +3381,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
               className={`px-3 py-1 text-[0.75rem] rounded-full cursor-pointer transition-colors ${
                 days === d
                   ? 'font-semibold border border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]'
-                  : 'font-normal border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
+                  : 'font-normal border border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
               }`}
             >
               {d}d
@@ -3398,7 +3398,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
           { label: 'Connection Rate', value: `${overview.connectionRate}%`, sub: `${overview.avgCallDuration}s avg duration` },
           { label: 'Cost / Qualified', value: overview.costPerQualified > 0 ? `$${overview.costPerQualified.toFixed(2)}` : '$0.00', sub: `$${overview.totalActualCost.toFixed(2)} total` },
         ].map((kpi, i) => (
-          <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
+          <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-4 py-3">
             <div className="text-[0.72rem] text-gray-400 mb-1">{kpi.label}</div>
             <div className="text-[1.4rem] font-semibold text-gray-900">{kpi.value}</div>
             <div className="text-[0.7rem] text-gray-400 mt-0.5">{kpi.sub}</div>
@@ -3408,7 +3408,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
 
       {/* Trend Chart */}
       {trends.length > 1 && (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5">
           <div className="flex items-center gap-4 mb-3">
             <span className="text-[0.82rem] font-medium text-gray-900">Activity Trend</span>
             <div className="flex items-center gap-3 ml-auto">
@@ -3444,7 +3444,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
 
       {/* Best Time to Call Heatmap */}
       {heatmap.length > 0 && (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5">
           <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Best Time to Call</div>
           <div className="overflow-x-auto">
             <div className="inline-grid gap-[2px]" style={{ gridTemplateColumns: `auto repeat(13, 1fr)` }}>
@@ -3496,7 +3496,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
       )}
 
       {/* Outcome Breakdown */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5">
         <div className="text-[0.82rem] font-medium text-gray-900 mb-3">Outcome Breakdown</div>
         <div className="flex gap-1 h-6 rounded-full overflow-hidden mb-3">
           {Object.entries(outcomeBreakdown)
@@ -3531,7 +3531,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
 
       {/* Campaign Comparison Table */}
       {campaignComparison.length > 0 && (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden">
           <div className="px-5 py-3 border-b border-[#F3F4F6]">
             <span className="text-[0.82rem] font-medium text-gray-900">Campaign Comparison</span>
           </div>
@@ -3573,7 +3573,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
       )}
 
       {/* A/B Testing Section */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <span className="text-[0.82rem] font-medium text-gray-900">A/B Tests</span>
@@ -3589,7 +3589,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
 
         {/* Create A/B test inline form */}
         {showCreateAB && (
-          <div className="border border-blue-100 bg-blue-50/30 rounded-lg p-4 mb-4 space-y-3">
+          <div className="border border-blue-100 bg-blue-50/30 rounded-[8px] p-4 mb-4 space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[0.72rem] text-gray-500 mb-1">Test Name</label>
@@ -3683,7 +3683,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
         ) : (
           <div className="space-y-3">
             {abTests.map(test => (
-              <div key={test.id} className="border border-gray-100 rounded-lg p-4">
+              <div key={test.id} className="border border-gray-100 rounded-[8px] p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-[0.82rem] font-medium text-gray-900">{test.name}</span>
@@ -3702,7 +3702,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                 {/* Variant comparison */}
                 {test.campaignA && test.campaignB && test.liveStats && (
                   <div className="grid grid-cols-2 gap-3">
-                    <div className={`border rounded-lg p-3 ${test.liveStats.winner === 'A' ? 'border-[#2563EB]/30 bg-[rgba(37,99,235,0.04)]' : 'border-gray-100'}`}>
+                    <div className={`border rounded-[8px] p-3 ${test.liveStats.winner === 'A' ? 'border-[#2563EB]/30 bg-[rgba(37,99,235,0.04)]' : 'border-gray-100'}`}>
                       <div className="text-[0.72rem] text-gray-500 mb-1">A: {test.variantALabel}</div>
                       <div className="text-[0.68rem] text-gray-400 truncate mb-2">{test.campaignA.name}</div>
                       <div className="flex items-baseline gap-2">
@@ -3713,7 +3713,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                         {test.campaignA.qualified}/{test.campaignA.callsCompleted} calls
                       </div>
                     </div>
-                    <div className={`border rounded-lg p-3 ${test.liveStats.winner === 'B' ? 'border-[#2563EB]/30 bg-[rgba(37,99,235,0.04)]' : 'border-gray-100'}`}>
+                    <div className={`border rounded-[8px] p-3 ${test.liveStats.winner === 'B' ? 'border-[#2563EB]/30 bg-[rgba(37,99,235,0.04)]' : 'border-gray-100'}`}>
                       <div className="text-[0.72rem] text-gray-500 mb-1">B: {test.variantBLabel}</div>
                       <div className="text-[0.68rem] text-gray-400 truncate mb-2">{test.campaignB.name}</div>
                       <div className="flex items-baseline gap-2">
@@ -3753,7 +3753,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
       </div>
 
       {/* ── Conversation Intelligence ──────────────────────────────── */}
-      <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-5 bg-white">
+      <div className="border border-[rgba(5,14,36,0.06)] rounded-[10px] p-5 bg-white">
         <h3 className="text-[0.92rem] font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-violet-500" /> Conversation Intelligence
         </h3>
@@ -3772,28 +3772,28 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
           <div className="space-y-5">
             {/* Summary cards */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <div className="border border-gray-100 rounded-lg p-3 text-center">
+              <div className="border border-gray-100 rounded-[8px] p-3 text-center">
                 <div className={`text-[1.3rem] font-bold ${intel.summary.avgSentiment > 20 ? 'text-[#2563EB]' : intel.summary.avgSentiment < -20 ? 'text-red-600' : 'text-amber-600'}`}>
                   {intel.summary.avgSentiment > 0 ? '+' : ''}{intel.summary.avgSentiment}
                 </div>
                 <div className="text-[0.68rem] text-gray-400 mt-0.5">Avg Sentiment</div>
               </div>
-              <div className="border border-gray-100 rounded-lg p-3 text-center">
+              <div className="border border-gray-100 rounded-[8px] p-3 text-center">
                 <div className="text-[1.3rem] font-bold text-gray-900">{intel.summary.avgEngagement}</div>
                 <div className="text-[0.68rem] text-gray-400 mt-0.5">Engagement</div>
               </div>
-              <div className="border border-gray-100 rounded-lg p-3 text-center">
+              <div className="border border-gray-100 rounded-[8px] p-3 text-center">
                 <div className="text-[1.3rem] font-bold text-violet-600 capitalize">{intel.summary.avgBuyingIntent}</div>
                 <div className="text-[0.68rem] text-gray-400 mt-0.5">Buying Intent</div>
               </div>
-              <div className="border border-gray-100 rounded-lg p-3 text-center">
+              <div className="border border-gray-100 rounded-[8px] p-3 text-center">
                 <div className="text-[1.3rem] font-bold text-gray-900">{intel.summary.avgTalkRatio?.ai}%</div>
                 <div className="text-[0.68rem] text-gray-400 mt-0.5">AI Talk Ratio</div>
                 <div className={`text-[0.62rem] mt-0.5 ${intel.summary.avgTalkRatio?.ai <= 45 ? 'text-[#2563EB]' : 'text-amber-500'}`}>
                   {intel.summary.avgTalkRatio?.ai <= 45 ? 'Ideal' : 'Too high'}
                 </div>
               </div>
-              <div className="border border-gray-100 rounded-lg p-3 text-center">
+              <div className="border border-gray-100 rounded-[8px] p-3 text-center">
                 <div className="text-[1.3rem] font-bold text-gray-900">{intel.summary.totalCallsAnalyzed}</div>
                 <div className="text-[0.68rem] text-gray-400 mt-0.5">Calls Analyzed</div>
               </div>
@@ -3917,7 +3917,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                 </h4>
                 <div className="space-y-2">
                   {intel.scriptPerformance.topSuggestions.map((s: any, i: number) => (
-                    <div key={i} className="flex items-start gap-2 p-2.5 bg-amber-50/50 border border-amber-100 rounded-lg">
+                    <div key={i} className="flex items-start gap-2 p-2.5 bg-amber-50/50 border border-amber-100 rounded-[8px]">
                       <span className={`text-[0.62rem] font-medium px-1.5 py-0.5 rounded shrink-0 mt-0.5 ${
                         s.priority === 'high' ? 'text-red-700 bg-red-100' : s.priority === 'medium' ? 'text-amber-700 bg-amber-100' : 'text-gray-600 bg-gray-100'
                       }`}>{s.priority}</span>
@@ -4085,7 +4085,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
         </div>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium text-gray-600 border border-[rgba(5,14,36,0.08)] rounded-[12px] hover:border-gray-300 cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium text-gray-600 border border-[rgba(5,14,36,0.06)] rounded-[10px] hover:border-gray-300 cursor-pointer"
         >
           <Settings2 className="w-3.5 h-3.5" /> Settings
         </button>
@@ -4093,7 +4093,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
 
       {/* Settings panel */}
       {showSettings && (
-        <div className="mb-4 border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 bg-white space-y-3">
+        <div className="mb-4 border border-[rgba(5,14,36,0.06)] rounded-[10px] p-4 bg-white space-y-3">
           <h4 className="text-[0.82rem] font-medium text-gray-900">Inbound Call Settings</h4>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={configAutoAnswer} onChange={e => setConfigAutoAnswer(e.target.checked)} className="rounded border-gray-300" />
@@ -4110,7 +4110,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
           </div>
           <div className="flex justify-end">
             <button onClick={saveConfig} disabled={savingConfig}
-              className="px-4 py-1.5 bg-[#2563EB] text-white text-[0.78rem] font-medium rounded-lg hover:bg-[#1D4ED8] disabled:opacity-50 cursor-pointer">
+              className="px-4 py-1.5 bg-[#2563EB] text-white text-[0.78rem] font-medium rounded-[8px] hover:bg-[#1D4ED8] disabled:opacity-50 cursor-pointer">
               {savingConfig ? 'Saving...' : 'Save'}
             </button>
           </div>
@@ -4122,7 +4122,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
         {[{ v: '', l: 'All' }, { v: 'completed', l: 'Answered' }, { v: 'missed', l: 'Missed' }].map(f => (
           <button key={f.v} onClick={() => setFilterStatus(f.v)}
             className={`px-3 py-1.5 text-[14px] rounded-full border cursor-pointer transition-colors ${
-              filterStatus === f.v ? 'font-semibold border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
+              filterStatus === f.v ? 'font-semibold border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
             }`}>
             {f.l}
           </button>
@@ -4131,7 +4131,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
         {[{ v: '', l: 'All Callers' }, { v: 'true', l: 'Known' }, { v: 'false', l: 'Unknown' }].map(f => (
           <button key={f.v} onClick={() => setFilterIdentified(f.v)}
             className={`px-3 py-1.5 text-[14px] rounded-full border cursor-pointer transition-colors ${
-              filterIdentified === f.v ? 'font-semibold border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
+              filterIdentified === f.v ? 'font-semibold border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]' : 'font-normal border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
             }`}>
             {f.l}
           </button>
@@ -4157,7 +4157,7 @@ function InboundTab({ addToast }: { addToast: (msg: string, type: ToastData['typ
           {calls.map(c => {
             const rb = ROUTE_BADGES[c.routedTo] || ROUTE_BADGES.missed
             return (
-              <div key={c.id} className={`border rounded-lg p-4 bg-white transition-colors ${c.status === 'missed' ? 'border-red-200 bg-red-50/20' : 'border-gray-200'}`}>
+              <div key={c.id} className={`border rounded-[8px] p-4 bg-white transition-colors ${c.status === 'missed' ? 'border-red-200 bg-red-50/20' : 'border-gray-200'}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -4316,7 +4316,7 @@ function VoicemailsTab({ addToast }: { addToast: (msg: string, type: ToastData['
         <p className="text-[0.78rem] text-gray-500">{voicemails.length} voicemail recordings</p>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-[0.78rem] font-medium rounded-lg hover:bg-[#1D4ED8] cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-[0.78rem] font-medium rounded-[8px] hover:bg-[#1D4ED8] cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" /> New Voicemail
         </button>
@@ -4324,7 +4324,7 @@ function VoicemailsTab({ addToast }: { addToast: (msg: string, type: ToastData['
 
       {/* Preview modal */}
       {previewText && (
-        <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 relative">
+        <div className="mb-4 bg-blue-50 border border-blue-200 rounded-[8px] p-3 relative">
           <button onClick={() => setPreviewText(null)} className="absolute top-2 right-2 text-blue-400 hover:text-blue-600 cursor-pointer"><X className="w-4 h-4" /></button>
           <p className="text-[0.72rem] text-blue-500 font-medium mb-1">Preview (with sample data)</p>
           <p className="text-[0.8rem] text-blue-900 leading-relaxed">{previewText}</p>
@@ -4333,7 +4333,7 @@ function VoicemailsTab({ addToast }: { addToast: (msg: string, type: ToastData['
 
       {/* Create form */}
       {showCreate && (
-        <div className="mb-4 border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 bg-white space-y-3">
+        <div className="mb-4 border border-[rgba(5,14,36,0.06)] rounded-[10px] p-4 bg-white space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[0.82rem] font-medium text-gray-900">New Voicemail (Text-to-Speech)</span>
             <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600 cursor-pointer"><X className="w-4 h-4" /></button>
@@ -4354,7 +4354,7 @@ function VoicemailsTab({ addToast }: { addToast: (msg: string, type: ToastData['
               ~{newTtsText ? Math.round((newTtsText.split(/\s+/).length / 150) * 60) : 0}s estimated
             </span>
             <button onClick={handleCreate} disabled={creating || !newName.trim() || !newTtsText.trim()}
-              className="px-4 py-1.5 bg-[#2563EB] text-white text-[0.78rem] font-medium rounded-lg hover:bg-[#1D4ED8] disabled:opacity-50 cursor-pointer">
+              className="px-4 py-1.5 bg-[#2563EB] text-white text-[0.78rem] font-medium rounded-[8px] hover:bg-[#1D4ED8] disabled:opacity-50 cursor-pointer">
               {creating ? 'Saving...' : 'Save Voicemail'}
             </button>
           </div>
@@ -4378,7 +4378,7 @@ function VoicemailsTab({ addToast }: { addToast: (msg: string, type: ToastData['
       {!loading && voicemails.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {voicemails.map(vm => (
-            <div key={vm.id} className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3.5 bg-white hover:border-gray-300 transition-colors">
+            <div key={vm.id} className="border border-[rgba(5,14,36,0.06)] rounded-[10px] p-3.5 bg-white hover:border-gray-300 transition-colors">
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
                   <h4 className="text-[0.82rem] font-medium text-gray-900">{vm.name}</h4>
@@ -4496,7 +4496,7 @@ function CallbacksTab({ addToast }: { addToast: (msg: string, type: ToastData['t
             className={`px-3 py-1.5 text-[14px] rounded-full border cursor-pointer transition-colors ${
               statusFilter === s
                 ? 'font-semibold border-[#2563EB] text-[#2563EB] bg-[rgba(37,99,235,0.06)]'
-                : 'font-normal border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
+                : 'font-normal border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.45)] bg-transparent hover:bg-gray-50'
             }`}
           >
             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -4531,7 +4531,7 @@ function CallbacksTab({ addToast }: { addToast: (msg: string, type: ToastData['t
             return (
               <div
                 key={cb.id}
-                className={`border rounded-lg p-4 bg-white transition-colors ${
+                className={`border rounded-[8px] p-4 bg-white transition-colors ${
                   overdue ? 'border-red-200 bg-red-50/30' : 'border-gray-200'
                 }`}
               >
@@ -4760,30 +4760,79 @@ export default function AIOutreachPage() {
 
   const isDetailView = !!detailCampaignId
 
-  return (
-    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-        <div>
-          <h1 style={{ fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em' }} className="text-[#0B1224] mb-1">
-            Outreach
-          </h1>
-          <p className="text-[14px] font-normal text-[rgba(5,14,36,0.5)]">
-            Launch AI-powered campaigns to qualify and engage your buyers.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowNewCampaign(true)}
-            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
-          >
-            <Plus className="w-4 h-4" /> New Campaign
-          </button>
-        </div>
-      </div>
+  const tabs = [
+    { key: 'campaigns' as SubTab, label: 'Campaigns', icon: Layers },
+    { key: 'calllog' as SubTab, label: 'Call Log', icon: Phone },
+    { key: 'callbacks' as SubTab, label: 'Callbacks', icon: Calendar },
+    { key: 'voicemails' as SubTab, label: 'Voicemails', icon: Voicemail },
+    { key: 'inbound' as SubTab, label: 'Inbound', icon: PhoneCall },
+    { key: 'sms' as SubTab, label: 'SMS Inbox', icon: MessageSquare },
+    { key: 'live' as SubTab, label: 'Live Monitor', icon: Radio },
+    { key: 'analytics' as SubTab, label: 'Analytics', icon: TrendingUp },
+  ]
 
+  return (
+    <div className="flex flex-col h-full bg-[#F9FAFB]">
+      {/* Vercel-style top tab bar */}
+      {!isDetailView && (
+        <div
+          className="flex-shrink-0 bg-white"
+          style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
+        >
+          <div className="px-8">
+            <div className="flex items-center justify-between">
+              <nav className="flex gap-0.5 -mb-px">
+                {tabs.map(tab => {
+                  const Icon = tab.icon
+                  const isActive = subTab === tab.key
+                  return (
+                    <button
+                      key={tab.key}
+                      onClick={() => setSubTab(tab.key)}
+                      style={{
+                        fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+                        fontSize: '13px',
+                        fontWeight: isActive ? 550 : 420,
+                        letterSpacing: '-0.005em',
+                      }}
+                      className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all ${
+                        isActive
+                          ? 'text-[#0B1224]'
+                          : 'text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.7)]'
+                      }`}
+                    >
+                      <Icon
+                        className="flex-shrink-0"
+                        style={{
+                          width: 14,
+                          height: 14,
+                          strokeWidth: isActive ? 2 : 1.6,
+                          color: isActive ? '#2563EB' : 'rgba(5,14,36,0.3)',
+                          transition: 'color 0.18s ease',
+                        }}
+                      />
+                      {tab.label}
+                      {isActive && (
+                        <div style={{ position: 'absolute', bottom: -1, left: 12, right: 12, height: 2, borderRadius: 1, background: '#2563EB' }} />
+                      )}
+                    </button>
+                  )
+                })}
+              </nav>
+              <button
+                onClick={() => setShowNewCampaign(true)}
+                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-3 py-1.5 text-[0.78rem] font-medium cursor-pointer transition-colors"
+              >
+                <Plus className="w-3 h-3" /> New Campaign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="p-8 max-w-[1200px] flex-1 overflow-auto">
       {/* Stats bar */}
-      <div className="flex items-center gap-6 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-3 mb-5 flex-wrap">
+      <div className="flex items-center gap-6 bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-5 py-3 mb-5 flex-wrap">
         <div className="flex items-center gap-2">
           {activeCampaigns > 0 && <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />}
           <span className="text-[0.82rem] text-gray-700 font-medium">{activeCampaigns}</span>
@@ -4805,35 +4854,6 @@ export default function AIOutreachPage() {
           <span className="text-[0.78rem] text-gray-400">Avg Qualification Rate</span>
         </div>
       </div>
-
-      {/* Sub tabs */}
-      {!isDetailView && (
-        <div className="flex items-center gap-0 mb-6 border-b border-[rgba(5,14,36,0.08)] pb-0">
-          {[
-            { key: 'campaigns' as SubTab, label: 'Campaigns', icon: Layers },
-            { key: 'calllog' as SubTab, label: 'Call Log', icon: Phone },
-            { key: 'callbacks' as SubTab, label: 'Callbacks', icon: Calendar },
-            { key: 'voicemails' as SubTab, label: 'Voicemails', icon: Voicemail },
-            { key: 'inbound' as SubTab, label: 'Inbound', icon: PhoneCall },
-            { key: 'sms' as SubTab, label: 'SMS Inbox', icon: MessageSquare },
-            { key: 'live' as SubTab, label: 'Live Monitor', icon: Radio },
-            { key: 'analytics' as SubTab, label: 'Analytics', icon: TrendingUp },
-          ].map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setSubTab(tab.key)}
-              className={`flex items-center gap-2 px-[16px] py-[12px] text-[14px] cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
-                subTab === tab.key
-                  ? 'border-[#2563EB] text-[#2563EB] font-semibold'
-                  : 'border-transparent text-[rgba(5,14,36,0.45)] font-normal hover:text-[rgba(5,14,36,0.65)]'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      )}
 
       {/* Content */}
       {!isDetailView && subTab === 'campaigns' && (
@@ -4894,6 +4914,7 @@ export default function AIOutreachPage() {
           addToast={addToast}
         />
       )}
+      </div>
 
       {/* Call detail slide-over */}
       {detailCallId && (

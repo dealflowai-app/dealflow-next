@@ -310,7 +310,7 @@ function ListingSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-4 mp-deals-grid">
       {[1, 2, 3, 4].map(i => (
-        <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl overflow-hidden animate-pulse">
+        <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl overflow-hidden animate-pulse">
           <div className="h-[140px] bg-gray-100" />
           <div className="px-4 py-3.5">
             <div className="h-4 w-48 bg-gray-200 rounded mb-2" />
@@ -564,7 +564,7 @@ function MarketplaceMapView({
   return (
     <div>
       {/* Map container */}
-      <div ref={containerRef} className="relative w-full rounded-xl overflow-hidden border border-[rgba(5,14,36,0.08)] mp-map-container" style={{ height: 600 }}>
+      <div ref={containerRef} className="relative w-full rounded-xl overflow-hidden border border-[rgba(5,14,36,0.06)] mp-map-container" style={{ height: 600 }}>
         <MapGL
           ref={mapRef}
           mapboxAccessToken={MAPBOX_TOKEN}
@@ -581,7 +581,7 @@ function MarketplaceMapView({
           <NavigationControl position="top-right" showCompass={false} />
 
           {/* Listings in view counter */}
-          <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200 shadow-sm z-10">
+          <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm rounded-[8px] px-3 py-2 border border-gray-200 shadow-sm z-10">
             <span className="text-[0.78rem] font-medium text-[#374151]">
               {visibleCount} listing{visibleCount !== 1 ? 's' : ''} in view
             </span>
@@ -590,7 +590,7 @@ function MarketplaceMapView({
           {/* Fit all button */}
           <button
             onClick={fitAllListings}
-            className="absolute top-3 left-[170px] bg-white/95 backdrop-blur-sm rounded-lg px-2.5 py-2 border border-gray-200 shadow-sm z-10 cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+            className="absolute top-3 left-[170px] bg-white/95 backdrop-blur-sm rounded-[8px] px-2.5 py-2 border border-gray-200 shadow-sm z-10 cursor-pointer hover:bg-gray-50 transition-colors flex items-center gap-1.5"
             title="Fit all listings"
           >
             <Maximize2 className="w-3.5 h-3.5 text-[#6B7280]" />
@@ -733,14 +733,14 @@ function MarketplaceMapView({
             </Popup>
           )}
 
-          {/* Horizontal Legend */}
-          <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200 shadow-sm z-10">
-            <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-[0.62rem] text-gray-400 uppercase tracking-wide mr-1">Property Types</span>
+          {/* Property Type Legend */}
+          <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm rounded-[8px] px-3 py-2.5 border border-[rgba(5,14,36,0.06)] shadow-sm z-10">
+            <span className="text-[0.58rem] font-medium text-[rgba(5,14,36,0.35)] uppercase tracking-[0.06em] block mb-1.5">Property Types</span>
+            <div className="flex flex-col gap-1">
               {MAP_PIN_LEGEND.map(l => (
-                <div key={l.label} className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: l.color }} />
-                  <span className="text-[0.68rem] text-gray-600">{l.label}</span>
+                <div key={l.label} className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: l.color }} />
+                  <span className="text-[0.68rem] font-[450] text-[rgba(5,14,36,0.55)]">{l.label}</span>
                 </div>
               ))}
             </div>
@@ -773,7 +773,7 @@ function MarketplaceMapView({
                   onMouseEnter={() => setHoveredId(l.id)}
                   onMouseLeave={() => setHoveredId(null)}
                   className={`flex-shrink-0 w-[220px] bg-white border rounded-xl px-3 py-2.5 text-left cursor-pointer transition-all ${
-                    isActive ? 'border-[#2563EB] ring-1 ring-[#2563EB]/20' : 'border-[rgba(5,14,36,0.08)] hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]'
+                    isActive ? 'border-[#2563EB] ring-1 ring-[#2563EB]/20' : 'border-[rgba(5,14,36,0.06)] hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
@@ -928,7 +928,7 @@ function DealListingsSection() {
     <div>
       {/* Quick Stats Bar */}
       {!loading && listings.length > 0 && (
-        <div className="flex items-center gap-6 mb-5 bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-3">
+        <div className="flex items-center gap-6 mb-5 bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-3">
           <div className="flex items-center gap-2">
             <Store className="w-4 h-4 text-[#2563EB]" />
             <span className="text-[0.82rem] font-semibold text-[#111827]">{total}</span>
@@ -1050,7 +1050,7 @@ function DealListingsSection() {
 
       {/* Map View */}
       {showMapView && (loading ? <ListingSkeleton /> : listings.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-12 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-12 text-center">
           <Map className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
           {(searchText || stateFilter || typeFilter || minPrice || maxPrice) ? (
             <p className="text-[0.82rem] text-[#9CA3AF]">No listings match your filters. Try adjusting your search criteria.</p>
@@ -1070,7 +1070,7 @@ function DealListingsSection() {
 
       {/* Grid View */}
       {!showMapView && (loading ? <ListingSkeleton /> : displayListings.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-12 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-12 text-center">
           <Store className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
           {showSavedOnly ? (
             <>
@@ -1088,7 +1088,7 @@ function DealListingsSection() {
               <p className="text-[0.78rem] text-[#9CA3AF] mb-3">Be the first to list a deal on the marketplace.</p>
               <button
                 onClick={() => { /* navigate to create listing */ }}
-                className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
               >
                 <Plus className="w-4 h-4" /> List a Deal
               </button>
@@ -1111,7 +1111,7 @@ function DealListingsSection() {
                 <div
                   key={d.id}
                   onClick={() => setSelectedListing(d)}
-                  className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl overflow-hidden cursor-pointer group transition-shadow hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]"
+                  className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl overflow-hidden cursor-pointer group transition-shadow hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]"
                 >
                   {/* Photo placeholder */}
                   <div className="h-[140px] bg-[#F9FAFB] relative flex items-center justify-center">
@@ -1130,7 +1130,7 @@ function DealListingsSection() {
                     {/* Score badge */}
                     {grade !== '—' && (
                       <div className="absolute top-3 right-3">
-                        <span className={`text-[0.72rem] font-bold px-2.5 py-1 rounded-lg border ${scoreStyle(grade)}`}>
+                        <span className={`text-[0.72rem] font-bold px-2.5 py-1 rounded-[8px] border ${scoreStyle(grade)}`}>
                           {grade}
                         </span>
                       </div>
@@ -1243,7 +1243,7 @@ function DealListingsSection() {
               <button
                 onClick={() => fetchListings(true)}
                 disabled={loadingMore}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-white border border-[rgba(5,14,36,0.15)] rounded-[10px] text-[0.82rem] font-medium text-[#374151] hover:bg-[#F9FAFB] cursor-pointer transition-colors disabled:opacity-60"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-white border border-[rgba(5,14,36,0.15)] rounded-[8px] text-[0.82rem] font-medium text-[#374151] hover:bg-[#F9FAFB] cursor-pointer transition-colors disabled:opacity-60"
               >
                 {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
                 {loadingMore ? 'Loading...' : `Load more (${listings.length} of ${total})`}
@@ -1331,7 +1331,7 @@ function ListingDetail({
       </button>
 
       {/* Header */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-6 py-5 mb-5">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-6 py-5 mb-5">
         <div className="flex items-start justify-between mb-2">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -1365,7 +1365,7 @@ function ListingDetail({
               <Share2 className="w-4 h-4" />
             </button>
             {grade !== '—' && (
-              <span className={`text-[0.82rem] font-bold px-3 py-1.5 rounded-lg border ${scoreStyle(grade)}`}>
+              <span className={`text-[0.82rem] font-bold px-3 py-1.5 rounded-[8px] border ${scoreStyle(grade)}`}>
                 Deal Score: {grade}
               </span>
             )}
@@ -1381,27 +1381,27 @@ function ListingDetail({
 
       {/* Deal Analysis Grid (2x3) */}
       <div className="grid grid-cols-3 gap-3 mb-5 mp-analysis-grid">
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3 text-center">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-1">Asking Price</div>
           <div className="text-[1.05rem] font-semibold text-[#111827]">${l.askingPrice.toLocaleString()}</div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3 text-center">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-1">ARV</div>
           <div className="text-[1.05rem] font-semibold text-[#374151]">{l.arv ? `$${l.arv.toLocaleString()}` : '—'}</div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3 text-center">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-1">Est. Repairs</div>
           <div className="text-[1.05rem] font-semibold text-[#374151]">{l.repairCost ? `$${l.repairCost.toLocaleString()}` : '—'}</div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3 text-center">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-1">Spread</div>
           <div className="text-[1.05rem] font-semibold text-[#374151]">{spread ? `$${spread.toLocaleString()}` : '—'}</div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3 text-center">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-1">Est. Flip Profit</div>
           <div className="text-[1.05rem] font-semibold text-[#2563EB]">{profit ? `$${profit.toLocaleString()}` : '—'}</div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3 text-center">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-1">Rental Cash Flow</div>
           <div className="text-[1.05rem] font-semibold text-[#374151]">{l.rentalCashFlow ? `$${l.rentalCashFlow.toLocaleString()}/mo` : '—'}</div>
         </div>
@@ -1409,7 +1409,7 @@ function ListingDetail({
 
       <div className="grid grid-cols-2 gap-4 mb-5 mp-detail-grid">
         {/* Property details */}
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-4">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Property Details</div>
           <div className="space-y-2">
             {l.beds !== null && <div className="flex justify-between text-[0.78rem]"><span className="text-[#9CA3AF]">Beds</span><span className="text-[#374151]">{l.beds}</span></div>}
@@ -1421,7 +1421,7 @@ function ListingDetail({
         </div>
 
         {/* Wholesaler info */}
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-4">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Listed By</div>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-[#0B1224] flex items-center justify-center">
@@ -1443,20 +1443,20 @@ function ListingDetail({
 
       {/* Description */}
       {l.description && (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4 mb-5">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-4 mb-5">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-2">Description</div>
           <p className="text-[0.82rem] text-[#374151] leading-relaxed">{l.description}</p>
         </div>
       )}
 
       {/* CTA */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4 mb-5">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-4 mb-5">
         <div className="flex items-center justify-between">
           <div className="text-[0.88rem] font-medium text-[#374151]">Interested in this deal?</div>
           {!showInquiryForm && (
             <button
               onClick={() => setShowInquiryForm(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
             >
               <Send className="w-4 h-4" /> I&apos;m Interested
             </button>
@@ -1470,7 +1470,7 @@ function ListingDetail({
               onChange={e => setInquiryMessage(e.target.value)}
               placeholder="Hi, I'm interested in this deal. Please share more details..."
               rows={3}
-              className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors resize-none mb-3"
+              className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors resize-none mb-3"
             />
             <div className="flex items-center gap-2 justify-end">
               <button
@@ -1482,7 +1482,7 @@ function ListingDetail({
               <button
                 onClick={handleInquiry}
                 disabled={sending}
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
               >
                 {sending && <Loader2 className="w-4 h-4 animate-spin" />}
                 {sending ? 'Sending...' : 'Send Inquiry'}
@@ -1503,7 +1503,7 @@ function ListingDetail({
                 <div
                   key={s.id}
                   onClick={() => { onBack(); setTimeout(() => {}, 0) }}
-                  className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3 cursor-pointer transition-shadow hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]"
+                  className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3 cursor-pointer transition-shadow hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]"
                 >
                   <div className="text-[0.82rem] font-medium text-[#111827] truncate">{s.address}</div>
                   <div className="text-[0.76rem] text-[#9CA3AF] mb-2">{s.city}, {s.state}</div>
@@ -1654,7 +1654,7 @@ function ContactPostDialog({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl border border-[rgba(5,14,36,0.08)] w-full max-w-md mx-4 animate-fadeInUp" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-xl border border-[rgba(5,14,36,0.06)] w-full max-w-md mx-4 animate-fadeInUp" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
           <h3 className="text-[1rem] font-medium text-[#111827]">Contact About {post.displayName}</h3>
           <button onClick={onClose} className="p-1 rounded-md hover:bg-[#F3F4F6] bg-transparent border-0 cursor-pointer">
@@ -1662,7 +1662,7 @@ function ContactPostDialog({
           </button>
         </div>
         <div className="px-6 py-4">
-          <div className="bg-[#F9FAFB] rounded-lg px-4 py-3 mb-4 text-[0.78rem] text-[#6B7280]">
+          <div className="bg-[#F9FAFB] rounded-[8px] px-4 py-3 mb-4 text-[0.78rem] text-[#6B7280]">
             <strong className="text-[#374151]">{post.displayName}</strong> is looking for{' '}
             {post.propertyTypes.map(t => PROP_TYPE_LABELS[t] || t).join(', ')} in {post.markets.join(', ')}
             {post.maxPrice ? ` under ${formatBudgetRange(null, post.maxPrice)}` : ''}.
@@ -1673,15 +1673,15 @@ function ContactPostDialog({
             onChange={e => setMessage(e.target.value)}
             placeholder="Tell them about the deal you have that matches their buyer's criteria..."
             rows={4}
-            className="w-full bg-white border border-[#D1D5DB] rounded-lg px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors resize-none"
+            className="w-full bg-white border border-[#D1D5DB] rounded-[8px] px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors resize-none"
           />
         </div>
         <div className="px-6 py-4 border-t border-[#E5E7EB] flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-[10px] text-[0.82rem] font-medium text-[#374151] bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] cursor-pointer transition-colors">Cancel</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-[8px] text-[0.82rem] font-medium text-[#374151] bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] cursor-pointer transition-colors">Cancel</button>
           <button
             onClick={handleSend}
             disabled={sending || !message.trim()}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-[8px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors disabled:opacity-50"
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             Send Message
@@ -1773,12 +1773,12 @@ function CreateBuyerPostModal({
     }
   }
 
-  const inputCls = "w-full bg-white border border-[#D1D5DB] rounded-lg px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors"
+  const inputCls = "w-full bg-white border border-[#D1D5DB] rounded-[8px] px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors"
   const labelCls = "block text-[0.78rem] font-medium text-[#374151] mb-1.5"
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl border border-[rgba(5,14,36,0.08)] w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto animate-fadeInUp" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-xl border border-[rgba(5,14,36,0.06)] w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto animate-fadeInUp" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between sticky top-0 bg-white z-10">
           <h3 className="text-[1rem] font-medium text-[#111827]">Post a Buyer</h3>
           <button onClick={onClose} className="p-1 rounded-md hover:bg-[#F3F4F6] bg-transparent border-0 cursor-pointer">
@@ -1957,11 +1957,11 @@ function CreateBuyerPostModal({
         </div>
 
         <div className="px-6 py-4 border-t border-[#E5E7EB] flex justify-end gap-2 sticky bottom-0 bg-white">
-          <button onClick={onClose} className="px-4 py-2 rounded-[10px] text-[0.82rem] font-medium text-[#374151] bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] cursor-pointer transition-colors">Cancel</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-[8px] text-[0.82rem] font-medium text-[#374151] bg-white border border-[rgba(5,14,36,0.15)] hover:bg-[#F9FAFB] cursor-pointer transition-colors">Cancel</button>
           <button
             onClick={handleSubmit}
             disabled={creating}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-[8px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors disabled:opacity-50"
           >
             {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Post to Buyer Board
@@ -1996,7 +1996,7 @@ function MyPostContacts({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl border border-[rgba(5,14,36,0.08)] w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto animate-fadeInUp" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-xl border border-[rgba(5,14,36,0.06)] w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto animate-fadeInUp" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between sticky top-0 bg-white z-10">
           <h3 className="text-[1rem] font-medium text-[#111827]">Contacts Received</h3>
           <button onClick={onClose} className="p-1 rounded-md hover:bg-[#F3F4F6] bg-transparent border-0 cursor-pointer">
@@ -2011,7 +2011,7 @@ function MyPostContacts({
           ) : (
             <div className="space-y-3">
               {contacts.map(c => (
-                <div key={c.id} className="bg-[#F9FAFB] border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3">
+                <div key={c.id} className="bg-[#F9FAFB] border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-[0.82rem] font-medium text-[#111827]">
                       {[c.profile.firstName, c.profile.lastName].filter(Boolean).join(' ') || 'Wholesaler'}
@@ -2133,7 +2133,7 @@ function BuyerBoardSection() {
         </p>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4" /> Post a Buyer
         </button>
@@ -2237,7 +2237,7 @@ function BuyerBoardSection() {
       {loading ? (
         <div className="grid grid-cols-2 gap-4 mp-buyer-grid">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4 animate-pulse">
+            <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-4 animate-pulse">
               <div className="flex items-center gap-2.5 mb-3">
                 <div className="w-8 h-8 rounded-full bg-[#F3F4F6]" />
                 <div className="h-4 bg-[#F3F4F6] rounded w-24" />
@@ -2251,12 +2251,12 @@ function BuyerBoardSection() {
           ))}
         </div>
       ) : posts.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-12 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-12 text-center">
           <ClipboardList className="w-10 h-10 text-[#D1D5DB] mx-auto mb-3" />
           {viewMode === 'mine' ? (
             <>
               <p className="text-[0.82rem] text-[#9CA3AF] mb-3">You haven&apos;t posted any buyers yet.</p>
-              <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-1.5 mx-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+              <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-1.5 mx-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
                 <Plus className="w-4 h-4" /> Post Your First Buyer
               </button>
             </>
@@ -2266,7 +2266,7 @@ function BuyerBoardSection() {
             <>
               <p className="text-[0.9rem] text-[#6B7280] mb-1">No buyer profiles posted yet</p>
               <p className="text-[0.78rem] text-[#9CA3AF] mb-3">Share your buyers&apos; criteria to find matching deals.</p>
-              <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-1.5 mx-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
+              <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-1.5 mx-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors">
                 <Plus className="w-4 h-4" /> Post a Buyer
               </button>
             </>
@@ -2280,7 +2280,7 @@ function BuyerBoardSection() {
             const posterName = [p.profile.firstName, p.profile.lastInitial].filter(Boolean).join(' ') || 'Wholesaler'
 
             return (
-              <div key={p.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4 transition-shadow hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]">
+              <div key={p.id} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-4 transition-shadow hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
@@ -2403,13 +2403,13 @@ function BuyerBoardSection() {
                     </button>
                   </div>
                 ) : isContacted ? (
-                  <div className="w-full py-2 rounded-[10px] text-[0.8rem] font-medium text-center text-[#2563EB] bg-[rgba(37,99,235,0.08)] border border-[#BFDBFE] flex items-center justify-center gap-1.5">
+                  <div className="w-full py-2 rounded-[8px] text-[0.8rem] font-medium text-center text-[#2563EB] bg-[rgba(37,99,235,0.08)] border border-[#BFDBFE] flex items-center justify-center gap-1.5">
                     <Check className="w-3.5 h-3.5" /> Message Sent
                   </div>
                 ) : (
                   <button
                     onClick={() => setContactTarget(p)}
-                    className="w-full py-2 rounded-[10px] text-[0.8rem] font-medium cursor-pointer transition-colors bg-[#2563EB] text-white border-0 hover:bg-[#1D4ED8]"
+                    className="w-full py-2 rounded-[8px] text-[0.8rem] font-medium cursor-pointer transition-colors bg-[#2563EB] text-white border-0 hover:bg-[#1D4ED8]"
                   >
                     I Have a Deal
                   </button>
@@ -2569,7 +2569,7 @@ function MyListingsSection() {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4 animate-pulse">
+          <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-4 animate-pulse">
             <div className="h-4 w-64 bg-gray-200 rounded mb-2" />
             <div className="h-3 w-48 bg-gray-100 rounded" />
           </div>
@@ -2585,10 +2585,9 @@ function MyListingsSection() {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
-        <p className="text-[0.82rem] text-[#374151]">Manage your marketplace listings and inquiries.</p>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4" />
           List a Deal
@@ -2596,7 +2595,7 @@ function MyListingsSection() {
       </div>
 
       {listings.length === 0 ? (
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-16 text-center">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-16 text-center">
           <Store className="w-12 h-12 text-[#D1D5DB] mx-auto mb-4" />
           <h3 className="text-[1rem] font-medium text-[#374151] mb-2">No listings yet</h3>
           <p className="text-[0.82rem] text-[#9CA3AF] mb-5 max-w-sm mx-auto">
@@ -2604,7 +2603,7 @@ function MyListingsSection() {
           </p>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             <Plus className="w-4 h-4" />
             List Your First Deal
@@ -2641,7 +2640,7 @@ function MyListingsSection() {
               const canRelist = (item.status === 'SOLD' || item.status === 'EXPIRED') && item.deal.status === 'ACTIVE'
 
               return (
-                <div key={item.id} className={`bg-white border rounded-xl overflow-hidden ${isSelected ? 'border-[#2563EB] ring-1 ring-[#2563EB]/20' : 'border-[rgba(5,14,36,0.08)]'}`}>
+                <div key={item.id} className={`bg-white border rounded-xl overflow-hidden ${isSelected ? 'border-[#2563EB] ring-1 ring-[#2563EB]/20' : 'border-[rgba(5,14,36,0.06)]'}`}>
                   <div className="px-5 py-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
@@ -2756,7 +2755,7 @@ function MyListingsSection() {
                       <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-2">Recent Inquiries</div>
                       <div className="space-y-2">
                         {item.inquiries.map(inq => (
-                          <div key={inq.id} className={`flex items-start justify-between p-3 rounded-xl ${inq.status === 'NEW' ? 'bg-[rgba(96,165,250,0.06)] border border-[rgba(96,165,250,0.15)]' : 'bg-white border border-[rgba(5,14,36,0.08)]'}`}>
+                          <div key={inq.id} className={`flex items-start justify-between p-3 rounded-xl ${inq.status === 'NEW' ? 'bg-[rgba(96,165,250,0.06)] border border-[rgba(96,165,250,0.15)]' : 'bg-white border border-[rgba(5,14,36,0.06)]'}`}>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 mb-0.5">
                                 <span className="text-[0.82rem] font-medium text-[#374151]">{inq.buyerName}</span>
@@ -2806,7 +2805,7 @@ function MyListingsSection() {
 
           {/* Floating bulk action bar */}
           {selected.size > 0 && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#111827] text-white rounded-lg px-5 py-3 shadow-xl flex items-center gap-4 z-40">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#111827] text-white rounded-[8px] px-5 py-3 shadow-xl flex items-center gap-4 z-40">
               <span className="text-[0.82rem] font-medium">{selected.size} selected</span>
               <div className="w-px h-5 bg-gray-600" />
               <button
@@ -3113,7 +3112,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
     if (idx > 0) setStep(STEPS[idx - 1])
   }
 
-  const inputCls = "w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors"
+  const inputCls = "w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-2.5 text-[0.82rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors"
   const labelCls = "block text-[0.78rem] font-medium text-[#374151] mb-1.5"
   const stepIdx = STEPS.indexOf(step)
 
@@ -3191,7 +3190,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                   </div>
 
                   {selectedDeal && (
-                    <div className="bg-[#F9FAFB] border border-[rgba(5,14,36,0.08)] rounded-xl px-4 py-3">
+                    <div className="bg-[#F9FAFB] border border-[rgba(5,14,36,0.06)] rounded-xl px-4 py-3">
                       <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-2">Deal Preview</div>
                       <div className="text-[0.88rem] font-medium text-[#111827] mb-1">{selectedDeal.address}</div>
                       <div className="text-[0.78rem] text-[#9CA3AF] mb-2">{selectedDeal.city}, {selectedDeal.state} {selectedDeal.zip}</div>
@@ -3221,13 +3220,13 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
 
                   <button
                     onClick={() => { setCreateDealMode(true); setSelectedDealId('') }}
-                    className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-[#D1D5DB] rounded-lg text-[0.82rem] font-medium text-[#6B7280] hover:border-[#2563EB] hover:text-[#2563EB] hover:bg-blue-50/30 cursor-pointer transition-colors bg-transparent"
+                    className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-[#D1D5DB] rounded-[8px] text-[0.82rem] font-medium text-[#6B7280] hover:border-[#2563EB] hover:text-[#2563EB] hover:bg-blue-50/30 cursor-pointer transition-colors bg-transparent"
                   >
                     <Plus className="w-4 h-4" />
                     Create a New Deal
                   </button>
 
-                  <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3">
+                  <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-[8px] px-4 py-3">
                     <Info className="w-4 h-4 text-[#2563EB] flex-shrink-0 mt-0.5" />
                     <p className="text-[0.78rem] text-blue-800">
                       Property details will be auto-filled from the deal. You can customize them in the next step.
@@ -3349,7 +3348,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                   <button
                     onClick={handleCreateDealInline}
                     disabled={creatingDeal || !newDealAddress || !newDealCity || !newDealState || !newDealZip || !newDealPrice}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
                   >
                     {creatingDeal ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                     {creatingDeal ? 'Creating Deal...' : 'Create Deal & Continue'}
@@ -3472,7 +3471,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-lg px-6 py-8 text-center cursor-pointer transition-colors ${
+                  className={`border-2 border-dashed rounded-[8px] px-6 py-8 text-center cursor-pointer transition-colors ${
                     dragOver
                       ? 'border-[#2563EB] bg-blue-50'
                       : 'border-[#D1D5DB] hover:border-[#2563EB] hover:bg-[#F9FAFB]'
@@ -3510,7 +3509,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                   </div>
                   <div className="grid grid-cols-4 gap-2">
                     {photos.map((p, i) => (
-                      <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border border-[rgba(5,14,36,0.08)]">
+                      <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border border-[rgba(5,14,36,0.06)]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={p.url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
                         <button
@@ -3530,7 +3529,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                 </div>
               )}
 
-              <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg px-4 py-3">
+              <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-[8px] px-4 py-3">
                 <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                 <p className="text-[0.78rem] text-amber-800">
                   Photos are optional but listings with photos get 3x more inquiries. The first photo will be used as the cover image.
@@ -3549,7 +3548,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                 </p>
               </div>
 
-              <div className="bg-[#F9FAFB] border border-[rgba(5,14,36,0.08)] rounded-xl px-5 py-4">
+              <div className="bg-[#F9FAFB] border border-[rgba(5,14,36,0.06)] rounded-xl px-5 py-4">
                 <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Listing Summary</div>
 
                 <div className="space-y-3">
@@ -3659,7 +3658,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
               <button
                 onClick={handleCreate}
                 disabled={creating || uploading}
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
               >
                 {(creating || uploading) && <Loader2 className="w-4 h-4 animate-spin" />}
                 {uploading ? 'Uploading photos...' : creating ? 'Publishing...' : 'Publish Listing'}
@@ -3668,7 +3667,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
               <button
                 onClick={nextStep}
                 disabled={!canAdvance()}
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-40 text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-40 text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
               >
                 Continue <ChevronRight className="w-4 h-4" />
               </button>
@@ -3687,46 +3686,60 @@ export default function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<Tab>('deals')
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
-      {/* Header */}
-      <div className="mb-5">
-        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0B1224', letterSpacing: '-0.02em' }}
-          className="mb-1"
-        >
-          Marketplace
-        </h1>
-        <p style={{ fontSize: '14px', fontWeight: 400, color: 'rgba(5,14,36,0.5)' }}>
-          Browse deals, post listings, and connect with active buyers.
-        </p>
-      </div>
-
-      {/* Sub-section tabs */}
-      <div className="flex items-center gap-0 mb-6 border-b border-[rgba(5,14,36,0.08)] pb-0">
-        {tabs.map(tab => {
-          const Icon = tab.icon
-          const isActive = activeTab === tab.key
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: isActive ? 600 : 400, padding: '12px 16px' }}
-              className={`flex items-center gap-2 cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
-                isActive
-                  ? 'border-[#2563EB] text-[#2563EB]'
-                  : 'border-transparent text-[rgba(5,14,36,0.45)] hover:text-[#374151]'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          )
-        })}
+    <div className="bg-[#F9FAFB]">
+      {/* Vercel-style top tab bar */}
+      <div
+        className="flex-shrink-0 bg-white"
+        style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
+      >
+        <div className="px-8">
+          <nav className="flex gap-0.5 -mb-px">
+            {tabs.map(tab => {
+              const Icon = tab.icon
+              const isActive = activeTab === tab.key
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  style={{
+                    fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+                    fontSize: '13px',
+                    fontWeight: isActive ? 550 : 420,
+                    letterSpacing: '-0.005em',
+                  }}
+                  className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all ${
+                    isActive
+                      ? 'text-[#0B1224]'
+                      : 'text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.7)]'
+                  }`}
+                >
+                  <Icon
+                    className="flex-shrink-0"
+                    style={{
+                      width: 14,
+                      height: 14,
+                      strokeWidth: isActive ? 2 : 1.6,
+                      color: isActive ? '#2563EB' : 'rgba(5,14,36,0.3)',
+                      transition: 'color 0.18s ease',
+                    }}
+                  />
+                  {tab.label}
+                  {isActive && (
+                    <div style={{ position: 'absolute', bottom: -1, left: 12, right: 12, height: 2, borderRadius: 1, background: '#2563EB' }} />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
       </div>
 
       {/* Content */}
-      {activeTab === 'deals' && <DealListingsSection />}
-      {activeTab === 'buyers' && <BuyerBoardSection />}
-      {activeTab === 'mine' && <MyListingsSection />}
+      <div className="p-8 max-w-[1200px]">
+        {activeTab === 'deals' && <DealListingsSection />}
+        {activeTab === 'buyers' && <BuyerBoardSection />}
+        {activeTab === 'mine' && <MyListingsSection />}
+      </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {

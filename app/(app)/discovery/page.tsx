@@ -98,7 +98,7 @@ function typeIcon(type: string) {
 }
 
 function typeBadgeColor(_type: string) {
-  return 'text-[rgba(5,14,36,0.65)] bg-gray-50 border border-[rgba(5,14,36,0.08)]'
+  return 'text-[rgba(5,14,36,0.65)] bg-gray-50 border border-[rgba(5,14,36,0.06)]'
 }
 
 function pinColor(type: string) {
@@ -177,7 +177,7 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-sm font-medium animate-slideInRight ${
+          className={`flex items-center gap-2 px-4 py-3 rounded-[8px] shadow-lg text-sm font-medium animate-slideInRight ${
             t.type === 'success' ? 'bg-[#2563EB] text-white'
               : t.type === 'error' ? 'bg-red-600 text-white'
                 : 'bg-amber-500 text-white'
@@ -342,9 +342,9 @@ function PropertyDetail({
     <div className="fixed inset-0 z-50 flex items-start justify-end">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-[560px] h-full bg-white border-l border-[rgba(5,14,36,0.08)] disc-detail-panel animate-slideInRight flex flex-col" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+      <div className="relative w-[560px] h-full bg-white border-l border-[rgba(5,14,36,0.06)] disc-detail-panel animate-slideInRight flex flex-col" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
         {/* ── Header ── */}
-        <div className="flex-shrink-0 px-5 pt-4 pb-0 border-b border-[rgba(5,14,36,0.08)] bg-white">
+        <div className="flex-shrink-0 px-5 pt-4 pb-0 border-b border-[rgba(5,14,36,0.06)] bg-white">
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1 min-w-0">
               <h2 className="text-[24px] font-[700] text-[#0B1224] leading-tight truncate" style={{ letterSpacing: '-0.02em' }}>
@@ -358,7 +358,7 @@ function PropertyDetail({
               <button
                 onClick={onAddToCRM}
                 disabled={isInCRM || addingToCRM}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[0.78rem] font-semibold border-0 cursor-pointer transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[0.78rem] font-semibold border-0 cursor-pointer transition-colors ${
                   isInCRM
                     ? 'bg-[#2563EB] text-white'
                     : 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
@@ -371,7 +371,7 @@ function PropertyDetail({
               <button
                 onClick={onAddAsSeller}
                 disabled={addingAsSeller}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[0.78rem] font-semibold border-0 cursor-pointer transition-colors bg-[#F97316] hover:bg-[#EA580C] text-white"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[0.78rem] font-semibold border-0 cursor-pointer transition-colors bg-[#F97316] hover:bg-[#EA580C] text-white"
                 title="Add as seller"
               >
                 {addingAsSeller ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Home className="w-3.5 h-3.5" />}
@@ -441,7 +441,7 @@ function PropertyDetail({
               </div>
 
               {/* Hero: status + value + beds/baths/sqft */}
-              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
                 <div className="flex items-baseline gap-4 mb-3">
                   <span className="text-[12px] font-[400] text-[rgba(5,14,36,0.4)]">Off-Market</span>
                   <span className="text-[24px] font-[700] text-[#0B1224]" style={{ letterSpacing: '-0.02em' }}>{formatCurrency(estValue)}</span>
@@ -454,8 +454,8 @@ function PropertyDetail({
                 </div>
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1.5 mt-3">
-                  <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-[rgba(5,14,36,0.08)] bg-gray-50 text-[rgba(5,14,36,0.65)]">{pType}</span>
-                  {property.yearBuilt && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-[rgba(5,14,36,0.08)] bg-gray-50 text-[rgba(5,14,36,0.65)]">Built in {property.yearBuilt}</span>}
+                  <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-[rgba(5,14,36,0.06)] bg-gray-50 text-[rgba(5,14,36,0.65)]">{pType}</span>
+                  {property.yearBuilt && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-[rgba(5,14,36,0.06)] bg-gray-50 text-[rgba(5,14,36,0.65)]">Built in {property.yearBuilt}</span>}
                   {property.ownerOccupied === false && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-amber-200 bg-amber-50 text-amber-700">Absentee Owner</span>}
                   {eq.equityCategory === 'high' && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-[#BFDBFE] bg-[rgba(37,99,235,0.08)] text-[#2563EB]">High Equity</span>}
                   {features?.distressSignals?.foreclosure?.active && <span className="text-[12px] font-[400] px-2.5 py-1 rounded-full border border-red-200 bg-red-50 text-red-700">Pre-Foreclosure</span>}
@@ -466,7 +466,7 @@ function PropertyDetail({
               </div>
 
               {/* Equity visualization */}
-              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
                 <div className="flex items-start gap-6">
                   <div>
                     <div className="text-[15px] font-[600] text-[#0B1224]">{formatCurrency(estValue)}</div>
@@ -501,7 +501,7 @@ function PropertyDetail({
                 )}
                 {/* AVM Range */}
                 {eqData?.avm && eqData.avm.mid != null && (
-                  <div className="mt-3 rounded-[10px] bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-3">
+                  <div className="mt-3 rounded-[8px] bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-3">
                     <div className="text-[11px] font-[600] uppercase text-blue-500 mb-2" style={{ letterSpacing: '0.05em' }}>Automated Valuation (AVM)</div>
                     <div className="flex items-center justify-between text-[0.78rem]">
                       <span className="text-gray-500">{formatCurrency(eqData.avm.low)}</span>
@@ -531,7 +531,7 @@ function PropertyDetail({
               </div>
 
               {/* Public Facts & Zoning */}
-              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
                 <h3 className="text-[15px] font-[600] text-[#0B1224] mb-3">Public Facts &amp; Zoning</h3>
                 <h4 className="text-[0.76rem] font-semibold text-gray-500 mb-2">Property Characteristics</h4>
                 <div className="grid grid-cols-4 gap-y-3 gap-x-4 mb-4">
@@ -547,7 +547,7 @@ function PropertyDetail({
               </div>
 
               {/* Tax Information */}
-              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
                 <h3 className="text-[15px] font-[600] text-[#0B1224] mb-3">Tax Information</h3>
                 <div className="grid grid-cols-3 gap-y-3 gap-x-4">
                   <InfoRow label="Tax Amount" value={property.taxAmount != null ? formatCurrency(property.taxAmount) : '—'} />
@@ -560,7 +560,7 @@ function PropertyDetail({
 
               {/* Listing Data */}
               {property.listingStatus && (
-                <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+                <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
                   <h3 className="text-[15px] font-[600] text-[#0B1224] mb-3">Listing Data</h3>
                   <div className="grid grid-cols-3 gap-y-3 gap-x-4">
                     <InfoRow label="Status" value={property.listingStatus} />
@@ -587,10 +587,10 @@ function PropertyDetail({
               )}
 
               {/* Mortgage Details */}
-              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.08)]">
+              <div className="px-5 py-4 border-b border-[rgba(5,14,36,0.06)]">
                 <h3 className="text-[15px] font-[600] text-[#0B1224] mb-3">Mortgage Details</h3>
                 {features?.mortgage && features.mortgage.liens.length > 0 ? (
-                  <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+                  <div className="border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden">
                     <table className="w-full text-[0.76rem]">
                       <thead>
                         <tr className="bg-gray-50 text-left">
@@ -671,7 +671,7 @@ function PropertyDetail({
                 {comps ? (
                   <>
                     {comps.value != null && (
-                      <div className="rounded-[10px] bg-green-50 border border-green-200 p-3 mb-3">
+                      <div className="rounded-[8px] bg-green-50 border border-green-200 p-3 mb-3">
                         <div className="text-[11px] font-[600] uppercase text-green-600 mb-1" style={{ letterSpacing: '0.05em' }}>RentCast Estimate</div>
                         <div className="flex items-baseline gap-3">
                           <span className="text-[18px] font-[700] text-green-700">{formatCurrency(comps.value)}</span>
@@ -719,13 +719,13 @@ function PropertyDetail({
             <div className="px-5 py-5">
               {/* Enrichment notice */}
               {!property.ownerName && featuresLoading && (
-                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-blue-50 border border-blue-100 text-[0.76rem] text-blue-600">
+                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-[8px] bg-blue-50 border border-blue-100 text-[0.76rem] text-blue-600">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   Loading owner data...
                 </div>
               )}
               {!property.ownerName && !featuresLoading && !features && (
-                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 text-[0.76rem] text-gray-500">
+                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-[8px] bg-gray-50 border border-gray-200 text-[0.76rem] text-gray-500">
                   <Info className="w-3.5 h-3.5" />
                   Owner data loads automatically when you open a property.
                 </div>
@@ -812,7 +812,7 @@ function PropertyDetail({
                       </div>
                     </div>
                   </div>
-                  <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+                  <div className="border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden">
                     <table className="w-full text-[0.72rem]">
                       <thead>
                         <tr className="bg-gray-50 text-left">
@@ -874,7 +874,7 @@ function PropertyDetail({
               {/* Mortgage history */}
               <h3 className="text-[15px] font-[600] text-[#0B1224] mb-3">Mortgage History</h3>
               {features?.mortgage && features.mortgage.liens.length > 0 ? (
-                <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden mb-5">
+                <div className="border border-[rgba(5,14,36,0.06)] rounded-[10px] overflow-hidden mb-5">
                   <table className="w-full text-[0.74rem]">
                     <thead>
                       <tr className="bg-gray-50 text-left">
@@ -923,12 +923,12 @@ function PropertyDetail({
         </div>
 
         {/* ── Sticky Actions Footer ── */}
-        <div className="flex-shrink-0 border-t border-[rgba(5,14,36,0.08)] bg-white px-5 py-3">
+        <div className="flex-shrink-0 border-t border-[rgba(5,14,36,0.06)] bg-white px-5 py-3">
           <div className="flex items-center gap-2">
             <button
               onClick={onAddToCRM}
               disabled={isInCRM || addingToCRM}
-              className={`flex-1 flex items-center justify-center gap-1.5 font-medium border-0 rounded-[10px] py-2 text-[0.78rem] cursor-pointer transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-1.5 font-medium border-0 rounded-[8px] py-2 text-[0.78rem] cursor-pointer transition-colors ${
                 isInCRM ? 'bg-[#2563EB] text-white cursor-default' : 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
               }`}
             >
@@ -937,19 +937,19 @@ function PropertyDetail({
             <button
               onClick={onAddAsSeller}
               disabled={addingAsSeller}
-              className="flex-1 flex items-center justify-center gap-1.5 font-medium border-0 rounded-[10px] py-2 text-[0.78rem] cursor-pointer transition-colors bg-[#F97316] hover:bg-[#EA580C] text-white"
+              className="flex-1 flex items-center justify-center gap-1.5 font-medium border-0 rounded-[8px] py-2 text-[0.78rem] cursor-pointer transition-colors bg-[#F97316] hover:bg-[#EA580C] text-white"
             >
               {addingAsSeller ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Adding...</> : <><Home className="w-3.5 h-3.5" /> Add as Seller</>}
             </button>
             <a
-              href={`/analyzer?address=${encodeURIComponent(`${property.addressLine1}, ${property.city}, ${property.state} ${property.zipCode ?? ''}`.trim())}&propertyId=${property.id}`}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-white text-[rgba(5,14,36,0.65)] border border-[rgba(5,14,36,0.08)] hover:bg-gray-50 rounded-[10px] py-2 text-[0.78rem] font-medium cursor-pointer transition-colors no-underline"
+              href={`/deals/analyze?address=${encodeURIComponent(`${property.addressLine1}, ${property.city}, ${property.state} ${property.zipCode ?? ''}`.trim())}&propertyId=${property.id}`}
+              className="flex-1 flex items-center justify-center gap-1.5 bg-white text-[rgba(5,14,36,0.65)] border border-[rgba(5,14,36,0.06)] hover:bg-gray-50 rounded-[8px] py-2 text-[0.78rem] font-medium cursor-pointer transition-colors no-underline"
             >
               <BarChart3 className="w-3.5 h-3.5" /> Analyze Deal
             </a>
             <button
               onClick={onViewOnMap}
-              className="flex items-center justify-center gap-1.5 bg-white text-[rgba(5,14,36,0.65)] border border-[rgba(5,14,36,0.08)] hover:bg-gray-50 rounded-[10px] px-3 py-2 text-[0.78rem] font-medium cursor-pointer transition-colors"
+              className="flex items-center justify-center gap-1.5 bg-white text-[rgba(5,14,36,0.65)] border border-[rgba(5,14,36,0.06)] hover:bg-gray-50 rounded-[8px] px-3 py-2 text-[0.78rem] font-medium cursor-pointer transition-colors"
             >
               <MapIcon className="w-3.5 h-3.5" />
             </button>
@@ -1382,7 +1382,7 @@ export default function DiscoveryPage() {
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* ═══ TOP SEARCH BAR ═══ */}
-      <div className="flex-shrink-0 bg-white border-b border-[rgba(5,14,36,0.08)] px-4 py-2.5 z-20">
+      <div className="flex-shrink-0 bg-white border-b border-[rgba(5,14,36,0.06)] px-4 py-2.5 z-20">
         <div className="flex items-center gap-2 pl-3">
           {/* Search icon + input */}
           <div className="flex items-center gap-2 flex-1 relative">
@@ -1432,7 +1432,7 @@ export default function DiscoveryPage() {
 
             {/* Autocomplete / saved searches dropdown */}
             {showSuggestions && (suggestions.length > 0 || (savedSearches.length > 0 && !filters.query.trim())) && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-[12px] border border-[rgba(5,14,36,0.08)] shadow-xl overflow-hidden z-30">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-[10px] border border-[rgba(5,14,36,0.06)] shadow-xl overflow-hidden z-30">
                 {suggestions.length > 0 ? (
                   /* Geocode suggestions */
                   suggestions.map(s => (
@@ -1502,10 +1502,10 @@ export default function DiscoveryPage() {
             <button
               key={key}
               onClick={() => { applyPreset(key); if (filters.query) handleSearch() }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[14px] font-[400] border cursor-pointer transition-colors whitespace-nowrap ${
                 activePreset === key
                   ? 'bg-[#2563EB] text-white border-[#2563EB] font-[600]'
-                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
               }`}
             >
               {key === 'motivatedSellers' ? <Target className="w-3.5 h-3.5" /> : <DollarSign className="w-3.5 h-3.5" />}
@@ -1520,17 +1520,17 @@ export default function DiscoveryPage() {
           <div className="relative" data-dropdown ref={openDropdown === 'leadTypes' ? dropdownRef : undefined}>
             <button
               onClick={() => setOpenDropdown(openDropdown === 'leadTypes' ? null : 'leadTypes')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[14px] font-[400] border cursor-pointer transition-colors ${
                 (filters.absenteeOnly || filters.taxDelinquent || filters.preForeclosure || filters.probate)
                   ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border-[#BFDBFE] font-[600]'
-                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
               }`}
             >
               Lead Types
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${openDropdown === 'leadTypes' ? 'rotate-180' : ''}`} />
             </button>
             {openDropdown === 'leadTypes' && (
-              <div className="absolute top-full left-0 mt-1 bg-white rounded-[12px] border border-[rgba(5,14,36,0.08)] shadow-xl z-40 w-[220px] py-2">
+              <div className="absolute top-full left-0 mt-1 bg-white rounded-[10px] border border-[rgba(5,14,36,0.06)] shadow-xl z-40 w-[220px] py-2">
                 {[
                   { label: 'Absentee Owner', key: 'absenteeOnly' as const },
                   { label: 'Tax Delinquent', key: 'taxDelinquent' as const },
@@ -1569,7 +1569,7 @@ export default function DiscoveryPage() {
                 <div className="border-t border-gray-100 mt-1 pt-2 px-3 pb-1">
                   <button
                     onClick={() => { handleSearch(); setOpenDropdown(null) }}
-                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[10px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
+                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[8px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
                   >
                     Apply
                   </button>
@@ -1582,10 +1582,10 @@ export default function DiscoveryPage() {
           <div className="relative" data-dropdown ref={openDropdown === 'propertyTypes' ? dropdownRef : undefined}>
             <button
               onClick={() => setOpenDropdown(openDropdown === 'propertyTypes' ? null : 'propertyTypes')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[14px] font-[400] border cursor-pointer transition-colors ${
                 filters.propertyType.length > 0
                   ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border-[#BFDBFE] font-[600]'
-                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
               }`}
             >
               Property Types
@@ -1597,7 +1597,7 @@ export default function DiscoveryPage() {
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${openDropdown === 'propertyTypes' ? 'rotate-180' : ''}`} />
             </button>
             {openDropdown === 'propertyTypes' && (
-              <div className="absolute top-full left-0 mt-1 bg-white rounded-[12px] border border-[rgba(5,14,36,0.08)] shadow-xl z-40 w-[200px] py-2">
+              <div className="absolute top-full left-0 mt-1 bg-white rounded-[10px] border border-[rgba(5,14,36,0.06)] shadow-xl z-40 w-[200px] py-2">
                 {['SFR', 'Multi-Family', 'Condo', 'Land', 'Commercial'].map(t => (
                   <label key={t} className="flex items-center gap-2.5 px-3 py-2 hover:bg-gray-50 cursor-pointer">
                     <input
@@ -1618,7 +1618,7 @@ export default function DiscoveryPage() {
                 <div className="border-t border-gray-100 mt-1 pt-2 px-3 pb-1">
                   <button
                     onClick={() => { handleSearch(); setOpenDropdown(null) }}
-                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[10px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
+                    className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[8px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
                   >
                     Apply
                   </button>
@@ -1631,17 +1631,17 @@ export default function DiscoveryPage() {
           <div className="relative" data-dropdown ref={openDropdown === 'price' ? dropdownRef : undefined}>
             <button
               onClick={() => setOpenDropdown(openDropdown === 'price' ? null : 'price')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[14px] font-[400] border cursor-pointer transition-colors ${
                 filters.valueMin != null || filters.valueMax != null
                   ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border-[#BFDBFE] font-[600]'
-                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
               }`}
             >
               Price
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${openDropdown === 'price' ? 'rotate-180' : ''}`} />
             </button>
             {openDropdown === 'price' && (
-              <div className="absolute top-full left-0 mt-1 bg-white rounded-[12px] border border-[rgba(5,14,36,0.08)] shadow-xl z-40 w-[280px] p-3">
+              <div className="absolute top-full left-0 mt-1 bg-white rounded-[10px] border border-[rgba(5,14,36,0.06)] shadow-xl z-40 w-[280px] p-3">
                 <div className="text-[0.72rem] text-gray-500 font-medium mb-2">Est. Value Range</div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
@@ -1653,7 +1653,7 @@ export default function DiscoveryPage() {
                         const cleaned = e.target.value.replace(/[$,\s]/g, '')
                         setFilter('valueMin', cleaned ? parseInt(cleaned) || null : null)
                       }}
-                      className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                      className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                     />
                   </div>
                   <span className="text-gray-400 text-[0.78rem]">to</span>
@@ -1666,7 +1666,7 @@ export default function DiscoveryPage() {
                         const cleaned = e.target.value.replace(/[$,\s]/g, '')
                         setFilter('valueMax', cleaned ? parseInt(cleaned) || null : null)
                       }}
-                      className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                      className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                     />
                   </div>
                 </div>
@@ -1685,7 +1685,7 @@ export default function DiscoveryPage() {
                       className={`text-[0.7rem] font-medium px-2 py-1 rounded border cursor-pointer transition-colors ${
                         filters.valueMin === p.min && filters.valueMax === p.max
                           ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                          : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                          : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
                       }`}
                     >
                       {p.label}
@@ -1701,7 +1701,7 @@ export default function DiscoveryPage() {
                   </button>
                   <button
                     onClick={() => { handleSearch(); setOpenDropdown(null) }}
-                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[10px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
+                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[8px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
                   >
                     Apply
                   </button>
@@ -1714,17 +1714,17 @@ export default function DiscoveryPage() {
           <div className="relative" data-dropdown ref={openDropdown === 'bedsBaths' ? dropdownRef : undefined}>
             <button
               onClick={() => setOpenDropdown(openDropdown === 'bedsBaths' ? null : 'bedsBaths')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[14px] font-[400] border cursor-pointer transition-colors ${
                 filters.bedsMin != null || filters.bedsMax != null || filters.bathsMin != null || filters.bathsMax != null
                   ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border-[#BFDBFE] font-[600]'
-                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
               }`}
             >
               Beds / Baths
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${openDropdown === 'bedsBaths' ? 'rotate-180' : ''}`} />
             </button>
             {openDropdown === 'bedsBaths' && (
-              <div className="absolute top-full left-0 mt-1 bg-white rounded-[12px] border border-[rgba(5,14,36,0.08)] shadow-xl z-40 w-[280px] p-3">
+              <div className="absolute top-full left-0 mt-1 bg-white rounded-[10px] border border-[rgba(5,14,36,0.06)] shadow-xl z-40 w-[280px] p-3">
                 {/* Bedrooms */}
                 <div className="mb-3">
                   <div className="text-[0.72rem] text-gray-500 font-medium mb-2">Bedrooms</div>
@@ -1743,7 +1743,7 @@ export default function DiscoveryPage() {
                         className={`flex-1 text-[0.74rem] font-medium py-1.5 rounded border cursor-pointer transition-colors ${
                           filters.bedsMin === opt.val
                             ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                            : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                            : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
                         }`}
                       >
                         {opt.label}
@@ -1768,7 +1768,7 @@ export default function DiscoveryPage() {
                         className={`flex-1 text-[0.74rem] font-medium py-1.5 rounded border cursor-pointer transition-colors ${
                           filters.bathsMin === opt.val
                             ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                            : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                            : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
                         }`}
                       >
                         {opt.label}
@@ -1785,7 +1785,7 @@ export default function DiscoveryPage() {
                   </button>
                   <button
                     onClick={() => { handleSearch(); setOpenDropdown(null) }}
-                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[10px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
+                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[8px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
                   >
                     Apply
                   </button>
@@ -1798,10 +1798,10 @@ export default function DiscoveryPage() {
           <div className="relative" data-dropdown ref={openDropdown === 'more' ? dropdownRef : undefined}>
             <button
               onClick={() => setOpenDropdown(openDropdown === 'more' ? null : 'more')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[14px] font-[400] border cursor-pointer transition-colors ${
                 filters.sqftMin != null || filters.sqftMax != null || filters.yearBuiltMin != null || filters.yearBuiltMax != null || (filters.equityMin != null && filters.equityMin > 0) || filters.ownershipMin != null || filters.daysOnMarketMin != null
                   ? 'bg-[rgba(37,99,235,0.08)] text-[#2563EB] border-[#BFDBFE] font-[600]'
-                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                  : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
               }`}
             >
               <Layers className="w-3.5 h-3.5 text-gray-400" />
@@ -1809,7 +1809,7 @@ export default function DiscoveryPage() {
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${openDropdown === 'more' ? 'rotate-180' : ''}`} />
             </button>
             {openDropdown === 'more' && (
-              <div className="absolute top-full right-0 mt-1 bg-white rounded-[12px] border border-[rgba(5,14,36,0.08)] shadow-xl z-40 w-[320px] p-3">
+              <div className="absolute top-full right-0 mt-1 bg-white rounded-[10px] border border-[rgba(5,14,36,0.06)] shadow-xl z-40 w-[320px] p-3">
                 {/* Square Footage */}
                 <div className="mb-3">
                   <div className="text-[0.72rem] text-gray-500 font-medium mb-2">Square Footage</div>
@@ -1819,7 +1819,7 @@ export default function DiscoveryPage() {
                       placeholder="Min"
                       value={filters.sqftMin ?? ''}
                       onChange={e => setFilter('sqftMin', e.target.value ? parseInt(e.target.value) || null : null)}
-                      className="flex-1 bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                      className="flex-1 bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                     />
                     <span className="text-gray-400 text-[0.78rem]">to</span>
                     <input
@@ -1827,7 +1827,7 @@ export default function DiscoveryPage() {
                       placeholder="Max"
                       value={filters.sqftMax ?? ''}
                       onChange={e => setFilter('sqftMax', e.target.value ? parseInt(e.target.value) || null : null)}
-                      className="flex-1 bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                      className="flex-1 bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                     />
                   </div>
                 </div>
@@ -1840,7 +1840,7 @@ export default function DiscoveryPage() {
                       placeholder="Min"
                       value={filters.yearBuiltMin ?? ''}
                       onChange={e => setFilter('yearBuiltMin', e.target.value ? parseInt(e.target.value) || null : null)}
-                      className="flex-1 bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                      className="flex-1 bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                     />
                     <span className="text-gray-400 text-[0.78rem]">to</span>
                     <input
@@ -1848,7 +1848,7 @@ export default function DiscoveryPage() {
                       placeholder="Max"
                       value={filters.yearBuiltMax ?? ''}
                       onChange={e => setFilter('yearBuiltMax', e.target.value ? parseInt(e.target.value) || null : null)}
-                      className="flex-1 bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                      className="flex-1 bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                     />
                   </div>
                 </div>
@@ -1867,7 +1867,7 @@ export default function DiscoveryPage() {
                         className={`flex-1 text-[0.74rem] font-medium py-1.5 rounded border cursor-pointer transition-colors ${
                           filters.equityMin === opt.value
                             ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                            : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50'
+                            : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50'
                         }`}
                       >
                         {opt.label}
@@ -1883,7 +1883,7 @@ export default function DiscoveryPage() {
                     placeholder="Any"
                     value={filters.ownershipMin ?? ''}
                     onChange={e => setFilter('ownershipMin', e.target.value ? parseInt(e.target.value) || null : null)}
-                    className="w-24 bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                    className="w-24 bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                   />
                 </div>
                 {/* Days on market */}
@@ -1894,7 +1894,7 @@ export default function DiscoveryPage() {
                     placeholder="Any"
                     value={filters.daysOnMarketMin ?? ''}
                     onChange={e => setFilter('daysOnMarketMin', e.target.value ? parseInt(e.target.value) || null : null)}
-                    className="w-24 bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                    className="w-24 bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2.5 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -1910,7 +1910,7 @@ export default function DiscoveryPage() {
                   </button>
                   <button
                     onClick={() => { handleSearch(); setOpenDropdown(null) }}
-                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[10px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
+                    className="flex-1 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-[600] border-0 rounded-[8px] px-3 py-1.5 text-[14px] cursor-pointer transition-colors"
                   >
                     Apply
                   </button>
@@ -1926,10 +1926,10 @@ export default function DiscoveryPage() {
           <button
             onClick={() => saveSearch()}
             disabled={!filters.query.trim() || savedSearches.some(s => s.query.toLowerCase() === filters.query.trim().toLowerCase())}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[14px] font-[400] border cursor-pointer transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[14px] font-[400] border cursor-pointer transition-colors ${
               filters.query.trim() && !savedSearches.some(s => s.query.toLowerCase() === filters.query.trim().toLowerCase())
-                ? 'border-[rgba(5,14,36,0.08)] bg-white text-[rgba(5,14,36,0.65)] hover:bg-gray-50'
-                : 'border-[rgba(5,14,36,0.08)] bg-gray-50 text-[rgba(5,14,36,0.4)] cursor-not-allowed'
+                ? 'border-[rgba(5,14,36,0.06)] bg-white text-[rgba(5,14,36,0.65)] hover:bg-gray-50'
+                : 'border-[rgba(5,14,36,0.06)] bg-gray-50 text-[rgba(5,14,36,0.4)] cursor-not-allowed'
             }`}
             title={savedSearches.some(s => s.query.toLowerCase() === filters.query.trim().toLowerCase()) ? 'Already saved' : 'Save current search'}
           >
@@ -1940,7 +1940,7 @@ export default function DiscoveryPage() {
 
         {/* Error message */}
         {error && (
-          <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-[12px] px-3 py-2 mt-2 text-[14px] text-red-700">
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-[10px] px-3 py-2 mt-2 text-[14px] text-red-700">
             <Info className="w-4 h-4 flex-shrink-0" />
             {error}
           </div>
@@ -1966,7 +1966,7 @@ export default function DiscoveryPage() {
           {/* Map overlay controls */}
           <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
             {/* Map style toggle */}
-            <div className="bg-white rounded-[10px] border border-[rgba(5,14,36,0.08)] shadow-sm flex overflow-hidden">
+            <div className="bg-white rounded-[8px] border border-[rgba(5,14,36,0.06)] shadow-sm flex overflow-hidden">
               <button
                 onClick={() => setMapStyle('street')}
                 className={`text-[0.72rem] font-medium px-3 py-1.5 cursor-pointer border-0 transition-colors ${
@@ -2007,10 +2007,10 @@ export default function DiscoveryPage() {
                       setActiveLayer(lf.key)
                     }
                   }}
-                  className={`text-[14px] font-[400] px-3 py-1.5 rounded-[10px] border cursor-pointer transition-colors ${
+                  className={`text-[14px] font-[400] px-3 py-1.5 rounded-[8px] border cursor-pointer transition-colors ${
                     activeLayer === lf.key
                       ? 'bg-[#2563EB] text-white border-[#2563EB] font-[600] shadow-sm'
-                      : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.08)] hover:bg-gray-50 shadow-sm'
+                      : 'bg-white text-[rgba(5,14,36,0.65)] border-[rgba(5,14,36,0.06)] hover:bg-gray-50 shadow-sm'
                   }`}
                 >
                   {lf.label}
@@ -2026,7 +2026,7 @@ export default function DiscoveryPage() {
           </div>
 
           {/* Search as I move checkbox */}
-          <label className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-[10px] border border-[rgba(5,14,36,0.08)] shadow-sm px-3 py-1.5 cursor-pointer select-none">
+          <label className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-[8px] border border-[rgba(5,14,36,0.06)] shadow-sm px-3 py-1.5 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={searchAsMove}
@@ -2038,7 +2038,7 @@ export default function DiscoveryPage() {
         </div>
 
         {/* ── Right Sidebar (property list) ── */}
-        <div className="w-[420px] flex-shrink-0 border-l border-[rgba(5,14,36,0.08)] bg-white flex flex-col disc-sidebar">
+        <div className="w-[420px] flex-shrink-0 border-l border-[rgba(5,14,36,0.06)] bg-white flex flex-col disc-sidebar">
           {/* Buyer match banner */}
           {buyerMatchBanner && (
             <div className="flex items-center justify-between px-4 py-2 bg-[rgba(37,99,235,0.06)] border-b border-[rgba(37,99,235,0.12)] flex-shrink-0">
@@ -2052,7 +2052,7 @@ export default function DiscoveryPage() {
             </div>
           )}
           {/* Results header */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(5,14,36,0.08)] flex-shrink-0 bg-gray-50/50">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(5,14,36,0.06)] flex-shrink-0 bg-gray-50/50">
             <div className="flex items-center gap-3">
               {/* View toggle */}
               <div className="flex gap-0">
@@ -2101,7 +2101,7 @@ export default function DiscoveryPage() {
                   <select
                     value={sortField}
                     onChange={e => setSortField(e.target.value as 'value' | 'equity' | 'sqft')}
-                    className="text-[14px] font-[400] text-[rgba(5,14,36,0.65)] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2 py-1 cursor-pointer outline-none"
+                    className="text-[14px] font-[400] text-[rgba(5,14,36,0.65)] bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2 py-1 cursor-pointer outline-none"
                   >
                     <option value="value">Sort by Value</option>
                     <option value="equity">Sort by Equity</option>
@@ -2149,7 +2149,7 @@ export default function DiscoveryPage() {
 
           {/* Usage counter */}
           {revealUsage && revealUsage.limit != null && (
-            <div className="flex items-center gap-2 px-4 py-1.5 border-b border-[rgba(5,14,36,0.08)] bg-gray-50/30 flex-shrink-0">
+            <div className="flex items-center gap-2 px-4 py-1.5 border-b border-[rgba(5,14,36,0.06)] bg-gray-50/30 flex-shrink-0">
               <Lock className="w-3 h-3 text-gray-400" />
               <span className="text-[0.7rem] text-gray-400">
                 {revealUsage.used}/{revealUsage.limit} reveals
@@ -2171,7 +2171,7 @@ export default function DiscoveryPage() {
 
           {/* Results info bar */}
           {searchLocation && properties.length > 0 && (
-            <div className="flex items-center gap-2 px-4 py-1.5 border-b border-[rgba(5,14,36,0.08)] bg-blue-50/40 flex-shrink-0">
+            <div className="flex items-center gap-2 px-4 py-1.5 border-b border-[rgba(5,14,36,0.06)] bg-blue-50/40 flex-shrink-0">
               <MapPin className="w-3 h-3 text-blue-400" />
               <span className="text-[0.7rem] text-blue-500 font-medium">{searchLocation}</span>
               {fromCache && <span className="text-[0.62rem] text-gray-400 ml-auto">Cached</span>}
@@ -2188,7 +2188,7 @@ export default function DiscoveryPage() {
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="px-4 py-3 border-b border-[rgba(5,14,36,0.06)] animate-pulse">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gray-200 flex-shrink-0" />
+                        <div className="w-10 h-10 rounded-[8px] bg-gray-200 flex-shrink-0" />
                         <div className="flex-1 space-y-2">
                           <div className="h-3.5 bg-gray-200 rounded w-3/4" />
                           <div className="h-3 bg-gray-100 rounded w-1/2" />
@@ -2337,7 +2337,7 @@ export default function DiscoveryPage() {
                                 </span>
                               )}
                               {p.isCorporateOwner && (
-                                <span className="text-[11px] font-[400] px-2 py-0.5 rounded-full border border-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.65)] bg-gray-50">
+                                <span className="text-[11px] font-[400] px-2 py-0.5 rounded-full border border-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.65)] bg-gray-50">
                                   Corporate
                                 </span>
                               )}
@@ -2437,7 +2437,7 @@ export default function DiscoveryPage() {
                       <button
                         key={s.key}
                         onClick={() => ownerSearch.setSortBy(s.key)}
-                        className={`text-[12px] font-[400] px-2 py-1 rounded-[10px] border-0 cursor-pointer transition-colors ${
+                        className={`text-[12px] font-[400] px-2 py-1 rounded-[8px] border-0 cursor-pointer transition-colors ${
                           ownerSearch.sortBy === s.key
                             ? 'bg-[#2563EB] text-white font-[600]'
                             : 'bg-gray-100 text-[rgba(5,14,36,0.4)] hover:bg-gray-200'
@@ -2522,11 +2522,11 @@ export default function DiscoveryPage() {
 
                           {/* Expanded: show properties inline */}
                           {isExpanded && (
-                            <div className="ml-6 mr-4 mb-2 space-y-1 border-l-2 border-[rgba(5,14,36,0.08)] pl-3">
+                            <div className="ml-6 mr-4 mb-2 space-y-1 border-l-2 border-[rgba(5,14,36,0.06)] pl-3">
                               {owner.properties.map(p => (
                                 <div
                                   key={p.id}
-                                  className="rounded-[12px] px-2.5 py-2 bg-gray-50 border border-[rgba(5,14,36,0.08)] hover:bg-white cursor-pointer transition-colors"
+                                  className="rounded-[10px] px-2.5 py-2 bg-gray-50 border border-[rgba(5,14,36,0.06)] hover:bg-white cursor-pointer transition-colors"
                                   onClick={(e) => { e.stopPropagation(); handleViewDetails(p) }}
                                 >
                                   <div className="flex items-center justify-between">
@@ -2555,40 +2555,40 @@ export default function DiscoveryPage() {
 
           {/* Pagination footer */}
           {viewMode === 'properties' && pagination.total > pagination.limit && (
-            <div className="flex items-center justify-between px-4 py-2.5 border-t border-[rgba(5,14,36,0.08)] flex-shrink-0 bg-white">
+            <div className="flex items-center justify-between px-4 py-2.5 border-t border-[rgba(5,14,36,0.06)] flex-shrink-0 bg-white">
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => { for (let i = 1; i < pagination.page; i++) prevPage() }}
                   disabled={pagination.page <= 1}
-                  className="flex items-center justify-center w-7 h-7 rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center w-7 h-7 rounded-[8px] border border-[rgba(5,14,36,0.06)] bg-white text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <ChevronsLeft className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={prevPage}
                   disabled={pagination.page <= 1}
-                  className="flex items-center justify-center w-7 h-7 rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center w-7 h-7 rounded-[8px] border border-[rgba(5,14,36,0.06)] bg-white text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
               </div>
               <div className="flex items-center gap-2 text-[0.76rem] text-gray-500">
                 <span>Page</span>
-                <span className="font-[600] text-[#0B1224] bg-gray-100 border border-[rgba(5,14,36,0.08)] rounded-[10px] px-2 py-0.5 min-w-[2rem] text-center">{pagination.page}</span>
+                <span className="font-[600] text-[#0B1224] bg-gray-100 border border-[rgba(5,14,36,0.06)] rounded-[8px] px-2 py-0.5 min-w-[2rem] text-center">{pagination.page}</span>
                 <span>of {totalPages}</span>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   onClick={nextPage}
                   disabled={!pagination.hasMore}
-                  className="flex items-center justify-center w-7 h-7 rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center w-7 h-7 rounded-[8px] border border-[rgba(5,14,36,0.06)] bg-white text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => { for (let i = pagination.page; i < totalPages; i++) nextPage() }}
                   disabled={!pagination.hasMore}
-                  className="flex items-center justify-center w-7 h-7 rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center w-7 h-7 rounded-[8px] border border-[rgba(5,14,36,0.06)] bg-white text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] hover:bg-gray-50 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <ChevronsRight className="w-3.5 h-3.5" />
                 </button>
@@ -2596,11 +2596,11 @@ export default function DiscoveryPage() {
             </div>
           )}
           {viewMode === 'buyers' && ownerSearch.pagination.total > ownerSearch.pagination.limit && (
-            <div className="flex items-center justify-between px-4 py-2.5 border-t border-[rgba(5,14,36,0.08)] flex-shrink-0 bg-white">
+            <div className="flex items-center justify-between px-4 py-2.5 border-t border-[rgba(5,14,36,0.06)] flex-shrink-0 bg-white">
               <button
                 onClick={ownerSearch.prevPage}
                 disabled={ownerSearch.pagination.page <= 1}
-                className="flex items-center gap-1 text-[14px] font-[400] text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] bg-gray-100 hover:bg-gray-200 border-0 rounded-[10px] px-2.5 py-1.5 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex items-center gap-1 text-[14px] font-[400] text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] bg-gray-100 hover:bg-gray-200 border-0 rounded-[8px] px-2.5 py-1.5 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-3 h-3" />
                 Prev
@@ -2611,7 +2611,7 @@ export default function DiscoveryPage() {
               <button
                 onClick={ownerSearch.nextPage}
                 disabled={!ownerSearch.pagination.hasMore}
-                className="flex items-center gap-1 text-[14px] font-[400] text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] bg-gray-100 hover:bg-gray-200 border-0 rounded-[10px] px-2.5 py-1.5 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex items-center gap-1 text-[14px] font-[400] text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.65)] bg-gray-100 hover:bg-gray-200 border-0 rounded-[8px] px-2.5 py-1.5 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Next
                 <ChevronRight className="w-3 h-3" />
@@ -2623,20 +2623,20 @@ export default function DiscoveryPage() {
 
       {/* Floating action bar (selected items) */}
       {selectedIds.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-[#0B1224] text-white rounded-2xl px-5 py-3 shadow-2xl">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-[#0B1224] text-white rounded-xl px-5 py-3 shadow-2xl">
           <span className="text-[0.82rem] font-semibold">{selectedIds.size} selected</span>
           <div className="w-px h-5 bg-white/20" />
           <button
             onClick={handleBulkCRMImport}
             disabled={bulkImporting}
-            className="flex items-center gap-1.5 text-[0.78rem] font-medium bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-lg px-3 py-1.5 cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 text-[0.78rem] font-medium bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-3 py-1.5 cursor-pointer transition-colors"
           >
             {bulkImporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
             {bulkImporting ? 'Importing...' : 'Add to CRM'}
           </button>
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 text-[0.78rem] font-medium bg-white/10 hover:bg-white/20 text-white border-0 rounded-lg px-3 py-1.5 cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 text-[0.78rem] font-medium bg-white/10 hover:bg-white/20 text-white border-0 rounded-[8px] px-3 py-1.5 cursor-pointer transition-colors"
           >
             <Download className="w-3.5 h-3.5" /> Export CSV
           </button>

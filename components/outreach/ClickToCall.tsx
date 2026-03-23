@@ -268,7 +268,7 @@ export default function ClickToCall({
         ) : (
           <button
             onClick={handleCall}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-[8px] bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -296,7 +296,7 @@ export default function ClickToCall({
       )}
 
       {/* Floating call panel — bottom-right, doesn't block the UI */}
-      <div className="fixed bottom-4 right-4 z-50 w-[360px] rounded-xl bg-white shadow-lg border border-gray-200 overflow-hidden">
+      <div className="fixed bottom-4 right-4 z-50 w-[360px] rounded-[10px] bg-white shadow-lg border border-gray-200 overflow-hidden">
         {/* Call header */}
         <div className={`px-4 py-3 ${phase === 'in-progress' ? 'bg-blue-50' : phase === 'ended' ? 'bg-gray-50' : 'bg-blue-50'}`}>
           <div className="flex items-center justify-between">
@@ -410,7 +410,7 @@ export default function ClickToCall({
               onChange={e => setNotes(e.target.value)}
               placeholder="Call notes..."
               rows={2}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 resize-none"
+              className="w-full rounded-[8px] border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 resize-none"
             />
 
             {/* Quick tags */}
@@ -429,7 +429,7 @@ export default function ClickToCall({
             <button
               onClick={handleSaveOutcome}
               disabled={saving || !selectedOutcome}
-              className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="w-full rounded-[8px] bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {saving ? 'Saving...' : 'Save & Close'}
             </button>

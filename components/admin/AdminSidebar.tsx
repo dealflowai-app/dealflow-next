@@ -53,7 +53,7 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
   return (
     <aside
       style={{
-        width: 240,
+        width: 220,
         background: '#0B1224',
         display: 'flex',
         flexDirection: 'column',
@@ -64,7 +64,7 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
       {/* Logo */}
       <div
         style={{
-          height: 58,
+          height: 52,
           display: 'flex',
           alignItems: 'center',
           padding: '0 16px',
@@ -81,8 +81,8 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
         />
         <span
           style={{
-            fontWeight: 500,
-            fontSize: '0.95rem',
+            fontWeight: 600,
+            fontSize: '0.9rem',
             color: '#ffffff',
             letterSpacing: '-0.01em',
             whiteSpace: 'nowrap',
@@ -142,8 +142,8 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 10,
-                  padding: '9px 12px',
-                  borderRadius: 10,
+                  padding: '7px 10px',
+                  borderRadius: 8,
                   fontSize: '0.82rem',
                   fontWeight: isActive ? 500 : 400,
                   fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
@@ -172,7 +172,7 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
       </nav>
 
       {/* Bottom */}
-      <div style={{ padding: '8px 10px 14px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+      <div style={{ padding: '6px 10px 12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         {/* Back to app */}
         <Link
           href="/dashboard"
@@ -181,8 +181,8 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
             display: 'flex',
             alignItems: 'center',
             gap: 10,
-            padding: '9px 12px',
-            borderRadius: 10,
+            padding: '7px 10px',
+            borderRadius: 8,
             fontSize: '0.82rem',
             fontWeight: 400,
             fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
@@ -212,8 +212,8 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
             display: 'flex',
             alignItems: 'center',
             gap: 10,
-            padding: '9px 12px',
-            borderRadius: 10,
+            padding: '7px 10px',
+            borderRadius: 8,
             transition: 'background 0.15s ease',
           }}
         >

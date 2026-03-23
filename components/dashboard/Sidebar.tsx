@@ -6,15 +6,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import { type Profile } from '@prisma/client'
 import {
   LayoutDashboard,
-  MessagesSquare,
   Store,
   Search,
   Users,
   PhoneOutgoing,
-  Calculator,
   FolderOpen,
   FileSignature,
-  Sparkles,
   Settings,
   LogOut,
   ChevronLeft,
@@ -30,18 +27,95 @@ interface NavItem {
   icon: React.ElementType
 }
 
-const navItems: NavItem[] = [
+const mainItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Feed', href: '/community', icon: MessagesSquare },
   { label: 'Marketplace', href: '/marketplace', icon: Store },
   { label: 'Discovery', href: '/discovery', icon: Search },
+]
+
+const workspaceItems: NavItem[] = [
   { label: 'CRM', href: '/crm', icon: Users },
   { label: 'Outreach', href: '/outreach', icon: PhoneOutgoing },
-  { label: 'Analyze Deal', href: '/analyzer', icon: Calculator },
   { label: 'My Deals', href: '/deals', icon: FolderOpen },
   { label: 'Contracts', href: '/contracts', icon: FileSignature },
-  { label: 'Ask AI', href: '/gpt', icon: Sparkles },
 ]
+
+function NavSection({
+  label,
+  items,
+  collapsed,
+  pathname,
+  isFirst,
+}: {
+  label: string
+  items: NavItem[]
+  collapsed: boolean
+  pathname: string
+  isFirst?: boolean
+}) {
+  return (
+    <div style={{ marginTop: isFirst ? 0 : 16 }}>
+      {!collapsed && (
+        <p style={{
+          fontSize: '0.6rem',
+          fontWeight: 500,
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
+          color: 'var(--nav-section-label)',
+          margin: '0 0 6px 10px',
+          flexShrink: 0,
+        }}>
+          {label}
+        </p>
+      )}
+      {items.map(item => {
+        const Icon = item.icon
+        const isActive =
+          item.href === '/dashboard'
+            ? pathname === '/dashboard'
+            : pathname.startsWith(item.href)
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            title={collapsed ? item.label : undefined}
+            className={`sidebar-link${isActive ? ' sidebar-link-active' : ''}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: collapsed ? '7px 0' : '7px 10px',
+              borderRadius: 'var(--nav-item-radius)',
+              fontSize: 'var(--nav-font-size)',
+              fontWeight: isActive ? 550 : 450,
+              fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+              letterSpacing: '-0.01em',
+              textDecoration: 'none',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              color: isActive ? 'var(--nav-active-text)' : 'var(--nav-inactive-text)',
+              background: isActive ? 'var(--nav-active-bg)' : 'transparent',
+              transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+              position: 'relative',
+            }}
+          >
+            <Icon
+              className="flex-shrink-0"
+              style={{
+                width: 'var(--nav-icon-size)',
+                height: 'var(--nav-icon-size)',
+                strokeWidth: isActive ? 1.9 : 1.6,
+                color: isActive ? 'var(--nav-active-icon)' : 'var(--nav-inactive-icon)',
+                transition: 'color 0.18s ease',
+              }}
+            />
+            {!collapsed && item.label}
+          </Link>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function Sidebar({ profile }: { profile: Profile }) {
   const pathname = usePathname()
@@ -71,18 +145,18 @@ export default function Sidebar({ profile }: { profile: Profile }) {
     <aside
       className="flex-shrink-0 h-screen flex flex-col relative"
       style={{
-        width: collapsed ? 68 : 230,
+        width: collapsed ? 56 : 190,
         transition: 'width 0.2s ease',
         background: 'var(--white, #ffffff)',
-        borderRight: '1px solid rgba(5,14,36,0.08)',
+        borderRight: '1px solid var(--nav-border)',
       }}
     >
       {/* Logo */}
       <div
         className="flex items-center px-4"
         style={{
-          height: 58,
-          borderBottom: '1px solid rgba(5,14,36,0.08)',
+          height: 'var(--nav-header-h)',
+          borderBottom: '1px solid var(--nav-border)',
         }}
       >
         <Link href="/dashboard" className="flex items-center no-underline" style={{ gap: 9 }}>
@@ -97,10 +171,10 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             <>
               <span
                 style={{
-                  fontWeight: 500,
-                  fontSize: '0.95rem',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
                   color: 'var(--navy-heading, #0B1224)',
-                  letterSpacing: '-0.01em',
+                  letterSpacing: '-0.02em',
                   whiteSpace: 'nowrap',
                 }}
               >
@@ -110,7 +184,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  fontSize: '0.62rem',
+                  fontSize: '0.58rem',
                   fontWeight: 600,
                   letterSpacing: '0.04em',
                   textTransform: 'uppercase',
@@ -118,7 +192,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                   background: 'var(--blue-50, #EFF6FF)',
                   border: '1px solid var(--blue-100, #DBEAFE)',
                   borderRadius: 20,
-                  padding: '2px 7px',
+                  padding: '1.5px 6px',
                   lineHeight: 1,
                   whiteSpace: 'nowrap',
                 }}
@@ -135,91 +209,36 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         onClick={() => setCollapsed(!collapsed)}
         className="absolute flex items-center justify-center cursor-pointer"
         style={{
-          top: 68,
-          right: -12,
-          width: 24,
-          height: 24,
+          top: 60,
+          right: -11,
+          width: 22,
+          height: 22,
           zIndex: 10,
           background: 'var(--white, #ffffff)',
-          border: '1px solid rgba(5,14,36,0.08)',
+          border: '1px solid rgba(5,14,36,0.06)',
           borderRadius: '50%',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           transition: 'background 0.15s ease',
         }}
         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
-          <ChevronRight style={{ width: 12, height: 12, color: 'var(--muted-text, #9CA3AF)' }} />
+          <ChevronRight style={{ width: 11, height: 11, color: 'var(--muted-text, #9CA3AF)' }} />
         ) : (
-          <ChevronLeft style={{ width: 12, height: 12, color: 'var(--muted-text, #9CA3AF)' }} />
+          <ChevronLeft style={{ width: 11, height: 11, color: 'var(--muted-text, #9CA3AF)' }} />
         )}
       </button>
 
       {/* Nav */}
-      <nav className="flex-1 flex flex-col sidebar-nav-scroll" style={{ padding: '12px 10px', overflowY: 'auto', minHeight: 0 }}>
-        {!collapsed && (
-          <p style={{
-            fontSize: '0.65rem',
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: 'var(--muted-text, #9CA3AF)',
-            margin: '0 0 4px 12px',
-            flexShrink: 0,
-          }}>
-            Menu
-          </p>
-        )}
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
-          {navItems.map(item => {
-            const Icon = item.icon
-            const isActive =
-              item.href === '/dashboard'
-                ? pathname === '/dashboard'
-                : pathname.startsWith(item.href)
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                title={collapsed ? item.label : undefined}
-                className={`sidebar-link${isActive ? ' sidebar-link-active' : ''}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 11,
-                  padding: collapsed ? '9px 0' : '9px 12px',
-                  borderRadius: 10,
-                  fontSize: '14.5px',
-                  fontWeight: isActive ? 600 : 400,
-                  fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
-                  letterSpacing: '-0.005em',
-                  textDecoration: 'none',
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                  color: isActive ? 'var(--blue-600, #2563EB)' : 'var(--body-text, #4B5563)',
-                  background: isActive ? 'var(--blue-50, #EFF6FF)' : 'transparent',
-                  transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
-                  position: 'relative',
-                }}
-              >
-                <Icon
-                  className="flex-shrink-0"
-                  style={{
-                    width: 19,
-                    height: 19,
-                    strokeWidth: isActive ? 2 : 1.7,
-                    color: isActive ? 'var(--blue-600, #2563EB)' : 'var(--muted-text, #9CA3AF)',
-                    transition: 'color 0.18s ease',
-                  }}
-                />
-                {!collapsed && item.label}
-              </Link>
-            )
-          })}
+      <nav className="flex-1 flex flex-col sidebar-nav-scroll" style={{ padding: '10px 10px', overflowY: 'auto', minHeight: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <NavSection label="Main" items={mainItems} collapsed={collapsed} pathname={pathname} isFirst />
+          <NavSection label="Workspace" items={workspaceItems} collapsed={collapsed} pathname={pathname} />
         </div>
       </nav>
 
       {/* Settings + Admin + User */}
-      <div style={{ padding: '8px 10px 14px', borderTop: '1px solid rgba(5,14,36,0.08)' }}>
+      <div style={{ padding: '6px 10px 12px', borderTop: '1px solid var(--nav-border)' }}>
         {/* Admin link (only for admins) */}
         {(profile as any).platformRole === 'admin' && (
           <Link
@@ -229,13 +248,13 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 11,
-              padding: collapsed ? '9px 0' : '9px 12px',
-              borderRadius: 10,
-              fontSize: '14.5px',
+              gap: 10,
+              padding: collapsed ? '7px 0' : '7px 10px',
+              borderRadius: 'var(--nav-item-radius)',
+              fontSize: 'var(--nav-font-size)',
               fontWeight: 600,
               fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
-              letterSpacing: '-0.005em',
+              letterSpacing: '-0.01em',
               textDecoration: 'none',
               justifyContent: collapsed ? 'center' : 'flex-start',
               marginBottom: 4,
@@ -247,8 +266,8 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             <Shield
               className="flex-shrink-0"
               style={{
-                width: 19,
-                height: 19,
+                width: 'var(--nav-icon-size)',
+                height: 'var(--nav-icon-size)',
                 strokeWidth: 1.8,
                 color: '#DC2626',
                 transition: 'color 0.18s ease',
@@ -289,28 +308,29 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 11,
-            padding: collapsed ? '9px 0' : '9px 12px',
-            borderRadius: 10,
-            fontSize: '14.5px',
+            gap: 10,
+            padding: collapsed ? '7px 0' : '7px 10px',
+            borderRadius: 'var(--nav-item-radius)',
+            fontSize: 'var(--nav-font-size)',
             fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
-            letterSpacing: '-0.005em',
-            fontWeight: pathname.startsWith('/settings') ? 600 : 400,
+            letterSpacing: '-0.01em',
+            fontWeight: pathname.startsWith('/settings') ? 550 : 450,
             textDecoration: 'none',
             justifyContent: collapsed ? 'center' : 'flex-start',
             marginBottom: 8,
-            color: pathname.startsWith('/settings') ? 'var(--blue-600, #2563EB)' : 'var(--body-text, #4B5563)',
-            background: pathname.startsWith('/settings') ? 'var(--blue-50, #EFF6FF)' : 'transparent',
+            color: pathname.startsWith('/settings') ? 'var(--nav-active-text)' : 'var(--nav-inactive-text)',
+            background: pathname.startsWith('/settings') ? 'var(--nav-active-bg)' : 'transparent',
             transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+            position: 'relative',
           }}
         >
           <Settings
             className="flex-shrink-0"
             style={{
-              width: 19,
-              height: 19,
-              strokeWidth: pathname.startsWith('/settings') ? 2 : 1.7,
-              color: pathname.startsWith('/settings') ? 'var(--blue-600, #2563EB)' : 'var(--muted-text, #9CA3AF)',
+              width: 'var(--nav-icon-size)',
+              height: 'var(--nav-icon-size)',
+              strokeWidth: pathname.startsWith('/settings') ? 1.9 : 1.6,
+              color: pathname.startsWith('/settings') ? 'var(--nav-active-icon)' : 'var(--nav-inactive-icon)',
               transition: 'color 0.18s ease',
             }}
           />
@@ -323,9 +343,9 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 11,
-            padding: collapsed ? '9px 0' : '9px 12px',
-            borderRadius: 10,
+            gap: 10,
+            padding: collapsed ? '7px 0' : '7px 10px',
+            borderRadius: 'var(--nav-item-radius)',
             justifyContent: collapsed ? 'center' : 'flex-start',
             transition: 'background 0.15s ease',
           }}
@@ -335,12 +355,11 @@ export default function Sidebar({ profile }: { profile: Profile }) {
               width: 30,
               height: 30,
               borderRadius: '50%',
-              background: '#0B1224',
+              background: 'linear-gradient(135deg, #1a1a2e, #16213e)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              boxShadow: 'none',
             }}
           >
             <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'white', letterSpacing: '0.02em' }}>{initials}</span>
@@ -349,7 +368,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             <>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
-                  fontSize: '14px',
+                  fontSize: '13px',
                   fontWeight: 500,
                   fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
                   color: 'var(--navy-heading, #0B1224)',
@@ -389,37 +408,47 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           scrollbar-color: transparent transparent;
         }
         .sidebar-nav-scroll:hover {
-          scrollbar-color: rgba(5,14,36,0.15) transparent;
+          scrollbar-color: rgba(5,14,36,0.12) transparent;
         }
         .sidebar-nav-scroll::-webkit-scrollbar {
-          width: 4px;
+          width: 3px;
         }
         .sidebar-nav-scroll::-webkit-scrollbar-track {
           background: transparent;
         }
         .sidebar-nav-scroll::-webkit-scrollbar-thumb {
           background: transparent;
-          border-radius: 4px;
+          border-radius: 3px;
         }
         .sidebar-nav-scroll:hover::-webkit-scrollbar-thumb {
-          background: rgba(5,14,36,0.15);
+          background: rgba(5,14,36,0.12);
+        }
+        .sidebar-link {
+          position: relative;
         }
         .sidebar-link:hover:not(.sidebar-link-active) {
-          background: rgba(5, 14, 36, 0.04) !important;
-          color: var(--navy-heading, #0B1224) !important;
+          background: var(--nav-hover-bg) !important;
+          color: rgba(5, 14, 36, 0.8) !important;
         }
         .sidebar-link:hover:not(.sidebar-link-active) svg {
-          color: var(--body-text, #4B5563) !important;
+          color: rgba(5, 14, 36, 0.5) !important;
         }
-        .sidebar-link-active {
-          box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
+        .sidebar-link-active::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 6px;
+          bottom: 6px;
+          width: 3px;
+          border-radius: 0 3px 3px 0;
+          background: var(--nav-active-text);
         }
         .sidebar-user:hover {
-          background: rgba(5, 14, 36, 0.03);
+          background: rgba(5, 14, 36, 0.025);
         }
         .sidebar-signout:hover {
           opacity: 1 !important;
-          background: rgba(5, 14, 36, 0.05) !important;
+          background: rgba(5, 14, 36, 0.04) !important;
         }
       ` }} />
     </aside>

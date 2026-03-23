@@ -350,7 +350,7 @@ function ContractSkeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3].map(i => (
-        <div key={i} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 animate-pulse">
+        <div key={i} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4 animate-pulse">
           <div className="flex items-start justify-between mb-3">
             <div>
               <div className="h-4 w-64 bg-gray-200 rounded mb-2" />
@@ -382,7 +382,7 @@ function SendContractDialog({
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-[12px] shadow-xl w-full max-w-[440px] p-6" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-[8px] shadow-xl w-full max-w-[440px] p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-[rgba(37,99,235,0.08)] flex items-center justify-center">
             <Send className="w-5 h-5 text-[#2563EB]" />
@@ -393,7 +393,7 @@ function SendContractDialog({
           </div>
         </div>
 
-        <div className="bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4 mb-4">
+        <div className="bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.06)] rounded-[8px] p-4 mb-4">
           <div className="text-[14px] text-[rgba(5,14,36,0.65)] mb-2">
             <strong>Property:</strong> {contract.deal.address}, {contract.deal.city} {contract.deal.state}
           </div>
@@ -423,7 +423,7 @@ function SendContractDialog({
           </button>
           <button
             onClick={onConfirm}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             <Send className="w-4 h-4" /> Confirm & Send
           </button>
@@ -459,7 +459,7 @@ function ActiveContractsSection({
 
   if (active.length === 0) {
     return (
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-12 text-center">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-12 text-center">
         <FileSignature className="w-10 h-10 text-[rgba(5,14,36,0.2)] mx-auto mb-3" />
         <p className="text-[14px] text-[rgba(5,14,36,0.65)] mb-1">
           {pipelineFilter ? `No ${pipelineFilter.toLowerCase()} contracts` : 'No active contracts'}
@@ -480,7 +480,7 @@ function ActiveContractsSection({
         const offerAmount = c.offer?.amount
 
         return (
-          <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 hover:bg-[rgba(37,99,235,0.02)] transition-colors">
+          <div key={c.id} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4 hover:bg-[rgba(37,99,235,0.02)] transition-colors">
             <div className="flex items-start justify-between mb-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2.5 mb-1 flex-wrap">
@@ -702,7 +702,7 @@ function VersionHistory({ contractId }: { contractId: string }) {
 
   if (loading) {
     return (
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5 animate-fadeInUp">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4 mb-5 animate-fadeInUp">
         <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3 flex items-center gap-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <History className="w-3.5 h-3.5" /> Version History
         </div>
@@ -716,7 +716,7 @@ function VersionHistory({ contractId }: { contractId: string }) {
   if (versions.length === 0) return null
 
   return (
-    <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5 animate-fadeInUp">
+    <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4 mb-5 animate-fadeInUp">
       <div className="flex items-center justify-between mb-3">
         <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] flex items-center gap-2" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
           <History className="w-3.5 h-3.5" /> Version History
@@ -737,14 +737,14 @@ function VersionHistory({ contractId }: { contractId: string }) {
 
       {/* Compare UI */}
       {comparing && (
-        <div className="bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.08)] rounded-[12px] p-3 mb-3">
+        <div className="bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.06)] rounded-[8px] p-3 mb-3">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex-1">
               <label className="text-[12px] text-[rgba(5,14,36,0.4)] block mb-1">From</label>
               <select
                 value={diffA ?? ''}
                 onChange={e => { setDiffA(parseInt(e.target.value) || null); setDiffs(null) }}
-                className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
               >
                 <option value="">Select version...</option>
                 {versions.map(v => (
@@ -758,7 +758,7 @@ function VersionHistory({ contractId }: { contractId: string }) {
               <select
                 value={diffB ?? ''}
                 onChange={e => { setDiffB(parseInt(e.target.value) || null); setDiffs(null) }}
-                className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
+                className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded px-2.5 py-1.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB]"
               >
                 <option value="">Select version...</option>
                 {versions.map(v => (
@@ -782,7 +782,7 @@ function VersionHistory({ contractId }: { contractId: string }) {
               {diffs.length === 0 ? (
                 <div className="text-[12px] text-[rgba(5,14,36,0.4)] py-2 text-center">No differences found between these versions.</div>
               ) : (
-                <div className="border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden">
+                <div className="border border-[rgba(5,14,36,0.06)] rounded-[8px] overflow-hidden">
                   <table className="w-full">
                     <thead>
                       <tr className="bg-[rgba(5,14,36,0.02)] border-b border-[rgba(5,14,36,0.04)]">
@@ -818,7 +818,7 @@ function VersionHistory({ contractId }: { contractId: string }) {
           <div key={v.id} className="flex items-center justify-between px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md">
             <div className="flex items-center gap-2.5 min-w-0">
               <span className={`text-[0.66rem] font-bold px-1.5 py-0.5 rounded ${
-                v.version === currentVersion ? 'bg-[#2563EB] text-white' : 'bg-[rgba(5,14,36,0.08)] text-[rgba(5,14,36,0.4)]'
+                v.version === currentVersion ? 'bg-[#2563EB] text-white' : 'bg-[rgba(5,14,36,0.06)] text-[rgba(5,14,36,0.4)]'
               }`}>
                 v{v.version}
               </span>
@@ -883,7 +883,7 @@ function ContractDetail({
         <button onClick={onBack} className="flex items-center gap-1.5 text-[14px] text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] mb-4 bg-transparent border-0 cursor-pointer transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Contracts
         </button>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-6 py-12 text-center animate-pulse">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-6 py-12 text-center animate-pulse">
           <Loader2 className="w-6 h-6 text-[rgba(5,14,36,0.4)] mx-auto animate-spin" />
         </div>
       </div>
@@ -912,7 +912,7 @@ function ContractDetail({
       </button>
 
       {/* Header */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-6 py-5 mb-5 animate-fadeInUp">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-6 py-5 mb-5 animate-fadeInUp">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
@@ -949,7 +949,7 @@ function ContractDetail({
 
       {/* Parties */}
       <div className="grid grid-cols-2 gap-4 mb-5 contracts-parties">
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Assignor (You)</div>
           <div className="text-[15px] font-semibold text-[#0B1224] mb-2">
             {fd.assignor_name || fd.assignorName || 'You'}
@@ -963,7 +963,7 @@ function ContractDetail({
             )}
           </div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Buyer / Assignee</div>
           <div className="text-[15px] font-semibold text-[#0B1224] mb-2">
             {displayName(contract)}
@@ -981,7 +981,7 @@ function ContractDetail({
 
       {/* Deal Terms + Actions */}
       <div className="grid grid-cols-2 gap-4 mb-5 contracts-terms">
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Deal Terms</div>
           <div className="space-y-2">
             {terms.map(t => (
@@ -995,19 +995,19 @@ function ContractDetail({
           </div>
         </div>
 
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Actions</div>
           <div className="space-y-2">
             <button
               onClick={() => onDownloadPdf(contract.id)}
-              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[0.82rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-white border border-[rgba(5,14,36,0.08)] cursor-pointer transition-colors"
+              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-[0.82rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-white border border-[rgba(5,14,36,0.06)] cursor-pointer transition-colors"
             >
               <Download className="w-4 h-4" /> Download PDF
             </button>
             {contract.status === 'DRAFT' && (
               <button
                 onClick={() => onSendContract(contract)}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
               >
                 <Send className="w-4 h-4" /> Send Contract
               </button>
@@ -1015,7 +1015,7 @@ function ContractDetail({
             {contract.status === 'SENT' && (
               <button
                 onClick={() => onStatusChange(contract.id, 'EXECUTED')}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-[0.82rem] font-medium text-white bg-[#2563EB] hover:bg-[#1D4ED8] border-0 cursor-pointer transition-colors"
               >
                 <CheckCircle2 className="w-4 h-4" /> Mark as Executed
               </button>
@@ -1026,7 +1026,7 @@ function ContractDetail({
                   const reason = prompt('Reason for voiding this contract:')
                   if (reason) onStatusChange(contract.id, 'VOIDED', { voidReason: reason })
                 }}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[0.82rem] font-medium text-[#EF4444] hover:bg-[rgba(239,68,68,0.06)] bg-white border border-[rgba(5,14,36,0.08)] cursor-pointer transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-[0.82rem] font-medium text-[#EF4444] hover:bg-[rgba(239,68,68,0.06)] bg-white border border-[rgba(5,14,36,0.06)] cursor-pointer transition-colors"
               >
                 <Ban className="w-4 h-4" /> Void Contract
               </button>
@@ -1044,12 +1044,12 @@ function ContractDetail({
 
       {/* Signature Timeline + Contract History */}
       <div className="grid grid-cols-2 gap-4 mb-5 contracts-terms">
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Signature Timeline</div>
           <SignatureTimeline contract={contract} />
         </div>
 
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4">
           <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3 flex items-center gap-2">
             <History className="w-3.5 h-3.5" /> Contract History for This Deal
           </div>
@@ -1079,7 +1079,7 @@ function ContractDetail({
           { type: string; recipients: string[]; success: boolean; timestamp: string; errors?: string[] }[] | undefined
         if (!notifications || notifications.length === 0) return null
         return (
-          <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5 animate-fadeInUp">
+          <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4 mb-5 animate-fadeInUp">
             <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3 flex items-center gap-2">
               <Bell className="w-3.5 h-3.5" /> Email Notifications
             </div>
@@ -1204,12 +1204,12 @@ function CreateContractModal({
     }
   }
 
-  const inputCls = "w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors"
+  const inputCls = "w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors"
   const labelCls = "block text-[14px] font-medium text-[rgba(5,14,36,0.65)] mb-1.5"
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-[12px] shadow-xl w-full max-w-[520px] max-h-[90vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-[8px] shadow-xl w-full max-w-[520px] max-h-[90vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             Create New Contract
@@ -1268,7 +1268,7 @@ function CreateContractModal({
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(5,14,36,0.4)] pointer-events-none" />
               </div>
             ) : (
-              <div className="space-y-3 bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
+              <div className="space-y-3 bg-[rgba(5,14,36,0.02)] border border-[rgba(5,14,36,0.06)] rounded-[8px] p-4">
                 <div>
                   <label className={labelCls}>Entity / Company Name</label>
                   <input
@@ -1394,7 +1394,7 @@ function CreateContractModal({
           <button
             onClick={handleCreate}
             disabled={creating}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             {creating && <Loader2 className="w-4 h-4 animate-spin" />}
             {creating ? 'Creating...' : 'Create Contract'}
@@ -1419,8 +1419,8 @@ function TemplatePreview({
 }) {
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-[12px] shadow-xl w-full max-w-[700px] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="sticky top-0 bg-white border-b border-[rgba(5,14,36,0.08)] px-6 py-4 flex items-center justify-between z-10">
+      <div className="bg-white rounded-[8px] shadow-xl w-full max-w-[700px] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white border-b border-[rgba(5,14,36,0.06)] px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
               {template.name}
@@ -1478,7 +1478,7 @@ function TemplatePreview({
               <h3 className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3">Contract Sections ({template.sections.length})</h3>
               <div className="space-y-3">
                 {template.sections.map((s, i) => (
-                  <div key={i} className="border border-[rgba(5,14,36,0.08)] rounded-[12px] p-4">
+                  <div key={i} className="border border-[rgba(5,14,36,0.06)] rounded-[8px] p-4">
                     <div className="text-[15px] font-semibold text-[#0B1224] mb-2">{s.heading}</div>
                     <div
                       className="text-[14px] text-[rgba(5,14,36,0.65)] leading-relaxed line-clamp-4"
@@ -1496,7 +1496,7 @@ function TemplatePreview({
           )}
         </div>
 
-        <div className="sticky bottom-0 bg-white border-t border-[rgba(5,14,36,0.08)] px-6 py-4 flex items-center justify-end gap-3">
+        <div className="sticky bottom-0 bg-white border-t border-[rgba(5,14,36,0.06)] px-6 py-4 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
             className="px-4 py-2 text-[14px] font-medium text-[rgba(5,14,36,0.4)] hover:text-[#0B1224] bg-transparent border-0 cursor-pointer transition-colors"
@@ -1505,7 +1505,7 @@ function TemplatePreview({
           </button>
           <button
             onClick={() => onUseTemplate(template.id)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] text-[0.82rem] font-medium cursor-pointer transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] text-[0.82rem] font-medium cursor-pointer transition-colors"
           >
             <FileSignature className="w-4 h-4" /> Use This Template
           </button>
@@ -1533,8 +1533,8 @@ function TemplateComparison({
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-[12px] shadow-xl w-full max-w-[900px] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="sticky top-0 bg-white border-b border-[rgba(5,14,36,0.08)] px-6 py-4 flex items-center justify-between z-10">
+      <div className="bg-white rounded-[8px] shadow-xl w-full max-w-[900px] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white border-b border-[rgba(5,14,36,0.06)] px-6 py-4 flex items-center justify-between z-10">
           <h2 className="text-[24px] font-bold text-[#0B1224] tracking-[-0.02em]" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
             Compare Templates
           </h2>
@@ -1549,7 +1549,7 @@ function TemplateComparison({
               <select
                 value={leftId}
                 onChange={e => setLeftId(e.target.value)}
-                className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] appearance-none cursor-pointer"
+                className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] appearance-none cursor-pointer"
               >
                 {templates.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -1561,7 +1561,7 @@ function TemplateComparison({
               <select
                 value={rightId}
                 onChange={e => setRightId(e.target.value)}
-                className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] appearance-none cursor-pointer"
+                className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-4 py-2.5 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] appearance-none cursor-pointer"
               >
                 {templates.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -1666,7 +1666,7 @@ function TemplatesSection({ onUseTemplate }: { onUseTemplate: (templateId: strin
   return (
     <div>
       {/* State coverage + compare button */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 mb-5 flex items-center justify-between">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4 mb-5 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
             {coveredStates.map(s => (
@@ -1678,7 +1678,7 @@ function TemplatesSection({ onUseTemplate }: { onUseTemplate: (templateId: strin
         {templates.length >= 2 && (
           <button
             onClick={() => setShowComparison(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-transparent border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium text-[#2563EB] hover:bg-[rgba(37,99,235,0.06)] bg-transparent border border-[rgba(5,14,36,0.06)] rounded-[8px] cursor-pointer transition-colors"
           >
             <Copy className="w-3.5 h-3.5" /> Compare Templates
           </button>
@@ -1688,10 +1688,10 @@ function TemplatesSection({ onUseTemplate }: { onUseTemplate: (templateId: strin
       {/* Grid */}
       <div className="grid grid-cols-2 gap-3 contracts-template-grid">
         {templates.map(t => (
-          <div key={t.id} className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-4 hover:bg-[rgba(37,99,235,0.02)] transition-colors">
+          <div key={t.id} className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4 hover:bg-[rgba(37,99,235,0.02)] transition-colors">
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[rgba(5,14,36,0.04)] border border-[rgba(5,14,36,0.08)] flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-[8px] bg-[rgba(5,14,36,0.04)] border border-[rgba(5,14,36,0.06)] flex items-center justify-center flex-shrink-0">
                   <FileText className="w-5 h-5 text-[rgba(5,14,36,0.4)]" />
                 </div>
                 <div>
@@ -1823,28 +1823,28 @@ function ArchiveSection({
     <div>
       {/* Analytics cards */}
       <div className="grid grid-cols-4 gap-3 mb-5 contracts-archive-stats">
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
             <CheckCircle2 className="w-4 h-4 text-[#2563EB]" />
             <span className="text-[11px] text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Executed</span>
           </div>
           <div className="text-[1.2rem] font-semibold text-[#0B1224]">{executedCount}</div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="w-4 h-4 text-[#2563EB]" />
             <span className="text-[11px] text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Total Fees</span>
           </div>
           <div className="text-[1.2rem] font-semibold text-[#2563EB]">${totalFees.toLocaleString()}</div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
             <Timer className="w-4 h-4 text-amber-500" />
             <span className="text-[11px] text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Avg Days to Close</span>
           </div>
           <div className="text-[1.2rem] font-semibold text-[#0B1224]">{avgTimeToExecution || '—'}</div>
         </div>
-        <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-4 py-3">
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
             <Ban className="w-4 h-4 text-[#EF4444]" />
             <span className="text-[11px] text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] font-semibold" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Voided</span>
@@ -1862,19 +1862,19 @@ function ArchiveSection({
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search archived contracts..."
-            className="w-full bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] pl-10 pr-4 py-2 text-[14px] text-[rgba(5,14,36,0.65)] placeholder-[rgba(5,14,36,0.3)] outline-none focus:border-[#2563EB] transition-colors"
+            className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] pl-10 pr-4 py-2 text-[14px] text-[rgba(5,14,36,0.65)] placeholder-[rgba(5,14,36,0.3)] outline-none focus:border-[#2563EB] transition-colors"
           />
         </div>
         <button
           onClick={handleCsvExport}
-          className="flex items-center gap-1.5 px-3 py-2 text-[0.78rem] font-medium text-[rgba(5,14,36,0.65)] hover:bg-[rgba(37,99,235,0.02)] bg-white border border-[rgba(5,14,36,0.08)] rounded-[10px] cursor-pointer transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-[0.78rem] font-medium text-[rgba(5,14,36,0.65)] hover:bg-[rgba(37,99,235,0.02)] bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] cursor-pointer transition-colors"
         >
           <FileDown className="w-4 h-4" /> Export CSV
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] overflow-hidden overflow-x-auto">
+      <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] overflow-hidden overflow-x-auto">
         <table className="w-full min-w-[700px]">
           <thead>
             <tr className="bg-[rgba(5,14,36,0.02)] border-b border-[rgba(5,14,36,0.04)]">
@@ -2026,50 +2026,89 @@ export default function ContractsPage() {
     .reduce((sum, c) => sum + (feeFromContract(c) || 0), 0)
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5">
-        <div>
-          <h1 style={{ letterSpacing: '-0.02em' }}
-            className="text-[24px] font-bold text-[#0B1224] mb-1"
-          >
-            Contracts
-          </h1>
-          <p className="text-[14px] text-[rgba(5,14,36,0.5)]">
-            Generate, sign, and track assignment contracts.
-          </p>
+    <div className="bg-[#F9FAFB]">
+      {/* Vercel-style top tab bar */}
+      <div
+        className="flex-shrink-0 bg-white"
+        style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
+      >
+        <div className="px-8">
+          <div className="flex items-center justify-between">
+            <nav className="flex gap-0.5 -mb-px">
+              {tabs.map(tab => {
+                const Icon = tab.icon
+                const isActive = activeTab === tab.key
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => {
+                      setActiveTab(tab.key)
+                      if (tab.key !== 'active') setPipelineFilter(null)
+                    }}
+                    style={{
+                      fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+                      fontSize: '13px',
+                      fontWeight: isActive ? 550 : 420,
+                      letterSpacing: '-0.005em',
+                    }}
+                    className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all ${
+                      isActive
+                        ? 'text-[#0B1224]'
+                        : 'text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.7)]'
+                    }`}
+                  >
+                    <Icon
+                      className="flex-shrink-0"
+                      style={{
+                        width: 14,
+                        height: 14,
+                        strokeWidth: isActive ? 2 : 1.6,
+                        color: isActive ? '#2563EB' : 'rgba(5,14,36,0.3)',
+                        transition: 'color 0.18s ease',
+                      }}
+                    />
+                    {tab.label}
+                    {isActive && (
+                      <div style={{ position: 'absolute', bottom: -1, left: 12, right: 12, height: 2, borderRadius: 1, background: '#2563EB' }} />
+                    )}
+                  </button>
+                )
+              })}
+            </nav>
+            {!showDetail && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-3 py-1.5 text-[0.78rem] font-medium cursor-pointer transition-colors"
+              >
+                <Plus className="w-3 h-3" /> New Contract
+              </button>
+            )}
+          </div>
         </div>
-        {!showDetail && (
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[10px] px-5 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors"
-          >
-            <Plus className="w-4 h-4" /> Create New Contract
-          </button>
-        )}
       </div>
 
+      <div className="p-8 max-w-[1200px]">
       {!showDetail && (
         <>
           {/* Stats bar */}
-          <div className="flex items-center gap-6 bg-white border border-[rgba(5,14,36,0.08)] rounded-[12px] px-5 py-3 mb-5 flex-wrap">
+          <div className="flex items-center gap-6 bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-3 mb-5 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-[14px] text-[#0B1224] font-medium">{activeContracts.length}</span>
               <span className="text-[12px] text-[rgba(5,14,36,0.4)]">Active Contracts</span>
             </div>
-            <div className="w-px h-4 bg-[rgba(5,14,36,0.08)]" />
+            <div className="w-px h-4 bg-[rgba(5,14,36,0.06)]" />
             <div className="flex items-center gap-2">
               <span className="text-[14px] text-amber-600 font-medium">{awaitingSig}</span>
               <span className="text-[12px] text-[rgba(5,14,36,0.4)]">Awaiting Signature</span>
             </div>
-            <div className="w-px h-4 bg-[rgba(5,14,36,0.08)]" />
+            <div className="w-px h-4 bg-[rgba(5,14,36,0.06)]" />
             <div className="flex items-center gap-2">
               <span className="text-[14px] text-[#2563EB] font-medium">{executedThisMonth}</span>
               <span className="text-[12px] text-[rgba(5,14,36,0.4)]">Executed This Month</span>
             </div>
             {totalFees > 0 && (
               <>
-                <div className="w-px h-4 bg-[rgba(5,14,36,0.08)]" />
+                <div className="w-px h-4 bg-[rgba(5,14,36,0.06)]" />
                 <div className="flex items-center gap-2">
                   <span className="text-[14px] text-[#2563EB] font-medium">${totalFees.toLocaleString()}</span>
                   <span className="text-[12px] text-[rgba(5,14,36,0.4)]">in Assignment Fees</span>
@@ -2086,31 +2125,6 @@ export default function ContractsPage() {
               onFilterChange={setPipelineFilter}
             />
           )}
-
-          {/* Tabs */}
-          <div className="flex items-center gap-1 mb-6 border-b border-[rgba(5,14,36,0.08)] pb-0">
-            {tabs.map(tab => {
-              const Icon = tab.icon
-              const isActive = activeTab === tab.key
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => {
-                    setActiveTab(tab.key)
-                    if (tab.key !== 'active') setPipelineFilter(null)
-                  }}
-                  className={`flex items-center gap-2 px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors ${
-                    isActive
-                      ? 'border-[#2563EB] text-[#2563EB]'
-                      : 'border-transparent text-[rgba(5,14,36,0.4)] hover:text-[#0B1224]'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              )
-            })}
-          </div>
 
           {activeTab === 'active' && (
             <ActiveContractsSection
@@ -2157,6 +2171,7 @@ export default function ContractsPage() {
           onConfirm={handleConfirmSend}
         />
       )}
+      </div>
     </div>
   )
 }

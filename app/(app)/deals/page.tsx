@@ -18,6 +18,11 @@ import {
   AlertCircle,
   Store,
   FileSignature,
+  Calculator,
+  FolderOpen,
+  Clock,
+  CheckCircle,
+  FileEdit,
 } from 'lucide-react'
 
 /* ═══════════════════════════════════════════════
@@ -69,12 +74,12 @@ const typeLabels: Record<string, string> = {
   MOBILE_HOME: 'Mobile Home',
 }
 
-const filterTabs: { key: FilterTab; label: string }[] = [
-  { key: 'ALL', label: 'All' },
-  { key: 'ACTIVE', label: 'Active' },
-  { key: 'UNDER_OFFER', label: 'Under Offer' },
-  { key: 'CLOSED', label: 'Closed' },
-  { key: 'DRAFT', label: 'Draft' },
+const filterTabs: { key: FilterTab; label: string; icon: typeof FolderOpen }[] = [
+  { key: 'ALL', label: 'All', icon: FolderOpen },
+  { key: 'ACTIVE', label: 'Active', icon: Zap },
+  { key: 'UNDER_OFFER', label: 'Under Offer', icon: Clock },
+  { key: 'CLOSED', label: 'Closed', icon: CheckCircle },
+  { key: 'DRAFT', label: 'Draft', icon: FileEdit },
 ]
 
 const sortOptions: { key: SortKey; label: string }[] = [
@@ -156,8 +161,8 @@ function RowMenu({
         <>
           <div className="fixed inset-0 z-[100]" onClick={(e) => { e.stopPropagation(); onClose() }} />
           <div
-            className="fixed z-[101] bg-white rounded-[12px] shadow-lg py-1 min-w-[180px]"
-            style={{ border: '1px solid rgba(5,14,36,0.08)', top: pos.top, left: pos.left }}
+            className="fixed z-[101] bg-white rounded-[10px] shadow-lg py-1 min-w-[180px]"
+            style={{ border: '1px solid rgba(5,14,36,0.06)', top: pos.top, left: pos.left }}
           >
             <button
               onClick={(e) => { e.stopPropagation(); onRunMatch(); onClose() }}
@@ -414,33 +419,80 @@ export default function DealsPage() {
   ]
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1
-            style={{ fontWeight: 700, fontSize: 24, color: '#0B1224', letterSpacing: '-0.02em' }}
-            className="mb-1"
-          >
-            My Deals
-          </h1>
-          <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(5,14,36,0.5)' }}>Manage and track submitted properties.</p>
+    <div className="bg-[#F9FAFB]">
+      {/* Vercel-style tab bar */}
+      <div
+        className="flex-shrink-0 bg-white"
+        style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
+      >
+        <div className="px-8">
+          <div className="flex items-center justify-between">
+            <nav className="flex gap-0.5 -mb-px">
+              {filterTabs.map(tab => {
+                const Icon = tab.icon
+                const isActive = filter === tab.key
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setFilter(tab.key)}
+                    style={{
+                      fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+                      fontSize: '13px',
+                      fontWeight: isActive ? 550 : 420,
+                      letterSpacing: '-0.005em',
+                    }}
+                    className={`relative flex items-center gap-1.5 px-3 py-3 cursor-pointer border-0 bg-transparent transition-all ${
+                      isActive
+                        ? 'text-[#0B1224]'
+                        : 'text-[rgba(5,14,36,0.4)] hover:text-[rgba(5,14,36,0.7)]'
+                    }`}
+                  >
+                    <Icon
+                      className="flex-shrink-0"
+                      style={{
+                        width: 14,
+                        height: 14,
+                        strokeWidth: isActive ? 2 : 1.6,
+                        color: isActive ? '#2563EB' : 'rgba(5,14,36,0.3)',
+                        transition: 'color 0.18s ease',
+                      }}
+                    />
+                    {tab.label}
+                    {isActive && (
+                      <div style={{ position: 'absolute', bottom: -1, left: 12, right: 12, height: 2, borderRadius: 1, background: '#2563EB' }} />
+                    )}
+                  </button>
+                )
+              })}
+            </nav>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/deals/analyze"
+                className="inline-flex items-center gap-1.5 bg-white text-[#0B1224] rounded-[8px] px-3.5 py-2 text-[0.82rem] no-underline hover:bg-[rgba(5,14,36,0.04)] transition-colors"
+                style={{ border: '1px solid rgba(5,14,36,0.1)' }}
+              >
+                <Calculator className="w-3.5 h-3.5 text-[rgba(5,14,36,0.45)]" /> Analyze Deal
+              </Link>
+              <Link
+                href="/deals/new"
+                className="inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-[8px] px-3.5 py-2 text-[0.82rem] no-underline hover:bg-[#1D4ED8] transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> New deal
+              </Link>
+            </div>
+          </div>
         </div>
-        <Link
-          href="/deals/new"
-          className="inline-flex items-center gap-1.5 bg-[#2563EB] text-white rounded-[10px] px-3.5 py-2 text-[0.84rem] no-underline hover:bg-[#1D4ED8] transition-colors flex-shrink-0"
-        >
-          <Plus className="w-3.5 h-3.5" /> New deal
-        </Link>
       </div>
+
+      <div className="p-8 max-w-[1200px]">
 
       {/* KPI Stat Cards */}
       <div className="grid grid-cols-4 gap-3.5 mb-6 deals-kpi-grid">
         {kpis.map((k) => (
           <div
             key={k.label}
-            className="bg-white rounded-[12px] px-5 py-[18px]"
-            style={{ border: '1px solid rgba(5,14,36,0.08)' }}
+            className="bg-white rounded-[10px] px-5 py-[18px]"
+            style={{ border: '1px solid rgba(5,14,36,0.06)' }}
           >
             <div style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: 11, letterSpacing: '0.05em', textTransform: 'uppercase' as const, color: 'rgba(5,14,36,0.4)' }} className="mb-2.5">
               {k.label}
@@ -454,30 +506,8 @@ export default function DealsPage() {
         ))}
       </div>
 
-      {/* Filter tabs + Search + Sort */}
-      <div className="flex items-center justify-between mb-4 gap-3 deals-controls">
-        {/* Tabs */}
-        <div className="flex items-center gap-1 border-b border-[#E5E7EB] pb-0 overflow-x-auto">
-          {filterTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key)}
-              className={`flex items-center gap-1.5 px-3.5 py-2.5 text-[0.82rem] font-medium cursor-pointer bg-transparent border-0 border-b-2 -mb-[1px] transition-colors whitespace-nowrap ${
-                filter === tab.key
-                  ? 'border-[#2563EB] text-[#2563EB]'
-                  : 'border-transparent text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              {tab.label}
-              <span className={`text-[0.68rem] px-1.5 py-0.5 rounded-full ${
-                filter === tab.key ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-gray-100 text-gray-400'
-              }`}>
-                {tabCounts[tab.key]}
-              </span>
-            </button>
-          ))}
-        </div>
-
+      {/* Search + Sort */}
+      <div className="flex items-center justify-end mb-4 gap-3 deals-controls">
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* Search */}
           <div className="relative">
@@ -487,7 +517,7 @@ export default function DealsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search deals..."
-              className="bg-white rounded-[10px] pl-9 pr-3 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none transition-colors w-[180px]"
+              className="bg-white rounded-[8px] pl-9 pr-3 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none transition-colors w-[180px]"
               style={{ border: '1px solid rgba(5,14,36,0.15)' }}
               onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
               onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
@@ -498,14 +528,14 @@ export default function DealsPage() {
           <div ref={sortRef} className="relative">
             <button
               onClick={() => setSortOpen(!sortOpen)}
-              className="flex items-center gap-1.5 bg-white rounded-[10px] px-3 py-2 text-[0.82rem] text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-1.5 bg-white rounded-[8px] px-3 py-2 text-[0.82rem] text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
               style={{ border: '1px solid rgba(5,14,36,0.15)' }}
             >
               {sortOptions.find((o) => o.key === sortKey)?.label}
               <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
             </button>
             {sortOpen && (
-              <div className="absolute right-0 top-full mt-1 z-50 bg-white rounded-[12px] shadow-lg py-1 min-w-[170px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+              <div className="absolute right-0 top-full mt-1 z-50 bg-white rounded-[10px] shadow-lg py-1 min-w-[170px]" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
                 {sortOptions.map((opt) => (
                   <button
                     key={opt.key}
@@ -524,7 +554,7 @@ export default function DealsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-[12px] overflow-hidden" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+      <div className="bg-white rounded-[10px] overflow-hidden" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
         {/* Table header */}
         <div
           className="grid px-5 py-3 deal-table-header"
@@ -662,7 +692,7 @@ export default function DealsPage() {
       {confirmDelete && (
         <>
           <div className="fixed inset-0 bg-black/30 z-[200]" onClick={() => setConfirmDelete(null)} />
-          <div className="fixed z-[201] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-[12px] shadow-xl p-6 w-[360px]" style={{ border: '1px solid rgba(5,14,36,0.08)' }}>
+          <div className="fixed z-[201] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-[10px] shadow-xl p-6 w-[360px]" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
             <div style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: 15, color: '#0B1224' }} className="mb-2">Delete this deal?</div>
             <p className="text-[0.82rem] text-gray-500 mb-5">
               This will cancel the deal and remove it from your active list. This cannot be undone.
@@ -670,14 +700,14 @@ export default function DealsPage() {
             <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="px-4 py-2 text-[0.82rem] text-gray-600 bg-white rounded-[10px] cursor-pointer hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 text-[0.82rem] text-gray-600 bg-white rounded-[8px] cursor-pointer hover:bg-gray-50 transition-colors"
                 style={{ border: '1px solid rgba(5,14,36,0.15)' }}
               >
                 Cancel
               </button>
               <button
                 onClick={() => deleteDeal(confirmDelete)}
-                className="px-4 py-2 text-[0.82rem] text-white bg-red-500 border-0 rounded-[10px] cursor-pointer hover:bg-red-600 transition-colors"
+                className="px-4 py-2 text-[0.82rem] text-white bg-red-500 border-0 rounded-[8px] cursor-pointer hover:bg-red-600 transition-colors"
               >
                 Delete
               </button>
@@ -698,6 +728,7 @@ export default function DealsPage() {
           .deals-kpi-grid { grid-template-columns: 1fr !important; }
         }
       ` }} />
+      </div>
     </div>
   )
 }

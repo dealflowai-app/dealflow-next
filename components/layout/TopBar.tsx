@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
   Search, Sparkles, X, Send, Loader2, ArrowRight,
-  Plus, Clock,
+  Plus,
   LayoutDashboard, MessagesSquare, Store, Users,
   PhoneOutgoing, Calculator, FolderOpen, FileSignature,
   Settings,
@@ -80,7 +80,8 @@ function AIQuickAsk() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 h-[34px] pl-3 pr-3.5 rounded-[10px] text-[0.76rem] font-[500] cursor-pointer transition-all border-0 bg-[#0B1224] text-white hover:bg-[#1a2640] active:scale-[0.97]"
+        className="flex items-center gap-2 h-[34px] pl-3 pr-3.5 rounded-[8px] text-[0.76rem] font-[500] cursor-pointer transition-all bg-[#0B1224] text-white hover:bg-[#1a2640] active:scale-[0.97]"
+        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
       >
         <Sparkles className="w-3.5 h-3.5" />
         Ask AI
@@ -177,7 +178,7 @@ function QuickActions() {
   const actions: { label: string; href: string; Icon: React.ComponentType<{ className?: string }> }[] = [
     { label: 'New Deal', href: '/deals/new', Icon: FolderOpen },
     { label: 'Discovery', href: '/discovery', Icon: Search },
-    { label: 'Analyze Property', href: '/analyzer', Icon: Calculator },
+    { label: 'Analyze Property', href: '/deals/analyze', Icon: Calculator },
     { label: 'Start Campaign', href: '/outreach', Icon: PhoneOutgoing },
     { label: 'Add Buyer to CRM', href: '/crm', Icon: Users },
   ]
@@ -186,7 +187,7 @@ function QuickActions() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-center w-[34px] h-[34px] rounded-[10px] border border-[rgba(5,14,36,0.08)] bg-white hover:bg-[rgba(5,14,36,0.03)] cursor-pointer transition-colors"
+        className="flex items-center justify-center w-[34px] h-[34px] rounded-[8px] border border-[rgba(5,14,36,0.06)] bg-white hover:bg-[rgba(5,14,36,0.03)] cursor-pointer transition-colors"
       >
         <Plus className="w-4 h-4 text-[rgba(5,14,36,0.5)]" />
       </button>
@@ -215,18 +216,17 @@ function QuickActions() {
 
 /* ─── Page Title ──────────────────────────────────────────────────────────── */
 
-const PAGE_TITLES: Record<string, { label: string; icon: React.ReactNode }> = {
-  '/dashboard': { label: 'Dashboard', icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
-  '/community': { label: 'Feed', icon: <MessagesSquare className="w-3.5 h-3.5" /> },
-  '/marketplace': { label: 'Marketplace', icon: <Store className="w-3.5 h-3.5" /> },
-  '/discovery': { label: 'Discovery', icon: <Search className="w-3.5 h-3.5" /> },
-  '/crm': { label: 'CRM', icon: <Users className="w-3.5 h-3.5" /> },
-  '/outreach': { label: 'Outreach', icon: <PhoneOutgoing className="w-3.5 h-3.5" /> },
-  '/analyzer': { label: 'Analyze Deal', icon: <Calculator className="w-3.5 h-3.5" /> },
-  '/deals': { label: 'My Deals', icon: <FolderOpen className="w-3.5 h-3.5" /> },
-  '/contracts': { label: 'Contracts', icon: <FileSignature className="w-3.5 h-3.5" /> },
-  '/gpt': { label: 'Ask AI', icon: <Sparkles className="w-3.5 h-3.5" /> },
-  '/settings': { label: 'Settings', icon: <Settings className="w-3.5 h-3.5" /> },
+const PAGE_TITLES: Record<string, string> = {
+  '/dashboard': 'Dashboard',
+  '/community': 'Feed',
+  '/marketplace': 'Marketplace',
+  '/discovery': 'Discovery',
+  '/crm': 'CRM',
+  '/outreach': 'Outreach',
+  '/deals': 'My Deals',
+  '/contracts': 'Contracts',
+  '/gpt': 'Ask AI',
+  '/settings': 'Settings',
 }
 
 /* ─── Top Bar ─────────────────────────────────────────────────────────────── */
@@ -240,7 +240,7 @@ export default function TopBar() {
 
   // Find current page info
   const pageKey = Object.keys(PAGE_TITLES).find(k => pathname === k || pathname.startsWith(k + '/'))
-  const page = pageKey ? PAGE_TITLES[pageKey] : null
+  const pageLabel = pageKey ? PAGE_TITLES[pageKey] : null
 
   // Current time greeting
   const hour = new Date().getHours()
@@ -248,22 +248,21 @@ export default function TopBar() {
 
   return (
     <div
-      className="flex-shrink-0 flex items-center gap-4 px-6"
+      className="flex-shrink-0 flex items-center gap-4 px-5"
       style={{
-        height: 58,
+        height: 'var(--topbar-h)',
         background: '#ffffff',
-        borderBottom: '1px solid rgba(5,14,36,0.06)',
+        borderBottom: '1px solid var(--topbar-border)',
       }}
     >
-      {/* Left: Page context + breadcrumb */}
-      <div className="flex items-center gap-3 min-w-0 flex-1">
-        {page ? (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-7 h-7 rounded-[8px] bg-[rgba(5,14,36,0.04)] text-[rgba(5,14,36,0.45)]">
-              {page.icon}
-            </div>
-            <span className="text-[0.88rem] font-[600] text-[#0B1224] tracking-[-0.01em]">{page.label}</span>
-          </div>
+      {/* Left: Breadcrumb-style page context */}
+      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+        {pageLabel ? (
+          <>
+            <span className="text-[0.78rem] text-[rgba(5,14,36,0.3)] font-[400]">DealFlow AI</span>
+            <span className="text-[0.72rem] text-[rgba(5,14,36,0.15)] font-[300] mx-0.5">/</span>
+            <span className="text-[0.82rem] font-[500] text-[#0B1224] tracking-[-0.01em]">{pageLabel}</span>
+          </>
         ) : (
           <div className="flex items-center gap-2">
             <span className="text-[0.82rem]">{timeIcon}</span>
@@ -272,42 +271,33 @@ export default function TopBar() {
             </span>
           </div>
         )}
-
-        {/* Subtle divider */}
-        <div className="w-px h-4 bg-[rgba(5,14,36,0.06)]" />
-
-        {/* Search trigger */}
-        <button
-          onClick={openSearch}
-          className="flex items-center gap-2 h-[34px] px-3 rounded-[10px] cursor-pointer transition-all border border-[rgba(5,14,36,0.08)] bg-[rgba(5,14,36,0.02)] hover:bg-[rgba(5,14,36,0.04)] hover:border-[rgba(5,14,36,0.12)]"
-        >
-          <Search className="w-3.5 h-3.5 text-[rgba(5,14,36,0.3)]" />
-          <span className="text-[0.76rem] text-[rgba(5,14,36,0.3)] font-[400] hidden lg:inline">Search...</span>
-          <div className="flex items-center gap-0.5 ml-1">
-            <kbd className="text-[0.56rem] text-[rgba(5,14,36,0.2)] bg-white rounded-[4px] px-1 py-[2px] font-mono leading-none border border-[rgba(5,14,36,0.08)]">⌘</kbd>
-            <kbd className="text-[0.56rem] text-[rgba(5,14,36,0.2)] bg-white rounded-[4px] px-1 py-[2px] font-mono leading-none border border-[rgba(5,14,36,0.08)]">K</kbd>
-          </div>
-        </button>
       </div>
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
-        {/* Recent activity hint */}
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-1.5 h-[34px] px-3 rounded-[10px] text-[0.74rem] text-[rgba(5,14,36,0.45)] hover:text-[rgba(5,14,36,0.65)] hover:bg-[rgba(5,14,36,0.03)] no-underline transition-colors hidden md:flex"
-        >
-          <Clock className="w-3.5 h-3.5" />
-          Activity
-        </Link>
-
         <QuickActions />
 
-        <div className="w-px h-5 bg-[rgba(5,14,36,0.06)]" />
+        <div className="w-px h-4 bg-[rgba(5,14,36,0.05)]" />
+
+        {/* Search trigger */}
+        <button
+          onClick={openSearch}
+          className="flex items-center gap-2.5 h-[34px] px-3.5 rounded-[8px] cursor-pointer transition-all border border-[rgba(5,14,36,0.06)] bg-[rgba(5,14,36,0.015)] hover:bg-[rgba(5,14,36,0.04)] hover:border-[rgba(5,14,36,0.12)] group"
+          style={{ minWidth: 220 }}
+        >
+          <Search className="w-3.5 h-3.5 text-[rgba(5,14,36,0.25)] group-hover:text-[rgba(5,14,36,0.45)] transition-colors" />
+          <span className="text-[0.76rem] text-[rgba(5,14,36,0.3)] font-[400] flex-1 text-left">Search...</span>
+          <div className="flex items-center gap-1">
+            <kbd className="text-[0.56rem] text-[rgba(5,14,36,0.3)] bg-white rounded-[4px] px-1.5 py-[2px] font-[inherit] font-[500] leading-none border border-[rgba(5,14,36,0.08)]" style={{ boxShadow: '0 1px 0 rgba(5,14,36,0.04)' }}>Ctrl</kbd>
+            <kbd className="text-[0.56rem] text-[rgba(5,14,36,0.3)] bg-white rounded-[4px] px-1.5 py-[2px] font-[inherit] font-[500] leading-none border border-[rgba(5,14,36,0.08)]" style={{ boxShadow: '0 1px 0 rgba(5,14,36,0.04)' }}>K</kbd>
+          </div>
+        </button>
+
+        <div className="w-px h-4 bg-[rgba(5,14,36,0.05)]" />
 
         <AIQuickAsk />
 
-        <div className="w-px h-5 bg-[rgba(5,14,36,0.06)]" />
+        <div className="w-px h-4 bg-[rgba(5,14,36,0.05)]" />
 
         <NotificationBell />
       </div>

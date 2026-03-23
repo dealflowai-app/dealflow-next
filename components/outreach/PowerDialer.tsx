@@ -280,24 +280,24 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
   if (phase === 'complete') {
     return (
       <div className="fixed inset-0 z-50 bg-gray-900/80 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
+        <div className="bg-white rounded-[10px] shadow-2xl w-full max-w-lg p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-1">Session Complete</h2>
           <p className="text-sm text-gray-500 mb-4">{sessionResults.length} calls completed</p>
 
           <div className="grid grid-cols-4 gap-3 mb-4">
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
+            <div className="bg-gray-50 rounded-[8px] p-3 text-center">
               <div className="text-xl font-bold text-gray-900">{sessionResults.length}</div>
               <div className="text-xs text-gray-500">Calls</div>
             </div>
-            <div className="bg-blue-50 rounded-lg p-3 text-center">
+            <div className="bg-blue-50 rounded-[8px] p-3 text-center">
               <div className="text-xl font-bold text-blue-600">{qualifiedCount}</div>
               <div className="text-xs text-gray-500">Qualified</div>
             </div>
-            <div className="bg-blue-50 rounded-lg p-3 text-center">
+            <div className="bg-blue-50 rounded-[8px] p-3 text-center">
               <div className="text-xl font-bold text-blue-600">{formatDuration(avgDuration)}</div>
               <div className="text-xs text-gray-500">Avg Duration</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
+            <div className="bg-gray-50 rounded-[8px] p-3 text-center">
               <div className="text-xl font-bold text-gray-900">{formatTotalTime(totalDuration)}</div>
               <div className="text-xs text-gray-500">Total Time</div>
             </div>
@@ -319,7 +319,7 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
 
           <button
             onClick={onClose}
-            className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            className="w-full rounded-[8px] bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
           >
             Done
           </button>
@@ -479,7 +479,7 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
                   <button
                     key={o.value}
                     onClick={() => setSelectedOutcome(o.value)}
-                    className={`rounded-lg py-2 text-xs font-bold transition-all ${
+                    className={`rounded-[8px] py-2 text-xs font-bold transition-all ${
                       selectedOutcome === o.value
                         ? o.color + ' shadow-md scale-105'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -495,13 +495,13 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Quick notes..."
                 rows={2}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-blue-400 resize-none mb-3"
+                className="w-full rounded-[8px] border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-blue-400 resize-none mb-3"
               />
 
               <button
                 onClick={handleSaveOutcome}
                 disabled={saving || !selectedOutcome}
-                className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="w-full rounded-[8px] bg-blue-600 py-2.5 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {saving ? 'Saving...' : 'Save & Next'}
               </button>
@@ -522,7 +522,7 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
             <div className="space-y-3">
               <div>
                 <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Buyer Profile</div>
-                <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2">
+                <div className="bg-white rounded-[8px] border border-gray-200 p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">Score</span>
                     <span className={`text-xs font-bold rounded-full px-2 py-0.5 ${
@@ -577,7 +577,7 @@ export default function PowerDialer({ buyers, campaignId, onComplete, onClose }:
               {current.buyer.notes && (
                 <div>
                   <div className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Notes</div>
-                  <div className="bg-white rounded-lg border border-gray-200 p-2 text-xs text-gray-600">
+                  <div className="bg-white rounded-[8px] border border-gray-200 p-2 text-xs text-gray-600">
                     {current.buyer.notes}
                   </div>
                 </div>

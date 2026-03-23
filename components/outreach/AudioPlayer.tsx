@@ -128,14 +128,14 @@ export default function AudioPlayer({ src, callId, onTimeUpdate, seekRef }: Audi
 
   if (error) {
     return (
-      <div className="rounded-lg bg-gray-900 px-4 py-3 text-sm text-red-400">
+      <div className="rounded-[8px] bg-gray-900 px-4 py-3 text-sm text-red-400">
         {error}
       </div>
     )
   }
 
   return (
-    <div className="rounded-lg bg-gray-900 p-4">
+    <div className="rounded-[8px] bg-gray-900 p-4">
       <audio ref={audioRef} src={src} preload="metadata" />
 
       {/* Progress bar */}

@@ -286,7 +286,7 @@ export default function DiscoveryMapbox({
       </Map>
 
       {/* ── Legend (bottom-left, covers mapbox logo) ── */}
-      <div className="absolute bottom-0 left-0 bg-white/95 backdrop-blur-sm rounded-tr-lg px-3 py-2 border-t border-r border-gray-200/60 z-10">
+      <div className="absolute bottom-0 left-0 bg-white/95 backdrop-blur-sm rounded-tr-[8px] px-3 py-2 border-t border-r border-gray-200/60 z-10">
         <div className="text-[0.58rem] text-gray-400 uppercase tracking-wider mb-1 font-medium">Property Types</div>
         <div className="space-y-0.5">
           {LEGEND.map(l => (
