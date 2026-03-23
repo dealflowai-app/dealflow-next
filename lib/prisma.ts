@@ -11,6 +11,7 @@ function createPrismaClient() {
   const pool = new Pool({
     connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
     max: 5, // Limit pool size to avoid exceeding Supabase session mode limits
+    ssl: { rejectUnauthorized: false },
   })
   const adapter = new PrismaPg(pool as any)
   return new PrismaClient({ adapter })

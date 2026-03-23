@@ -6,6 +6,7 @@
 import { getRentCastClient, type RentCastClient, type RentCastProperty } from '@/lib/rentcast'
 import { getBatchDataClient, type BatchDataClient } from '@/lib/batchdata'
 import type { BatchDataProperty } from '@/lib/batchdata/types'
+import { logger } from '@/lib/logger'
 import {
   estimateEquity,
   normalizeOwnerName,
@@ -88,7 +89,37 @@ export class DiscoveryDataProvider {
       limit: Math.min(params.pageSize ?? 50, 50),  // Cap at 50 to control costs (~$32 max)
     })
 
-    const properties = response.results?.properties ?? []
+    const rawProperties = response.results?.properties ?? []
+    logger.info(`BatchData search returned ${rawProperties.length} results for "${searchCriteria}"`, {
+      sampleCities: rawProperties.slice(0, 5).map(p => `${p.address?.city}, ${p.address?.state}`),
+    })
+
+    // CRITICAL: BatchData search may return results from outside the searched area.
+    // Filter to only properties matching the searched location.
+    const searchState = params.state?.toUpperCase()
+    const searchZip = params.zipCode
+    const searchCityBase = params.city ? normalizeCityName(params.city) : null
+    const properties = rawProperties.filter(p => {
+      // If searching by zip, match zip
+      if (searchZip) {
+        return p.address?.zip === searchZip
+      }
+      // Must match state
+      if (searchState && p.address?.state?.toUpperCase() !== searchState) return false
+      // Must match city (normalized to handle Township/Twp/City suffix differences)
+      if (searchCityBase && p.address?.city) {
+        const propCityBase = normalizeCityName(p.address.city)
+        if (propCityBase !== searchCityBase) return false
+      }
+      return true
+    })
+
+    if (properties.length < rawProperties.length) {
+      logger.info(`BatchData: filtered ${rawProperties.length} → ${properties.length} results (removed ${rawProperties.length - properties.length} outside ${searchCriteria})`)
+    }
+    if (properties.length === 0 && rawProperties.length > 0) {
+      logger.warn(`BatchData: ALL ${rawProperties.length} results were outside the searched location "${searchCriteria}". API may not support this location format.`)
+    }
 
     return properties.map((p): UnifiedProperty => {
       const addr = p.address
@@ -825,6 +856,15 @@ function isEntityName(name: string): boolean {
     'realty', 'acquisitions', 'enterprise', 'management', 'fund',
   ]
   return keywords.some((kw) => lower.includes(kw))
+}
+
+/** Normalize city name by stripping common suffixes for comparison */
+function normalizeCityName(city: string): string {
+  return city
+    .toLowerCase()
+    .replace(/\b(township|twp|city|village|borough|boro|town|cdp)\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 /** Parse "City, ST" or "City ST" into [city, state] */

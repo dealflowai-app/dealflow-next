@@ -1,26 +1,26 @@
 import { prisma } from '../lib/prisma'
 
+const city = process.argv[2]
+if (!city) {
+  console.log('Usage: npx tsx scripts/clear-cache.ts <city>')
+  console.log('Example: npx tsx scripts/clear-cache.ts "Van Buren Township"')
+  process.exit(1)
+}
+
 async function main() {
-  const count = await prisma.discoveryProperty.count({
-    where: {
-      OR: [
-        { searchCity: 'fullerton' },
-        { city: 'Fullerton' },
-      ],
-    },
-  })
-  console.log('Fullerton cached rows:', count)
+  const where = {
+    OR: [
+      { searchCity: city.toLowerCase() },
+      { city: { equals: city, mode: 'insensitive' as const } },
+    ],
+  }
+
+  const count = await prisma.discoveryProperty.count({ where })
+  console.log(`${city} cached rows: ${count}`)
 
   if (count > 0) {
-    const deleted = await prisma.discoveryProperty.deleteMany({
-      where: {
-        OR: [
-          { searchCity: 'fullerton' },
-          { city: 'Fullerton' },
-        ],
-      },
-    })
-    console.log('Deleted:', deleted.count)
+    const deleted = await prisma.discoveryProperty.deleteMany({ where })
+    console.log(`Deleted: ${deleted.count}`)
   } else {
     console.log('No rows to delete')
   }
