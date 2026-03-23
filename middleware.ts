@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/api/auth/callback'
     return NextResponse.redirect(url)
   }
-
+ 
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
