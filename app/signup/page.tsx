@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import GoogleOAuthButton from '@/components/GoogleOAuthButton'
 import { createClient } from '@/lib/supabase/client'
+import { Target, TrendingUp, Search, Zap } from 'lucide-react'
 
 const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
 const SERIF = "'DM Serif Display', Georgia, serif"
@@ -50,10 +51,10 @@ const markets = [
 ]
 
 const goals = [
-  { value: 'first_deal', icon: '🎯', label: 'Close my first deal', desc: 'New to wholesaling' },
-  { value: 'scale', icon: '📈', label: 'Scale my business', desc: 'Already closing deals' },
-  { value: 'find_buyers', icon: '🔍', label: 'Find cash buyers', desc: 'Need more buyers' },
-  { value: 'automate', icon: '⚡', label: 'Automate outreach', desc: 'Save time on calls' },
+  { value: 'first_deal', icon: <Target className="w-[18px] h-[18px]" style={{ color: '#2563EB' }} />, label: 'Close my first deal', desc: 'New to wholesaling' },
+  { value: 'scale', icon: <TrendingUp className="w-[18px] h-[18px]" style={{ color: '#2563EB' }} />, label: 'Scale my business', desc: 'Already closing deals' },
+  { value: 'find_buyers', icon: <Search className="w-[18px] h-[18px]" style={{ color: '#2563EB' }} />, label: 'Find cash buyers', desc: 'Need more buyers' },
+  { value: 'automate', icon: <Zap className="w-[18px] h-[18px]" style={{ color: '#2563EB' }} />, label: 'Automate outreach', desc: 'Save time on calls' },
 ]
 
 /* ── Password strength ──────────────────────────────── */
@@ -541,7 +542,7 @@ function SignUpFlow() {
                             boxShadow: selected ? '0 0 0 1px rgba(37,99,235,0.1), 0 2px 8px rgba(37,99,235,0.08)' : '0 1px 2px rgba(5,14,36,0.03)',
                           }}
                         >
-                          <div style={{ fontSize: 18, marginBottom: 6 }}>{g.icon}</div>
+                          <div style={{ marginBottom: 6 }}>{g.icon}</div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: selected ? BLUE : NAVY, fontFamily: F, marginBottom: 2, lineHeight: 1.3 }}>
                             {g.label}
                           </div>

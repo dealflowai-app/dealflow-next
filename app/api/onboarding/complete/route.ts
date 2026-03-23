@@ -29,9 +29,20 @@ export async function POST(request: Request) {
       ...(focus && { focus }),
     }
 
-    const profile = await prisma.profile.update({
+    const profile = await prisma.profile.upsert({
       where: { userId: user.id },
-      data: {
+      create: {
+        userId: user.id,
+        email: user.email!,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        company: company || null,
+        phone: phone || null,
+        role: 'WHOLESALER',
+        onboardingCompleted: true,
+        settings: mergedSettings,
+      },
+      update: {
         ...(firstName && { firstName }),
         ...(lastName && { lastName }),
         ...(company && { company }),
