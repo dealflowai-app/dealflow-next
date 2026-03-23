@@ -54,35 +54,41 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Redirect authenticated users away from auth pages (unless completing signup step 2)
+  // Redirect authenticated users away from auth pages
   const authPaths = ['/login', '/signup']
   const isAuthPage = authPaths.some(p => request.nextUrl.pathname === p)
-  const isSignupStep2 = request.nextUrl.pathname === '/signup' && request.nextUrl.searchParams.get('step') === '2'
+  const isSignupPage = request.nextUrl.pathname === '/signup'
+  const isSignupStep2 = isSignupPage && request.nextUrl.searchParams.get('step') === '2'
+  const onboarded = !!user?.user_metadata?.onboarded
 
-  if (user && isAuthPage && !isSignupStep2) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
-  }
-
-  // If fully verified user hits signup step 2, send to dashboard
-  if (user && isSignupStep2 && user.user_metadata?.phone_verified) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
-  }
-
-  // For authenticated users on protected pages, enforce onboarding only
-  // Email and phone verification are soft-gated (reminder banner on dashboard)
-  if (user && isProtected) {
-    const onboarded = !!user.user_metadata?.onboarded
-
-    if (!onboarded) {
+  if (user && isAuthPage) {
+    // Always allow signup step 2 (profile setup) unless already fully done
+    if (isSignupStep2) {
+      if (onboarded) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+      // Not onboarded — let them through to complete profile
+    } else if (isSignupPage && !onboarded) {
+      // Authenticated but not onboarded on /signup (no step) — send to step 2
       const url = request.nextUrl.clone()
-      url.pathname = '/signup'
       url.searchParams.set('step', '2')
       return NextResponse.redirect(url)
+    } else {
+      // Authenticated + onboarded on /login or /signup — go to dashboard
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
     }
+  }
+
+  // For authenticated users on protected pages, enforce onboarding
+  if (user && isProtected && !onboarded) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/signup'
+    url.searchParams.set('step', '2')
+    return NextResponse.redirect(url)
   }
 
   // If user is on verify-email but already verified email, push to profile setup or dashboard
