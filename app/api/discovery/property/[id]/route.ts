@@ -7,7 +7,7 @@ import { toClientProperty } from '@/lib/discovery/to-client-property'
 import { estimateEquity } from '@/lib/discovery/owner-intelligence'
 import { RentCastError } from '@/lib/rentcast'
 import { BatchDataApiError } from '@/lib/batchdata'
-import type { EquityData, DistressSignals, DataSource } from '@/lib/discovery/unified-types'
+import type { EquityData, DistressSignals } from '@/lib/discovery/unified-types'
 import type { BatchDataProperty } from '@/lib/batchdata/types'
 
 interface RouteContext {
@@ -166,7 +166,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
       distressSignals = await provider.getDistressSignals(id, enrichedRaw)
     } else {
       equityData = buildFallbackEquity(clientProperty)
-      distressSignals = buildNoDistress('rentcast')
+      distressSignals = buildDerivedDistress(clientProperty)
     }
 
     // ── Build response ────────────────────────────────────────────────────
@@ -234,14 +234,126 @@ function buildFallbackEquity(property: {
   }
 }
 
-/** Distress signals unavailable placeholder */
-function buildNoDistress(source: DataSource): DistressSignals {
+/**
+ * Derive distress indicators from available RentCast / cached property data.
+ *
+ * Since RentCast doesn't provide foreclosure or tax-delinquent flags directly,
+ * we infer potential distress from heuristics:
+ *  - Tax assessment vs last-sale-price discrepancy (possible tax issues)
+ *  - Long ownership + absentee owner (tired landlord / neglected property)
+ *  - Listed well below assessed value (potential distress pricing)
+ */
+function buildDerivedDistress(property: {
+  assessedValue?: number | null
+  lastSalePrice?: number | null
+  lastSaleDate?: string | Date | null
+  taxAmount?: number | null
+  ownerOccupied?: boolean | null
+  listPrice?: number | null
+  listingStatus?: string | null
+  ownerName?: string | null
+}): DistressSignals {
+  // ── Tax delinquency heuristic ──────────────────────────────────────────
+  // If we have an assessed value but tax amount is $0 or null while
+  // assessed value is substantial, flag as potentially delinquent.
+  // Also flag if tax-to-value ratio is abnormally low (< 0.1%) which
+  // may indicate missed payments or assessment disputes.
+  let taxDelinquent: DistressSignals['taxDelinquent'] = null
+
+  if (property.assessedValue && property.assessedValue > 50_000) {
+    const taxRate = property.taxAmount != null && property.assessedValue > 0
+      ? property.taxAmount / property.assessedValue
+      : null
+
+    // A tax amount of $0 on a property worth >$50k is suspicious
+    if (property.taxAmount === 0 || property.taxAmount === null) {
+      taxDelinquent = {
+        isDelinquent: false, // We can't confirm — only flag as suspect
+        delinquentAmount: null,
+        delinquentYears: null,
+        taxLienAmount: null,
+      }
+    } else if (taxRate !== null && taxRate < 0.001) {
+      // Tax rate under 0.1% of assessed value is unusually low
+      taxDelinquent = {
+        isDelinquent: false,
+        delinquentAmount: null,
+        delinquentYears: null,
+        taxLienAmount: null,
+      }
+    }
+  }
+
+  // ── Foreclosure heuristic ──────────────────────────────────────────────
+  // We cannot confirm foreclosure without court records, but we can detect
+  // distress-pricing signals: listed significantly below assessed value.
+  let foreclosure: DistressSignals['foreclosure'] = null
+
+  const isAbsentee = property.ownerOccupied === false
+  const listPrice = property.listPrice
+  const assessed = property.assessedValue
+
+  if (listPrice && assessed && assessed > 0) {
+    const listToAssessedRatio = listPrice / assessed
+
+    // Listed at 70% or less of assessed value — strong distress signal
+    if (listToAssessedRatio <= 0.70) {
+      foreclosure = {
+        active: false,  // Cannot confirm without court records
+        status: 'DISTRESS_PRICING',
+        filingDate: null,
+        defaultAmount: null,
+        auctionDate: null,
+      }
+    }
+  }
+
+  // ── Long-hold absentee heuristic ───────────────────────────────────────
+  // Absentee owner who purchased 10+ years ago with no recent sale may be
+  // a tired landlord or an estate/probate situation — not foreclosure per se
+  // but a motivating factor. Only set if we didn't already flag foreclosure.
+  if (!foreclosure && isAbsentee && property.lastSaleDate) {
+    const saleDate = typeof property.lastSaleDate === 'string'
+      ? new Date(property.lastSaleDate)
+      : property.lastSaleDate
+    const yearsHeld = (Date.now() - saleDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+
+    if (yearsHeld >= 15) {
+      foreclosure = {
+        active: false,
+        status: 'LONG_HOLD_ABSENTEE',
+        filingDate: null,
+        defaultAmount: null,
+        auctionDate: null,
+      }
+    }
+  }
+
+  // ── Corporate / trust owner check ──────────────────────────────────────
+  // Estates and trusts sometimes indicate probate or distress situations.
+  // We note it in the foreclosure status if nothing else flagged.
+  if (!foreclosure && property.ownerName) {
+    const ownerLower = property.ownerName.toLowerCase()
+    const isEstate = ownerLower.includes('estate') || ownerLower.includes('heir')
+    if (isEstate) {
+      foreclosure = {
+        active: false,
+        status: 'POSSIBLE_ESTATE',
+        filingDate: null,
+        defaultAmount: null,
+        auctionDate: null,
+      }
+    }
+  }
+
+  const hasAnySignal = foreclosure !== null || taxDelinquent !== null
+
   return {
-    dataSource: source,
-    available: false,
-    upgradeRequired: source === 'rentcast',
-    foreclosure: null,
-    taxDelinquent: null,
+    dataSource: 'rentcast',
+    available: hasAnySignal,
+    upgradeRequired: true, // Still recommend BatchData for confirmed data
+    foreclosure,
+    taxDelinquent,
     probate: null,
   }
 }

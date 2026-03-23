@@ -1380,15 +1380,33 @@ const TEMPLATE_ICONS: Record<string, typeof Compass> = {
   'shield-check': ShieldCheck, 'message-square': MessageSquare, mail: Mail,
 }
 
+interface DuplicateFromData {
+  name: string
+  channel: string
+  market: string
+  scriptTemplate: string | null
+  customScript: string | null
+  companyName: string | null
+  agentName: string | null
+  maxConcurrentCalls: number | null
+  callingHoursStart: string | null
+  callingHoursEnd: string | null
+  timezone: string | null
+  leaveVoicemail: boolean | null
+  maxRetries: number | null
+  retryDelayHours: number | null
+}
+
 function NewCampaignModal({
-  onClose, onCreated, addToast, preselectedContactIds,
+  onClose, onCreated, addToast, preselectedContactIds, duplicateFrom,
 }: {
   onClose: () => void
   onCreated: (c: Campaign) => void
   addToast: (msg: string, type: ToastData['type']) => void
   preselectedContactIds?: string[]
+  duplicateFrom?: DuplicateFromData
 }) {
-  const [step, setStep] = useState(0) // Step 0 = template browser
+  const [step, setStep] = useState(duplicateFrom ? 1 : 0) // Skip template step when duplicating
   const [submitting, setSubmitting] = useState(false)
 
   // Template browser
@@ -1397,9 +1415,9 @@ function NewCampaignModal({
   const [templateCategory, setTemplateCategory] = useState('all')
 
   // Step 1: Setup
-  const [name, setName] = useState('')
-  const [channel, setChannel] = useState<string>('VOICE')
-  const [market, setMarket] = useState('')
+  const [name, setName] = useState(duplicateFrom ? `Copy of ${duplicateFrom.name}` : '')
+  const [channel, setChannel] = useState<string>(duplicateFrom?.channel || 'VOICE')
+  const [market, setMarket] = useState(duplicateFrom?.market || '')
 
   // Step 2: Audience
   const [audienceMode, setAudienceMode] = useState<'filter' | 'contacts'>(
@@ -1422,21 +1440,21 @@ function NewCampaignModal({
   const [previewLoading, setPreviewLoading] = useState(false)
 
   // Step 3: Script & Settings
-  const [scriptTemplate, setScriptTemplate] = useState('standard_qualification')
-  const [customScript, setCustomScript] = useState('')
+  const [scriptTemplate, setScriptTemplate] = useState(duplicateFrom?.scriptTemplate || 'standard_qualification')
+  const [customScript, setCustomScript] = useState(duplicateFrom?.customScript || '')
   const [showScriptPreview, setShowScriptPreview] = useState(false)
   const scriptRef = useRef<HTMLTextAreaElement>(null)
-  const [companyName, setCompanyName] = useState('')
-  const [agentName, setAgentName] = useState('')
-  const [maxConcurrent, setMaxConcurrent] = useState(5)
-  const [callHoursStart, setCallHoursStart] = useState('09:00')
-  const [callHoursEnd, setCallHoursEnd] = useState('19:00')
-  const [timezone, setTimezone] = useState('America/New_York')
-  const [leaveVoicemail, setLeaveVoicemail] = useState(true)
+  const [companyName, setCompanyName] = useState(duplicateFrom?.companyName || '')
+  const [agentName, setAgentName] = useState(duplicateFrom?.agentName || '')
+  const [maxConcurrent, setMaxConcurrent] = useState(duplicateFrom?.maxConcurrentCalls || 5)
+  const [callHoursStart, setCallHoursStart] = useState(duplicateFrom?.callingHoursStart || '09:00')
+  const [callHoursEnd, setCallHoursEnd] = useState(duplicateFrom?.callingHoursEnd || '19:00')
+  const [timezone, setTimezone] = useState(duplicateFrom?.timezone || 'America/New_York')
+  const [leaveVoicemail, setLeaveVoicemail] = useState(duplicateFrom?.leaveVoicemail ?? true)
   const [voicemailRecordingId, setVoicemailRecordingId] = useState('')
   const [voicemailOptions, setVoicemailOptions] = useState<{ id: string; name: string; category: string; source: string; estimatedDuration: number | null }[]>([])
-  const [maxRetries, setMaxRetries] = useState(2)
-  const [retryDelayHours, setRetryDelayHours] = useState(24)
+  const [maxRetries, setMaxRetries] = useState(duplicateFrom?.maxRetries ?? 2)
+  const [retryDelayHours, setRetryDelayHours] = useState(duplicateFrom?.retryDelayHours ?? 24)
 
   // Step 4: Scheduling
   const [scheduleType, setScheduleType] = useState<'now' | 'later'>('now')
@@ -4664,6 +4682,7 @@ export default function AIOutreachPage() {
   const [subTab, setSubTab] = useState<SubTab>('campaigns')
   const [showNewCampaign, setShowNewCampaign] = useState(false)
   const [preselectedContactIds, setPreselectedContactIds] = useState<string[]>([])
+  const [duplicateFromData, setDuplicateFromData] = useState<DuplicateFromData | undefined>()
   const [toasts, setToasts] = useState<ToastData[]>([])
 
   // Campaign list state
@@ -4761,7 +4780,27 @@ export default function AIOutreachPage() {
         if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Failed to delete') }
         addToast('Campaign deleted', 'success')
       } else if (action === 'duplicate') {
-        addToast('Duplicate will pre-fill the New Campaign modal (coming soon)', 'info')
+        // Fetch full campaign details to get settings
+        const detailRes = await fetch(`/api/outreach/campaigns/${id}`)
+        if (!detailRes.ok) throw new Error('Failed to load campaign details')
+        const { campaign: fullCampaign } = await detailRes.json()
+        setDuplicateFromData({
+          name: fullCampaign.name,
+          channel: fullCampaign.channel || 'VOICE',
+          market: fullCampaign.market || '',
+          scriptTemplate: fullCampaign.scriptTemplate || null,
+          customScript: fullCampaign.customScript || null,
+          companyName: fullCampaign.companyName || null,
+          agentName: fullCampaign.agentName || null,
+          maxConcurrentCalls: fullCampaign.maxConcurrentCalls ?? null,
+          callingHoursStart: fullCampaign.callingHoursStart || null,
+          callingHoursEnd: fullCampaign.callingHoursEnd || null,
+          timezone: fullCampaign.timezone || null,
+          leaveVoicemail: fullCampaign.leaveVoicemail ?? null,
+          maxRetries: fullCampaign.maxRetries ?? null,
+          retryDelayHours: fullCampaign.retryDelayHours ?? null,
+        })
+        setShowNewCampaign(true)
         return
       }
       fetchCampaigns()
@@ -4957,10 +4996,11 @@ export default function AIOutreachPage() {
       {/* New Campaign modal */}
       {showNewCampaign && (
         <NewCampaignModal
-          onClose={() => { setShowNewCampaign(false); setPreselectedContactIds([]) }}
-          onCreated={() => { fetchCampaigns(); setShowNewCampaign(false); setPreselectedContactIds([]) }}
+          onClose={() => { setShowNewCampaign(false); setPreselectedContactIds([]); setDuplicateFromData(undefined) }}
+          onCreated={() => { fetchCampaigns(); setShowNewCampaign(false); setPreselectedContactIds([]); setDuplicateFromData(undefined) }}
           addToast={addToast}
           preselectedContactIds={preselectedContactIds}
+          duplicateFrom={duplicateFromData}
         />
       )}
 

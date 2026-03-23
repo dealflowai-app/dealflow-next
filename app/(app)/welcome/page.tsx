@@ -471,7 +471,7 @@ export default function WelcomePage() {
               {[
                 { title: 'Explore Dashboard', desc: 'See your analytics and activity at a glance', href: '/dashboard' },
                 { title: 'Find Buyers', desc: 'Search for cash buyers in your target market', href: '/discovery' },
-                { title: 'Create First Deal', desc: 'Analyze a property and get instant comps', href: '/analyzer' },
+                { title: 'Create First Deal', desc: 'Analyze a property and get instant comps', href: '/deals/analyze' },
               ].map(action => (
                 <button
                   key={action.title}
