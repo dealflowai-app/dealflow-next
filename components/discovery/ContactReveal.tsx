@@ -304,7 +304,7 @@ export default function ContactReveal({
                 className={`text-[0.82rem] font-medium tabular-nums no-underline ${
                   phone.doNotCall ? 'text-gray-400 cursor-not-allowed' : 'text-[#2563EB] hover:underline cursor-pointer'
                 }`}
-                title={phone.doNotCall ? 'Do Not Call — cannot dial' : `Call ${formatPhone(phone.number)}`}
+                title={phone.doNotCall ? 'Do Not Call (cannot dial)' : `Call ${formatPhone(phone.number)}`}
               >
                 {formatPhone(phone.number)}
               </a>

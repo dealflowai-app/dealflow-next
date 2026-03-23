@@ -216,7 +216,7 @@ body {
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: #2563eb;
+  background: var(--nav-active-text);
   transform: scaleX(0);
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -255,7 +255,7 @@ body {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
 .crm-map-dot:hover {
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
 }
 
 /* View toggle pill slide */
@@ -295,8 +295,8 @@ body {
 
 /* ─── PULSE GLOW (outreach running campaigns) ── */
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 8px rgba(37, 99, 235, 0.08); }
-  50% { box-shadow: 0 0 16px rgba(37, 99, 235, 0.18); }
+  0%, 100% { box-shadow: 0 0 8px rgba(124, 58, 237, 0.08); }
+  50% { box-shadow: 0 0 16px rgba(124, 58, 237, 0.18); }
 }
 
 .pulse-glow-blue {
@@ -614,4 +614,62 @@ body {
 }
 @media (max-width: 640px) {
   .demo-step-indicator { display: none !important; }
+}
+
+/* ─── MOBILE SIDEBAR ─────────────────────────────────────── */
+
+/* Backdrop overlay when mobile sidebar is open */
+.mobile-sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* Hide sidebar by default on mobile */
+  .mobile-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 50;
+    width: 240px !important;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: none;
+  }
+
+  /* Show sidebar when open */
+  .mobile-sidebar.mobile-sidebar-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Show backdrop when sidebar is open */
+  .mobile-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  /* Search button: icon-only on mobile */
+  .topbar-search-btn {
+    min-width: unset !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  /* CRM table horizontal scroll */
+  .crm-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Tablet adjustments */
+@media (max-width: 1024px) and (min-width: 768px) {
+  .topbar-search-btn {
+    min-width: 160px !important;
+  }
 }

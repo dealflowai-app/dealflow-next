@@ -43,7 +43,6 @@ import {
   Gavel,
   FileWarning,
   ShieldAlert,
-  Bookmark,
   ChevronsLeft,
   ChevronsRight,
   SquareStack,
@@ -53,10 +52,11 @@ import {
   XCircle,
   Download,
 } from 'lucide-react'
-import { useDiscoverySearch, FILTER_PRESETS, type PresetKey } from '@/lib/hooks/useDiscoverySearch'
+import { useDiscoverySearch, FILTER_PRESETS, type PresetKey, type DiscoveryFilters } from '@/lib/hooks/useDiscoverySearch'
 import type { DiscoveryProperty } from '@/lib/types/discovery'
 import DiscoveryMapbox, { type MapStyleKey } from '@/components/discovery/DiscoveryMapbox'
 import ContactReveal from '@/components/discovery/ContactReveal'
+import SavedSearches from '@/components/discovery/SavedSearches'
 import { createBuyer } from '@/lib/hooks/useCRMActions'
 import { useMapboxGeocode } from '@/lib/hooks/useMapboxGeocode'
 import { useOwnerSearch } from '@/lib/hooks/useOwnerSearch'
@@ -1001,43 +1001,6 @@ export default function DiscoveryPage() {
       .catch(() => {})
   }, [])
 
-  // ── Saved searches (persisted in localStorage) ──
-  type SavedSearch = { id: string; label: string; query: string; savedAt: number }
-  const SAVED_KEY = 'dealflow_saved_searches'
-  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>(() => {
-    if (typeof window === 'undefined') return []
-    try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]') } catch { return [] }
-  })
-  function persistSaved(list: SavedSearch[]) {
-    setSavedSearches(list)
-    localStorage.setItem(SAVED_KEY, JSON.stringify(list))
-  }
-
-  function saveSearch(queryText?: string) {
-    const q = (queryText ?? filters.query).trim()
-    if (!q) return
-    const existing = savedSearches.find(s => s.query.toLowerCase() === q.toLowerCase())
-    if (existing) return
-    const entry: SavedSearch = {
-      id: crypto.randomUUID(),
-      label: q,
-      query: q,
-      savedAt: Date.now(),
-    }
-    persistSaved([entry, ...savedSearches])
-  }
-
-  function removeSavedSearch(id: string) {
-    persistSaved(savedSearches.filter(s => s.id !== id))
-  }
-
-  function loadSavedSearch(query: string) {
-    setShowSuggestions(false)
-    clearSuggestions()
-    searchWithQuery(query)
-    ownerSearch.search(query)
-  }
-
   // Close dropdown on click outside
   useEffect(() => {
     if (!openDropdown) return
@@ -1074,6 +1037,7 @@ export default function DiscoveryPage() {
     searchWithQuery,
     searchByBounds,
     setFilter,
+    setAllFilters,
     clearFilters,
     clearBuyerMatch,
     applyPreset,
@@ -1085,6 +1049,41 @@ export default function DiscoveryPage() {
   } = useDiscoverySearch()
 
   const ownerSearch = useOwnerSearch()
+
+  // ── Saved searches (server-persisted via SavedView) ──
+  function handleApplySavedSearch(savedFilters: DiscoveryFilters) {
+    setAllFilters(savedFilters)
+    setShowSuggestions(false)
+    clearSuggestions()
+    if (savedFilters.query) {
+      searchWithQuery(savedFilters.query)
+      ownerSearch.search(savedFilters.query)
+    }
+  }
+
+  const hasActiveFilters = !!(
+    filters.query.trim() ||
+    filters.propertyType.length > 0 ||
+    filters.ownerType.length > 0 ||
+    filters.absenteeOnly ||
+    filters.taxDelinquent ||
+    filters.preForeclosure ||
+    filters.probate ||
+    filters.bedsMin !== null ||
+    filters.bedsMax !== null ||
+    filters.bathsMin !== null ||
+    filters.bathsMax !== null ||
+    filters.sqftMin !== null ||
+    filters.sqftMax !== null ||
+    filters.yearBuiltMin !== null ||
+    filters.yearBuiltMax !== null ||
+    filters.valueMin !== null ||
+    filters.valueMax !== null ||
+    filters.equityMin !== null ||
+    filters.equityMax !== null ||
+    filters.ownershipMin !== null ||
+    filters.daysOnMarketMin !== null
+  )
 
   // Client-side filters (equity is computed, distress/daysOnMarket come from enrichment)
   const filteredProperties = useMemo(() => {
@@ -1165,8 +1164,6 @@ export default function DiscoveryPage() {
   function handleSearch() {
     search()
     ownerSearch.search(filters.query)
-    // Auto-save to recent searches
-    saveSearch()
   }
 
   function handleSearchKeyDown(e: React.KeyboardEvent) {
@@ -1378,7 +1375,7 @@ export default function DiscoveryPage() {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+    <div className="h-full flex flex-col overflow-hidden" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} data-tour="discovery-content">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* ═══ TOP SEARCH BAR ═══ */}
@@ -1406,7 +1403,6 @@ export default function DiscoveryPage() {
                     clearSuggestions()
                     searchWithQuery(first.displayText)
                     ownerSearch.search(first.displayText)
-                    saveSearch(first.displayText)
                   } else {
                     clearSuggestions()
                     handleSearch()
@@ -1430,66 +1426,29 @@ export default function DiscoveryPage() {
               <Loader2 className="w-4 h-4 text-[#2563EB] animate-spin flex-shrink-0" />
             )}
 
-            {/* Autocomplete / saved searches dropdown */}
-            {showSuggestions && (suggestions.length > 0 || (savedSearches.length > 0 && !filters.query.trim())) && (
+            {/* Autocomplete dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-[10px] border border-[rgba(5,14,36,0.06)] shadow-xl overflow-hidden z-30">
-                {suggestions.length > 0 ? (
-                  /* Geocode suggestions */
-                  suggestions.map(s => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onMouseDown={e => {
-                        e.preventDefault()
-                        setShowSuggestions(false)
-                        clearSuggestions()
-                        searchWithQuery(s.displayText)
-                        ownerSearch.search(s.displayText)
-                        saveSearch(s.displayText)
-                      }}
-                      className="w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-[#EFF6FF] transition-colors cursor-pointer border-0 bg-transparent border-b border-b-gray-100 last:border-b-0"
-                    >
-                      <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                      <div className="min-w-0">
-                        <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{s.displayText}</div>
-                        <div className="text-[0.7rem] text-gray-400 truncate">{s.placeName}</div>
-                      </div>
-                    </button>
-                  ))
-                ) : (
-                  /* Saved searches (shown when input is empty) */
-                  <>
-                    <div className="px-3.5 py-2 border-b border-gray-100 bg-gray-50/50">
-                      <div className="text-[0.7rem] font-semibold text-gray-400 uppercase tracking-wide">Recent Searches</div>
+                {suggestions.map(s => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onMouseDown={e => {
+                      e.preventDefault()
+                      setShowSuggestions(false)
+                      clearSuggestions()
+                      searchWithQuery(s.displayText)
+                      ownerSearch.search(s.displayText)
+                    }}
+                    className="w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-[#EFF6FF] transition-colors cursor-pointer border-0 bg-transparent border-b border-b-gray-100 last:border-b-0"
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{s.displayText}</div>
+                      <div className="text-[0.7rem] text-gray-400 truncate">{s.placeName}</div>
                     </div>
-                    {savedSearches.map(s => (
-                      <div
-                        key={s.id}
-                        className="w-full text-left px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-[#EFF6FF] transition-colors cursor-pointer border-b border-b-gray-100 last:border-b-0 group"
-                        onMouseDown={e => {
-                          e.preventDefault()
-                          loadSavedSearch(s.query)
-                        }}
-                      >
-                        <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[0.82rem] font-medium text-[#0B1224] truncate">{s.label}</div>
-                        </div>
-                        <button
-                          onMouseDown={e => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            removeSavedSearch(s.id)
-                          }}
-                          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 bg-transparent border-0 cursor-pointer p-0.5 transition-all"
-                          title="Remove"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </>
-                )}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -1922,20 +1881,12 @@ export default function DiscoveryPage() {
           {/* Divider */}
           <div className="w-px h-7 bg-gray-200" />
 
-          {/* Save Search */}
-          <button
-            onClick={() => saveSearch()}
-            disabled={!filters.query.trim() || savedSearches.some(s => s.query.toLowerCase() === filters.query.trim().toLowerCase())}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[14px] font-[400] border cursor-pointer transition-colors ${
-              filters.query.trim() && !savedSearches.some(s => s.query.toLowerCase() === filters.query.trim().toLowerCase())
-                ? 'border-[rgba(5,14,36,0.06)] bg-white text-[rgba(5,14,36,0.65)] hover:bg-gray-50'
-                : 'border-[rgba(5,14,36,0.06)] bg-gray-50 text-[rgba(5,14,36,0.4)] cursor-not-allowed'
-            }`}
-            title={savedSearches.some(s => s.query.toLowerCase() === filters.query.trim().toLowerCase()) ? 'Already saved' : 'Save current search'}
-          >
-            <Bookmark className={`w-3.5 h-3.5 ${savedSearches.some(s => s.query.toLowerCase() === filters.query.trim().toLowerCase()) ? 'fill-current text-[#2563EB]' : ''}`} />
-            Save Search
-          </button>
+          {/* Saved Searches */}
+          <SavedSearches
+            currentFilters={filters}
+            onApplySearch={handleApplySavedSearch}
+            hasActiveFilters={hasActiveFilters}
+          />
         </div>
 
         {/* Error message */}

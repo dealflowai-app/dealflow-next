@@ -14,6 +14,9 @@ import {
   Loader2,
   Trash2,
   MoreHorizontal,
+  Plus,
+  X,
+  ArrowLeft,
 } from 'lucide-react'
 
 const FONT = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
@@ -668,106 +671,396 @@ function GroupsSection() {
 /* ═══════════════════════════════════════════════
    MESSAGES SECTION (mock — coming soon)
    ═══════════════════════════════════════════════ */
-const conversations = [
-  {
-    id: 1, name: 'Kevin Nguyen', initials: 'KN',
-    lastMessage: 'I can do $285k cash, close in 14 days. Send me the contract.', time: '10 min ago', unread: true,
-    messages: [
-      { from: 'them', text: 'Hey, I saw your listing on the Marketplace for the property on Elm Ave. Is it still available?', time: '2:15 PM' },
-      { from: 'me', text: 'Yes, still available! ARV is around $340k and I have it under contract at $260k. Assignment fee is $25k.', time: '2:18 PM' },
-      { from: 'them', text: 'I can do $285k cash, close in 14 days. Send me the contract.', time: '2:31 PM' },
-    ],
-  },
-  {
-    id: 2, name: 'Sarah Kim', initials: 'SK',
-    lastMessage: 'Let\'s JV on that Atlanta portfolio. I have the buyers.', time: '1 hr ago', unread: true,
-    messages: [
-      { from: 'them', text: 'Hey! I noticed you\'re active in the Atlanta market. I have a strong buyer list for that area.', time: '1:02 PM' },
-      { from: 'me', text: '50/50 on the assignment fee? I bring the deals, you bring the buyers.', time: '1:18 PM' },
-      { from: 'them', text: 'Let\'s JV on that Atlanta portfolio. I have the buyers.', time: '1:22 PM' },
-    ],
-  },
-  {
-    id: 3, name: 'Marcus Thompson', initials: 'MT',
-    lastMessage: 'Thanks for the tip on the AI campaigns! Connect rates are way up.', time: '3 hrs ago', unread: false,
-    messages: [
-      { from: 'me', text: 'Hey Marcus, saw your post about Phoenix. What script are you using for AI outreach?', time: '10:05 AM' },
-      { from: 'them', text: 'Thanks for the tip on the AI campaigns! Connect rates are way up.', time: '10:20 AM' },
-    ],
-  },
-]
+/* ─── DM types ─── */
+type DMUser = { id: string; firstName: string | null; lastName: string | null; avatarUrl: string | null; company?: string | null }
+type ConvoSummary = { id: string; otherUser: DMUser | null; lastMessage: { content: string; createdAt: string; senderId: string } | null; unread: boolean; updatedAt: string }
+type DMMessage = { id: string; content: string; senderId: string; sender: DMUser; createdAt: string; isOwn: boolean }
 
 function MessagesSection() {
   const toast = useToast()
-  const [activeConvo, setActiveConvo] = useState(conversations[0].id)
-  const active = conversations.find(c => c.id === activeConvo) ?? conversations[0]
+
+  // Conversation list state
+  const [convos, setConvos] = useState<ConvoSummary[]>([])
+  const [loadingConvos, setLoadingConvos] = useState(true)
+  const [activeConvoId, setActiveConvoId] = useState<string | null>(null)
+
+  // Messages state
+  const [messages, setMessages] = useState<DMMessage[]>([])
+  const [loadingMsgs, setLoadingMsgs] = useState(false)
+  const [msgText, setMsgText] = useState('')
+  const [sending, setSending] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+
+  // New conversation modal
+  const [showNewConvo, setShowNewConvo] = useState(false)
+  const [userSearch, setUserSearch] = useState('')
+  const [searchResults, setSearchResults] = useState<DMUser[]>([])
+  const [searching, setSearching] = useState(false)
+  const searchDebounce = useRef<NodeJS.Timeout>()
+
+  // ── Load conversations ──
+  const fetchConvos = useCallback(async () => {
+    try {
+      const res = await fetch('/api/messages/conversations')
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setConvos(data.conversations ?? [])
+    } catch {
+      // silent
+    } finally {
+      setLoadingConvos(false)
+    }
+  }, [])
+
+  useEffect(() => { fetchConvos() }, [fetchConvos])
+
+  // ── Load messages for active conversation ──
+  const fetchMessages = useCallback(async (convoId: string) => {
+    setLoadingMsgs(true)
+    try {
+      const res = await fetch(`/api/messages/conversations/${convoId}?limit=100`)
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setMessages(data.messages ?? [])
+      // Mark as read in local state
+      setConvos(prev => prev.map(c => c.id === convoId ? { ...c, unread: false } : c))
+    } catch {
+      toast('Failed to load messages')
+    } finally {
+      setLoadingMsgs(false)
+    }
+  }, [toast])
+
+  useEffect(() => {
+    if (activeConvoId) fetchMessages(activeConvoId)
+  }, [activeConvoId, fetchMessages])
+
+  // ── Poll for new messages every 10s ──
+  useEffect(() => {
+    if (!activeConvoId) return
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/messages/conversations/${activeConvoId}?limit=100`)
+        if (!res.ok) return
+        const data = await res.json()
+        setMessages(data.messages ?? [])
+      } catch {
+        // silent
+      }
+      // Also refresh convo list for unread indicators
+      try {
+        const res = await fetch('/api/messages/conversations')
+        if (!res.ok) return
+        const data = await res.json()
+        setConvos(data.conversations ?? [])
+      } catch {
+        // silent
+      }
+    }, 10000)
+    return () => clearInterval(interval)
+  }, [activeConvoId])
+
+  // ── Auto-scroll to bottom ──
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // ── Send message ──
+  async function handleSend() {
+    const text = msgText.trim()
+    if (!text || sending || !activeConvoId) return
+    setSending(true)
+    try {
+      const res = await fetch(`/api/messages/conversations/${activeConvoId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text }),
+      })
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error ?? 'Failed') }
+      const data = await res.json()
+      setMessages(prev => [...prev, data.message])
+      setMsgText('')
+      // Update conversation list
+      setConvos(prev => prev.map(c =>
+        c.id === activeConvoId
+          ? { ...c, lastMessage: { content: text, createdAt: data.message.createdAt, senderId: data.message.senderId }, updatedAt: data.message.createdAt }
+          : c,
+      ))
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to send')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  // ── User search for new conversation ──
+  function handleUserSearch(q: string) {
+    setUserSearch(q)
+    if (searchDebounce.current) clearTimeout(searchDebounce.current)
+    if (q.trim().length < 2) { setSearchResults([]); return }
+    searchDebounce.current = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const res = await fetch(`/api/messages/users?q=${encodeURIComponent(q.trim())}`)
+        if (!res.ok) throw new Error()
+        const data = await res.json()
+        setSearchResults(data.users ?? [])
+      } catch {
+        // silent
+      } finally {
+        setSearching(false)
+      }
+    }, 300)
+  }
+
+  // ── Start conversation with a user ──
+  async function startConversation(targetUser: DMUser) {
+    setShowNewConvo(false)
+    setUserSearch('')
+    setSearchResults([])
+    try {
+      const res = await fetch('/api/messages/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: targetUser.id }),
+      })
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error ?? 'Failed') }
+      const data = await res.json()
+      const convo = data.conversation as ConvoSummary
+      // Add to list if not present
+      setConvos(prev => {
+        const exists = prev.find(c => c.id === convo.id)
+        if (exists) return prev
+        return [convo, ...prev]
+      })
+      setActiveConvoId(convo.id)
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Failed to start conversation')
+    }
+  }
+
+  // ── Helpers ──
+  const activeConvo = convos.find(c => c.id === activeConvoId)
+  const activeOther = activeConvo?.otherUser
+  const unreadCount = convos.filter(c => c.unread).length
+
+  function getUserInitials(u: DMUser | null | undefined): string {
+    if (!u) return '??'
+    if (u.firstName && u.lastName) return `${u.firstName[0]}${u.lastName[0]}`.toUpperCase()
+    if (u.firstName) return u.firstName.slice(0, 2).toUpperCase()
+    return '??'
+  }
+  function getUserName(u: DMUser | null | undefined): string {
+    if (!u) return 'Unknown'
+    if (u.firstName) return `${u.firstName} ${u.lastName ?? ''}`.trim()
+    return 'Anonymous'
+  }
 
   return (
     <div className="bg-white overflow-hidden flex community-inbox" style={{ height: 520, border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10 }}>
+      {/* ── Left panel: conversation list ── */}
       <div className="w-[320px] flex flex-col flex-shrink-0 community-inbox-list" style={{ borderRight: '1px solid rgba(5,14,36,0.06)' }}>
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
-          <div className="relative">
+        <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
             <input type="text" placeholder="Search messages..." className="w-full outline-none"
               style={{ backgroundColor: '#F9FAFB', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, paddingLeft: 36, paddingRight: 12, paddingTop: 8, paddingBottom: 8, fontSize: 14, fontFamily: FONT, color: 'rgba(5,14,36,0.65)' }}
             />
           </div>
+          <button
+            onClick={() => setShowNewConvo(true)}
+            className="flex items-center justify-center w-8 h-8 rounded-[8px] border-0 cursor-pointer transition-colors"
+            style={{ backgroundColor: '#2563EB' }}
+            title="New conversation"
+          >
+            <Plus className="w-4 h-4 text-white" />
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {conversations.map(c => (
-            <button key={c.id} onClick={() => setActiveConvo(c.id)} className="w-full flex items-center gap-3 px-4 py-3.5 cursor-pointer border-0 text-left transition-colors"
-              style={{ backgroundColor: activeConvo === c.id ? 'rgba(37,99,235,0.08)' : '#FFFFFF' }}
-              onMouseEnter={e => { if (activeConvo !== c.id) (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
-              onMouseLeave={e => { if (activeConvo !== c.id) (e.currentTarget as HTMLElement).style.backgroundColor = '#FFFFFF' }}
+          {loadingConvos && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-5 h-5 animate-spin text-gray-300" />
+            </div>
+          )}
+          {!loadingConvos && convos.length === 0 && (
+            <div className="text-center py-12 px-4">
+              <MessageSquare className="w-8 h-8 mx-auto mb-3 opacity-20" style={{ color: 'rgba(5,14,36,0.4)' }} />
+              <p style={{ fontSize: 13, fontWeight: 500, color: 'rgba(5,14,36,0.4)', fontFamily: FONT, margin: 0 }}>No conversations yet</p>
+              <button
+                onClick={() => setShowNewConvo(true)}
+                className="mt-3 border-0 cursor-pointer transition-colors"
+                style={{ fontSize: 13, fontWeight: 600, color: '#2563EB', fontFamily: FONT, backgroundColor: 'transparent' }}
+              >
+                Start a conversation
+              </button>
+            </div>
+          )}
+          {convos.map(c => (
+            <button key={c.id} onClick={() => setActiveConvoId(c.id)} className="w-full flex items-center gap-3 px-4 py-3.5 cursor-pointer border-0 text-left transition-colors"
+              style={{ backgroundColor: activeConvoId === c.id ? 'rgba(37,99,235,0.08)' : '#FFFFFF' }}
+              onMouseEnter={e => { if (activeConvoId !== c.id) (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
+              onMouseLeave={e => { if (activeConvoId !== c.id) (e.currentTarget as HTMLElement).style.backgroundColor = '#FFFFFF' }}
             >
               <div className="relative flex-shrink-0">
-                <Avatar initials={c.initials} size={32} />
+                <Avatar initials={getUserInitials(c.otherUser)} size={32} />
                 {c.unread && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{ backgroundColor: '#2563EB' }} />}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span style={{ fontSize: 14, fontWeight: c.unread ? 600 : 400, color: '#0B1224', fontFamily: FONT }}>{c.name}</span>
-                  <span className="flex-shrink-0" style={{ fontSize: 12, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>{c.time}</span>
+                  <span style={{ fontSize: 14, fontWeight: c.unread ? 600 : 400, color: '#0B1224', fontFamily: FONT }}>{getUserName(c.otherUser)}</span>
+                  <span className="flex-shrink-0" style={{ fontSize: 12, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>
+                    {c.lastMessage ? timeAgo(c.lastMessage.createdAt) : ''}
+                  </span>
                 </div>
-                <p className="truncate" style={{ fontSize: 12, color: c.unread ? 'rgba(5,14,36,0.65)' : 'rgba(5,14,36,0.4)', fontFamily: FONT, margin: 0 }}>{c.lastMessage}</p>
+                <p className="truncate" style={{ fontSize: 12, color: c.unread ? 'rgba(5,14,36,0.65)' : 'rgba(5,14,36,0.4)', fontFamily: FONT, margin: 0 }}>
+                  {c.lastMessage?.content ?? 'No messages yet'}
+                </p>
               </div>
             </button>
           ))}
         </div>
       </div>
 
+      {/* ── Right panel: messages ── */}
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
-          <Avatar initials={active.initials} size={32} />
-          <span style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT }}>{active.name}</span>
-        </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-          {active.messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-              <div className="max-w-[75%] px-4 py-2.5"
-                style={{
-                  borderRadius: msg.from === 'me' ? '16px 16px 6px 16px' : '16px 16px 16px 6px',
-                  backgroundColor: msg.from === 'me' ? '#2563EB' : '#F3F4F6',
-                  color: msg.from === 'me' ? '#FFFFFF' : '#0B1224',
-                }}
+        {!activeConvoId ? (
+          /* Empty state */
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <MessageSquare className="w-10 h-10 mb-3" style={{ color: 'rgba(5,14,36,0.12)' }} />
+            <p style={{ fontSize: 15, fontWeight: 600, color: 'rgba(5,14,36,0.3)', fontFamily: FONT, margin: 0, marginBottom: 4 }}>Start a conversation</p>
+            <p style={{ fontSize: 13, color: 'rgba(5,14,36,0.25)', fontFamily: FONT, margin: 0 }}>Select a conversation or message someone new</p>
+          </div>
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
+              {/* Back button on mobile */}
+              <button
+                onClick={() => setActiveConvoId(null)}
+                className="md:hidden flex items-center justify-center w-7 h-7 rounded-[6px] border-0 bg-transparent cursor-pointer"
+                style={{ color: 'rgba(5,14,36,0.5)' }}
               >
-                <p style={{ fontSize: 14, fontFamily: FONT, margin: 0, lineHeight: 1.6 }}>{msg.text}</p>
-                <p style={{ fontSize: 11, marginTop: 4, marginBottom: 0, color: msg.from === 'me' ? '#BFDBFE' : 'rgba(5,14,36,0.4)', fontFamily: FONT }}>{msg.time}</p>
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <Avatar initials={getUserInitials(activeOther)} size={32} />
+              <span style={{ fontSize: 15, fontWeight: 600, color: '#0B1224', fontFamily: FONT }}>{getUserName(activeOther)}</span>
+            </div>
+
+            {/* Messages */}
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+              {loadingMsgs ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-5 h-5 animate-spin text-gray-300" />
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="flex items-center justify-center py-12">
+                  <p style={{ fontSize: 13, color: 'rgba(5,14,36,0.3)', fontFamily: FONT }}>No messages yet. Say hello!</p>
+                </div>
+              ) : (
+                messages.map(msg => (
+                  <div key={msg.id} className={`flex ${msg.isOwn ? 'justify-end' : 'justify-start'}`}>
+                    <div className="max-w-[75%] px-4 py-2.5"
+                      style={{
+                        borderRadius: msg.isOwn ? '16px 16px 6px 16px' : '16px 16px 16px 6px',
+                        backgroundColor: msg.isOwn ? '#2563EB' : '#F3F4F6',
+                        color: msg.isOwn ? '#FFFFFF' : '#0B1224',
+                      }}
+                    >
+                      <p style={{ fontSize: 14, fontFamily: FONT, margin: 0, lineHeight: 1.6 }}>{msg.content}</p>
+                      <p style={{ fontSize: 11, marginTop: 4, marginBottom: 0, color: msg.isOwn ? '#BFDBFE' : 'rgba(5,14,36,0.4)', fontFamily: FONT }}>
+                        {timeAgo(msg.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Message input */}
+            <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(5,14,36,0.06)' }}>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={msgText}
+                  onChange={e => setMsgText(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                  placeholder="Type a message..."
+                  className="flex-1 outline-none"
+                  style={{ backgroundColor: '#F9FAFB', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, padding: '10px 16px', fontSize: 14, fontFamily: FONT, color: '#0B1224' }}
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={!msgText.trim() || sending}
+                  className="text-white border-0 cursor-pointer flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  style={{ backgroundColor: '#2563EB', borderRadius: 8, padding: 10 }}
+                >
+                  {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-        <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(5,14,36,0.06)' }}>
-          <div className="flex items-center gap-2">
-            <input type="text" placeholder="Type a message..." className="flex-1 outline-none"
-              style={{ backgroundColor: '#F9FAFB', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, padding: '10px 16px', fontSize: 14, fontFamily: FONT, color: 'rgba(5,14,36,0.65)' }}
-            />
-            <button onClick={() => toast('Coming soon')} className="text-white border-0 cursor-pointer flex items-center justify-center" style={{ backgroundColor: '#2563EB', borderRadius: 8, padding: 10 }}>
-              <Send className="w-4 h-4" />
-            </button>
+          </>
+        )}
+      </div>
+
+      {/* ── New conversation modal ── */}
+      {showNewConvo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(5,14,36,0.4)' }}>
+          <div className="bg-white w-full max-w-[420px] mx-4" style={{ borderRadius: 12, boxShadow: '0 20px 60px rgba(5,14,36,0.2)' }}>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
+              <span style={{ fontSize: 16, fontWeight: 600, color: '#0B1224', fontFamily: FONT }}>New Conversation</span>
+              <button onClick={() => { setShowNewConvo(false); setUserSearch(''); setSearchResults([]) }}
+                className="flex items-center justify-center w-7 h-7 rounded-[6px] border-0 bg-transparent cursor-pointer hover:bg-[rgba(5,14,36,0.04)]"
+                style={{ color: 'rgba(5,14,36,0.4)' }}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="px-5 py-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={e => handleUserSearch(e.target.value)}
+                  placeholder="Search by name or email..."
+                  autoFocus
+                  className="w-full outline-none"
+                  style={{ backgroundColor: '#F9FAFB', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, paddingLeft: 36, paddingRight: 12, paddingTop: 10, paddingBottom: 10, fontSize: 14, fontFamily: FONT, color: '#0B1224' }}
+                />
+              </div>
+              <div className="mt-3 max-h-[280px] overflow-y-auto">
+                {searching && (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-4 h-4 animate-spin text-gray-300" />
+                  </div>
+                )}
+                {!searching && userSearch.trim().length >= 2 && searchResults.length === 0 && (
+                  <p className="text-center py-6" style={{ fontSize: 13, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>No users found</p>
+                )}
+                {searchResults.map(u => (
+                  <button
+                    key={u.id}
+                    onClick={() => startConversation(u)}
+                    className="w-full flex items-center gap-3 px-3 py-3 cursor-pointer border-0 text-left transition-colors rounded-[8px] hover:bg-[#F9FAFB]"
+                    style={{ backgroundColor: 'transparent' }}
+                  >
+                    <Avatar initials={getUserInitials(u)} size={36} />
+                    <div className="flex-1 min-w-0">
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#0B1224', fontFamily: FONT }}>{getUserName(u)}</div>
+                      {u.company && (
+                        <div style={{ fontSize: 12, color: 'rgba(5,14,36,0.4)', fontFamily: FONT }}>{u.company}</div>
+                      )}
+                    </div>
+                    <MessageSquare className="w-4 h-4 flex-shrink-0" style={{ color: '#2563EB' }} />
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -777,10 +1070,9 @@ function MessagesSection() {
    ═══════════════════════════════════════════════ */
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState<Tab>('feed')
-  const unreadMessages = conversations.filter(c => c.unread).length
 
   return (
-    <div className="bg-[#F9FAFB]">
+    <div className="bg-[#F9FAFB]" data-tour="community-content">
       <div
         className="flex-shrink-0 bg-white"
         style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
@@ -817,12 +1109,6 @@ export default function CommunityPage() {
                     }}
                   />
                   {tab.label}
-                  {tab.key === 'messages' && unreadMessages > 0 && (
-                    <span className="flex items-center justify-center rounded-full"
-                      style={{ backgroundColor: isActive ? '#2563EB' : 'rgba(5,14,36,0.15)', color: isActive ? '#FFFFFF' : 'rgba(5,14,36,0.6)', fontSize: 10, fontWeight: 600, width: 18, height: 18, fontFamily: FONT }}>
-                      {unreadMessages}
-                    </span>
-                  )}
                   {isActive && (
                     <div style={{ position: 'absolute', bottom: -1, left: 12, right: 12, height: 2, borderRadius: 1, background: '#2563EB' }} />
                   )}

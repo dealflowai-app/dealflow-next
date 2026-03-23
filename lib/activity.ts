@@ -62,3 +62,32 @@ export async function logBulkActivity(inputs: ActivityInput[]): Promise<void> {
     console.error('logBulkActivity failed:', err)
   }
 }
+
+/* ─── Account-level Activity Log ──────────────────────────────────────────── */
+
+/**
+ * Log an account-level activity (not tied to a specific buyer).
+ * Fire-and-forget — errors are caught silently so callers are never blocked.
+ *
+ * Types: DEAL_CREATED, BUYER_ADDED, BUYER_IMPORTED, CAMPAIGN_SENT,
+ *        DEAL_STATUS_CHANGED, CONTRACT_CREATED, POST_CREATED
+ */
+export async function logAccountActivity(
+  profileId: string,
+  type: string,
+  title: string,
+  metadata?: Record<string, unknown>,
+): Promise<void> {
+  try {
+    await prisma.activityLog.create({
+      data: {
+        profileId,
+        type,
+        title,
+        metadata: metadata ? (metadata as Prisma.InputJsonValue) : Prisma.JsonNull,
+      },
+    })
+  } catch {
+    // intentionally swallowed — activity logging must never break the caller
+  }
+}

@@ -1,10 +1,16 @@
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import Sidebar from '@/components/dashboard/Sidebar'
 import GlobalSearch from '@/components/dashboard/GlobalSearch'
+import KeyboardShortcuts from '@/components/KeyboardShortcuts'
+import ProductTour from '@/components/ProductTour'
+import DealCalculator from '@/components/DealCalculator'
+import DemoBanner from '@/components/DemoBanner'
 import TopBar from '@/components/layout/TopBar'
 import { ToastProvider } from '@/components/toast'
+import { MobileSidebarProvider } from '@/components/layout/MobileSidebarContext'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
@@ -18,18 +24,40 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!profile) redirect('/onboarding')
 
+  const profileSettings = (profile.settings as Record<string, unknown>) || {}
+  const demoMode = profileSettings.demoMode === true
+
+  // Check if we're on the welcome page (render without dashboard shell)
+  const headersList = headers()
+  const pathname = (await headersList).get('x-next-pathname') || ''
+  const isWelcomePage = pathname === '/welcome'
+
+  if (isWelcomePage) {
+    return (
+      <ToastProvider>
+        {children}
+      </ToastProvider>
+    )
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#F9FAFB' }}>
-      <Sidebar profile={profile} />
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <TopBar />
-        <div className="flex-1 overflow-y-auto">
-          <ToastProvider>
-            {children}
-          </ToastProvider>
+    <MobileSidebarProvider>
+        <div className="flex h-screen overflow-hidden" style={{ background: 'var(--dash-bg, #F9FAFB)' }}>
+          <Sidebar profile={profile} />
+          <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+            <TopBar />
+            <DemoBanner demoMode={demoMode} />
+            <div className="flex-1 overflow-y-auto">
+              <ToastProvider>
+                {children}
+              </ToastProvider>
+            </div>
+          </main>
+          <GlobalSearch />
+          <KeyboardShortcuts />
+          <ProductTour />
+          <DealCalculator />
         </div>
-      </main>
-      <GlobalSearch />
-    </div>
+      </MobileSidebarProvider>
   )
 }

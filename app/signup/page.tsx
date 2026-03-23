@@ -737,7 +737,7 @@ function SignUpFlow() {
                 Almost there!
               </h1>
               <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 20, lineHeight: 1.6, fontFamily: F }}>
-                Just a couple more steps — we need to verify your email and phone number.
+                Just a couple more steps. We need to verify your email and phone number.
               </p>
 
               <button

@@ -36,8 +36,8 @@ export default function VerifyPhonePage() {
   useEffect(() => {
     if (verified) {
       const t = setTimeout(() => {
-        router.push('/dashboard')
-        router.refresh()
+        // Full page load so the server layout renders with sidebar
+        window.location.href = '/dashboard'
       }, 2000)
       return () => clearTimeout(t)
     }
@@ -53,8 +53,7 @@ export default function VerifyPhonePage() {
       }
       // Already verified — skip to dashboard
       if (user.user_metadata?.phone_verified) {
-        router.push('/dashboard')
-        router.refresh()
+        window.location.href = '/dashboard'
         return
       }
       // Not onboarded yet — go to profile setup first

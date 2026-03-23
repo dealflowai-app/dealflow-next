@@ -23,7 +23,19 @@ import {
   Clock,
   CheckCircle,
   FileEdit,
+  Download,
+  List,
+  Columns3,
+  Trash2,
+  RefreshCw,
 } from 'lucide-react'
+import SavedViewsBar from '@/components/filters/SavedViewsBar'
+import ActiveFilterPills from '@/components/filters/ActiveFilterPills'
+import PipelineView from '@/components/deals/PipelineView'
+import BulkActionBar from '@/components/ui/BulkActionBar'
+import { useBulkSelect } from '@/hooks/useBulkSelect'
+import { exportToCSV } from '@/lib/csv-export'
+import BuyerMatchModal from '@/components/deals/BuyerMatchModal'
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -122,6 +134,7 @@ function RowMenu({
   onToggle,
   onClose,
   onRunMatch,
+  onFindBuyers,
   onChangeStatus,
   onDelete,
   onListMarketplace,
@@ -132,6 +145,7 @@ function RowMenu({
   onToggle: () => void
   onClose: () => void
   onRunMatch: () => void
+  onFindBuyers: () => void
   onChangeStatus: (status: string) => void
   onDelete: () => void
   onListMarketplace: () => void
@@ -169,6 +183,12 @@ function RowMenu({
               className="w-full flex items-center gap-2 px-3 py-2 text-[0.78rem] text-gray-600 hover:bg-gray-50 bg-transparent border-0 cursor-pointer transition-colors text-left"
             >
               <Users className="w-3.5 h-3.5 text-gray-400" /> Run Matching
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onFindBuyers(); onClose() }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-[0.78rem] text-[#2563EB] hover:bg-blue-50 bg-transparent border-0 cursor-pointer transition-colors text-left"
+            >
+              <Search className="w-3.5 h-3.5 text-[#2563EB]" /> Find Buyers
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onListMarketplace(); onClose() }}
@@ -221,16 +241,28 @@ export default function DealsPage() {
 
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
+  const [viewMode, setViewMode] = useState<'list' | 'pipeline'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('dealflow-deals-view') as 'list' | 'pipeline') || 'list'
+    }
+    return 'list'
+  })
 
   const [filter, setFilter] = useState<FilterTab>('ALL')
   const [sortKey, setSortKey] = useState<SortKey>('newest')
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState('')
+  const [priceRangeFilter, setPriceRangeFilter] = useState('')
+  const [dateRangeFilter, setDateRangeFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+
   const [sortOpen, setSortOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState<string | null>(null)
   const [matchingId, setMatchingId] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [findBuyersDeal, setFindBuyersDeal] = useState<Deal | null>(null)
 
   const sortRef = useRef<HTMLDivElement>(null)
 
@@ -283,6 +315,15 @@ export default function DealsPage() {
     return counts
   }, [deals])
 
+  const hasAdvancedFilters = !!(propertyTypeFilter || priceRangeFilter || dateRangeFilter || statusFilter)
+
+  function clearAdvancedFilters() {
+    setPropertyTypeFilter('')
+    setPriceRangeFilter('')
+    setDateRangeFilter('')
+    setStatusFilter('')
+  }
+
   /* ── Filtered + sorted deals ── */
   const visibleDeals = useMemo(() => {
     let list = [...deals]
@@ -299,6 +340,26 @@ export default function DealsPage() {
           d.city.toLowerCase().includes(q) ||
           d.zip.includes(q),
       )
+    }
+
+    // Advanced filters
+    if (propertyTypeFilter) {
+      list = list.filter((d) => d.propertyType === propertyTypeFilter)
+    }
+    if (statusFilter) {
+      list = list.filter((d) => d.status === statusFilter)
+    }
+    if (priceRangeFilter) {
+      const [minStr, maxStr] = priceRangeFilter.split('-')
+      const min = Number(minStr)
+      const max = maxStr === '+' ? Infinity : Number(maxStr)
+      list = list.filter((d) => d.askingPrice >= min && d.askingPrice <= max)
+    }
+    if (dateRangeFilter) {
+      const now = Date.now()
+      const msMap: Record<string, number> = { '7d': 7 * 86400000, '30d': 30 * 86400000, '90d': 90 * 86400000, '365d': 365 * 86400000 }
+      const ms = msMap[dateRangeFilter]
+      if (ms) list = list.filter((d) => now - new Date(d.createdAt).getTime() <= ms)
     }
 
     // Sort
@@ -321,7 +382,69 @@ export default function DealsPage() {
     }
 
     return list
-  }, [deals, filter, debouncedSearch, sortKey])
+  }, [deals, filter, debouncedSearch, sortKey, propertyTypeFilter, priceRangeFilter, dateRangeFilter, statusFilter])
+
+  /* ── Bulk selection ── */
+  const { selectedIds, toggleSelect, isSelected, isAllSelected, toggleAll, clearSelection, count: selectedCount } = useBulkSelect(visibleDeals)
+
+  async function handleBulkExport(ids: string[]) {
+    try {
+      const res = await fetch('/api/deals/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'export', dealIds: ids }),
+      })
+      const data = await res.json()
+      if (data.deals) {
+        exportToCSV(data.deals, `deals-selected-export-${new Date().toISOString().split('T')[0]}.csv`)
+        toast.success(`Exported ${data.count} deals`)
+      }
+    } catch {
+      toast.error('Failed to export deals')
+    }
+  }
+
+  async function handleBulkDelete(ids: string[]) {
+    if (!window.confirm(`Are you sure you want to delete ${ids.length} deal${ids.length !== 1 ? 's' : ''}? This cannot be undone.`)) return
+    try {
+      const res = await fetch('/api/deals/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', dealIds: ids }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed')
+      toast.success(`${data.updated} deal${data.updated !== 1 ? 's' : ''} deleted`)
+      clearSelection()
+      fetchDeals()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete deals')
+    }
+  }
+
+  async function handleBulkChangeStatus(ids: string[]) {
+    const newStatus = window.prompt('Enter new status (DRAFT, ACTIVE, UNDER_OFFER, CLOSED, CANCELLED):')
+    if (!newStatus) return
+    const valid = ['DRAFT', 'ACTIVE', 'UNDER_OFFER', 'CLOSED', 'CANCELLED']
+    if (!valid.includes(newStatus.toUpperCase())) {
+      toast.warning('Invalid status')
+      return
+    }
+    try {
+      const res = await fetch('/api/deals/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'change_status', dealIds: ids, status: newStatus.toUpperCase() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed')
+      toast.success(`${data.updated} deal${data.updated !== 1 ? 's' : ''} updated to ${newStatus.toUpperCase().replace(/_/g, ' ')}`)
+      clearSelection()
+      fetchDeals()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to change status')
+    }
+  }
 
   /* ── Actions ── */
   async function runMatching(dealId: string) {
@@ -330,10 +453,10 @@ export default function DealsPage() {
       const res = await fetch(`/api/deals/${dealId}/match`, { method: 'POST' })
       if (!res.ok) throw new Error()
       const data = await res.json()
-      toast(`Matched to ${data.matches?.length ?? 0} buyers`)
+      toast.success(`Matched to ${data.matches?.length ?? 0} buyers`)
       fetchDeals()
     } catch {
-      toast('Failed to run matching')
+      toast.error('Failed to run matching')
     } finally {
       setMatchingId(null)
     }
@@ -347,10 +470,10 @@ export default function DealsPage() {
         body: JSON.stringify({ status: newStatus }),
       })
       if (!res.ok) throw new Error()
-      toast(`Status changed to ${newStatus.replace(/_/g, ' ')}`)
+      toast.success(`Status changed to ${newStatus.replace(/_/g, ' ')}`)
       fetchDeals()
     } catch {
-      toast('Failed to update status')
+      toast.error('Failed to update status')
     }
   }
 
@@ -359,9 +482,9 @@ export default function DealsPage() {
       const res = await fetch(`/api/deals/${dealId}`, { method: 'DELETE' })
       if (!res.ok) throw new Error()
       setDeals((prev) => prev.filter((d) => d.id !== dealId))
-      toast('Deal deleted')
+      toast.success('Deal deleted')
     } catch {
-      toast('Failed to delete deal')
+      toast.error('Failed to delete deal')
     }
     setConfirmDelete(null)
   }
@@ -375,7 +498,7 @@ export default function DealsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           dealId,
-          headline: `${deal.address} — ${deal.city}, ${deal.state}`,
+          headline: `${deal.address}, ${deal.city}, ${deal.state}`,
           description: `${deal.propertyType}${deal.arv ? `. ARV $${deal.arv.toLocaleString()}` : ''}. Asking $${deal.askingPrice.toLocaleString()}.`,
         }),
       })
@@ -383,9 +506,9 @@ export default function DealsPage() {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || 'Failed to list')
       }
-      toast('Listed on Marketplace')
+      toast.success('Listed on Marketplace')
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Failed to list on Marketplace')
+      toast.error(err instanceof Error ? err.message : 'Failed to list on Marketplace')
     }
   }
 
@@ -404,9 +527,9 @@ export default function DealsPage() {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || 'Failed to generate contract')
       }
-      toast('Contract generated')
+      toast.success('Contract generated')
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Failed to generate contract')
+      toast.error(err instanceof Error ? err.message : 'Failed to generate contract')
     }
   }
 
@@ -419,7 +542,7 @@ export default function DealsPage() {
   ]
 
   return (
-    <div className="bg-[#F9FAFB]">
+    <div className="bg-[#F9FAFB]" data-tour="deals-content">
       {/* Vercel-style tab bar */}
       <div
         className="flex-shrink-0 bg-white"
@@ -466,6 +589,48 @@ export default function DealsPage() {
               })}
             </nav>
             <div className="flex items-center gap-2">
+              {/* View toggle */}
+              <div
+                className="inline-flex rounded-[8px] overflow-hidden"
+                style={{ border: '1px solid rgba(5,14,36,0.1)' }}
+              >
+                <button
+                  onClick={() => { setViewMode('list'); localStorage.setItem('dealflow-deals-view', 'list') }}
+                  className={`inline-flex items-center gap-1 px-3 py-2 text-[0.82rem] cursor-pointer border-0 transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-[#2563EB] text-white'
+                      : 'bg-white text-[rgba(5,14,36,0.55)] hover:bg-[rgba(5,14,36,0.04)]'
+                  }`}
+                  style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
+                >
+                  <List className="w-3.5 h-3.5" /> List
+                </button>
+                <button
+                  onClick={() => { setViewMode('pipeline'); localStorage.setItem('dealflow-deals-view', 'pipeline') }}
+                  className={`inline-flex items-center gap-1 px-3 py-2 text-[0.82rem] cursor-pointer border-0 transition-colors ${
+                    viewMode === 'pipeline'
+                      ? 'bg-[#2563EB] text-white'
+                      : 'bg-white text-[rgba(5,14,36,0.55)] hover:bg-[rgba(5,14,36,0.04)]'
+                  }`}
+                  style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", borderLeft: '1px solid rgba(5,14,36,0.1)' }}
+                >
+                  <Columns3 className="w-3.5 h-3.5" /> Pipeline
+                </button>
+              </div>
+
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/deals/export')
+                    const data = await res.json()
+                    if (data.deals) exportToCSV(data.deals, `deals-export-${new Date().toISOString().split('T')[0]}.csv`)
+                  } catch {}
+                }}
+                className="inline-flex items-center gap-1.5 bg-white text-[#0B1224] rounded-[8px] px-3.5 py-2 text-[0.82rem] cursor-pointer hover:bg-[rgba(5,14,36,0.04)] transition-colors"
+                style={{ border: '1px solid rgba(5,14,36,0.1)' }}
+              >
+                <Download className="w-3.5 h-3.5 text-[rgba(5,14,36,0.45)]" /> Export
+              </button>
               <Link
                 href="/deals/analyze"
                 className="inline-flex items-center gap-1.5 bg-white text-[#0B1224] rounded-[8px] px-3.5 py-2 text-[0.82rem] no-underline hover:bg-[rgba(5,14,36,0.04)] transition-colors"
@@ -506,60 +671,199 @@ export default function DealsPage() {
         ))}
       </div>
 
-      {/* Search + Sort */}
-      <div className="flex items-center justify-end mb-4 gap-3 deals-controls">
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search deals..."
-              className="bg-white rounded-[8px] pl-9 pr-3 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none transition-colors w-[180px]"
-              style={{ border: '1px solid rgba(5,14,36,0.15)' }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }}
-            />
-          </div>
+      {/* Search + Filters + Sort */}
+      <div className="flex items-center gap-2 mb-3 flex-wrap deals-controls">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search deals..."
+            className="bg-white rounded-[8px] pl-9 pr-3 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none transition-colors w-[180px]"
+            style={{ border: '1px solid rgba(5,14,36,0.1)' }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.1)'; e.currentTarget.style.boxShadow = 'none' }}
+          />
+        </div>
 
-          {/* Sort dropdown */}
-          <div ref={sortRef} className="relative">
-            <button
-              onClick={() => setSortOpen(!sortOpen)}
-              className="flex items-center gap-1.5 bg-white rounded-[8px] px-3 py-2 text-[0.82rem] text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
-              style={{ border: '1px solid rgba(5,14,36,0.15)' }}
-            >
-              {sortOptions.find((o) => o.key === sortKey)?.label}
-              <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-            </button>
-            {sortOpen && (
-              <div className="absolute right-0 top-full mt-1 z-50 bg-white rounded-[10px] shadow-lg py-1 min-w-[170px]" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
-                {sortOptions.map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() => { setSortKey(opt.key); setSortOpen(false) }}
-                    className={`w-full text-left px-3 py-2 text-[0.78rem] bg-transparent border-0 cursor-pointer transition-colors ${
-                      sortKey === opt.key ? 'text-[#2563EB] bg-[#EFF6FF]' : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Property Type filter */}
+        <div className="relative">
+          <select
+            value={propertyTypeFilter}
+            onChange={(e) => setPropertyTypeFilter(e.target.value)}
+            className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[8px] pl-3 pr-7 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
+            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
+          >
+            <option value="">Property Type</option>
+            <option value="SFR">SFR</option>
+            <option value="MULTI_FAMILY">Multi-Family</option>
+            <option value="CONDO">Condo</option>
+            <option value="LAND">Land</option>
+            <option value="COMMERCIAL">Commercial</option>
+            <option value="MOBILE_HOME">Mobile Home</option>
+          </select>
+          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+        </div>
+
+        {/* Price Range filter */}
+        <div className="relative">
+          <select
+            value={priceRangeFilter}
+            onChange={(e) => setPriceRangeFilter(e.target.value)}
+            className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[8px] pl-3 pr-7 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
+            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
+          >
+            <option value="">Price Range</option>
+            <option value="0-50000">Under $50K</option>
+            <option value="50000-100000">$50K - $100K</option>
+            <option value="100000-200000">$100K - $200K</option>
+            <option value="200000-500000">$200K - $500K</option>
+            <option value="500000-+">$500K+</option>
+          </select>
+          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+        </div>
+
+        {/* Status filter */}
+        <div className="relative">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[8px] pl-3 pr-7 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
+            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
+          >
+            <option value="">Status</option>
+            <option value="DRAFT">Draft</option>
+            <option value="ACTIVE">Active</option>
+            <option value="UNDER_OFFER">Under Offer</option>
+            <option value="CLOSED">Closed</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="EXPIRED">Expired</option>
+          </select>
+          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+        </div>
+
+        {/* Date Range filter */}
+        <div className="relative">
+          <select
+            value={dateRangeFilter}
+            onChange={(e) => setDateRangeFilter(e.target.value)}
+            className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[8px] pl-3 pr-7 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
+            style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
+          >
+            <option value="">Date Range</option>
+            <option value="7d">Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="90d">Last 90 Days</option>
+            <option value="365d">Last Year</option>
+          </select>
+          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+        </div>
+
+        {hasAdvancedFilters && (
+          <button onClick={clearAdvancedFilters} className="text-xs text-gray-400 hover:text-red-500 bg-transparent border-0 cursor-pointer">
+            Clear
+          </button>
+        )}
+
+        <SavedViewsBar
+          page="deals"
+          currentFilters={{
+            ...(propertyTypeFilter ? { propertyType: propertyTypeFilter } : {}),
+            ...(priceRangeFilter ? { priceRange: priceRangeFilter } : {}),
+            ...(statusFilter ? { status: statusFilter } : {}),
+            ...(dateRangeFilter ? { dateRange: dateRangeFilter } : {}),
+            ...(filter !== 'ALL' ? { tab: filter } : {}),
+          }}
+          onApplyView={(filters) => {
+            setPropertyTypeFilter(filters.propertyType || '')
+            setPriceRangeFilter(filters.priceRange || '')
+            setStatusFilter(filters.status || '')
+            setDateRangeFilter(filters.dateRange || '')
+            if (filters.tab) setFilter(filters.tab as FilterTab)
+          }}
+          hasActiveFilters={hasAdvancedFilters}
+        />
+
+        {/* Sort dropdown — pushed right */}
+        <div ref={sortRef} className="relative ml-auto">
+          <button
+            onClick={() => setSortOpen(!sortOpen)}
+            className="flex items-center gap-1.5 bg-white rounded-[8px] px-3 py-2 text-[0.82rem] text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
+            style={{ border: '1px solid rgba(5,14,36,0.1)' }}
+          >
+            {sortOptions.find((o) => o.key === sortKey)?.label}
+            <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+          </button>
+          {sortOpen && (
+            <div className="absolute right-0 top-full mt-1 z-50 bg-white rounded-[10px] shadow-lg py-1 min-w-[170px]" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
+              {sortOptions.map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => { setSortKey(opt.key); setSortOpen(false) }}
+                  className={`w-full text-left px-3 py-2 text-[0.78rem] bg-transparent border-0 cursor-pointer transition-colors ${
+                    sortKey === opt.key ? 'text-[#2563EB] bg-[#EFF6FF]' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Table */}
+      {/* Active filter pills */}
+      {hasAdvancedFilters && (
+        <div className="mb-3">
+          <ActiveFilterPills
+            filters={[
+              ...(propertyTypeFilter ? [{ key: 'propertyType', label: 'Type', value: propertyTypeFilter, displayValue: typeLabels[propertyTypeFilter] || propertyTypeFilter }] : []),
+              ...(priceRangeFilter ? [{ key: 'priceRange', label: 'Price', value: priceRangeFilter, displayValue: priceRangeFilter === '500000-+' ? '$500K+' : `$${Number(priceRangeFilter.split('-')[0]) / 1000}K - $${Number(priceRangeFilter.split('-')[1]) / 1000}K` }] : []),
+              ...(statusFilter ? [{ key: 'status', label: 'Status', value: statusFilter, displayValue: statusFilter.replace(/_/g, ' ') }] : []),
+              ...(dateRangeFilter ? [{ key: 'dateRange', label: 'Date', value: dateRangeFilter, displayValue: { '7d': 'Last 7 days', '30d': 'Last 30 days', '90d': 'Last 90 days', '365d': 'Last year' }[dateRangeFilter] || dateRangeFilter }] : []),
+            ]}
+            onRemove={(key) => {
+              if (key === 'propertyType') setPropertyTypeFilter('')
+              if (key === 'priceRange') setPriceRangeFilter('')
+              if (key === 'status') setStatusFilter('')
+              if (key === 'dateRange') setDateRangeFilter('')
+            }}
+            onClearAll={clearAdvancedFilters}
+          />
+        </div>
+      )}
+
+      {/* Pipeline View */}
+      {viewMode === 'pipeline' ? (
+        loading ? (
+          <div className="py-16 px-6 text-center">
+            <Loader2 className="w-5 h-5 text-gray-300 animate-spin mx-auto mb-2" />
+            <div className="text-[0.84rem] text-[rgba(5,14,36,0.4)]">Loading deals...</div>
+          </div>
+        ) : (
+          <PipelineView deals={deals} onDealsChange={fetchDeals} />
+        )
+      ) : (
+
+      /* List / Table View */
       <div className="bg-white rounded-[10px] overflow-hidden" style={{ border: '1px solid rgba(5,14,36,0.06)' }}>
         {/* Table header */}
         <div
-          className="grid px-5 py-3 deal-table-header"
-          style={{ gridTemplateColumns: '2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px', background: 'rgba(5,14,36,0.02)', borderBottom: '1px solid rgba(5,14,36,0.04)' }}
+          className="grid px-5 py-3 deal-table-header items-center"
+          style={{ gridTemplateColumns: '36px 2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px', background: 'rgba(5,14,36,0.02)', borderBottom: '1px solid rgba(5,14,36,0.04)' }}
         >
+          <div>
+            <input
+              type="checkbox"
+              checked={isAllSelected}
+              onChange={toggleAll}
+              onClick={(e) => e.stopPropagation()}
+              className="accent-[#2563EB] cursor-pointer"
+              style={{ width: '16px', height: '16px', borderRadius: '4px' }}
+            />
+          </div>
           {['Property', 'Price', 'ARV', 'Spread', 'Matches', 'Offers', 'Status', ''].map((h) => (
             <div key={h || 'actions'} style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: 11, textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: 'rgba(5,14,36,0.4)' }}>{h}</div>
           ))}
@@ -600,8 +904,19 @@ export default function DealsPage() {
                   onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(37,99,235,0.02)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
                   data-row-border
-                  style={{ gridTemplateColumns: '2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px', background: 'white', borderBottom: '1px solid rgba(5,14,36,0.04)' }}
+                  style={{ gridTemplateColumns: '36px 2fr 0.85fr 0.85fr 0.75fr 0.7fr 0.7fr 0.75fr 40px', background: 'white', borderBottom: '1px solid rgba(5,14,36,0.04)' }}
                 >
+                  {/* Checkbox */}
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={isSelected(deal.id)}
+                      onChange={() => toggleSelect(deal.id)}
+                      className="accent-[#2563EB] cursor-pointer"
+                      style={{ width: '16px', height: '16px', borderRadius: '4px', border: '1px solid rgba(5,14,36,0.2)' }}
+                    />
+                  </div>
+
                   {/* Property */}
                   <div className="min-w-0">
                     <div style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: 14, color: '#0B1224' }} className="truncate">
@@ -675,6 +990,7 @@ export default function DealsPage() {
                       onToggle={() => setMenuOpen(menuOpen === deal.id ? null : deal.id)}
                       onClose={() => setMenuOpen(null)}
                       onRunMatch={() => runMatching(deal.id)}
+                      onFindBuyers={() => setFindBuyersDeal(deal)}
                       onChangeStatus={(s) => changeStatus(deal.id, s)}
                       onDelete={() => setConfirmDelete(deal.id)}
                       onListMarketplace={() => listOnMarketplace(deal.id)}
@@ -687,6 +1003,8 @@ export default function DealsPage() {
           </div>
         )}
       </div>
+
+      )}
 
       {/* Delete confirmation dialog */}
       {confirmDelete && (
@@ -716,13 +1034,46 @@ export default function DealsPage() {
         </>
       )}
 
+      {/* Buyer match slide-out panel */}
+      {findBuyersDeal && (
+        <BuyerMatchModal
+          dealId={findBuyersDeal.id}
+          dealAddress={`${findBuyersDeal.address}, ${findBuyersDeal.city}, ${findBuyersDeal.state}`}
+          onClose={() => setFindBuyersDeal(null)}
+        />
+      )}
+
+      {/* Bulk action bar (sticky bottom) */}
+      <BulkActionBar
+        selectedIds={selectedIds}
+        onClearSelection={clearSelection}
+        actions={[
+          {
+            label: 'Export Selected',
+            icon: <Download className="w-3.5 h-3.5" />,
+            onClick: (ids) => handleBulkExport(ids),
+          },
+          {
+            label: 'Change Status',
+            icon: <RefreshCw className="w-3.5 h-3.5" />,
+            onClick: (ids) => handleBulkChangeStatus(ids),
+          },
+          {
+            label: 'Delete Selected',
+            icon: <Trash2 className="w-3.5 h-3.5" />,
+            onClick: (ids) => handleBulkDelete(ids),
+            variant: 'danger',
+          },
+        ]}
+      />
+
       <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 800px) {
           .deals-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .deals-controls { flex-direction: column; align-items: stretch !important; }
           .deal-arv-col, .deal-spread-col, .deal-offers-col { display: none !important; }
           .deal-table-header { display: none !important; }
-          .deal-table-row { grid-template-columns: 1fr auto auto 36px !important; gap: 4px; }
+          .deal-table-row { grid-template-columns: 36px 1fr auto auto 36px !important; gap: 4px; }
         }
         @media (max-width: 500px) {
           .deals-kpi-grid { grid-template-columns: 1fr !important; }

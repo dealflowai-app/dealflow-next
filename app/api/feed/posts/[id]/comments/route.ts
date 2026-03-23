@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse } from '@/lib/api-utils'
 import { prisma } from '@/lib/prisma'
+import { createNotification } from '@/lib/notifications'
 
 // ─── GET /api/feed/posts/[id]/comments — list comments ─────────────────────
 
@@ -68,7 +69,7 @@ export async function POST(
   }
 
   // Check post exists
-  const post = await prisma.communityPost.findUnique({ where: { id: postId }, select: { id: true } })
+  const post = await prisma.communityPost.findUnique({ where: { id: postId }, select: { id: true, profileId: true } })
   if (!post) return errorResponse(404, 'Post not found')
 
   const comment = await prisma.postComment.create({
@@ -77,6 +78,18 @@ export async function POST(
       profile: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
     },
   })
+
+  // Notify post author (don't notify yourself)
+  if (post.profileId !== profile.id) {
+    const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Someone'
+    createNotification(
+      post.profileId,
+      'comment',
+      `${name} commented on your post`,
+      content.length > 80 ? content.slice(0, 80) + '...' : content,
+      { postId, commentId: comment.id },
+    )
+  }
 
   return successResponse({
     comment: {

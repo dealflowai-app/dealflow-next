@@ -19,12 +19,14 @@ import {
   Shield,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useMobileSidebar } from '@/components/layout/MobileSidebarContext'
 
 interface NavItem {
   label: string
   href: string
   icon: React.ElementType
+  badgeKey?: string // key to look up badge count
 }
 
 const mainItems: NavItem[] = [
@@ -46,12 +48,16 @@ function NavSection({
   collapsed,
   pathname,
   isFirst,
+  onLinkClick,
+  badges,
 }: {
   label: string
   items: NavItem[]
   collapsed: boolean
   pathname: string
   isFirst?: boolean
+  onLinkClick?: () => void
+  badges?: Record<string, number>
 }) {
   return (
     <div style={{ marginTop: isFirst ? 0 : 16 }}>
@@ -74,12 +80,15 @@ function NavSection({
           item.href === '/dashboard'
             ? pathname === '/dashboard'
             : pathname.startsWith(item.href)
+        const badgeCount = item.badgeKey && badges ? (badges[item.badgeKey] ?? 0) : 0
 
         return (
           <Link
             key={item.href}
             href={item.href}
             title={collapsed ? item.label : undefined}
+            onClick={onLinkClick}
+            data-tour={`nav-${item.href.replace('/', '')}`}
             className={`sidebar-link${isActive ? ' sidebar-link-active' : ''}`}
             style={{
               display: 'flex',
@@ -99,17 +108,69 @@ function NavSection({
               position: 'relative',
             }}
           >
-            <Icon
-              className="flex-shrink-0"
-              style={{
-                width: 'var(--nav-icon-size)',
-                height: 'var(--nav-icon-size)',
-                strokeWidth: isActive ? 1.9 : 1.6,
-                color: isActive ? 'var(--nav-active-icon)' : 'var(--nav-inactive-icon)',
-                transition: 'color 0.18s ease',
-              }}
-            />
-            {!collapsed && item.label}
+            <span style={{ position: 'relative', display: 'inline-flex' }}>
+              <Icon
+                className="flex-shrink-0"
+                style={{
+                  width: 'var(--nav-icon-size)',
+                  height: 'var(--nav-icon-size)',
+                  strokeWidth: isActive ? 1.9 : 1.6,
+                  color: isActive ? 'var(--nav-active-icon)' : 'var(--nav-inactive-icon)',
+                  transition: 'color 0.18s ease',
+                }}
+              />
+              {collapsed && badgeCount > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: -4,
+                    right: -6,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: 14,
+                    height: 14,
+                    borderRadius: 7,
+                    background: '#EF4444',
+                    color: 'white',
+                    fontSize: '0.52rem',
+                    fontWeight: 700,
+                    padding: '0 3px',
+                    lineHeight: 1,
+                    animation: 'badgeIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  }}
+                >
+                  {badgeCount > 9 ? '9+' : badgeCount}
+                </span>
+              )}
+            </span>
+            {!collapsed && (
+              <>
+                {item.label}
+                {badgeCount > 0 && (
+                  <span
+                    style={{
+                      marginLeft: 'auto',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      background: '#EF4444',
+                      color: 'white',
+                      fontSize: '0.6rem',
+                      fontWeight: 700,
+                      padding: '0 5px',
+                      lineHeight: 1,
+                      animation: 'badgeIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    }}
+                  >
+                    {badgeCount > 99 ? '99+' : badgeCount}
+                  </span>
+                )}
+              </>
+            )}
           </Link>
         )
       })}
@@ -122,6 +183,13 @@ export default function Sidebar({ profile }: { profile: Profile }) {
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+  const { isOpen: mobileOpen, close: closeMobile } = useMobileSidebar()
+  const badges: Record<string, number> = {}
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    closeMobile()
+  }, [pathname]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const initials =
     profile.firstName && profile.lastName
@@ -142,15 +210,24 @@ export default function Sidebar({ profile }: { profile: Profile }) {
   }
 
   return (
-    <aside
-      className="flex-shrink-0 h-screen flex flex-col relative"
-      style={{
-        width: collapsed ? 56 : 190,
-        transition: 'width 0.2s ease',
-        background: 'var(--white, #ffffff)',
-        borderRight: '1px solid var(--nav-border)',
-      }}
-    >
+    <>
+      {/* Mobile backdrop overlay */}
+      {mobileOpen && (
+        <div
+          className="mobile-sidebar-backdrop"
+          onClick={closeMobile}
+        />
+      )}
+      <aside
+        data-tour="sidebar"
+        className={`flex-shrink-0 h-screen flex flex-col relative mobile-sidebar ${mobileOpen ? 'mobile-sidebar-open' : ''}`}
+        style={{
+          width: collapsed ? 56 : 190,
+          transition: 'width 0.2s ease',
+          background: 'var(--white)',
+          borderRight: '1px solid var(--nav-border)',
+        }}
+      >
       {/* Logo */}
       <div
         className="flex items-center px-4"
@@ -173,7 +250,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                 style={{
                   fontWeight: 600,
                   fontSize: '0.9rem',
-                  color: 'var(--navy-heading, #0B1224)',
+                  color: 'var(--navy-heading)',
                   letterSpacing: '-0.02em',
                   whiteSpace: 'nowrap',
                 }}
@@ -204,18 +281,18 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         </Link>
       </div>
 
-      {/* Collapse toggle */}
+      {/* Collapse toggle (hidden on mobile) */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute flex items-center justify-center cursor-pointer"
+        className="absolute flex items-center justify-center cursor-pointer hidden md:flex"
         style={{
           top: 60,
           right: -11,
           width: 22,
           height: 22,
           zIndex: 10,
-          background: 'var(--white, #ffffff)',
-          border: '1px solid rgba(5,14,36,0.06)',
+          background: 'var(--white)',
+          border: '1px solid var(--nav-border)',
           borderRadius: '50%',
           boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           transition: 'background 0.15s ease',
@@ -223,17 +300,17 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
-          <ChevronRight style={{ width: 11, height: 11, color: 'var(--muted-text, #9CA3AF)' }} />
+          <ChevronRight style={{ width: 11, height: 11, color: 'var(--muted-text)' }} />
         ) : (
-          <ChevronLeft style={{ width: 11, height: 11, color: 'var(--muted-text, #9CA3AF)' }} />
+          <ChevronLeft style={{ width: 11, height: 11, color: 'var(--muted-text)' }} />
         )}
       </button>
 
       {/* Nav */}
       <nav className="flex-1 flex flex-col sidebar-nav-scroll" style={{ padding: '10px 10px', overflowY: 'auto', minHeight: 0 }}>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <NavSection label="Main" items={mainItems} collapsed={collapsed} pathname={pathname} isFirst />
-          <NavSection label="Workspace" items={workspaceItems} collapsed={collapsed} pathname={pathname} />
+          <NavSection label="Main" items={mainItems} collapsed={collapsed} pathname={pathname} isFirst onLinkClick={closeMobile} badges={badges} />
+          <NavSection label="Workspace" items={workspaceItems} collapsed={collapsed} pathname={pathname} onLinkClick={closeMobile} badges={badges} />
         </div>
       </nav>
 
@@ -244,6 +321,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           <Link
             href="/admin"
             title={collapsed ? 'Admin' : undefined}
+            onClick={closeMobile}
             className="sidebar-link"
             style={{
               display: 'flex',
@@ -258,7 +336,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
               textDecoration: 'none',
               justifyContent: collapsed ? 'center' : 'flex-start',
               marginBottom: 4,
-              color: '#0B1224',
+              color: 'var(--dash-text, #0B1224)',
               background: 'transparent',
               transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
@@ -304,6 +382,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         <Link
           href="/settings"
           title={collapsed ? 'Settings' : undefined}
+          onClick={closeMobile}
           className={`sidebar-link${pathname.startsWith('/settings') ? ' sidebar-link-active' : ''}`}
           style={{
             display: 'flex',
@@ -350,20 +429,36 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             transition: 'background 0.15s ease',
           }}
         >
-          <div
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #1a1a2e, #16213e)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'white', letterSpacing: '0.02em' }}>{initials}</span>
-          </div>
+          {profile.avatarUrl ? (
+            <Image
+              src={profile.avatarUrl}
+              alt="Avatar"
+              width={30}
+              height={30}
+              style={{
+                borderRadius: '50%',
+                objectFit: 'cover',
+                flexShrink: 0,
+                width: 30,
+                height: 30,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #1a1a2e, #16213e)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'white', letterSpacing: '0.02em' }}>{initials}</span>
+            </div>
+          )}
           {!collapsed && (
             <>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -371,7 +466,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                   fontSize: '13px',
                   fontWeight: 500,
                   fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
-                  color: 'var(--navy-heading, #0B1224)',
+                  color: 'var(--navy-heading)',
                   margin: 0,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -395,7 +490,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                   transition: 'all 0.18s ease',
                 }}
               >
-                <LogOut style={{ width: 14, height: 14, color: 'var(--body-text, #4B5563)' }} />
+                <LogOut style={{ width: 14, height: 14, color: 'var(--body-text)' }} />
               </button>
             </>
           )}
@@ -428,10 +523,10 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         }
         .sidebar-link:hover:not(.sidebar-link-active) {
           background: var(--nav-hover-bg) !important;
-          color: rgba(5, 14, 36, 0.8) !important;
+          color: var(--dash-text) !important;
         }
         .sidebar-link:hover:not(.sidebar-link-active) svg {
-          color: rgba(5, 14, 36, 0.5) !important;
+          color: var(--nav-inactive-text) !important;
         }
         .sidebar-link-active::before {
           content: '';
@@ -444,13 +539,18 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           background: var(--nav-active-text);
         }
         .sidebar-user:hover {
-          background: rgba(5, 14, 36, 0.025);
+          background: var(--nav-hover-bg);
         }
         .sidebar-signout:hover {
           opacity: 1 !important;
-          background: rgba(5, 14, 36, 0.04) !important;
+          background: var(--nav-hover-bg) !important;
+        }
+        @keyframes badgeIn {
+          0% { transform: scale(0); }
+          100% { transform: scale(1); }
         }
       ` }} />
-    </aside>
+      </aside>
+    </>
   )
 }

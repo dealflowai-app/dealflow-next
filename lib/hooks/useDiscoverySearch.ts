@@ -72,6 +72,7 @@ export interface UseDiscoverySearchReturn {
   searchWithQuery: (query: string) => void
   searchByBounds: (bounds: { north: number; south: number; east: number; west: number }) => void
   setFilter: <K extends keyof DiscoveryFilters>(key: K, value: DiscoveryFilters[K]) => void
+  setAllFilters: (filters: Partial<DiscoveryFilters>) => void
   clearFilters: () => void
   clearBuyerMatch: () => void
   applyPreset: (preset: PresetKey) => void
@@ -287,6 +288,10 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
     setFilters((prev) => ({ ...prev, [key]: value }))
   }, [])
 
+  const setAllFilters = useCallback((incoming: Partial<DiscoveryFilters>) => {
+    setFilters((prev) => ({ ...prev, ...incoming }))
+  }, [])
+
   const clearFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS)
     setProperties([])
@@ -391,6 +396,7 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
     searchWithQuery,
     searchByBounds,
     setFilter,
+    setAllFilters,
     clearFilters,
     clearBuyerMatch,
     applyPreset,

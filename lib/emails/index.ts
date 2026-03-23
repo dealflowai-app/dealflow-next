@@ -54,3 +54,7 @@ export type {
   OfferEmailData,
   CampaignReportData,
 } from './system'
+
+// Weekly digest
+export { formatWeeklyDigest } from './weekly-digest'
+export type { DigestData } from './weekly-digest'

@@ -94,8 +94,7 @@ export default function AdminContentPage() {
   return (
     <div style={{ padding: 32, fontFamily, maxWidth: 1280 }}>
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', margin: 0 }}>Content</h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: '4px 0 0' }}>Deals, marketplace listings, and contracts overview</p>
+        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: 0 }}>Deals, marketplace listings, and contracts overview</p>
       </div>
 
       {/* KPI cards */}
@@ -137,7 +136,7 @@ export default function AdminContentPage() {
       )}
 
       {/* Tab bar */}
-      <div style={{ display: 'flex', gap: 0, marginBottom: 16, borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+      <div style={{ display: 'flex', gap: 0, marginBottom: 16, borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
         {([
           { key: 'deals', label: 'Deals' },
           { key: 'listings', label: 'Marketplace Listings' },
@@ -165,7 +164,7 @@ export default function AdminContentPage() {
       </div>
 
       {/* Content table */}
-      <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: 32, textAlign: 'center', color: 'rgba(5,14,36,0.4)', fontSize: '0.85rem' }}>Loading...</div>
         ) : (
@@ -176,7 +175,7 @@ export default function AdminContentPage() {
 
             {/* Pagination */}
             {data && data.totalPages > 1 && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid rgba(5,14,36,0.08)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid rgba(5,14,36,0.06)' }}>
                 <span style={{ fontSize: '0.78rem', color: 'rgba(5,14,36,0.5)', fontFamily }}>
                   Page {data.page} of {data.totalPages} ({data.total} items)
                 </span>
@@ -195,7 +194,7 @@ export default function AdminContentPage() {
       </div>
 
       {/* Daisy chain placeholder */}
-      <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 20, marginTop: 24 }}>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20, marginTop: 24 }}>
         <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0B1224', margin: '0 0 8px' }}>Daisy Chain Detection</h3>
         <p style={{ fontSize: '0.82rem', color: 'rgba(5,14,36,0.5)', margin: 0 }}>
           Daisy chain detection will be available at launch. This feature will automatically flag properties that are listed by multiple wholesalers, helping prevent deal conflicts and maintain marketplace quality.
@@ -219,7 +218,7 @@ function DealsTable({ items }: { items: any[] }) {
   return (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
-        <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+        <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
           {['Property', 'Wholesaler', 'Status', 'ARV', 'Assign Fee', 'Created'].map((h) => (
             <th key={h} style={thStyle}>{h}</th>
           ))}
@@ -251,7 +250,7 @@ function ListingsTable({ items }: { items: any[] }) {
   return (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
-        <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+        <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
           {['Property', 'Listed By', 'Price', 'ARV', 'Status', 'Views', 'Listed'].map((h) => (
             <th key={h} style={thStyle}>{h}</th>
           ))}
@@ -288,7 +287,7 @@ function ContractsTable({ items }: { items: any[] }) {
   return (
     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <thead>
-        <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+        <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
           {['Property', 'Assignor', 'Template', 'Fee', 'Status', 'Created'].map((h) => (
             <th key={h} style={thStyle}>{h}</th>
           ))}
@@ -321,7 +320,7 @@ function KpiCard({ label, value, detail, icon: Icon, iconBg, iconColor }: {
   label: string; value: string; detail: string; icon: React.ElementType; iconBg: string; iconColor: string
 }) {
   return (
-    <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 18, position: 'relative' }}>
+    <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 18, position: 'relative' }}>
       <div style={{ position: 'absolute', top: 16, right: 16, width: 34, height: 34, borderRadius: '50%', background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Icon style={{ width: 16, height: 16, color: iconColor, strokeWidth: 1.8 }} />
       </div>

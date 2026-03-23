@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!conversation || !conversation.sharedAt) {
     return {
-      title: 'Conversation Unavailable — DealFlow AI',
+      title: 'Conversation Unavailable | DealFlow AI',
     }
   }
 
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${conversation.title} — DealFlow AI`,
+    title: `${conversation.title} | DealFlow AI`,
     description,
     openGraph: {
       title: conversation.title,

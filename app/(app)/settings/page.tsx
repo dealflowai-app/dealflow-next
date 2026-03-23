@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import EmailPreferences from '@/components/settings/EmailPreferences'
 import {
   User,
   CreditCard,
@@ -23,7 +24,11 @@ import {
   Search,
   Phone,
   Loader2,
+  Gift,
 } from 'lucide-react'
+import TeamSection from '@/components/settings/TeamSection'
+import ReferralSection from '@/components/settings/ReferralSection'
+import { useToast } from '@/components/toast'
 
 /* ── Section nav ── */
 const sections = [
@@ -33,24 +38,39 @@ const sections = [
   { key: 'notifications', label: 'Notifications', icon: Bell },
   { key: 'integrations', label: 'Integrations', icon: Puzzle },
   { key: 'ai', label: 'AI Settings', icon: Bot },
+  { key: 'referrals', label: 'Referrals', icon: Gift },
   { key: 'privacy', label: 'Data & Privacy', icon: Shield },
 ] as const
 
 type SectionKey = (typeof sections)[number]['key']
 
-/* ── Mock data ── */
-const mockProfile = {
-  firstName: 'Jason',
-  lastName: 'Rivera',
-  company: 'RiverPoint Capital',
-  email: 'jason@riverpointcapital.com',
-  phone: '(214) 555-0187',
-  timezone: 'America/Chicago',
-  markets: ['Dallas', 'Phoenix'],
-  companyType: 'Solo Wholesaler',
-  yearsInBusiness: '4',
-  dealsPerMonth: '3-5',
-  website: 'https://riverpointcapital.com',
+/* ── Profile type ── */
+type ProfileData = {
+  firstName: string
+  lastName: string
+  company: string
+  email: string
+  phone: string
+  timezone: string
+  markets: string[]
+  companyType: string
+  yearsInBusiness: string
+  dealsPerMonth: string
+  website: string
+}
+
+const emptyProfile: ProfileData = {
+  firstName: '',
+  lastName: '',
+  company: '',
+  email: '',
+  phone: '',
+  timezone: 'America/New_York',
+  markets: [],
+  companyType: '',
+  yearsInBusiness: '',
+  dealsPerMonth: '',
+  website: '',
 }
 
 /* ── Billing plan definitions ── */
@@ -81,11 +101,6 @@ const planDefs = [
   },
 ]
 
-const teamMembers = [
-  { name: 'Jason Rivera', email: 'jason@riverpointcapital.com', role: 'Admin', status: 'Active', date: 'Sep 12, 2025' },
-  { name: 'Maria Chen', email: 'maria@riverpointcapital.com', role: 'Manager', status: 'Active', date: 'Nov 3, 2025' },
-  { name: 'Tyler Brooks', email: 'tyler@riverpointcapital.com', role: 'Member', status: 'Invited', date: 'Mar 8, 2026' },
-]
 
 const notificationCategories = [
   {
@@ -167,10 +182,9 @@ const aiScript = `1. Introduce company: "Hi, this is [name] from RiverPoint Capi
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState<SectionKey>('profile')
-  const [profile, setProfile] = useState(mockProfile)
-  const [showInviteForm, setShowInviteForm] = useState(false)
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState('Member')
+  const [profile, setProfile] = useState<ProfileData>(emptyProfile)
+  const [profileLoading, setProfileLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [notifications, setNotifications] = useState(notificationCategories)
   const [selectedVoice, setSelectedVoice] = useState('Sarah')
   const [callDuration, setCallDuration] = useState(120)
@@ -179,7 +193,66 @@ export default function SettingsPage() {
   const [callEnd, setCallEnd] = useState('6:00 PM')
   const [callDays, setCallDays] = useState({ Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: false, Sun: false })
   const [dataRetention, setDataRetention] = useState('1 year')
+  const toast = useToast()
   const [saved, setSaved] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) return
+    if (file.size > 5 * 1024 * 1024) return
+
+    setAvatarUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/profile/avatar', { method: 'POST', body: formData })
+      if (res.ok) {
+        const data = await res.json()
+        setAvatarUrl(data.avatarUrl)
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setAvatarUploading(false)
+      if (avatarInputRef.current) avatarInputRef.current.value = ''
+    }
+  }
+
+  // Fetch profile on mount
+  useEffect(() => {
+    async function loadProfile() {
+      setProfileLoading(true)
+      try {
+        const res = await fetch('/api/profile')
+        if (res.ok) {
+          const data = await res.json()
+          setProfile({
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
+            company: data.company || '',
+            email: data.email || '',
+            phone: data.phone || '',
+            timezone: data.timezone || 'America/New_York',
+            markets: data.markets || [],
+            companyType: data.companyType || '',
+            yearsInBusiness: data.yearsInBusiness || '',
+            dealsPerMonth: data.dealsPerMonth || '',
+            website: data.website || '',
+          })
+          if (data.avatarUrl) setAvatarUrl(data.avatarUrl)
+        }
+      } catch {
+        // Profile fetch failed - form stays empty
+      } finally {
+        setProfileLoading(false)
+      }
+    }
+    loadProfile()
+  }, [])
 
   // Billing state
   const [billingLoading, setBillingLoading] = useState(false)
@@ -373,9 +446,46 @@ export default function SettingsPage() {
     return phone
   }
 
+  const saveProfile = async () => {
+    setSaving(true)
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profile),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setProfile({
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          company: data.company || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          timezone: data.timezone || 'America/New_York',
+          markets: data.markets || [],
+          companyType: data.companyType || '',
+          yearsInBusiness: data.yearsInBusiness || '',
+          dealsPerMonth: data.dealsPerMonth || '',
+          website: data.website || '',
+        })
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+        toast.success('Settings saved successfully')
+      } else {
+        toast.error('Failed to save settings')
+      }
+    } catch {
+      toast.error('Failed to save settings')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const showSaved = () => {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+    toast.success('Settings saved successfully')
   }
 
   const toggleNotification = (catIdx: number, itemIdx: number) => {
@@ -452,18 +562,48 @@ export default function SettingsPage() {
           {/* ════════════ PROFILE ════════════ */}
           {activeSection === 'profile' && (
             <div>
-              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }} className="mb-6">Profile</h2>
+              <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: 'var(--dash-text, #0B1224)', letterSpacing: '-0.02em' }} className="mb-6">Profile</h2>
+
+              {profileLoading ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+                  <span className="ml-2 text-sm text-gray-500">Loading profile...</span>
+                </div>
+              ) : (
+              <>
 
               {/* Avatar */}
               <div className="flex items-center gap-5 mb-8">
                 <div className="relative group">
-                  <div className="w-20 h-20 rounded-full bg-[#0B1224] flex items-center justify-center">
-                    <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600 }} className="text-2xl text-white">JR</span>
+                  <div className="w-20 h-20 rounded-full bg-[#0B1224] flex items-center justify-center overflow-hidden">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600 }} className="text-2xl text-white">
+                        {profile.firstName?.[0]}{profile.lastName?.[0]}
+                      </span>
+                    )}
                   </div>
-                  <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                    <Camera className="w-5 h-5 text-white" />
-                    <span className="text-[10px] text-white ml-1">Change</span>
+                  <div
+                    className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    onClick={() => avatarInputRef.current?.click()}
+                  >
+                    {avatarUploading ? (
+                      <Loader2 className="w-5 h-5 text-white animate-spin" />
+                    ) : (
+                      <>
+                        <Camera className="w-5 h-5 text-white" />
+                        <span className="text-[10px] text-white ml-1">Change</span>
+                      </>
+                    )}
                   </div>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                  />
                 </div>
                 <div>
                   <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }}>{profile.firstName} {profile.lastName}</p>
@@ -597,9 +737,11 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
-                {saved ? '✓ Saved' : 'Save Changes'}
+              <button onClick={saveProfile} disabled={saving} style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors disabled:opacity-50">
+                {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Changes'}
               </button>
+              </>
+              )}
             </div>
           )}
 
@@ -937,113 +1079,7 @@ export default function SettingsPage() {
           )}
 
           {/* ════════════ TEAM ════════════ */}
-          {activeSection === 'team' && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '18px', color: '#0B1224', letterSpacing: '-0.02em' }}>Team</h2>
-                <button
-                  onClick={() => setShowInviteForm(!showInviteForm)}
-                  style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="flex items-center gap-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Invite Team Member
-                </button>
-              </div>
-
-              {/* Invite form */}
-              {showInviteForm && (
-                <div style={{ backgroundColor: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: '10px', padding: '20px 24px' }} className="mb-6">
-                  <h4 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-3">Invite a new team member</h4>
-                  <div className="flex items-end gap-3">
-                    <div className="flex-1">
-                      <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1">Email Address</label>
-                      <input
-                        value={inviteEmail}
-                        onChange={e => setInviteEmail(e.target.value)}
-                        placeholder="colleague@company.com"
-                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
-                      />
-                    </div>
-                    <div className="w-40">
-                      <label style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '14px', color: 'rgba(5,14,36,0.65)' }} className="block mb-1">Role</label>
-                      <select
-                        value={inviteRole}
-                        onChange={e => setInviteRole(e.target.value)}
-                        style={{ backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', borderRadius: '8px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color: '#0B1224' }} className="w-full focus:outline-none focus:border-[#2563EB] focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)]"
-                      >
-                        <option>Admin</option>
-                        <option>Manager</option>
-                        <option>Member</option>
-                      </select>
-                    </div>
-                    <button style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors whitespace-nowrap">
-                      Send Invite
-                    </button>
-                    <button onClick={() => setShowInviteForm(false)} className="px-3 py-2 text-[#2563EB] hover:text-[#1D4ED8]">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Team table */}
-              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px' }} className="bg-white overflow-hidden mb-4">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-100 text-left">
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Name</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Email</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Role</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Status</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Date Added</th>
-                      <th style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="px-6 py-3">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {teamMembers.map((m, i) => (
-                      <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
-                        <td className="px-6 py-3">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-[#0B1224] flex items-center justify-center">
-                              <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '10px' }} className="text-white">{m.name.split(' ').map(n => n[0]).join('')}</span>
-                            </div>
-                            <span style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '14px', color: '#0B1224' }}>{m.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3 text-gray-600">{m.email}</td>
-                        <td className="px-6 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                            m.role === 'Admin' ? 'bg-purple-100 text-purple-700' :
-                            m.role === 'Manager' ? 'bg-[#EFF6FF] text-[#2563EB]' :
-                            'bg-gray-100 text-gray-700'
-                          }`}>{m.role}</span>
-                        </td>
-                        <td className="px-6 py-3">
-                          <span className={`flex items-center gap-1 text-xs ${m.status === 'Active' ? 'text-[#2563EB]' : 'text-yellow-600'}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${m.status === 'Active' ? 'bg-[#2563EB]' : 'bg-yellow-500'}`} />
-                            {m.status === 'Invited' ? 'Pending' : m.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-3 text-gray-500">{m.date}</td>
-                        <td className="px-6 py-3">
-                          <div className="flex items-center gap-2">
-                            <button className="text-xs text-[#2563EB] hover:text-[#1D4ED8]">Edit Role</button>
-                            {m.role !== 'Admin' && (
-                              <button className="text-xs text-red-500 hover:text-red-700">Remove</button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)', borderRadius: '10px' }} className="bg-gray-100 px-4 py-2.5">
-                Your plan allows up to <strong>3 team members</strong>. Upgrade to Enterprise for unlimited.
-              </p>
-            </div>
-          )}
+          {activeSection === 'team' && <TeamSection />}
 
           {/* ════════════ NOTIFICATIONS ════════════ */}
           {activeSection === 'notifications' && (
@@ -1097,6 +1133,11 @@ export default function SettingsPage() {
               <button onClick={showSaved} style={{ padding: '10px 20px', borderRadius: '8px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} className="mt-6 bg-[#2563EB] text-white hover:bg-[#1D4ED8] transition-colors">
                 {saved ? '✓ Saved' : 'Save Notification Preferences'}
               </button>
+
+              {/* ── Email Preferences ── */}
+              <div className="mt-10 pt-8 border-t border-gray-100">
+                <EmailPreferences />
+              </div>
             </div>
           )}
 
@@ -1347,6 +1388,9 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
+
+          {/* ════════════ REFERRALS ════════════ */}
+          {activeSection === 'referrals' && <ReferralSection />}
 
           {/* ════════════ DATA & PRIVACY ════════════ */}
           {activeSection === 'privacy' && (

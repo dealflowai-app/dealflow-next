@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email'
 import { formatWelcomeEmail } from '@/lib/emails'
 import { stripe } from '@/lib/stripe'
+import { seedDemoData } from '@/lib/demo-data'
 
 export async function POST(request: Request) {
   try {
@@ -23,8 +24,8 @@ export async function POST(request: Request) {
 
     const profile = await prisma.profile.upsert({
       where: { userId: user.id },
-      create: { userId: user.id, email: user.email!, firstName, lastName, phone, role: 'WHOLESALER', settings },
-      update: { firstName, lastName, phone, settings },
+      create: { userId: user.id, email: user.email!, firstName, lastName, phone, role: 'WHOLESALER', settings, onboardingCompleted: true },
+      update: { firstName, lastName, phone, settings, onboardingCompleted: true },
     })
 
     // Mark profile as completed in user_metadata so middleware can check
@@ -76,6 +77,11 @@ export async function POST(request: Request) {
         categories: ['onboarding', 'welcome'],
       }).catch((err) => console.error('Welcome email failed:', err))
     }
+
+    // Seed demo data (fire-and-forget)
+    seedDemoData(profile.id).catch((err) =>
+      console.error('Demo data seeding failed:', err)
+    )
 
     return NextResponse.json({ profile })
   } catch (err) {

@@ -36,6 +36,10 @@ import {
   Merge,
   UserCheck,
 } from 'lucide-react'
+import SavedViewsBar from '@/components/filters/SavedViewsBar'
+import ActiveFilterPills from '@/components/filters/ActiveFilterPills'
+import BulkActionBar from '@/components/ui/BulkActionBar'
+import { useBulkSelect } from '@/hooks/useBulkSelect'
 import {
   useBuyers,
   useTags,
@@ -51,6 +55,7 @@ import {
   checkDuplicates,
   mergeBuyers,
 } from '@/lib/hooks/useCRMActions'
+import { exportToCSV } from '@/lib/csv-export'
 import ClickToCall from '@/components/outreach/ClickToCall'
 import PowerDialer, { type DialerBuyer } from '@/components/outreach/PowerDialer'
 
@@ -667,7 +672,7 @@ function AddBuyerModal({ onClose, onCreated, defaultType }: { onClose: () => voi
                   <label className={labelCls}>Timeline to Sell</label>
                   <select value={form.sellerTimeline} onChange={e => setForm(p => ({ ...p, sellerTimeline: e.target.value }))} className={selectCls}>
                     <option value="">Select...</option>
-                    <option value="ASAP">ASAP — needs to sell now</option>
+                    <option value="ASAP">ASAP: needs to sell now</option>
                     <option value="30 days">Within 30 days</option>
                     <option value="60 days">Within 60 days</option>
                     <option value="90+ days">90+ days</option>
@@ -1163,27 +1168,42 @@ function ListView({
   addToast: (msg: string, type?: ToastType) => void
   onStatusChange?: (buyerId: string, newStatus: string) => void
 }) {
-  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const { selectedIds, selectedSet: selected, toggleSelect: toggle, isSelected, isAllSelected: allSelected, toggleAll, clearSelection, count: selectedCount } = useBulkSelect(buyers)
   const [sortCol, setSortCol] = useState<string>('score')
   const [menuOpen, setMenuOpen] = useState<string | null>(null)
   const [statusDropdown, setStatusDropdown] = useState<string | null>(null)
   const [bulkLoading, setBulkLoading] = useState(false)
   const [showDialer, setShowDialer] = useState(false)
 
-  const allSelected = buyers.length > 0 && selected.size === buyers.length
-  function toggleAll() { setSelected(allSelected ? new Set() : new Set(buyers.map((b) => b.id))) }
-  function toggle(id: string) { setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n }) }
-
   async function handleBulk(action: string) {
-    if (selected.size === 0) return
+    if (selectedCount === 0) return
+    if (action === 'delete') {
+      if (!window.confirm(`Are you sure you want to delete ${selectedCount} contact${selectedCount !== 1 ? 's' : ''}? This cannot be undone.`)) return
+    }
     setBulkLoading(true)
     try {
-      const data = await bulkAction(action, Array.from(selected))
-      addToast(`${data.updated ?? selected.size} buyer${(data.updated ?? selected.size) !== 1 ? 's' : ''} ${action === 'archive' ? 'archived' : action === 'activate' ? 'activated' : 'updated'}`)
-      setSelected(new Set())
+      const data = await bulkAction(action, selectedIds)
+      addToast(`${data.updated ?? data.deleted ?? selectedCount} contact${(data.updated ?? data.deleted ?? selectedCount) !== 1 ? 's' : ''} ${action === 'archive' ? 'archived' : action === 'activate' ? 'activated' : action === 'delete' ? 'deleted' : 'updated'}`)
+      clearSelection()
       onRefetch()
     } catch (ex) {
       addToast(ex instanceof Error ? ex.message : 'Bulk action failed', 'error')
+    } finally {
+      setBulkLoading(false)
+    }
+  }
+
+  async function handleBulkExport() {
+    if (selectedCount === 0) return
+    setBulkLoading(true)
+    try {
+      const data = await bulkAction('export', selectedIds)
+      if (data.buyers) {
+        exportToCSV(data.buyers, `crm-selected-export-${new Date().toISOString().split('T')[0]}.csv`)
+        addToast(`Exported ${data.count} contacts`)
+      }
+    } catch (ex) {
+      addToast(ex instanceof Error ? ex.message : 'Export failed', 'error')
     } finally {
       setBulkLoading(false)
     }
@@ -1249,46 +1269,34 @@ function ListView({
 
   return (
     <div>
-      {/* Bulk action bar */}
-      {selected.size > 0 && (
-        <div className="flex items-center gap-3 bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.15)] rounded-[10px] px-4 py-2.5 mb-3">
-          <span className="text-[0.8rem] text-[#2563EB] font-medium">{selected.size} selected</span>
-          <div className="flex items-center gap-1.5 ml-auto">
-            <button
-              onClick={() => setShowDialer(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-bold text-[#2563EB] hover:bg-[rgba(37,99,235,0.12)] bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.2)] cursor-pointer transition-colors"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              Power Dial
-            </button>
-            <a
-              href={`/outreach?action=create&contactIds=${Array.from(selected).join(',')}`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-semibold text-[#2563EB] hover:bg-[rgba(37,99,235,0.12)] bg-[rgba(37,99,235,0.08)] border border-[rgba(37,99,235,0.2)] no-underline cursor-pointer transition-colors"
-            >
-              <PhoneOutgoing className="w-3.5 h-3.5" />
-              Start Campaign
-            </a>
-            {[
-              { label: 'Add Tag', icon: Tag, action: 'tag' },
-              { label: 'Export', icon: Download, action: 'export' },
-              { label: 'Archive', icon: Archive, action: 'archive' },
-            ].map((a) => (
-              <button
-                key={a.label}
-                onClick={() => handleBulk(a.action)}
-                disabled={bulkLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[0.76rem] font-medium text-[#2563EB] hover:bg-[#DBEAFE] bg-transparent border-0 cursor-pointer transition-colors disabled:opacity-50"
-              >
-                <a.icon className="w-3.5 h-3.5" />
-                {a.label}
-              </button>
-            ))}
-          </div>
-          <button onClick={() => setSelected(new Set())} className="text-[#60A5FA] hover:text-[#2563EB] bg-transparent border-0 cursor-pointer">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+      {/* Bulk action bar (sticky bottom) */}
+      <BulkActionBar
+        selectedIds={selectedIds}
+        onClearSelection={clearSelection}
+        actions={[
+          {
+            label: 'Export Selected',
+            icon: <Download className="w-3.5 h-3.5" />,
+            onClick: () => handleBulkExport(),
+          },
+          {
+            label: 'Add Tag',
+            icon: <Tag className="w-3.5 h-3.5" />,
+            onClick: (ids) => handleBulk('tag'),
+          },
+          {
+            label: 'Add to Campaign',
+            icon: <PhoneOutgoing className="w-3.5 h-3.5" />,
+            onClick: (ids) => { window.location.href = `/outreach?action=create&contactIds=${ids.join(',')}` },
+          },
+          {
+            label: 'Delete Selected',
+            icon: <Archive className="w-3.5 h-3.5" />,
+            onClick: () => handleBulk('delete'),
+            variant: 'danger',
+          },
+        ]}
+      />
 
       {/* Table */}
       <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-none overflow-x-auto">
@@ -1337,7 +1345,7 @@ function ListView({
                   onDoubleClick={() => onOpenDetail(b.id)}
                 >
                   <td className="px-3 py-3">
-                    <input type="checkbox" checked={selected.has(b.id)} onChange={() => toggle(b.id)} className="accent-[#2563EB] cursor-pointer" style={{ width: '16px', height: '16px', borderRadius: '4px', border: '1px solid rgba(5,14,36,0.2)' }} />
+                    <input type="checkbox" checked={isSelected(b.id)} onChange={() => toggle(b.id)} className="accent-[#2563EB] cursor-pointer" style={{ width: '16px', height: '16px', borderRadius: '4px', border: '1px solid rgba(5,14,36,0.2)' }} />
                   </td>
                   <td className="px-3 py-3">
                     <button onClick={() => onOpenDetail(b.id)} className="flex items-center gap-2 bg-transparent border-0 cursor-pointer text-left p-0 group">
@@ -1456,7 +1464,7 @@ function ListView({
       {/* Power Dialer overlay */}
       {showDialer && (() => {
         const dialerBuyers: DialerBuyer[] = buyers
-          .filter(b => selected.has(b.id) && b.phone)
+          .filter(b => isSelected(b.id) && b.phone)
           .map(b => ({
             id: b.id,
             name: buyerName(b),
@@ -1475,7 +1483,7 @@ function ListView({
         return dialerBuyers.length > 0 ? (
           <PowerDialer
             buyers={dialerBuyers}
-            onClose={() => { setShowDialer(false); setSelected(new Set()) }}
+            onClose={() => { setShowDialer(false); clearSelection() }}
           />
         ) : (
           <div className="fixed inset-0 z-50 bg-gray-900/50 flex items-center justify-center">
@@ -1896,7 +1904,7 @@ export default function BuyerCrmPage() {
   }, [addToast, refetch])
 
   return (
-    <div className="bg-[#F9FAFB]">
+    <div className="bg-[#F9FAFB]" data-tour="crm-content">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* Vercel-style tab bar */}
@@ -1968,6 +1976,19 @@ export default function BuyerCrmPage() {
                 Check Duplicates
               </button>
               <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/crm/buyers/export')
+                    const data = await res.json()
+                    if (data.buyers) exportToCSV(data.buyers, `crm-export-${new Date().toISOString().split('T')[0]}.csv`)
+                  } catch {}
+                }}
+                className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
+              >
+                <Download className="w-4 h-4" />
+                Export CSV
+              </button>
+              <button
                 onClick={() => setShowImportModal(true)}
                 className="flex items-center gap-1.5 bg-white border border-[rgba(5,14,36,0.06)] hover:bg-[#F9FAFB] text-[#0B1224] rounded-[8px] px-4 py-2 text-[0.82rem] font-medium cursor-pointer crm-btn"
               >
@@ -2033,6 +2054,33 @@ export default function BuyerCrmPage() {
           </button>
         )}
 
+        <SavedViewsBar
+          page="crm"
+          currentFilters={{
+            ...(search ? { search } : {}),
+            ...(statusFilter ? { status: statusFilter } : {}),
+            ...(marketFilter ? { market: marketFilter } : {}),
+            ...(strategyFilter ? { strategy: strategyFilter } : {}),
+            ...(typeFilter ? { type: typeFilter } : {}),
+            ...(scoreFilter ? { score: scoreFilter } : {}),
+            ...(tagFilter ? { tag: tagFilter } : {}),
+            ...(motivationFilter ? { motivation: motivationFilter } : {}),
+            ...(contactTypeFilter ? { contactType: contactTypeFilter } : {}),
+          }}
+          onApplyView={(filters) => {
+            setSearch(filters.search || '')
+            setStatusFilter(filters.status || '')
+            setMarketFilter(filters.market || '')
+            setStrategyFilter(filters.strategy || '')
+            setTypeFilter(filters.type || '')
+            setScoreFilter(filters.score || '')
+            setTagFilter(filters.tag || '')
+            setMotivationFilter(filters.motivation || '')
+            setContactTypeFilter(filters.contactType || '')
+          }}
+          hasActiveFilters={hasFilters}
+        />
+
         {/* View toggle */}
         <div className="ml-auto flex items-center border-b border-[rgba(5,14,36,0.06)]">
           {[
@@ -2051,6 +2099,29 @@ export default function BuyerCrmPage() {
           ))}
         </div>
       </div>
+
+      {/* Active filter pills */}
+      <ActiveFilterPills
+        filters={[
+          ...(statusFilter ? [{ key: 'status', label: 'Status', value: statusFilter, displayValue: displayStatus(statusFilter) }] : []),
+          ...(marketFilter ? [{ key: 'market', label: 'Market', value: marketFilter, displayValue: marketFilter }] : []),
+          ...(scoreFilter ? [{ key: 'score', label: 'Score', value: scoreFilter, displayValue: `${scoreFilter} Grade` }] : []),
+          ...(motivationFilter ? [{ key: 'motivation', label: 'Motivation', value: motivationFilter, displayValue: motivationFilter.replace('_', ' ') }] : []),
+          ...(strategyFilter ? [{ key: 'strategy', label: 'Strategy', value: strategyFilter, displayValue: strategyFilter }] : []),
+          ...(typeFilter ? [{ key: 'type', label: 'Type', value: typeFilter, displayValue: typeFilter.replace('_', ' ') }] : []),
+          ...(tagFilter ? [{ key: 'tag', label: 'Tag', value: tagFilter, displayValue: tagFilter }] : []),
+        ]}
+        onRemove={(key) => {
+          if (key === 'status') setStatusFilter('')
+          if (key === 'market') setMarketFilter('')
+          if (key === 'score') setScoreFilter('')
+          if (key === 'motivation') setMotivationFilter('')
+          if (key === 'strategy') setStrategyFilter('')
+          if (key === 'type') setTypeFilter('')
+          if (key === 'tag') setTagFilter('')
+        }}
+        onClearAll={clearFilters}
+      />
 
       {/* Stats bar */}
       <div className="flex items-center gap-5 mb-5" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: 400, color: 'rgba(5,14,36,0.65)' }}>

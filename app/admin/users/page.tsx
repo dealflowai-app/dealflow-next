@@ -14,6 +14,7 @@ import {
   Ban,
   CheckCircle,
   ArrowUpDown,
+  Trash2,
 } from 'lucide-react'
 
 const fontFamily = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
@@ -260,8 +261,7 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', margin: 0 }}>Users</h1>
-          <p style={{ fontSize: '0.82rem', color: 'rgba(5,14,36,0.5)', margin: '4px 0 0' }}>
+          <p style={{ fontSize: '0.82rem', color: 'rgba(5,14,36,0.5)', margin: 0 }}>
             {total} total users
           </p>
         </div>
@@ -273,7 +273,7 @@ export default function AdminUsersPage() {
             gap: 6,
             padding: '8px 14px',
             borderRadius: 8,
-            border: '1px solid rgba(5,14,36,0.12)',
+            border: '1px solid rgba(5,14,36,0.06)',
             background: '#ffffff',
             cursor: 'pointer',
             fontSize: '0.82rem',
@@ -298,7 +298,7 @@ export default function AdminUsersPage() {
             gap: 8,
             padding: '0 12px',
             background: '#ffffff',
-            border: '1px solid rgba(5,14,36,0.12)',
+            border: '1px solid rgba(5,14,36,0.06)',
             borderRadius: 8,
             height: 38,
           }}
@@ -383,14 +383,14 @@ export default function AdminUsersPage() {
       <div
         style={{
           background: '#ffffff',
-          border: '1px solid rgba(5,14,36,0.08)',
-          borderRadius: 12,
+          border: '1px solid rgba(5,14,36,0.06)',
+          borderRadius: 10,
           overflow: 'hidden',
         }}
       >
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+            <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
               <th style={{ ...thStyle, width: 36 }}>
                 <input
                   type="checkbox"
@@ -405,6 +405,8 @@ export default function AdminUsersPage() {
               <th style={thStyle}>Tier</th>
               <th style={thStyle}>Status</th>
               <th style={thStyle}>Revenue</th>
+              <th style={thStyle}>Phone</th>
+              <th style={thStyle}>Last Active</th>
               <th style={thStyle}>
                 <SortHeader label="Signed Up" field="createdAt" current={sortBy} order={sortOrder} onSort={handleSort} />
               </th>
@@ -414,13 +416,13 @@ export default function AdminUsersPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} style={{ ...tdStyle, textAlign: 'center', color: 'rgba(5,14,36,0.4)', padding: 32 }}>
+                <td colSpan={9} style={{ ...tdStyle, textAlign: 'center', color: 'rgba(5,14,36,0.4)', padding: 32 }}>
                   Loading...
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ ...tdStyle, textAlign: 'center', color: 'rgba(5,14,36,0.4)', padding: 32 }}>
+                <td colSpan={9} style={{ ...tdStyle, textAlign: 'center', color: 'rgba(5,14,36,0.4)', padding: 32 }}>
                   No users found
                 </td>
               </tr>
@@ -481,6 +483,12 @@ export default function AdminUsersPage() {
                     ${u.totalRevenue.toFixed(0)}
                   </td>
                   <td style={{ ...tdStyle, fontSize: '0.78rem', color: 'rgba(5,14,36,0.5)' }}>
+                    {u.phone || '\u2014'}
+                  </td>
+                  <td style={{ ...tdStyle, fontSize: '0.78rem', color: 'rgba(5,14,36,0.5)' }}>
+                    {relativeDate(u.updatedAt)}
+                  </td>
+                  <td style={{ ...tdStyle, fontSize: '0.78rem', color: 'rgba(5,14,36,0.5)' }}>
                     {relativeDate(u.createdAt)}
                   </td>
                   <td style={tdStyle} onClick={(e) => e.stopPropagation()}>
@@ -522,7 +530,7 @@ export default function AdminUsersPage() {
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '12px 16px',
-              borderTop: '1px solid rgba(5,14,36,0.08)',
+              borderTop: '1px solid rgba(5,14,36,0.06)',
             }}
           >
             <span style={{ fontSize: '0.78rem', color: 'rgba(5,14,36,0.5)', fontFamily }}>
@@ -583,7 +591,7 @@ function FilterSelect({ value, onChange, options }: { value: string; onChange: (
         padding: '0 12px',
         height: 38,
         borderRadius: 8,
-        border: '1px solid rgba(5,14,36,0.12)',
+        border: '1px solid rgba(5,14,36,0.06)',
         background: '#ffffff',
         fontSize: '0.82rem',
         color: '#0B1224',
@@ -645,7 +653,7 @@ function PaginationBtn({ children, disabled, onClick }: { children: React.ReactN
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 6,
-        border: '1px solid rgba(5,14,36,0.12)',
+        border: '1px solid rgba(5,14,36,0.06)',
         background: disabled ? '#F9FAFB' : '#ffffff',
         cursor: disabled ? 'not-allowed' : 'pointer',
         color: disabled ? 'rgba(5,14,36,0.2)' : '#0B1224',
@@ -681,7 +689,7 @@ function ActionDropdown({
           zIndex: 50,
           width: 200,
           background: '#ffffff',
-          border: '1px solid rgba(5,14,36,0.12)',
+          border: '1px solid rgba(5,14,36,0.06)',
           borderRadius: 8,
           boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
           overflow: 'hidden',
@@ -698,7 +706,7 @@ function ActionDropdown({
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: 6,
-                border: '1px solid rgba(5,14,36,0.12)',
+                border: '1px solid rgba(5,14,36,0.06)',
                 fontSize: '0.78rem',
                 marginBottom: 8,
                 fontFamily: 'inherit',
@@ -764,6 +772,10 @@ function ActionDropdown({
                 <ExternalLink style={{ width: 14, height: 14 }} /> Open in Stripe
               </DropdownItem>
             )}
+            <div style={{ borderTop: '1px solid rgba(5,14,36,0.06)', margin: '4px 0' }} />
+            <DropdownItem onClick={() => onAction('delete')} danger>
+              <Trash2 style={{ width: 14, height: 14 }} /> Delete Account
+            </DropdownItem>
           </>
         )}
       </div>
@@ -857,7 +869,7 @@ function UserDetailPanel({
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '16px 20px',
-            borderBottom: '1px solid rgba(5,14,36,0.08)',
+            borderBottom: '1px solid rgba(5,14,36,0.06)',
           }}
         >
           <h2 style={{ fontSize: '1rem', fontWeight: 700, color: '#0B1224', margin: 0 }}>User Details</h2>
@@ -1034,27 +1046,12 @@ function UserDetailPanel({
             )}
 
             {/* Actions */}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
               <ActionButton
                 label="Extend Trial"
                 onClick={() => onAction('extend_trial')}
                 loading={actionLoading}
               />
-              {data.profile.tierStatus === 'suspended' ? (
-                <ActionButton
-                  label="Unsuspend"
-                  onClick={() => onAction('unsuspend')}
-                  loading={actionLoading}
-                  variant="success"
-                />
-              ) : (
-                <ActionButton
-                  label="Suspend"
-                  onClick={() => onAction('suspend')}
-                  loading={actionLoading}
-                  variant="danger"
-                />
-              )}
               {data.profile.stripeCustomerId && (
                 <ActionButton
                   label="Open in Stripe"
@@ -1067,10 +1064,147 @@ function UserDetailPanel({
                 />
               )}
             </div>
+
+            {/* Account Actions */}
+            <div style={{ marginBottom: 20 }}>
+              <h3 style={{ fontSize: '0.82rem', fontWeight: 600, color: '#0B1224', margin: '0 0 10px' }}>
+                Account Actions
+              </h3>
+              <AccountActionsSection
+                profile={data.profile}
+                onAction={onAction}
+                actionLoading={actionLoading}
+              />
+            </div>
           </div>
         )}
       </div>
     </>
+  )
+}
+
+function AccountActionsSection({
+  profile,
+  onAction,
+  actionLoading,
+}: {
+  profile: any
+  onAction: (action: string, extra?: Record<string, string>) => void
+  actionLoading: boolean
+}) {
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
+        {profile.tierStatus === 'suspended' ? (
+          <button
+            onClick={() => onAction('unsuspend')}
+            disabled={actionLoading}
+            style={{
+              padding: '7px 12px',
+              borderRadius: 8,
+              border: '1px solid #D1FAE5',
+              background: '#ECFDF5',
+              color: '#10B981',
+              fontSize: '0.78rem',
+              fontWeight: 500,
+              cursor: actionLoading ? 'wait' : 'pointer',
+              fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+            }}
+          >
+            Unsuspend Account
+          </button>
+        ) : (
+          <button
+            onClick={() => onAction('suspend')}
+            disabled={actionLoading}
+            style={{
+              padding: '7px 12px',
+              borderRadius: 8,
+              border: '1px solid #FEF3C7',
+              background: '#FFFBEB',
+              color: '#D97706',
+              fontSize: '0.78rem',
+              fontWeight: 500,
+              cursor: actionLoading ? 'wait' : 'pointer',
+              fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+            }}
+          >
+            Suspend Account
+          </button>
+        )}
+        <button
+          onClick={() => setConfirmDelete(true)}
+          disabled={actionLoading}
+          style={{
+            padding: '7px 12px',
+            borderRadius: 8,
+            border: '1px solid #FEE2E2',
+            background: '#FEF2F2',
+            color: '#DC2626',
+            fontSize: '0.78rem',
+            fontWeight: 500,
+            cursor: actionLoading ? 'wait' : 'pointer',
+            fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+          }}
+        >
+          Delete Account
+        </button>
+      </div>
+      {confirmDelete && (
+        <div
+          style={{
+            padding: '10px 14px',
+            background: '#FEF2F2',
+            border: '1px solid #FEE2E2',
+            borderRadius: 8,
+            fontSize: '0.78rem',
+            color: '#DC2626',
+          }}
+        >
+          <p style={{ margin: '0 0 8px', fontWeight: 500 }}>Are you sure? This cannot be undone.</p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => {
+                onAction('delete')
+                setConfirmDelete(false)
+              }}
+              disabled={actionLoading}
+              style={{
+                padding: '5px 12px',
+                borderRadius: 6,
+                border: 'none',
+                background: '#DC2626',
+                color: '#ffffff',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: actionLoading ? 'wait' : 'pointer',
+                fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+              }}
+            >
+              {actionLoading ? 'Deleting...' : 'Confirm'}
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              style={{
+                padding: '5px 12px',
+                borderRadius: 6,
+                border: '1px solid rgba(5,14,36,0.06)',
+                background: '#ffffff',
+                color: '#0B1224',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -1087,7 +1221,7 @@ function ActionButton({
 }) {
   const bg = variant === 'danger' ? '#FEF2F2' : variant === 'success' ? '#ECFDF5' : '#F9FAFB'
   const color = variant === 'danger' ? '#DC2626' : variant === 'success' ? '#10B981' : '#0B1224'
-  const border = variant === 'danger' ? '#FEE2E2' : variant === 'success' ? '#D1FAE5' : 'rgba(5,14,36,0.12)'
+  const border = variant === 'danger' ? '#FEE2E2' : variant === 'success' ? '#D1FAE5' : 'rgba(5,14,36,0.06)'
 
   return (
     <button

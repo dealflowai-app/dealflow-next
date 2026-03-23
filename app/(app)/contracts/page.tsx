@@ -409,7 +409,7 @@ function SendContractDialog({
           {!email && (
             <div className="flex items-center gap-1.5 text-[0.78rem] text-amber-600">
               <AlertTriangle className="w-3.5 h-3.5" />
-              No email on file — contract will be marked as Sent for manual delivery.
+              No email on file. Contract will be marked as Sent for manual delivery.
             </div>
           )}
         </div>
@@ -748,7 +748,7 @@ function VersionHistory({ contractId }: { contractId: string }) {
               >
                 <option value="">Select version...</option>
                 {versions.map(v => (
-                  <option key={v.version} value={v.version}>v{v.version} — {changeTypeLabel(v.changeType)}</option>
+                  <option key={v.version} value={v.version}>v{v.version}: {changeTypeLabel(v.changeType)}</option>
                 ))}
               </select>
             </div>
@@ -762,7 +762,7 @@ function VersionHistory({ contractId }: { contractId: string }) {
               >
                 <option value="">Select version...</option>
                 {versions.map(v => (
-                  <option key={v.version} value={v.version}>v{v.version} — {changeTypeLabel(v.changeType)}</option>
+                  <option key={v.version} value={v.version}>v{v.version}: {changeTypeLabel(v.changeType)}</option>
                 ))}
               </select>
             </div>
@@ -940,7 +940,7 @@ function ContractDetail({
         {contract.missingFieldCount !== undefined && contract.missingFieldCount > 0 && contract.status === 'DRAFT' && (
           <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-md mb-3 text-[0.78rem] text-amber-700">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-            <span>{contract.missingFieldCount} required field{contract.missingFieldCount > 1 ? 's' : ''} still missing — complete before sending.</span>
+            <span>{contract.missingFieldCount} required field{contract.missingFieldCount > 1 ? 's' : ''} still missing. Please complete them before sending.</span>
           </div>
         )}
 
@@ -2026,7 +2026,7 @@ export default function ContractsPage() {
     .reduce((sum, c) => sum + (feeFromContract(c) || 0), 0)
 
   return (
-    <div className="bg-[#F9FAFB]">
+    <div className="bg-[#F9FAFB]" data-tour="contracts-content">
       {/* Vercel-style top tab bar */}
       <div
         className="flex-shrink-0 bg-white"

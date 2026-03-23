@@ -1606,11 +1606,11 @@ function NewCampaignModal({
   ]
 
   const SCRIPT_TEMPLATES = [
-    { key: 'standard_qualification', label: 'Standard Qualification', desc: 'General buyer qualification — property types, buy box, timeline' },
+    { key: 'standard_qualification', label: 'Standard Qualification', desc: 'General buyer qualification covering property types, buy box, and timeline' },
     { key: 'deal_alert', label: 'Deal Alert', desc: 'Notify buyers about a specific property opportunity' },
     { key: 'reactivation', label: 'Reactivation', desc: 'Re-engage dormant buyers who haven\'t been active' },
     { key: 'follow_up', label: 'Follow-Up', desc: 'Follow up on a previous conversation or interest' },
-    { key: 'proof_of_funds', label: 'Proof of Funds', desc: 'Verify buyer\'s ability to close — funding source and timeline' },
+    { key: 'proof_of_funds', label: 'Proof of Funds', desc: 'Verify buyer\'s ability to close, including funding source and timeline' },
     { key: 'seller_introduction', label: 'Seller Introduction', desc: 'First contact with property owners about selling' },
     { key: 'seller_follow_up', label: 'Seller Follow-Up', desc: 'Follow up with sellers you\'ve previously spoken to' },
     { key: 'warm_lead', label: 'Warm Lead', desc: 'Qualify inbound leads who expressed interest' },
@@ -3013,7 +3013,7 @@ function SMSInboxTab({ addToast }: { addToast: (msg: string, type: ToastData['ty
     })
     setSelectedConvo(prev => prev ? { ...prev, mode: 'manual' } : null)
     setConvos(prev => prev.map(c => c.id === selectedId ? { ...c, mode: 'manual' } : c))
-    addToast('Took over conversation — auto-replies disabled', 'success')
+    addToast('Took over conversation. Auto-replies disabled.', 'success')
   }
 
   // Mode change
@@ -3471,7 +3471,7 @@ function AnalyticsTab({ campaigns, addToast }: { campaigns: Campaign[]; addToast
                       <div
                         key={`${day}-${hour}`}
                         className={`w-8 h-6 rounded-sm ${bg} flex items-center justify-center`}
-                        title={`${day} ${hour}:00 — ${cell?.calls || 0} calls, ${rate}% connect`}
+                        title={`${day} ${hour}:00 · ${cell?.calls || 0} calls, ${rate}% connect`}
                       >
                         {(cell?.calls || 0) > 0 && (
                           <span className={`text-[0.55rem] ${intensity > 0.4 ? 'text-white' : 'text-gray-400'}`}>{rate}%</span>
@@ -4772,7 +4772,7 @@ export default function AIOutreachPage() {
   ]
 
   return (
-    <div className="flex flex-col h-full bg-[#F9FAFB]">
+    <div className="flex flex-col h-full bg-[#F9FAFB]" data-tour="outreach-content">
       {/* Vercel-style top tab bar */}
       {!isDetailView && (
         <div

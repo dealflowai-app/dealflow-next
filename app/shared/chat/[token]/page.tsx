@@ -54,7 +54,7 @@ export default function SharedChatPage() {
   // Update document title for OG
   useEffect(() => {
     if (conversation?.title) {
-      document.title = `${conversation.title} — DealFlow AI`
+      document.title = `${conversation.title} | DealFlow AI`
     }
   }, [conversation?.title])
 

@@ -875,7 +875,7 @@ function DealListingsSection() {
         }
         setTotal(data.total ?? 0)
       })
-      .catch(() => toast('Failed to load listings'))
+      .catch(() => toast.error('Failed to load listings'))
       .finally(() => { setLoading(false); setLoadingMore(false) })
   }, [buildQuery, listings.length, toast]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1292,7 +1292,7 @@ function ListingDetail({
 
   const handleInquiry = async () => {
     if (!inquiryMessage.trim()) {
-      toast('Please enter a message')
+      toast.warning('Please enter a message')
       return
     }
     setSending(true)
@@ -1304,11 +1304,11 @@ function ListingDetail({
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to send inquiry')
-      toast('Inquiry sent! The wholesaler will be in touch.')
+      toast.success('Inquiry sent! The wholesaler will be in touch.')
       setShowInquiryForm(false)
       setInquiryMessage('')
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Failed to send inquiry')
+      toast.error(err instanceof Error ? err.message : 'Failed to send inquiry')
     } finally {
       setSending(false)
     }
@@ -1318,9 +1318,9 @@ function ListingDetail({
     const url = window.location.href
     try {
       await navigator.clipboard.writeText(url)
-      toast('Link copied to clipboard')
+      toast.success('Link copied to clipboard')
     } catch {
-      toast('Could not copy link')
+      toast.error('Could not copy link')
     }
   }
 
@@ -1596,7 +1596,7 @@ const PROP_TYPE_LABELS: Record<string, string> = {
 
 function formatBudgetRange(min: number | null, max: number | null): string {
   const fmt = (n: number) => n >= 1000 ? `$${Math.round(n / 1000)}K` : `$${n.toLocaleString()}`
-  if (min && max) return `${fmt(min)} — ${fmt(max)}`
+  if (min && max) return `${fmt(min)} to ${fmt(max)}`
   if (max) return `Under ${fmt(max)}`
   if (min) return `${fmt(min)}+`
   return 'Any budget'
@@ -1639,14 +1639,14 @@ function ContactPostDialog({
       })
       const data = await res.json()
       if (!res.ok) {
-        toast(data.error || 'Failed to send message')
+        toast.error(data.error || 'Failed to send message')
         return
       }
-      toast('Message sent successfully')
+      toast.success('Message sent successfully')
       onSent()
       onClose()
     } catch {
-      toast('Failed to send message')
+      toast.error('Failed to send message')
     } finally {
       setSending(false)
     }
@@ -1738,9 +1738,9 @@ function CreateBuyerPostModal({
   }
 
   const handleSubmit = async () => {
-    if (!displayName.trim()) { toast('Display name is required'); return }
-    if (propertyTypes.length === 0) { toast('Select at least one property type'); return }
-    if (markets.length === 0) { toast('Add at least one market'); return }
+    if (!displayName.trim()) { toast.warning('Display name is required'); return }
+    if (propertyTypes.length === 0) { toast.warning('Select at least one property type'); return }
+    if (markets.length === 0) { toast.warning('Add at least one market'); return }
 
     setCreating(true)
     try {
@@ -1762,12 +1762,12 @@ function CreateBuyerPostModal({
         }),
       })
       const data = await res.json()
-      if (!res.ok) { toast(data.error || 'Failed to create post'); return }
-      toast('Buyer posted to the board')
+      if (!res.ok) { toast.error(data.error || 'Failed to create post'); return }
+      toast.success('Buyer posted to the board')
       onCreated()
       onClose()
     } catch {
-      toast('Failed to create post')
+      toast.error('Failed to create post')
     } finally {
       setCreating(false)
     }
@@ -1790,7 +1790,7 @@ function CreateBuyerPostModal({
           <div>
             <label className={labelCls}>Display Name *</label>
             <input value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Marcus T." className={inputCls} />
-            <p className="text-[0.72rem] text-[#9CA3AF] mt-1">Keep your buyer&apos;s identity private — use first name + last initial</p>
+            <p className="text-[0.72rem] text-[#9CA3AF] mt-1">Keep your buyer&apos;s identity private. Use first name + last initial.</p>
           </div>
 
           {/* Buyer Type */}
@@ -1942,7 +1942,7 @@ function CreateBuyerPostModal({
               <label className={labelCls}>Link to CRM Buyer (private)</label>
               <div className="relative">
                 <select value={buyerId} onChange={e => setBuyerId(e.target.value)} className={`${inputCls} appearance-none pr-8 cursor-pointer`}>
-                  <option value="">None — not linked</option>
+                  <option value="">None (not linked)</option>
                   {crmBuyers.map(b => (
                     <option key={b.id} value={b.id}>
                       {[b.firstName, b.lastName].filter(Boolean).join(' ') || b.entityName || b.id}
@@ -1951,7 +1951,7 @@ function CreateBuyerPostModal({
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF] pointer-events-none" />
               </div>
-              <p className="text-[0.72rem] text-[#9CA3AF] mt-1">This is for your reference only — never shown publicly</p>
+              <p className="text-[0.72rem] text-[#9CA3AF] mt-1">For your reference only. Never shown publicly.</p>
             </div>
           )}
         </div>
@@ -1990,7 +1990,7 @@ function MyPostContacts({
     fetch(`/api/marketplace/buyer-board/${postId}/contact`)
       .then(r => r.json())
       .then(data => setContacts(data.contacts || []))
-      .catch(() => toast('Failed to load contacts'))
+      .catch(() => toast.error('Failed to load contacts'))
       .finally(() => setLoading(false))
   }, [postId]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -2083,7 +2083,7 @@ function BuyerBoardSection() {
     fetch(`/api/marketplace/buyer-board?${params}`)
       .then(r => r.json())
       .then(data => { setPosts(data.posts || []); setTotal(data.total || 0) })
-      .catch(() => toast('Failed to load buyer board'))
+      .catch(() => toast.error('Failed to load buyer board'))
       .finally(() => setLoading(false))
   }, [viewMode, marketSearch, typeFilter, minBudget, maxBudget, strategyFilter, pofOnly, sort]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -2104,7 +2104,7 @@ function BuyerBoardSection() {
       toast(`Post ${newStatus.toLowerCase()}`)
       fetchPosts()
     } catch {
-      toast('Failed to update post')
+      toast.error('Failed to update post')
     }
   }
 
@@ -2113,10 +2113,10 @@ function BuyerBoardSection() {
     try {
       const res = await fetch(`/api/marketplace/buyer-board/${id}`, { method: 'DELETE' })
       if (!res.ok) { const d = await res.json(); toast(d.error || 'Failed'); return }
-      toast('Post deleted')
+      toast.success('Post deleted')
       fetchPosts()
     } catch {
-      toast('Failed to delete post')
+      toast.error('Failed to delete post')
     }
   }
 
@@ -2454,7 +2454,7 @@ function MyListingsSection() {
     fetch('/api/marketplace/my-listings')
       .then(r => r.json())
       .then(data => setListings(data.listings || []))
-      .catch(() => toast('Failed to load your listings'))
+      .catch(() => toast.error('Failed to load your listings'))
       .finally(() => setLoading(false))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -2482,7 +2482,7 @@ function MyListingsSection() {
       const res = await fetch(`/api/marketplace/listings/${id}`, { method: 'DELETE' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to remove')
-      toast('Listing removed')
+      toast.success('Listing removed')
       fetchMyListings()
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Failed to remove listing')
@@ -2514,7 +2514,7 @@ function MyListingsSection() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to relist')
-      toast('Deal relisted on marketplace!')
+      toast.success('Deal relisted on marketplace!')
       fetchMyListings()
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Failed to relist')
@@ -2917,7 +2917,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
         .filter((l: MyListing) => l.status === 'ACTIVE' || l.status === 'PAUSED')
         .map((l: MyListing) => l.dealId)
       setDeals(allDeals.filter(d => (d.status === 'ACTIVE' || d.status === 'UNDER_OFFER') && !activeDealIds.includes(d.id)))
-    }).catch(() => toast('Failed to load deals'))
+    }).catch(() => toast.error('Failed to load deals'))
       .finally(() => setLoadingDeals(false))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -2937,7 +2937,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
   // Create deal inline and auto-select it
   const handleCreateDealInline = async () => {
     if (!newDealAddress || !newDealCity || !newDealState || !newDealZip || !newDealPrice) {
-      toast('Please fill in all required fields')
+      toast.warning('Please fill in all required fields')
       return
     }
     setCreatingDeal(true)
@@ -2978,7 +2978,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
       setDeals(prev => [newDeal, ...prev])
       setSelectedDealId(newDeal.id)
       setCreateDealMode(false)
-      toast('Deal created! Now customize your listing.')
+      toast.success('Deal created! Now customize your listing.')
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Failed to create deal')
     } finally {
@@ -3006,7 +3006,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
     }
 
     if (photos.length + valid.length > 10) {
-      toast('Maximum 10 photos per listing')
+      toast.warning('Maximum 10 photos per listing')
       return
     }
 
@@ -3049,7 +3049,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
   }
 
   const handleCreate = async () => {
-    if (!selectedDealId) { toast('Please select a deal'); return }
+    if (!selectedDealId) { toast.warning('Please select a deal'); return }
 
     setCreating(true)
     try {
@@ -3084,7 +3084,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to create listing')
-      toast('Deal listed on marketplace!')
+      toast.success('Deal listed on marketplace!')
       onCreated()
       onClose()
     } catch (err) {
@@ -3176,7 +3176,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                             <option value="">Select a deal to list...</option>
                             {deals.map(d => (
                               <option key={d.id} value={d.id}>
-                                {d.address}, {d.city} {d.state} — ${d.askingPrice.toLocaleString()}
+                                {d.address}, {d.city} {d.state} | ${d.askingPrice.toLocaleString()}
                               </option>
                             ))}
                           </select>
@@ -3371,7 +3371,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                   className={inputCls}
                   maxLength={120}
                 />
-                <p className="text-[0.68rem] text-[#9CA3AF] mt-1">{headline.length}/120 — Leave blank for auto-generated headline</p>
+                <p className="text-[0.68rem] text-[#9CA3AF] mt-1">{headline.length}/120. Leave blank for an auto-generated headline.</p>
               </div>
 
               <div>
@@ -3481,7 +3481,7 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
                   <p className="text-[0.82rem] text-[#374151] font-medium mb-1">
                     {dragOver ? 'Drop photos here' : 'Click to upload or drag & drop'}
                   </p>
-                  <p className="text-[0.76rem] text-[#9CA3AF]">JPEG, PNG, WebP — Max 5 MB per file</p>
+                  <p className="text-[0.76rem] text-[#9CA3AF]">JPEG, PNG, WebP. Max 5 MB per file.</p>
                 </div>
                 <input
                   ref={fileInputRef}
@@ -3686,7 +3686,7 @@ export default function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<Tab>('deals')
 
   return (
-    <div className="bg-[#F9FAFB]">
+    <div className="bg-[#F9FAFB]" data-tour="marketplace-content">
       {/* Vercel-style top tab bar */}
       <div
         className="flex-shrink-0 bg-white"

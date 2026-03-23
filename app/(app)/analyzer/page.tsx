@@ -3235,7 +3235,7 @@ export default function PropertyAnalyzerPage() {
   // Update condition from photo analysis suggestion
   function handleUpdateCondition(condition: string) {
     if (!analysis) return
-    toast(`Condition updated to "${condition}" — re-run analysis to apply`)
+    toast(`Condition updated to "${condition}". Re-run analysis to apply.`)
     // Re-run with the photo-suggested condition
     const p = analysis.property.property
     const addr = `${p.address}, ${p.city}, ${p.state} ${p.zip}`

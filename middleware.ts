@@ -100,9 +100,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Set pathname header so server components can detect the current route
+  supabaseResponse.headers.set('x-next-pathname', request.nextUrl.pathname)
+
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/', '/dashboard/:path*', '/community/:path*', '/marketplace/:path*', '/discovery/:path*', '/crm/:path*', '/outreach/:path*', '/contracts/:path*', '/gpt/:path*', '/settings/:path*', '/deals/:path*', '/admin/:path*', '/login', '/signup', '/verify-email', '/verify-phone'],
+  matcher: ['/', '/dashboard/:path*', '/community/:path*', '/marketplace/:path*', '/discovery/:path*', '/crm/:path*', '/outreach/:path*', '/contracts/:path*', '/gpt/:path*', '/settings/:path*', '/deals/:path*', '/admin/:path*', '/onboarding', '/welcome', '/login', '/signup', '/verify-email', '/verify-phone', '/analyzer'],
 }

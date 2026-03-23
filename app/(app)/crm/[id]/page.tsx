@@ -183,9 +183,9 @@ function motivationDot(m: string | null) {
 
 const ENUM_OPTIONS = {
   motivation: [
-    { value: 'HOT', label: 'Hot — Ready to buy' },
-    { value: 'WARM', label: 'Warm — Interested' },
-    { value: 'COLD', label: 'Cold — Not active' },
+    { value: 'HOT', label: 'Hot: Ready to buy' },
+    { value: 'WARM', label: 'Warm: Interested' },
+    { value: 'COLD', label: 'Cold: Not active' },
     { value: 'NOT_INTERESTED', label: 'Not Interested' },
     { value: 'DNC', label: 'Do Not Contact' },
   ],
@@ -1678,9 +1678,9 @@ function BuyerIntelligenceTab({ buyerId }: { buyerId: string }) {
           </div>
           <div className="text-[0.62rem] text-gray-400 mt-1 text-right">
             {sentimentTrend.length > 1 && (sentimentTrend[sentimentTrend.length - 1].score > sentimentTrend[0].score
-              ? 'Trending up — buyer is warming'
+              ? 'Trending up, buyer is warming'
               : sentimentTrend[sentimentTrend.length - 1].score < sentimentTrend[0].score
-              ? 'Trending down — buyer is cooling'
+              ? 'Trending down, buyer is cooling'
               : 'Stable sentiment')}
           </div>
         </div>
@@ -1728,7 +1728,7 @@ function BuyerIntelligenceTab({ buyerId }: { buyerId: string }) {
           </div>
         </div>
         <p className="text-[0.68rem] text-gray-400 mt-1">
-          {avgWords > 60 ? 'This buyer prefers detailed conversations' : avgWords < 40 ? 'Quick and to-the-point — keep calls brief' : 'Balanced conversationalist'}
+          {avgWords > 60 ? 'This buyer prefers detailed conversations' : avgWords < 40 ? 'Quick and to-the-point, so keep calls brief' : 'Balanced conversationalist'}
         </p>
       </div>
     </div>

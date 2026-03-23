@@ -1871,7 +1871,7 @@ export default function DealFlowGPTPage() {
           </div>
           {input.length > 3500 && (
             <div className={`text-right text-[10px] mt-1 pr-1 ${input.length > 4000 ? 'text-red-500 font-medium' : 'text-[#9CA3AF]'}`}>
-              {input.length > 4000 ? 'Message too long — ' : ''}{input.length.toLocaleString()}/4,000
+              {input.length > 4000 ? 'Message too long: ' : ''}{input.length.toLocaleString()}/4,000
             </div>
           )}
           <p className="text-[10px] mt-2 text-center" style={{ color: 'rgba(5,14,36,0.4)' }}>

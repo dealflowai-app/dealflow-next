@@ -110,6 +110,18 @@ export async function PATCH(
       return NextResponse.json({ success: true, message: `Role changed to ${role}` })
     }
 
+    case 'delete': {
+      if (targetUser.stripeSubscriptionId) {
+        try {
+          await stripe.subscriptions.cancel(targetUser.stripeSubscriptionId)
+        } catch (e) {
+          console.error('Failed to cancel Stripe subscription:', e)
+        }
+      }
+      await prisma.profile.delete({ where: { id } })
+      return NextResponse.json({ success: true, message: 'Account deleted' })
+    }
+
     case 'extend_trial': {
       const newTrialEnd = new Date()
       newTrialEnd.setDate(newTrialEnd.getDate() + 14)

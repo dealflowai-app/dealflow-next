@@ -10,6 +10,7 @@ import {
   Calendar, MapPin, FileText, Pencil, X, Check, TrendingUp,
   Megaphone, CheckCircle2, AlertTriangle, Store, FileSignature, RefreshCw,
 } from 'lucide-react'
+import { FindBuyersButton } from '@/components/deals/BuyerMatchModal'
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -374,7 +375,7 @@ export default function DealDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           dealId: deal.id,
-          headline: `${deal.address} — ${deal.city}, ${deal.state}`,
+          headline: `${deal.address}, ${deal.city}, ${deal.state}`,
           description: `${typeLabels[deal.propertyType] || deal.propertyType}${deal.beds ? `, ${deal.beds}bd` : ''}${deal.baths ? `/${deal.baths}ba` : ''}${deal.sqft ? `, ${deal.sqft.toLocaleString()} sqft` : ''}${deal.arv ? `. ARV ${fmtCurrency(deal.arv)}` : ''}.`,
         }),
       })
@@ -724,6 +725,8 @@ export default function DealDetailPage() {
             {matching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
             {matching ? 'Matching...' : 'Run Matching'}
           </button>
+
+          <FindBuyersButton dealId={deal.id} dealAddress={deal.address} />
 
           {!editMode ? (
             <button
@@ -1285,7 +1288,7 @@ export default function DealDetailPage() {
                     <option value="">Select a matched buyer...</option>
                     {deal.matches.map((m) => (
                       <option key={m.buyer.id} value={m.buyer.id}>
-                        {buyerName(m.buyer)} — {m.matchScore}% match
+                        {buyerName(m.buyer)} ({m.matchScore}% match)
                       </option>
                     ))}
                   </select>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Inbox, Bell, MessageSquare, Check, CheckCheck, Loader2, X, ArrowRight } from 'lucide-react'
+import { useNotificationCount } from '@/hooks/useNotificationCount'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -37,6 +38,10 @@ function timeAgo(dateStr: string): string {
 
 function typeIcon(type: string): string {
   switch (type) {
+    case 'like': return '❤️'
+    case 'comment': return '💬'
+    case 'group_join': return '👥'
+    case 'deal_match': return '🎯'
     case 'match_alert': return '🎯'
     case 'campaign_complete': return '📞'
     case 'deal_update': return '💰'
@@ -50,6 +55,12 @@ function getNotificationHref(notification: Notification): string | null {
   if (!data) return null
 
   switch (notification.type) {
+    case 'like':
+    case 'comment':
+      return '/community'
+    case 'group_join':
+      return data.groupId ? '/community?tab=groups' : '/community'
+    case 'deal_match':
     case 'match_alert':
       return '/discovery'
     case 'campaign_complete':
@@ -68,23 +79,29 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState<Tab>('notifications')
   const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
+  const [localCountOverride, setLocalCountOverride] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [markingAll, setMarkingAll] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Fetch unread count
-  const fetchUnreadCount = useCallback(async () => {
-    try {
-      const res = await fetch('/api/notifications?limit=1&unread=true')
-      if (res.ok) {
-        const data = await res.json()
-        setUnreadCount(data.unreadCount ?? 0)
-      }
-    } catch {
-      // Silent fail for polling
-    }
-  }, [])
+  // Real-time polling for unread count (every 15 seconds, pauses on tab hidden, exponential backoff)
+  const { unreadCount: polledCount, refetch: refetchCount } = useNotificationCount()
+
+  // Use local override when user marks items read, otherwise use polled count
+  const unreadCount = localCountOverride ?? polledCount
+
+  // Reset local override when polled count changes (server catches up)
+  useEffect(() => {
+    setLocalCountOverride(null)
+  }, [polledCount])
+
+  // Helper to set local count override
+  const setUnreadCount = useCallback((updater: number | ((prev: number) => number)) => {
+    setLocalCountOverride(prev => {
+      const current = prev ?? polledCount
+      return typeof updater === 'function' ? updater(current) : updater
+    })
+  }, [polledCount])
 
   // Fetch notifications list
   const fetchNotifications = useCallback(async () => {
@@ -94,7 +111,9 @@ export default function NotificationBell() {
       if (res.ok) {
         const data = await res.json()
         setNotifications(data.notifications ?? [])
-        setUnreadCount(data.unreadCount ?? 0)
+        if (data.unreadCount != null) {
+          setLocalCountOverride(data.unreadCount)
+        }
       }
     } catch {
       // Silent fail
@@ -102,13 +121,6 @@ export default function NotificationBell() {
       setLoading(false)
     }
   }, [])
-
-  // Poll for unread count every 60 seconds
-  useEffect(() => {
-    fetchUnreadCount()
-    const interval = setInterval(fetchUnreadCount, 60_000)
-    return () => clearInterval(interval)
-  }, [fetchUnreadCount])
 
   // Fetch full list when dropdown opens
   useEffect(() => {
@@ -180,6 +192,7 @@ export default function NotificationBell() {
     <div ref={dropdownRef} style={{ position: 'relative' }}>
       {/* Inbox button */}
       <button
+        data-tour="inbox-btn"
         onClick={() => setOpen(!open)}
         className="relative flex items-center justify-center w-[34px] h-[34px] rounded-[8px] border-0 cursor-pointer transition-colors"
         style={{ background: open ? 'rgba(5,14,36,0.06)' : 'transparent' }}

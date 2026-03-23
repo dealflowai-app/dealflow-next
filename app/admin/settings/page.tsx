@@ -19,8 +19,7 @@ export default function AdminSettingsPage() {
   return (
     <div style={{ padding: 32, fontFamily, maxWidth: 800 }}>
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', margin: 0 }}>Settings</h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: '4px 0 0' }}>Platform configuration</p>
+        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: 0 }}>Platform configuration</p>
       </div>
 
       {/* Platform name */}
@@ -179,8 +178,8 @@ export default function AdminSettingsPage() {
 function Card({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)',
-      borderRadius: 12, padding: 20, marginBottom: 16,
+      background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)',
+      borderRadius: 10, padding: 20, marginBottom: 16,
     }}>
       {children}
     </div>

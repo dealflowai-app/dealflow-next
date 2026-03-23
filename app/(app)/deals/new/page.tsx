@@ -552,7 +552,7 @@ export default function NewDealPage() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
-                placeholder="Any additional notes about this deal — motivation, timeline, seller context..."
+                placeholder="Any additional notes about this deal (motivation, timeline, seller context, etc.)"
                 className={`${inputBase} resize-y`}
                 style={inputBorderStyle}
                 {...inputFocusHandlers}

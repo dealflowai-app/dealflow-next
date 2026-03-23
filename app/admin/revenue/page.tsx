@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   DollarSign,
   TrendingUp,
@@ -175,7 +175,7 @@ export default function AdminRevenuePage() {
       <Card title="Top Paying Users" style={{ marginBottom: 24 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+            <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
               {['User', 'Tier', 'Total Revenue', 'Since'].map((h) => (
                 <th key={h} style={thStyle}>{h}</th>
               ))}
@@ -294,8 +294,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ padding: 32, fontFamily, maxWidth: 1280 }}>
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', margin: 0 }}>Revenue</h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: '4px 0 0' }}>Financial health and payment analytics</p>
+        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: 0 }}>Financial health and payment analytics</p>
       </div>
       {children}
     </div>
@@ -304,7 +303,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
 
 function Card({ title, children, style: s }: { title: string; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 20, ...s }}>
+    <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20, ...s }}>
       <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0B1224', margin: '0 0 16px' }}>{title}</h3>
       {children}
     </div>
@@ -315,7 +314,7 @@ function KpiCard({ label, value, detail, detailColor, icon: Icon, iconBg, iconCo
   label: string; value: string; detail: string; detailColor: string; icon: React.ElementType; iconBg: string; iconColor: string
 }) {
   return (
-    <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 18, position: 'relative' }}>
+    <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 18, position: 'relative' }}>
       <div style={{ position: 'absolute', top: 16, right: 16, width: 34, height: 34, borderRadius: '50%', background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Icon style={{ width: 16, height: 16, color: iconColor, strokeWidth: 1.8 }} />
       </div>
@@ -350,6 +349,8 @@ const tdStyle: React.CSSProperties = {
 
 // --- Revenue bar chart ---
 function RevenueBarChart({ data }: { data: { month: string; subscription: number; usage: number; total: number }[] }) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
+
   if (!data.length) return <div style={{ color: 'rgba(5,14,36,0.4)', fontSize: '0.82rem' }}>No revenue data yet</div>
 
   const w = 700
@@ -361,44 +362,90 @@ function RevenueBarChart({ data }: { data: { month: string; subscription: number
   const barWidth = Math.max(8, (chartW / data.length) * 0.6)
   const barGap = chartW / data.length
 
+  function barX(i: number) {
+    return pad.left + i * barGap + (barGap - barWidth) / 2
+  }
+
+  const tooltipLeft = hoverIdx !== null ? ((barX(hoverIdx) + barWidth / 2) / w) * 100 : 0
+  const tooltipTop = hoverIdx !== null ? ((pad.top + chartH - (data[hoverIdx].total / maxVal) * chartH) / h) * 100 : 0
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 'auto' }}>
-      {/* Y grid */}
-      {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
-        const yPos = pad.top + chartH * (1 - pct)
-        const val = Math.round(maxVal * pct)
-        return (
-          <g key={pct}>
-            <line x1={pad.left} y1={yPos} x2={w - pad.right} y2={yPos} stroke="rgba(5,14,36,0.06)" strokeWidth={1} />
-            <text x={pad.left - 8} y={yPos + 4} textAnchor="end" fill="rgba(5,14,36,0.4)" fontSize={10} fontFamily={fontFamily}>
-              ${val}
-            </text>
-          </g>
-        )
-      })}
-      {/* Bars */}
-      {data.map((d, i) => {
-        const x = pad.left + i * barGap + (barGap - barWidth) / 2
-        const subH = maxVal > 0 ? (d.subscription / maxVal) * chartH : 0
-        const usageH = maxVal > 0 ? (d.usage / maxVal) * chartH : 0
-        return (
-          <g key={i}>
-            {/* Subscription bar */}
-            <rect x={x} y={pad.top + chartH - subH - usageH} width={barWidth} height={subH} fill="#0B1224" rx={2} />
-            {/* Usage bar */}
-            <rect x={x} y={pad.top + chartH - usageH} width={barWidth} height={usageH} fill="#2563EB" rx={2} />
-            {/* Label */}
-            <text x={x + barWidth / 2} y={h - 10} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize={9} fontFamily={fontFamily}>
-              {d.month}
-            </text>
-          </g>
-        )
-      })}
-      {/* Legend */}
-      <rect x={w - 200} y={8} width={10} height={10} rx={2} fill="#0B1224" />
-      <text x={w - 186} y={17} fill="rgba(5,14,36,0.5)" fontSize={10} fontFamily={fontFamily}>Subscriptions</text>
-      <rect x={w - 110} y={8} width={10} height={10} rx={2} fill="#2563EB" />
-      <text x={w - 96} y={17} fill="rgba(5,14,36,0.5)" fontSize={10} fontFamily={fontFamily}>Usage</text>
-    </svg>
+    <div style={{ position: 'relative' }}>
+      <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 'auto' }} onMouseLeave={() => setHoverIdx(null)}>
+        {/* Y grid */}
+        {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
+          const yPos = pad.top + chartH * (1 - pct)
+          const val = Math.round(maxVal * pct)
+          return (
+            <g key={pct}>
+              <line x1={pad.left} y1={yPos} x2={w - pad.right} y2={yPos} stroke="rgba(5,14,36,0.06)" strokeWidth={1} />
+              <text x={pad.left - 8} y={yPos + 4} textAnchor="end" fill="rgba(5,14,36,0.4)" fontSize={10} fontFamily={fontFamily}>
+                ${val}
+              </text>
+            </g>
+          )
+        })}
+        {/* Bars */}
+        {data.map((d, i) => {
+          const bx = barX(i)
+          const subH = maxVal > 0 ? (d.subscription / maxVal) * chartH : 0
+          const usageH = maxVal > 0 ? (d.usage / maxVal) * chartH : 0
+          const isHovered = hoverIdx === i
+          return (
+            <g key={i}>
+              {/* Subscription bar */}
+              <rect x={bx} y={pad.top + chartH - subH - usageH} width={barWidth} height={subH} fill="#0B1224" rx={2} opacity={hoverIdx !== null && !isHovered ? 0.4 : 1} style={{ transition: 'opacity 0.15s ease' }} />
+              {/* Usage bar */}
+              <rect x={bx} y={pad.top + chartH - usageH} width={barWidth} height={usageH} fill="#2563EB" rx={2} opacity={hoverIdx !== null && !isHovered ? 0.4 : 1} style={{ transition: 'opacity 0.15s ease' }} />
+              {/* Transparent hit area */}
+              <rect x={pad.left + i * barGap} y={pad.top} width={barGap} height={chartH} fill="transparent" style={{ cursor: 'pointer' }} onMouseEnter={() => setHoverIdx(i)} />
+              {/* Label */}
+              <text x={bx + barWidth / 2} y={h - 10} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize={9} fontFamily={fontFamily}>
+                {d.month}
+              </text>
+            </g>
+          )
+        })}
+        {/* Legend */}
+        <rect x={w - 200} y={8} width={10} height={10} rx={2} fill="#0B1224" />
+        <text x={w - 186} y={17} fill="rgba(5,14,36,0.5)" fontSize={10} fontFamily={fontFamily}>Subscriptions</text>
+        <rect x={w - 110} y={8} width={10} height={10} rx={2} fill="#2563EB" />
+        <text x={w - 96} y={17} fill="rgba(5,14,36,0.5)" fontSize={10} fontFamily={fontFamily}>Usage</text>
+      </svg>
+      {/* Tooltip */}
+      {hoverIdx !== null && (
+        <div
+          style={{
+            position: 'absolute',
+            left: `${tooltipLeft}%`,
+            top: `${tooltipTop}%`,
+            transform: `translate(${tooltipLeft > 75 ? '-100%' : tooltipLeft < 25 ? '0%' : '-50%'}, -110%)`,
+            background: '#0B1224',
+            color: '#fff',
+            borderRadius: 8,
+            padding: '8px 12px',
+            fontSize: '0.72rem',
+            fontFamily,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            pointerEvents: 'none' as const,
+            zIndex: 10,
+            whiteSpace: 'nowrap' as const,
+          }}
+        >
+          <div style={{ marginBottom: 4, fontWeight: 600 }}>{data[hoverIdx].month}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+            <span style={{ width: 8, height: 8, borderRadius: 2, background: '#fff', display: 'inline-block' }} />
+            Subscriptions: ${data[hoverIdx].subscription.toLocaleString()}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+            <span style={{ width: 8, height: 8, borderRadius: 2, background: '#2563EB', display: 'inline-block' }} />
+            Usage: ${data[hoverIdx].usage.toLocaleString()}
+          </div>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 4, marginTop: 2, fontWeight: 600 }}>
+            Total: ${data[hoverIdx].total.toLocaleString()}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

@@ -3,9 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import type { BuyerStatus } from '@prisma/client'
 
-type BulkAction = 'archive' | 'activate' | 'mark_dormant' | 'mark_high_confidence' | 'export'
+type BulkAction = 'archive' | 'activate' | 'mark_dormant' | 'mark_high_confidence' | 'export' | 'delete' | 'tag' | 'add_to_campaign'
 
-const ACTION_STATUS_MAP: Record<Exclude<BulkAction, 'export'>, {
+const ACTION_STATUS_MAP: Record<string, {
   status?: BuyerStatus
   isOptedOut?: boolean
   optedOutAt?: Date | null
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
 
-    let body: { action?: string; buyerIds?: string[] }
+    let body: { action?: string; buyerIds?: string[]; tagId?: string }
     try {
       body = await req.json()
     } catch {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const validActions: BulkAction[] = ['archive', 'activate', 'mark_dormant', 'mark_high_confidence', 'export']
+    const validActions: BulkAction[] = ['archive', 'activate', 'mark_dormant', 'mark_high_confidence', 'export', 'delete', 'tag', 'add_to_campaign']
     if (!validActions.includes(action)) {
       return NextResponse.json(
         { error: `Invalid action. Must be one of: ${validActions.join(', ')}` },
@@ -75,8 +75,83 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ buyers, count: buyers.length })
     }
 
-    // Apply status update
+    // Handle delete - permanently remove buyers
+    if (action === 'delete') {
+      // Delete related records first, then the buyers
+      await prisma.$transaction(async (tx) => {
+        // Delete tag associations
+        await tx.buyerTag.deleteMany({
+          where: { buyerId: { in: buyerIds } },
+        })
+        // Delete deal matches
+        await tx.dealMatch.deleteMany({
+          where: { buyerId: { in: buyerIds } },
+        })
+        // Delete the buyers
+        await tx.cashBuyer.deleteMany({
+          where: { id: { in: buyerIds }, profileId: profile.id },
+        })
+      })
+
+      return NextResponse.json({
+        success: true,
+        action: 'delete',
+        deleted: buyerIds.length,
+      })
+    }
+
+    // Handle tag - assign a tag to selected buyers
+    if (action === 'tag') {
+      const { tagId } = body
+      if (!tagId) {
+        return NextResponse.json({ error: 'tagId is required for tag action' }, { status: 400 })
+      }
+
+      // Verify tag belongs to user
+      const tag = await prisma.tag.findFirst({
+        where: { id: tagId, profileId: profile.id },
+      })
+      if (!tag) {
+        return NextResponse.json({ error: 'Tag not found' }, { status: 404 })
+      }
+
+      // Create tag assignments, skipping duplicates
+      let created = 0
+      for (const buyerId of buyerIds) {
+        try {
+          await prisma.buyerTag.create({
+            data: { buyerId, tagId },
+          })
+          created++
+        } catch {
+          // Skip duplicate assignments
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        action: 'tag',
+        tagged: created,
+        skipped: buyerIds.length - created,
+      })
+    }
+
+    // Handle add_to_campaign - return buyer IDs for campaign creation
+    if (action === 'add_to_campaign') {
+      return NextResponse.json({
+        success: true,
+        action: 'add_to_campaign',
+        buyerIds,
+        count: buyerIds.length,
+      })
+    }
+
+    // Apply status update for remaining actions
     const updateData = ACTION_STATUS_MAP[action]
+    if (!updateData) {
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+    }
+
     const result = await prisma.cashBuyer.updateMany({
       where: { id: { in: buyerIds }, profileId: profile.id },
       data: updateData,

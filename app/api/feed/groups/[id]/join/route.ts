@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse } from '@/lib/api-utils'
 import { prisma } from '@/lib/prisma'
+import { createNotification } from '@/lib/notifications'
 
 // ─── POST /api/feed/groups/[id]/join — toggle join/leave ────────────────────
 
@@ -14,7 +15,7 @@ export async function POST(
 
   const { id: groupId } = await params
 
-  const group = await prisma.communityGroup.findUnique({ where: { id: groupId }, select: { id: true } })
+  const group = await prisma.communityGroup.findUnique({ where: { id: groupId }, select: { id: true, name: true, createdById: true } })
   if (!group) return errorResponse(404, 'Group not found')
 
   const existing = await prisma.groupMember.findUnique({
@@ -28,6 +29,19 @@ export async function POST(
   } else {
     await prisma.groupMember.create({ data: { groupId, profileId: profile.id } })
     const count = await prisma.groupMember.count({ where: { groupId } })
+
+    // Notify group creator (don't notify yourself)
+    if (group.createdById !== profile.id) {
+      const name = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Someone'
+      createNotification(
+        group.createdById,
+        'group_join',
+        `${name} joined ${group.name}`,
+        'Your group is growing!',
+        { groupId },
+      )
+    }
+
     return successResponse({ joined: true, memberCount: count })
   }
 }

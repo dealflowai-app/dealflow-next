@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Users,
   UserCheck,
@@ -17,6 +17,8 @@ import {
   FileSignature,
   Store,
   Activity,
+  MessageSquare,
+  Search,
 } from 'lucide-react'
 
 interface StatsData {
@@ -83,6 +85,9 @@ function timeAgo(dateStr: string) {
 
 // Simple SVG line chart
 function UserGrowthChart({ data }: { data: { date: string; total: number; paid: number }[] }) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
+  const containerRef = React.useRef<HTMLDivElement>(null)
+
   if (!data.length) return <div style={{ color: 'rgba(5,14,36,0.4)', fontSize: '0.82rem' }}>No data yet</div>
 
   const w = 500
@@ -108,34 +113,110 @@ function UserGrowthChart({ data }: { data: { date: string; total: number; paid: 
   const ySteps = 4
   const yLabels = Array.from({ length: ySteps + 1 }, (_, i) => Math.round(minVal + ((maxVal - minVal) / ySteps) * i))
 
+  function handleMouseMove(e: React.MouseEvent<SVGSVGElement>) {
+    const svg = e.currentTarget
+    const rect = svg.getBoundingClientRect()
+    const mouseX = ((e.clientX - rect.left) / rect.width) * w
+    let closest = 0
+    let closestDist = Infinity
+    for (let i = 0; i < data.length; i++) {
+      const dist = Math.abs(mouseX - x(i))
+      if (dist < closestDist) {
+        closestDist = dist
+        closest = i
+      }
+    }
+    setHoverIdx(closest)
+  }
+
+  // Calculate tooltip position as percentage for absolute positioning
+  const tooltipLeft = hoverIdx !== null ? (x(hoverIdx) / w) * 100 : 0
+  const tooltipTop = hoverIdx !== null ? (Math.min(y(data[hoverIdx].total), y(data[hoverIdx].paid)) / h) * 100 : 0
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 'auto' }}>
-      {/* Grid lines */}
-      {yLabels.map((val, i) => (
-        <g key={i}>
-          <line x1={pad.left} y1={y(val)} x2={w - pad.right} y2={y(val)} stroke="rgba(5,14,36,0.06)" strokeWidth={1} />
-          <text x={pad.left - 8} y={y(val) + 4} textAnchor="end" fill="rgba(5,14,36,0.4)" fontSize={10} fontFamily={fontFamily}>
-            {val}
-          </text>
-        </g>
-      ))}
-      {/* Lines */}
-      <path d={totalPath} fill="none" stroke="#0B1224" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-      <path d={paidPath} fill="none" stroke="#2563EB" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4,4" />
-      {/* X-axis labels (show every 5th) */}
-      {data.map((d, i) =>
-        i % 5 === 0 || i === data.length - 1 ? (
-          <text key={i} x={x(i)} y={h - 5} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize={10} fontFamily={fontFamily}>
-            {d.date.slice(5)}
-          </text>
-        ) : null
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        style={{ width: '100%', height: 'auto' }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setHoverIdx(null)}
+      >
+        {/* Grid lines */}
+        {yLabels.map((val, i) => (
+          <g key={i}>
+            <line x1={pad.left} y1={y(val)} x2={w - pad.right} y2={y(val)} stroke="rgba(5,14,36,0.06)" strokeWidth={1} />
+            <text x={pad.left - 8} y={y(val) + 4} textAnchor="end" fill="rgba(5,14,36,0.4)" fontSize={10} fontFamily={fontFamily}>
+              {val}
+            </text>
+          </g>
+        ))}
+        {/* Vertical hover line */}
+        {hoverIdx !== null && (
+          <line
+            x1={x(hoverIdx)} y1={pad.top} x2={x(hoverIdx)} y2={pad.top + chartH}
+            stroke="rgba(5,14,36,0.15)" strokeWidth={1} strokeDasharray="4,3"
+          />
+        )}
+        {/* Lines */}
+        <path d={totalPath} fill="none" stroke="#0B1224" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        <path d={paidPath} fill="none" stroke="#2563EB" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4,4" />
+        {/* Hover circles */}
+        {hoverIdx !== null && (
+          <>
+            <circle cx={x(hoverIdx)} cy={y(data[hoverIdx].total)} r={5} fill="#0B1224" stroke="#fff" strokeWidth={2} />
+            <circle cx={x(hoverIdx)} cy={y(data[hoverIdx].paid)} r={5} fill="#2563EB" stroke="#fff" strokeWidth={2} />
+          </>
+        )}
+        {/* Invisible hit areas */}
+        {data.map((_, i) => (
+          <circle key={i} cx={x(i)} cy={y(data[i].total)} r={8} fill="transparent" style={{ cursor: 'pointer' }} />
+        ))}
+        {/* X-axis labels (show every 5th) */}
+        {data.map((d, i) =>
+          i % 5 === 0 || i === data.length - 1 ? (
+            <text key={i} x={x(i)} y={h - 5} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize={10} fontFamily={fontFamily}>
+              {d.date.slice(5)}
+            </text>
+          ) : null
+        )}
+        {/* Legend */}
+        <line x1={pad.left} y1={h - 16} x2={pad.left + 16} y2={h - 16} stroke="#0B1224" strokeWidth={2} />
+        <text x={pad.left + 20} y={h - 12} fill="rgba(5,14,36,0.6)" fontSize={10} fontFamily={fontFamily}>Total</text>
+        <line x1={pad.left + 60} y1={h - 16} x2={pad.left + 76} y2={h - 16} stroke="#2563EB" strokeWidth={2} strokeDasharray="4,4" />
+        <text x={pad.left + 80} y={h - 12} fill="rgba(5,14,36,0.6)" fontSize={10} fontFamily={fontFamily}>Paid</text>
+      </svg>
+      {/* Tooltip */}
+      {hoverIdx !== null && (
+        <div
+          style={{
+            position: 'absolute',
+            left: `${tooltipLeft}%`,
+            top: `${tooltipTop}%`,
+            transform: `translate(${tooltipLeft > 75 ? '-100%' : tooltipLeft < 25 ? '0%' : '-50%'}, -110%)`,
+            background: '#0B1224',
+            color: '#fff',
+            borderRadius: 8,
+            padding: '8px 12px',
+            fontSize: '0.72rem',
+            fontFamily,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            pointerEvents: 'none' as const,
+            zIndex: 10,
+            whiteSpace: 'nowrap' as const,
+          }}
+        >
+          <div style={{ marginBottom: 4, fontWeight: 600 }}>{data[hoverIdx].date}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', display: 'inline-block' }} />
+            Total: {data[hoverIdx].total.toLocaleString()}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563EB', display: 'inline-block' }} />
+            Paid: {data[hoverIdx].paid.toLocaleString()}
+          </div>
+        </div>
       )}
-      {/* Legend */}
-      <line x1={pad.left} y1={h - 16} x2={pad.left + 16} y2={h - 16} stroke="#0B1224" strokeWidth={2} />
-      <text x={pad.left + 20} y={h - 12} fill="rgba(5,14,36,0.6)" fontSize={10} fontFamily={fontFamily}>Total</text>
-      <line x1={pad.left + 60} y1={h - 16} x2={pad.left + 76} y2={h - 16} stroke="#2563EB" strokeWidth={2} strokeDasharray="4,4" />
-      <text x={pad.left + 80} y={h - 12} fill="rgba(5,14,36,0.6)" fontSize={10} fontFamily={fontFamily}>Paid</text>
-    </svg>
+    </div>
   )
 }
 
@@ -197,7 +278,6 @@ export default function AdminOverviewPage() {
   if (loading) {
     return (
       <div style={{ padding: 32, fontFamily }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', marginBottom: 8 }}>Admin Dashboard</div>
         <p style={{ color: 'rgba(5,14,36,0.5)', fontSize: '0.88rem' }}>Loading metrics...</p>
       </div>
     )
@@ -206,7 +286,6 @@ export default function AdminOverviewPage() {
   if (!stats) {
     return (
       <div style={{ padding: 32, fontFamily }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', marginBottom: 8 }}>Admin Dashboard</div>
         <p style={{ color: '#EF4444', fontSize: '0.88rem' }}>Failed to load admin data.</p>
       </div>
     )
@@ -234,7 +313,7 @@ export default function AdminOverviewPage() {
     {
       label: 'PAID SUBSCRIBERS',
       value: formatNumber(stats.users.paidSubscribers),
-      detail: `${stats.users.tierBreakdown.starter || 0} starter, ${stats.users.tierBreakdown.pro || 0} pro, ${stats.users.tierBreakdown.enterprise || 0} enterprise`,
+      detail: `${stats.users.tierBreakdown.starter || 0} Starter · ${stats.users.tierBreakdown.pro || 0} Pro · ${stats.users.tierBreakdown.enterprise || 0} Enterprise`,
       detailColor: '#2563EB',
       icon: CreditCard,
       iconBg: '#EDE9FE',
@@ -294,18 +373,17 @@ export default function AdminOverviewPage() {
     { label: 'Total Deals', value: formatNumber(stats.platform.totalDeals), icon: Briefcase },
     { label: 'Total Buyers', value: formatNumber(stats.platform.totalBuyers), icon: Contact },
     { label: 'AI Call Minutes', value: formatNumber(stats.platform.totalAiMinutes), icon: Activity },
+    { label: 'Total SMS Sent', value: formatNumber(stats.platform.totalSms), icon: MessageSquare },
+    { label: 'Total Skip Traces', value: formatNumber(stats.platform.totalSkipTraces), icon: Search },
     { label: 'Contracts Generated', value: formatNumber(stats.platform.totalContracts), icon: FileSignature },
     { label: 'Active Listings', value: formatNumber(stats.platform.activeListings), icon: Store },
   ]
 
   return (
     <div style={{ padding: 32, fontFamily, maxWidth: 1280 }}>
-      {/* Header */}
+      {/* Subtitle */}
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', margin: 0, lineHeight: 1.3 }}>
-          Admin Dashboard
-        </h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: '4px 0 0' }}>
+        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: 0 }}>
           Platform-wide metrics and activity
         </p>
       </div>
@@ -330,8 +408,8 @@ export default function AdminOverviewPage() {
         <div
           style={{
             background: '#ffffff',
-            border: '1px solid rgba(5,14,36,0.08)',
-            borderRadius: 12,
+            border: '1px solid rgba(5,14,36,0.06)',
+            borderRadius: 10,
             padding: 20,
           }}
         >
@@ -345,8 +423,8 @@ export default function AdminOverviewPage() {
         <div
           style={{
             background: '#ffffff',
-            border: '1px solid rgba(5,14,36,0.08)',
-            borderRadius: 12,
+            border: '1px solid rgba(5,14,36,0.06)',
+            borderRadius: 10,
             padding: 20,
           }}
         >
@@ -361,8 +439,8 @@ export default function AdminOverviewPage() {
       <div
         style={{
           background: '#ffffff',
-          border: '1px solid rgba(5,14,36,0.08)',
-          borderRadius: 12,
+          border: '1px solid rgba(5,14,36,0.06)',
+          borderRadius: 10,
           padding: 20,
           marginBottom: 24,
         }}
@@ -415,8 +493,8 @@ export default function AdminOverviewPage() {
       <div
         style={{
           background: '#ffffff',
-          border: '1px solid rgba(5,14,36,0.08)',
-          borderRadius: 12,
+          border: '1px solid rgba(5,14,36,0.06)',
+          borderRadius: 10,
           padding: '16px 20px',
           display: 'flex',
           alignItems: 'center',
@@ -434,7 +512,7 @@ export default function AdminOverviewPage() {
                 alignItems: 'center',
                 gap: 10,
                 padding: '0 16px',
-                borderRight: i < quickStats.length - 1 ? '1px solid rgba(5,14,36,0.08)' : 'none',
+                borderRight: i < quickStats.length - 1 ? '1px solid rgba(5,14,36,0.06)' : 'none',
               }}
             >
               <Icon style={{ width: 16, height: 16, color: 'rgba(5,14,36,0.3)', strokeWidth: 1.7 }} />
@@ -472,8 +550,8 @@ function KpiCard({
     <div
       style={{
         background: '#ffffff',
-        border: '1px solid rgba(5,14,36,0.08)',
-        borderRadius: 12,
+        border: '1px solid rgba(5,14,36,0.06)',
+        borderRadius: 10,
         padding: 18,
         position: 'relative',
       }}

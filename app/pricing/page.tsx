@@ -154,7 +154,7 @@ const compare: { feature: string; starter: boolean | string; pro: boolean | stri
 const faqs = [
   {
     q: 'What happens when I exceed my plan allowances?',
-    a: 'Overages are billed per-unit at the end of each billing period. Rates vary by plan — for example, extra reveals are $0.40 on Starter, $0.30 on Pro, and $0.25 on Business. You can see your usage anytime in Settings.',
+    a: 'Overages are billed per-unit at the end of each billing period. Rates vary by plan. For example, extra reveals are $0.40 on Starter, $0.30 on Pro, and $0.25 on Business. You can see your usage anytime in Settings.',
   },
   {
     q: 'Is there a free trial?',

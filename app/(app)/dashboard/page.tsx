@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Play,
@@ -29,6 +29,8 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/components/toast'
 import VerificationBanner from '@/components/VerificationBanner'
+import BadgesCard from '@/components/dashboard/BadgesCard'
+import ActivityFeed from '@/components/dashboard/ActivityFeed'
 
 /* ══════════════════════════════════════════════
    TYPES
@@ -477,6 +479,8 @@ function LineChart({ data, height = 120, color = '#2563EB', areaColor, showGrid 
   areaColor?: string
   showGrid?: boolean
 }) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
+
   if (data.length < 2) return null
   const max = Math.max(...data.map(d => d.value), 1)
   const w = 480
@@ -494,33 +498,95 @@ function LineChart({ data, height = 120, color = '#2563EB', areaColor, showGrid 
   const areaPath = `${linePath} L${points[points.length - 1].x},${chartH} L${points[0].x},${chartH} Z`
   const gradId = `areaG-${color.replace('#', '')}`
 
+  function handleMouseMove(e: React.MouseEvent<SVGSVGElement>) {
+    const svg = e.currentTarget
+    const rect = svg.getBoundingClientRect()
+    const mouseX = ((e.clientX - rect.left) / rect.width) * w
+    let closest = 0
+    let closestDist = Infinity
+    for (let i = 0; i < data.length; i++) {
+      const dist = Math.abs(mouseX - points[i].x)
+      if (dist < closestDist) {
+        closestDist = dist
+        closest = i
+      }
+    }
+    setHoverIdx(closest)
+  }
+
+  const tooltipLeft = hoverIdx !== null ? (points[hoverIdx].x / w) * 100 : 0
+  const tooltipTop = hoverIdx !== null ? (points[hoverIdx].y / h) * 100 : 0
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height }} preserveAspectRatio="none">
-      {showGrid && [0.25, 0.5, 0.75, 1].map(frac => {
-        const y = chartH - frac * (chartH - 12) - 4
-        return <line key={frac} x1="0" y1={y} x2={w} y2={y} stroke="#F3F4F6" strokeWidth="1" />
-      })}
-      {areaColor && (
-        <>
-          <defs>
-            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={areaColor} stopOpacity="0.12" />
-              <stop offset="100%" stopColor={areaColor} stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d={areaPath} fill={`url(#${gradId})`} />
-        </>
+    <div style={{ position: 'relative' }}>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        style={{ width: '100%', height }}
+        preserveAspectRatio="none"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setHoverIdx(null)}
+      >
+        {showGrid && [0.25, 0.5, 0.75, 1].map(frac => {
+          const y = chartH - frac * (chartH - 12) - 4
+          return <line key={frac} x1="0" y1={y} x2={w} y2={y} stroke="#F3F4F6" strokeWidth="1" />
+        })}
+        {areaColor && (
+          <>
+            <defs>
+              <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={areaColor} stopOpacity="0.12" />
+                <stop offset="100%" stopColor={areaColor} stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path d={areaPath} fill={`url(#${gradId})`} />
+          </>
+        )}
+        {/* Vertical hover line */}
+        {hoverIdx !== null && (
+          <line
+            x1={points[hoverIdx].x} y1={0} x2={points[hoverIdx].x} y2={chartH}
+            stroke="rgba(5,14,36,0.15)" strokeWidth={1} strokeDasharray="4,3"
+          />
+        )}
+        <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        {points.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={hoverIdx === i ? 5 : 2.5} fill={hoverIdx === i ? color : '#fff'} stroke={color} strokeWidth={hoverIdx === i ? 2 : 1.5} style={{ transition: 'r 0.1s ease' }} />
+        ))}
+        {/* Invisible hit areas */}
+        {points.map((p, i) => (
+          <circle key={`hit-${i}`} cx={p.x} cy={p.y} r={8} fill="transparent" style={{ cursor: 'pointer' }} />
+        ))}
+        {data[0].label && data.map((d, i) => (
+          <text key={i} x={i * stepX} y={h - 4} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize="10" fontFamily="inherit">
+            {d.label}
+          </text>
+        ))}
+      </svg>
+      {/* Tooltip */}
+      {hoverIdx !== null && (
+        <div
+          style={{
+            position: 'absolute',
+            left: `${tooltipLeft}%`,
+            top: `${tooltipTop}%`,
+            transform: `translate(${tooltipLeft > 75 ? '-100%' : tooltipLeft < 25 ? '0%' : '-50%'}, -110%)`,
+            background: '#0B1224',
+            color: '#fff',
+            borderRadius: 8,
+            padding: '8px 12px',
+            fontSize: '0.72rem',
+            fontFamily: FONT,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            pointerEvents: 'none' as const,
+            zIndex: 10,
+            whiteSpace: 'nowrap' as const,
+          }}
+        >
+          {data[hoverIdx].label && <div style={{ marginBottom: 2, fontWeight: 600 }}>{data[hoverIdx].label}</div>}
+          <div>{data[hoverIdx].value.toLocaleString()}</div>
+        </div>
       )}
-      <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-      {points.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="#fff" stroke={color} strokeWidth="1.5" />
-      ))}
-      {data[0].label && data.map((d, i) => (
-        <text key={i} x={i * stepX} y={h - 4} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize="10" fontFamily="inherit">
-          {d.label}
-        </text>
-      ))}
-    </svg>
+    </div>
   )
 }
 
@@ -530,6 +596,7 @@ function DonutChart({ segments, size = 140, showTotal = false }: {
   size?: number
   showTotal?: boolean
 }) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
   const total = segments.reduce((s, seg) => s + seg.value, 0)
   if (total === 0) return null
 
@@ -544,6 +611,7 @@ function DonutChart({ segments, size = 140, showTotal = false }: {
     const startAngle = cumAngle
     cumAngle += angle
     const endAngle = cumAngle
+    const midAngle = ((startAngle + endAngle) / 2 * Math.PI) / 180
     const startRad = (startAngle * Math.PI) / 180
     const endRad = (endAngle * Math.PI) / 180
     const largeArc = angle > 180 ? 1 : 0
@@ -551,22 +619,68 @@ function DonutChart({ segments, size = 140, showTotal = false }: {
     const y1 = cy + r * Math.sin(startRad)
     const x2 = cx + r * Math.cos(endRad)
     const y2 = cy + r * Math.sin(endRad)
-    return { ...seg, d: `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}` }
+    return { ...seg, d: `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`, midAngle }
   })
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative inline-flex">
+      <div className="relative inline-flex" style={{ position: 'relative' }}>
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F3F4F6" strokeWidth={strokeW} />
-          {arcs.map((arc, i) => (
-            <path key={i} d={arc.d} fill="none" stroke={arc.color} strokeWidth={strokeW} strokeLinecap="butt" />
-          ))}
+          {arcs.map((arc, i) => {
+            const isHovered = hoverIdx === i
+            const offset = isHovered ? 4 : 0
+            const offsetX = offset * Math.cos(arc.midAngle)
+            const offsetY = offset * Math.sin(arc.midAngle)
+            return (
+              <path
+                key={i}
+                d={arc.d}
+                fill="none"
+                stroke={arc.color}
+                strokeWidth={isHovered ? strokeW + 4 : strokeW}
+                strokeLinecap="butt"
+                transform={`translate(${offsetX},${offsetY})`}
+                style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease' }}
+                onMouseEnter={() => setHoverIdx(i)}
+                onMouseLeave={() => setHoverIdx(null)}
+              />
+            )
+          })}
         </svg>
         {showTotal && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ pointerEvents: 'none' }}>
             <span className="text-lg font-semibold text-[#0B1224] leading-none">{total}</span>
             <span className="text-[0.65rem] text-[rgba(5,14,36,0.4)] mt-0.5">total</span>
+          </div>
+        )}
+        {/* Tooltip */}
+        {hoverIdx !== null && arcs[hoverIdx] && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: -8,
+              transform: 'translate(-50%, -100%)',
+              background: '#0B1224',
+              color: '#fff',
+              borderRadius: 8,
+              padding: '8px 12px',
+              fontSize: '0.72rem',
+              fontFamily: FONT,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              pointerEvents: 'none' as const,
+              zIndex: 10,
+              whiteSpace: 'nowrap' as const,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: arcs[hoverIdx].color, display: 'inline-block' }} />
+              <span style={{ fontWeight: 600 }}>{arcs[hoverIdx].label}:</span> {arcs[hoverIdx].value.toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>
+              {Math.round((arcs[hoverIdx].value / total) * 100)}% of total
+            </div>
           </div>
         )}
       </div>
@@ -770,20 +884,7 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
       <div className="dash-grid-2 grid grid-cols-[3fr_2fr] gap-4">
         <div className="ds-card bg-white border border-[rgba(5,14,36,0.06)] transition-shadow duration-200">
           <SectionHeader title="Recent Activity" />
-          {(() => {
-            const outreachEvts = data.outreach?.outreachEvents || []
-            const merged = [...data.recentActivity, ...outreachEvts]
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-              .slice(0, 8)
-            if (merged.length === 0) return <EmptyState message="No recent activity." />
-            return merged.map((a, i) => (
-              <div key={a.id} className="flex items-start gap-2.5 py-2" style={{ borderBottom: i < merged.length - 1 ? '1px solid rgba(5,14,36,0.04)' : 'none' }}>
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#2563EB] mt-[7px] shrink-0" />
-                <p className="flex-1 text-[0.82rem] text-[#0B1224] leading-[1.45] m-0">{a.title}</p>
-                <span className="text-[0.68rem] text-[rgba(5,14,36,0.4)] whitespace-nowrap shrink-0">{timeAgo(a.createdAt)}</span>
-              </div>
-            ))
-          })()}
+          <ActivityFeed />
         </div>
         <div className="ds-card bg-white border border-[rgba(5,14,36,0.06)] transition-shadow duration-200">
           <SectionHeader title="Quick Actions" />
@@ -813,6 +914,11 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
             })}
           </div>
         </div>
+      </div>
+
+      {/* Achievements / Badges */}
+      <div className="mt-5">
+        <BadgesCard />
       </div>
     </>
   )
@@ -1443,7 +1549,7 @@ function AnalyticsTab({ data, router }: { data: DashboardData; router: ReturnTyp
 export default function DashboardPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const showToast = useToast()
+  const toast = useToast()
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -1507,20 +1613,20 @@ export default function DashboardPage() {
       })
       if (!res.ok) {
         const d = await res.json().catch(() => ({}))
-        showToast(d.error || 'Action failed')
+        toast.error(d.error || 'Action failed')
         return
       }
-      showToast(action === 'ACCEPTED' ? 'Offer accepted!' : 'Offer rejected')
+      toast.success(action === 'ACCEPTED' ? 'Offer accepted!' : 'Offer rejected')
       fetchDashboard()
     } catch {
-      showToast('Network error')
+      toast.error('Network error')
     } finally {
       setOfferActionLoading(null)
     }
   }
 
   return (
-    <div className="bg-[#F9FAFB]">
+    <div className="bg-[#F9FAFB]" data-tour="dashboard-content">
       {/* Tab bar */}
       <div
         className="flex-shrink-0 bg-white"

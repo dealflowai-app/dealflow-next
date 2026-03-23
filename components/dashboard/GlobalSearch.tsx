@@ -8,7 +8,7 @@ import {
   FolderOpen, FileSignature, Calculator, Sparkles,
   Settings, MessagesSquare, Compass,
   Plus, FileText, UserPlus, BarChart3, Zap,
-  ArrowUpRight, Command,
+  ArrowUpRight, Command, Keyboard,
 } from 'lucide-react'
 
 /* ─── Types ────────────────────────────────────────────────────────────────── */
@@ -99,6 +99,7 @@ export default function GlobalSearch() {
     { id: 'a-buyer', label: 'Add Buyer to CRM', icon: <UserPlus className="w-4 h-4" />, category: 'action', action: () => go('/crm'), keywords: 'add buyer contact crm' },
     { id: 'a-list', label: 'List a Deal on Marketplace', icon: <Store className="w-4 h-4" />, category: 'action', action: () => go('/marketplace'), keywords: 'post listing marketplace sell' },
     { id: 'a-discover', label: 'Search Properties', icon: <Search className="w-4 h-4" />, category: 'action', action: () => go('/discovery'), keywords: 'search find properties buyers discovery' },
+    { id: 'a-calc', label: 'Calculator', description: 'Open deal calculator widget', icon: <Calculator className="w-4 h-4" />, category: 'action', action: () => { setOpen(false); setTimeout(() => window.dispatchEvent(new CustomEvent('toggle-deal-calculator')), 100) }, keywords: 'calculator mao arv roi profit margin deal score' },
   ]
 
   const shortcuts: CommandItem[] = [
@@ -106,6 +107,7 @@ export default function GlobalSearch() {
     { id: 's-team', label: 'Team Management', icon: <Users className="w-4 h-4" />, category: 'shortcut', action: () => go('/settings?section=team'), keywords: 'team invite members permissions' },
     { id: 's-privacy', label: 'Data & Privacy', icon: <Settings className="w-4 h-4" />, category: 'shortcut', action: () => go('/settings?section=privacy'), keywords: 'data export privacy delete' },
     { id: 's-reports', label: 'View Reports', icon: <BarChart3 className="w-4 h-4" />, category: 'shortcut', action: () => go('/dashboard'), keywords: 'reports analytics stats revenue' },
+    { id: 's-kb', label: 'Keyboard Shortcuts', icon: <Keyboard className="w-4 h-4" />, category: 'shortcut', action: () => { setOpen(false); setTimeout(() => window.dispatchEvent(new CustomEvent('show-keyboard-shortcuts')), 100) }, keywords: 'keyboard shortcuts hotkeys keys vim navigation help' },
   ]
 
   /* ── Buyer items ───────────────────────────────────────────────────────── */

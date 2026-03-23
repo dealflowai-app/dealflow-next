@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   UserSearch,
   PhoneOutgoing,
@@ -59,8 +59,8 @@ export default function AdminUsagePage() {
               key={f.name}
               style={{
                 background: '#ffffff',
-                border: '1px solid rgba(5,14,36,0.08)',
-                borderRadius: 12,
+                border: '1px solid rgba(5,14,36,0.06)',
+                borderRadius: 10,
                 padding: 18,
                 display: 'flex',
                 alignItems: 'center',
@@ -171,7 +171,7 @@ export default function AdminUsagePage() {
         <Card title="Avg Usage by Tier">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+              <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
                 <th style={thStyle}>Metric</th>
                 {['free', 'starter', 'pro', 'enterprise'].map((t) => (
                   <th key={t} style={{ ...thStyle, textAlign: 'center', textTransform: 'capitalize' }}>{t}</th>
@@ -198,7 +198,7 @@ export default function AdminUsagePage() {
                   })}
                 </tr>
               ))}
-              <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.08)' }}>
+              <tr style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
                 <td style={{ ...tdStyle, fontSize: '0.68rem', color: 'rgba(5,14,36,0.4)' }}>Users</td>
                 {['free', 'starter', 'pro', 'enterprise'].map((tier) => (
                   <td key={tier} style={{ ...tdStyle, textAlign: 'center', fontSize: '0.68rem', color: 'rgba(5,14,36,0.4)' }}>
@@ -261,8 +261,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ padding: 32, fontFamily, maxWidth: 1280 }}>
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', margin: 0 }}>Usage Analytics</h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: '4px 0 0' }}>Feature adoption and platform usage trends</p>
+        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: 0 }}>Feature adoption and platform usage trends</p>
       </div>
       {children}
     </div>
@@ -271,7 +270,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
 
 function Card({ title, children, style: s }: { title: string; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 20, ...s }}>
+    <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20, ...s }}>
       <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0B1224', margin: '0 0 16px' }}>{title}</h3>
       {children}
     </div>
@@ -293,6 +292,8 @@ function UsageTrendChart({
   data: { date: string; aiMinutes: number; sms: number; analyses: number; skipTraces: number }[]
   visible: { aiMinutes: boolean; sms: boolean; analyses: boolean; skipTraces: boolean }
 }) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
+
   if (!data.length) return <div style={{ color: 'rgba(5,14,36,0.4)', fontSize: '0.82rem' }}>No usage data yet</div>
 
   const w = 700
@@ -301,12 +302,13 @@ function UsageTrendChart({
   const chartW = w - pad.left - pad.right
   const chartH = h - pad.top - pad.bottom
 
-  const lines = [
-    { key: 'aiMinutes', color: '#2563EB', visible: visible.aiMinutes },
-    { key: 'sms', color: '#8B5CF6', visible: visible.sms },
-    { key: 'analyses', color: '#0B1224', visible: visible.analyses },
-    { key: 'skipTraces', color: '#06B6D4', visible: visible.skipTraces },
-  ].filter((l) => l.visible)
+  const allLines = [
+    { key: 'aiMinutes', label: 'AI Minutes', color: '#2563EB', visible: visible.aiMinutes },
+    { key: 'sms', label: 'SMS', color: '#8B5CF6', visible: visible.sms },
+    { key: 'analyses', label: 'Analyses', color: '#0B1224', visible: visible.analyses },
+    { key: 'skipTraces', label: 'Skip Traces', color: '#06B6D4', visible: visible.skipTraces },
+  ]
+  const lines = allLines.filter((l) => l.visible)
 
   // Calculate max across visible lines
   let maxVal = 1
@@ -324,33 +326,101 @@ function UsageTrendChart({
     return pad.top + chartH - (val / maxVal) * chartH
   }
 
+  function handleMouseMove(e: React.MouseEvent<SVGSVGElement>) {
+    const svg = e.currentTarget
+    const rect = svg.getBoundingClientRect()
+    const mouseX = ((e.clientX - rect.left) / rect.width) * w
+    let closest = 0
+    let closestDist = Infinity
+    for (let i = 0; i < data.length; i++) {
+      const dist = Math.abs(mouseX - x(i))
+      if (dist < closestDist) {
+        closestDist = dist
+        closest = i
+      }
+    }
+    setHoverIdx(closest)
+  }
+
+  const tooltipLeft = hoverIdx !== null ? (x(hoverIdx) / w) * 100 : 0
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 'auto' }}>
-      {/* Grid */}
-      {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
-        const yPos = pad.top + chartH * (1 - pct)
-        return (
-          <g key={pct}>
-            <line x1={pad.left} y1={yPos} x2={w - pad.right} y2={yPos} stroke="rgba(5,14,36,0.06)" strokeWidth={1} />
-            <text x={pad.left - 6} y={yPos + 3} textAnchor="end" fill="rgba(5,14,36,0.4)" fontSize={9} fontFamily={fontFamily}>
-              {Math.round(maxVal * pct)}
+    <div style={{ position: 'relative' }}>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        style={{ width: '100%', height: 'auto' }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setHoverIdx(null)}
+      >
+        {/* Grid */}
+        {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
+          const yPos = pad.top + chartH * (1 - pct)
+          return (
+            <g key={pct}>
+              <line x1={pad.left} y1={yPos} x2={w - pad.right} y2={yPos} stroke="rgba(5,14,36,0.06)" strokeWidth={1} />
+              <text x={pad.left - 6} y={yPos + 3} textAnchor="end" fill="rgba(5,14,36,0.4)" fontSize={9} fontFamily={fontFamily}>
+                {Math.round(maxVal * pct)}
+              </text>
+            </g>
+          )
+        })}
+        {/* Vertical hover line */}
+        {hoverIdx !== null && (
+          <line
+            x1={x(hoverIdx)} y1={pad.top} x2={x(hoverIdx)} y2={pad.top + chartH}
+            stroke="rgba(5,14,36,0.15)" strokeWidth={1} strokeDasharray="4,3"
+          />
+        )}
+        {/* Lines */}
+        {lines.map((l) => {
+          const path = data.map((d, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y((d as any)[l.key] || 0)}`).join(' ')
+          return <path key={l.key} d={path} fill="none" stroke={l.color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        })}
+        {/* Hover circles at intersection points */}
+        {hoverIdx !== null && lines.map((l) => {
+          const val = (data[hoverIdx] as any)[l.key] || 0
+          return (
+            <circle key={l.key} cx={x(hoverIdx)} cy={y(val)} r={4.5} fill={l.color} stroke="#fff" strokeWidth={2} />
+          )
+        })}
+        {/* X labels */}
+        {data.map((d, i) =>
+          i % 5 === 0 || i === data.length - 1 ? (
+            <text key={i} x={x(i)} y={h - 8} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize={9} fontFamily={fontFamily}>
+              {d.date.slice(5)}
             </text>
-          </g>
-        )
-      })}
-      {/* Lines */}
-      {lines.map((l) => {
-        const path = data.map((d, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y((d as any)[l.key] || 0)}`).join(' ')
-        return <path key={l.key} d={path} fill="none" stroke={l.color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-      })}
-      {/* X labels */}
-      {data.map((d, i) =>
-        i % 5 === 0 || i === data.length - 1 ? (
-          <text key={i} x={x(i)} y={h - 8} textAnchor="middle" fill="rgba(5,14,36,0.4)" fontSize={9} fontFamily={fontFamily}>
-            {d.date.slice(5)}
-          </text>
-        ) : null
+          ) : null
+        )}
+      </svg>
+      {/* Tooltip */}
+      {hoverIdx !== null && (
+        <div
+          style={{
+            position: 'absolute',
+            left: `${tooltipLeft}%`,
+            top: `${(pad.top / h) * 100}%`,
+            transform: `translate(${tooltipLeft > 75 ? '-100%' : tooltipLeft < 25 ? '0%' : '-50%'}, -10%)`,
+            background: '#0B1224',
+            color: '#fff',
+            borderRadius: 8,
+            padding: '8px 12px',
+            fontSize: '0.72rem',
+            fontFamily,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            pointerEvents: 'none' as const,
+            zIndex: 10,
+            whiteSpace: 'nowrap' as const,
+          }}
+        >
+          <div style={{ marginBottom: 4, fontWeight: 600 }}>{data[hoverIdx].date}</div>
+          {lines.map((l) => (
+            <div key={l.key} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: l.color, display: 'inline-block' }} />
+              {l.label}: {((data[hoverIdx] as any)[l.key] || 0).toLocaleString()}
+            </div>
+          ))}
+        </div>
       )}
-    </svg>
+    </div>
   )
 }

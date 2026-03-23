@@ -94,7 +94,7 @@ export default function AdminSystemPage() {
         display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24, padding: '14px 20px',
         background: errorCount > 0 ? '#FEF2F2' : warningCount > 0 ? '#FFFBEB' : '#ECFDF5',
         border: `1px solid ${errorCount > 0 ? '#FEE2E2' : warningCount > 0 ? '#FEF3C7' : '#D1FAE5'}`,
-        borderRadius: 12,
+        borderRadius: 10,
       }}>
         {statusDot(errorCount > 0 ? 'error' : warningCount > 0 ? 'warning' : 'healthy')}
         <div style={{ flex: 1 }}>
@@ -119,7 +119,7 @@ export default function AdminSystemPage() {
 
       {/* Service status grid */}
       <div style={{
-        background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 20, marginBottom: 24,
+        background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20, marginBottom: 24,
       }}>
         <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0B1224', margin: '0 0 16px' }}>Service Status</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
@@ -150,7 +150,7 @@ export default function AdminSystemPage() {
 
       {/* DB stats + Environment */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-        <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 20 }}>
+        <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20 }}>
           <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0B1224', margin: '0 0 16px' }}>Database Statistics</h3>
           {data.dbStats.map((s) => (
             <div
@@ -174,7 +174,7 @@ export default function AdminSystemPage() {
           </div>
         </div>
 
-        <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 20 }}>
+        <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20 }}>
           <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0B1224', margin: '0 0 16px' }}>Environment</h3>
           {[
             { label: 'Node.js', value: data.environment.nodeVersion },
@@ -231,7 +231,7 @@ export default function AdminSystemPage() {
       </div>
 
       {/* Error logging placeholder */}
-      <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20, marginBottom: 24 }}>
         <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0B1224', margin: '0 0 8px' }}>Error Logging</h3>
         <p style={{ fontSize: '0.82rem', color: 'rgba(5,14,36,0.5)', margin: '0 0 12px' }}>
           Error logging will be configured with a monitoring service (Sentry, LogRocket) before production launch. This section will display recent application errors, API failures, and performance issues.
@@ -252,7 +252,7 @@ export default function AdminSystemPage() {
       </div>
 
       {/* Quick actions */}
-      <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.08)', borderRadius: 12, padding: 20 }}>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10, padding: 20 }}>
         <h3 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0B1224', margin: '0 0 16px' }}>Quick Actions</h3>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <ActionButton label="Clear All Caches" description="Flush analysis and discovery caches" disabled />
@@ -277,8 +277,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ padding: 32, fontFamily, maxWidth: 1280 }}>
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0B1224', margin: 0 }}>System</h1>
-        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: '4px 0 0' }}>Health checks, database stats, and environment info</p>
+        <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.5)', margin: 0 }}>Health checks, database stats, and environment info</p>
       </div>
       {children}
     </div>

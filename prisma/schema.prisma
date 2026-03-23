@@ -180,6 +180,9 @@ model Profile {
   avatarUrl String?
   settings  Json?          // user preferences & config (inbound routing, etc.)
 
+  // Onboarding
+  onboardingCompleted Boolean @default(false)
+
   // Verification
   emailVerified    Boolean   @default(false)
   phoneVerified    Boolean   @default(false)
@@ -233,6 +236,16 @@ model Profile {
   postLikes            PostLike[]
   createdGroups        CommunityGroup[] @relation("groupCreator")
   groupMemberships     GroupMember[]
+  conversationParticipants ConversationParticipant[]
+  sentMessages         DirectMessage[] @relation("sentMessages")
+  savedViews           SavedView[]
+  activityLogs         ActivityLog[]
+  referralCode         String?       @unique
+  referralsSent        Referral[]    @relation("ReferralsSent")
+  referralsReceived    Referral[]    @relation("ReferralsReceived")
+  badges               Badge[]
+  ownedTeams           Team[]       @relation("TeamOwner")
+  teamMemberships      TeamMember[]
 
   @@map("profiles")
 }
@@ -1602,4 +1615,132 @@ model GroupMember {
   @@unique([groupId, profileId])
   @@index([profileId])
   @@map("group_members")
+}
+
+// ─── DIRECT MESSAGES ──────────────────────────────────────────────────────────
+
+model Conversation {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  participants ConversationParticipant[]
+  messages     DirectMessage[]
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  profileId      String
+  profile        Profile      @relation(fields: [profileId], references: [id])
+  lastReadAt     DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  @@unique([conversationId, profileId])
+  @@map("conversation_participants")
+}
+
+model DirectMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         Profile      @relation("sentMessages", fields: [senderId], references: [id])
+  content        String
+  createdAt      DateTime     @default(now())
+  @@map("direct_messages")
+}
+
+model SavedView {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  page      String   // 'crm', 'deals', or 'discovery'
+  name      String
+  filters   Json     // stored filter configuration
+  isDefault Boolean  @default(false)
+  notify    Boolean  @default(false) // notify on new matches
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([profileId, page])
+  @@map("saved_views")
+}
+
+// ─── ACTIVITY LOG (account-level) ──────────────────────────────────────────
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  type      String   // DEAL_CREATED, BUYER_ADDED, BUYER_IMPORTED, CAMPAIGN_SENT, DEAL_STATUS_CHANGED, CONTRACT_CREATED, POST_CREATED
+  title     String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([profileId, createdAt])
+  @@map("activity_logs")
+}
+
+// ─── REFERRAL SYSTEM ─────────────────────────────────────────────────────────
+
+model Referral {
+  id             String    @id @default(cuid())
+  referrerId     String
+  referrer       Profile   @relation("ReferralsSent", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredEmail  String
+  referredId     String?
+  referred       Profile?  @relation("ReferralsReceived", fields: [referredId], references: [id])
+  code           String    @unique
+  status         String    @default("PENDING") // PENDING, SIGNED_UP, CONVERTED
+  reward         String?   // e.g., "7_DAY_EXTENSION", "CREDIT_25"
+  rewardClaimed  Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  convertedAt    DateTime?
+
+  @@index([referrerId])
+  @@index([code])
+  @@map("referrals")
+}
+
+// ─── GAMIFICATION / BADGES ──────────────────────────────────────────────────
+
+model Badge {
+  id         String   @id @default(cuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  type       String   // FIRST_DEAL, FIVE_DEALS, FIRST_BUYER, TEN_BUYERS, FIFTY_BUYERS, FIRST_CAMPAIGN, DEAL_CLOSED, FIRST_POST, ANALYZER_PRO, EARLY_ADOPTER
+  earnedAt   DateTime @default(now())
+
+  @@unique([profileId, type])
+  @@index([profileId])
+  @@map("badges")
+}
+
+// ─── TEAMS & PERMISSIONS ───────────────────────────────────────────────────
+
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  ownerId   String
+  owner     Profile      @relation("TeamOwner", fields: [ownerId], references: [id])
+  members   TeamMember[]
+  createdAt DateTime     @default(now())
+
+  @@index([ownerId])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  role      String   @default("MEMBER") // ADMIN, MANAGER, MEMBER, VIEWER
+  joinedAt  DateTime @default(now())
+
+  @@unique([teamId, profileId])
+  @@index([teamId])
+  @@index([profileId])
+  @@map("team_members")
 }
