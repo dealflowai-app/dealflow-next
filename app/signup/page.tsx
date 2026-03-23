@@ -144,7 +144,13 @@ function SignUpFlow() {
 
     if (urlStep === '2') {
       const supabase = createClient()
-      supabase.auth.getUser().then(({ data: { user } }) => {
+      // Try getSession first (local, faster), fall back to getUser
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        let user = session?.user
+        if (!user) {
+          const { data } = await supabase.auth.getUser()
+          user = data.user ?? undefined
+        }
         if (user) {
           const fullName = user.user_metadata?.full_name || ''
           if (fullName) {
@@ -153,6 +159,9 @@ function SignUpFlow() {
             setLastName(parts.slice(1).join(' ') || '')
           }
           setStep(2)
+        } else {
+          // No session — user needs to sign in first
+          setError('Please sign in or create an account first.')
         }
       })
     }
@@ -198,6 +207,12 @@ function SignUpFlow() {
     if (data.user && data.user.identities && data.user.identities.length === 0) {
       setError('An account with this email already exists.')
       setLoading(false)
+      return
+    }
+
+    // If email is already confirmed (auto-confirm enabled or re-signup), skip verify-email
+    if (data.session && data.user?.email_confirmed_at) {
+      window.location.href = '/signup?step=2'
       return
     }
 
