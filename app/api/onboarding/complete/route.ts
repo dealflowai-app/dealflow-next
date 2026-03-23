@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
+import { seedDemoData } from '@/lib/demo-data'
 
 export async function POST(request: Request) {
   try {
@@ -39,6 +40,16 @@ export async function POST(request: Request) {
         settings: mergedSettings,
       },
     })
+
+    // Mark onboarding complete in Supabase user metadata so middleware allows access
+    await supabase.auth.updateUser({
+      data: { onboarded: true },
+    })
+
+    // Seed demo data (fire-and-forget) so user has sample data to explore
+    seedDemoData(profile.id).catch((err) =>
+      console.error('Demo data seeding failed:', err)
+    )
 
     return NextResponse.json({ profile })
   } catch (err) {

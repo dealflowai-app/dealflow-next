@@ -21,16 +21,19 @@ function VerifyEmailContent() {
   const [error, setError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
 
+  // Redirect to next step once confirmed
+  const goToNextStep = () => {
+    setConfirmed(true)
+    fetch('/api/auth/confirm-email', { method: 'POST' }).catch(() => {})
+    setTimeout(() => {
+      window.location.href = '/signup?step=2'
+    }, 1500)
+  }
+
   useEffect(() => {
     // If user returned from email link, mark as confirmed
     if (searchParams.get('confirmed') === 'true') {
-      setConfirmed(true)
-      // Update profile emailVerified flag
-      fetch('/api/auth/confirm-email', { method: 'POST' }).catch(() => {})
-      setTimeout(() => {
-        router.push('/signup?step=2')
-        router.refresh()
-      }, 2000)
+      goToNextStep()
       return
     }
 
@@ -46,15 +49,40 @@ function VerifyEmailContent() {
       if (user?.email && !urlEmail) setEmail(user.email)
       // If user already confirmed via Supabase (e.g. Google OAuth), skip
       if (user?.email_confirmed_at) {
-        setConfirmed(true)
-        fetch('/api/auth/confirm-email', { method: 'POST' }).catch(() => {})
-        setTimeout(() => {
-          router.push('/signup?step=2')
-          router.refresh()
-        }, 1500)
+        goToNextStep()
       }
     })
-  }, [searchParams, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // Poll every 3 seconds to detect email verification
+  useEffect(() => {
+    if (confirmed) return
+
+    const supabase = createClient()
+    const interval = setInterval(async () => {
+      // Try to sign in silently — Supabase may have a session after clicking the link
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email_confirmed_at) {
+        clearInterval(interval)
+        goToNextStep()
+      }
+    }, 3000)
+
+    // Also listen for auth state changes (catches the verification event in real-time)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user?.email_confirmed_at) {
+        clearInterval(interval)
+        goToNextStep()
+      }
+    })
+
+    return () => {
+      clearInterval(interval)
+      subscription.unsubscribe()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [confirmed])
 
   async function handleResend() {
     if (!email) {

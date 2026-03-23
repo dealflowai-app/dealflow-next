@@ -25,6 +25,8 @@ import {
   Phone,
   Loader2,
   Gift,
+  RotateCcw,
+  Database,
 } from 'lucide-react'
 import TeamSection from '@/components/settings/TeamSection'
 import ReferralSection from '@/components/settings/ReferralSection'
@@ -1622,6 +1624,56 @@ export default function SettingsPage() {
                     )}
                   </div>
                 )}
+              </div>
+
+              {/* Demo & Tour */}
+              <div style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: '10px', padding: '20px 24px' }} className="bg-white mb-6">
+                <h3 style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: '15px', color: '#0B1224' }} className="mb-4">Demo & Tour</h3>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem('dealflow-tour-completed')
+                      window.dispatchEvent(new CustomEvent('start-product-tour'))
+                    }}
+                    style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                  >
+                    <RotateCcw className="w-4 h-4 text-gray-400" />
+                    Restart Product Tour
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/demo/seed', { method: 'POST' })
+                        if (!res.ok) throw new Error('Failed')
+                        window.location.reload()
+                      } catch {
+                        alert('Failed to load demo data')
+                      }
+                    }}
+                    style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                  >
+                    <Database className="w-4 h-4 text-gray-400" />
+                    Load Demo Data
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/demo/clear', { method: 'POST' })
+                        if (!res.ok) throw new Error('Failed')
+                        window.location.reload()
+                      } catch {
+                        alert('Failed to clear demo data')
+                      }
+                    }}
+                    style={{ borderRadius: '8px', padding: '10px 20px', fontWeight: 600, fontSize: '14px', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", backgroundColor: '#ffffff', border: '1px solid rgba(5,14,36,0.15)', color: '#0B1224' }} className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4 text-gray-400" />
+                    Clear Demo Data
+                  </button>
+                </div>
+                <p style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: '12px', color: 'rgba(5,14,36,0.4)' }} className="mt-3">
+                  Demo data adds sample deals, buyers, and activity so you can explore the platform. You can clear it anytime.
+                </p>
               </div>
 
               {/* Account Actions */}

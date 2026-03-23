@@ -298,6 +298,205 @@ export async function seedDemoData(profileId: string) {
     }),
   ])
 
+  // Create demo outreach campaigns with calls
+  const campaigns = await Promise.all([
+    prisma.campaign.create({
+      data: {
+        profileId, name: 'Phoenix Cash Buyer Outreach', market: 'Phoenix, AZ',
+        status: 'COMPLETED', mode: 'AI', channel: 'VOICE',
+        scriptTemplate: 'standard_qualification',
+        agentName: 'Alex', companyName: 'DealFlow Properties',
+        totalBuyers: 15, callsCompleted: 12, qualified: 4, notBuying: 3, noAnswer: 5,
+        totalTalkTime: 1840,
+        estimatedCost: 18.75, actualCost: 15.60,
+        startedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        completedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000),
+        createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaign.create({
+      data: {
+        profileId, name: 'Dallas Investor Follow-Up', market: 'Dallas, TX',
+        status: 'COMPLETED', mode: 'AI', channel: 'VOICE',
+        scriptTemplate: 'follow_up',
+        agentName: 'Jordan', companyName: 'DealFlow Properties',
+        totalBuyers: 8, callsCompleted: 7, qualified: 3, notBuying: 1, noAnswer: 3,
+        totalTalkTime: 1260,
+        estimatedCost: 10.00, actualCost: 8.75,
+        startedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        completedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
+        createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaign.create({
+      data: {
+        profileId, name: 'Tampa Deal Alert', market: 'Tampa, FL',
+        status: 'RUNNING', mode: 'AI', channel: 'MULTI_CHANNEL',
+        scriptTemplate: 'deal_alert',
+        agentName: 'Alex', companyName: 'DealFlow Properties',
+        totalBuyers: 10, callsCompleted: 4, qualified: 2, notBuying: 0, noAnswer: 2,
+        totalTalkTime: 480,
+        estimatedCost: 12.50, actualCost: 5.00,
+        startedAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaign.create({
+      data: {
+        profileId, name: 'Houston New Leads', market: 'Houston, TX',
+        status: 'DRAFT', mode: 'AI', channel: 'VOICE',
+        scriptTemplate: 'standard_qualification',
+        agentName: 'Jordan',
+        totalBuyers: 0, callsCompleted: 0, qualified: 0, notBuying: 0, noAnswer: 0,
+        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+      },
+    }),
+  ])
+
+  // Create demo campaign calls linked to buyers and campaigns
+  const campaignCalls = await Promise.all([
+    // Phoenix campaign calls
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[0].id, buyerId: buyers[0].id,
+        phoneNumber: '(602) 555-0101', outcome: 'QUALIFIED', durationSecs: 245,
+        aiSummary: 'Buyer confirmed interest in Phoenix SFRs under $200K. Prefers fix-and-flip, can close in 14 days cash. Wants to see the Oak Street property.',
+        transcript: '[DEMO] AI: Hi Marcus, this is Alex calling from DealFlow Properties... Buyer: Yes, I\'m definitely still buying in Phoenix...',
+        attemptNumber: 1,
+        startedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 245 * 1000),
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[0].id, buyerId: buyers[1].id,
+        phoneNumber: '(214) 555-0202', outcome: 'QUALIFIED', durationSecs: 189,
+        aiSummary: 'Interested in multi-family properties. Currently looking to expand portfolio in DFW and Phoenix markets.',
+        attemptNumber: 1,
+        startedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 300 * 1000),
+        endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 489 * 1000),
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[0].id, buyerId: buyers[2].id,
+        phoneNumber: '(470) 555-0303', outcome: 'NOT_BUYING', durationSecs: 95,
+        aiSummary: 'Not currently buying. Focused on selling existing portfolio. Asked to be contacted again in Q3.',
+        attemptNumber: 1,
+        startedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 600 * 1000),
+        endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 695 * 1000),
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[0].id, buyerId: buyers[3].id,
+        phoneNumber: '(813) 555-0404', outcome: 'NO_ANSWER', durationSecs: 0,
+        attemptNumber: 1,
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[0].id, buyerId: buyers[4].id,
+        phoneNumber: '(713) 555-0505', outcome: 'VOICEMAIL', durationSecs: 32,
+        aiSummary: 'Left voicemail about Phoenix investment opportunity.',
+        attemptNumber: 1,
+        startedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 900 * 1000),
+        endedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 932 * 1000),
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    // Dallas campaign calls
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[1].id, buyerId: buyers[1].id,
+        phoneNumber: '(214) 555-0202', outcome: 'QUALIFIED', durationSecs: 312,
+        aiSummary: 'Follow-up successful. Buyer wants to see 456 Maple Ave. Ready to make offer this week. Budget up to $160K.',
+        transcript: '[DEMO] AI: Hi Sarah, this is Jordan following up from DealFlow Properties... Buyer: Yes, I remember, I\'d love to see that Dallas property...',
+        attemptNumber: 1,
+        startedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        endedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 312 * 1000),
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[1].id, buyerId: buyers[5].id,
+        phoneNumber: '(713) 555-0606', outcome: 'CALLBACK_REQUESTED', durationSecs: 68,
+        aiSummary: 'Buyer busy, requested callback Thursday afternoon. Expressed interest in Texas deals.',
+        attemptNumber: 1,
+        startedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 400 * 1000),
+        endedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 468 * 1000),
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[1].id, buyerId: buyers[6].id,
+        phoneNumber: '(480) 555-0707', outcome: 'QUALIFIED', durationSecs: 198,
+        aiSummary: 'Very interested in DFW market. Looking for SFR and small multi-family. Can close cash in 10 days.',
+        attemptNumber: 1,
+        startedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 600 * 1000),
+        endedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 798 * 1000),
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    // Tampa campaign calls (running)
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[2].id, buyerId: buyers[3].id,
+        phoneNumber: '(813) 555-0404', outcome: 'QUALIFIED', durationSecs: 275,
+        aiSummary: 'Highly interested in Tampa deal alert. Wants the Cedar Lane property details sent over. Pre-approved for $350K.',
+        transcript: '[DEMO] AI: Hi David, this is Alex from DealFlow Properties with a new deal alert in Tampa... Buyer: Oh great, tell me more about it...',
+        attemptNumber: 1,
+        startedAt: new Date(Date.now() - 50 * 60 * 1000),
+        endedAt: new Date(Date.now() - 45 * 60 * 1000),
+        createdAt: new Date(Date.now() - 50 * 60 * 1000),
+      },
+    }),
+    prisma.campaignCall.create({
+      data: {
+        campaignId: campaigns[2].id, buyerId: buyers[7].id,
+        phoneNumber: '(407) 555-0808', outcome: 'NO_ANSWER', durationSecs: 0,
+        attemptNumber: 1,
+        createdAt: new Date(Date.now() - 40 * 60 * 1000),
+      },
+    }),
+  ])
+
+  // Create demo campaign templates
+  const templates = await Promise.all([
+    prisma.campaignTemplate.create({
+      data: {
+        profileId, name: 'Cash Buyer Qualification',
+        description: 'Qualify cash buyers by confirming their buying criteria, budget, and timeline.',
+        category: 'qualification', channel: 'VOICE',
+        scriptTemplate: 'standard_qualification', useCount: 3,
+        lastUsedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaignTemplate.create({
+      data: {
+        profileId, name: 'New Deal Alert',
+        description: 'Notify matching buyers about a new wholesale deal opportunity.',
+        category: 'deal_alert', channel: 'MULTI_CHANNEL',
+        scriptTemplate: 'deal_alert', useCount: 1,
+        lastUsedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    prisma.campaignTemplate.create({
+      data: {
+        profileId, name: 'Dormant Buyer Reactivation',
+        description: 'Re-engage buyers who haven\'t been contacted in 30+ days.',
+        category: 'reactivation', channel: 'VOICE',
+        scriptTemplate: 'reactivation', useCount: 0,
+      },
+    }),
+  ])
+
   // Store demo record IDs in profile settings
   const demoData = {
     dealIds: deals.map((d) => d.id),
@@ -306,6 +505,9 @@ export async function seedDemoData(profileId: string) {
     groupIds: groups.map((g) => g.id),
     notificationIds: notifications.map((n) => n.id),
     activityIds: activities.map((a) => a.id),
+    campaignIds: campaigns.map((c) => c.id),
+    campaignCallIds: campaignCalls.map((c) => c.id),
+    templateIds: templates.map((t) => t.id),
   }
 
   // Read existing settings and merge
@@ -347,13 +549,21 @@ export async function clearDemoData(profileId: string) {
     groupIds?: string[]
     notificationIds?: string[]
     activityIds?: string[]
+    campaignIds?: string[]
+    campaignCallIds?: string[]
+    templateIds?: string[]
   } | undefined
 
   if (!demoData) {
     return { cleared: false, message: 'No demo data found' }
   }
 
-  // Delete all demo records in parallel
+  // Delete campaign calls first (foreign key to campaigns and buyers)
+  if (demoData.campaignCallIds?.length) {
+    await prisma.campaignCall.deleteMany({ where: { id: { in: demoData.campaignCallIds } } })
+  }
+
+  // Delete remaining records in parallel
   await Promise.all([
     demoData.dealIds?.length
       ? prisma.deal.deleteMany({ where: { id: { in: demoData.dealIds } } })
@@ -381,6 +591,16 @@ export async function clearDemoData(profileId: string) {
     demoData.activityIds?.length
       ? prisma.activityLog.deleteMany({
           where: { id: { in: demoData.activityIds } },
+        })
+      : Promise.resolve(),
+    demoData.campaignIds?.length
+      ? prisma.campaign.deleteMany({
+          where: { id: { in: demoData.campaignIds } },
+        })
+      : Promise.resolve(),
+    demoData.templateIds?.length
+      ? prisma.campaignTemplate.deleteMany({
+          where: { id: { in: demoData.templateIds } },
         })
       : Promise.resolve(),
   ])
