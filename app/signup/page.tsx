@@ -185,7 +185,7 @@ function SignUpFlow() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent('/signup?step=2')}`,
+        emailRedirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent('/verify-email?confirmed=true')}`,
       },
     })
 

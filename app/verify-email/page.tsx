@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -22,13 +22,14 @@ function VerifyEmailContent() {
   const [confirmed, setConfirmed] = useState(false)
 
   // Redirect to next step once confirmed
-  const goToNextStep = () => {
+  const goToNextStep = useCallback(() => {
+    if (confirmed) return
     setConfirmed(true)
     fetch('/api/auth/confirm-email', { method: 'POST' }).catch(() => {})
     setTimeout(() => {
       window.location.href = '/signup?step=2'
     }, 1500)
-  }
+  }, [confirmed])
 
   useEffect(() => {
     // If user returned from email link, mark as confirmed
@@ -45,44 +46,47 @@ function VerifyEmailContent() {
 
     // Also try to get email from authenticated user (e.g. OAuth flow)
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.email && !urlEmail) setEmail(user.email)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email && !urlEmail) setEmail(session.user.email)
       // If user already confirmed via Supabase (e.g. Google OAuth), skip
-      if (user?.email_confirmed_at) {
+      if (session?.user?.email_confirmed_at) {
         goToNextStep()
       }
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
-  // Poll every 3 seconds to detect email verification
+  // Listen for auth state changes to detect email verification
+  // This catches when the user clicks the verification link in another tab,
+  // since Supabase shares session state via localStorage across tabs.
   useEffect(() => {
     if (confirmed) return
 
     const supabase = createClient()
-    const interval = setInterval(async () => {
-      // Try to sign in silently — Supabase may have a session after clicking the link
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user?.email_confirmed_at) {
-        clearInterval(interval)
+
+    // Primary detection: auth state change listener (cross-tab via localStorage)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user?.email_confirmed_at) {
         goToNextStep()
       }
-    }, 3000)
+    })
 
-    // Also listen for auth state changes (catches the verification event in real-time)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Fallback: poll getSession() every 5 seconds (local check, no API call)
+    // This handles edge cases where the auth state event doesn't fire
+    const interval = setInterval(async () => {
+      const { data: { session } } = await supabase.auth.getSession()
       if (session?.user?.email_confirmed_at) {
         clearInterval(interval)
         goToNextStep()
       }
-    })
+    }, 5000)
 
     return () => {
       clearInterval(interval)
       subscription.unsubscribe()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [confirmed])
+  }, [confirmed, goToNextStep])
 
   async function handleResend() {
     if (!email) {
