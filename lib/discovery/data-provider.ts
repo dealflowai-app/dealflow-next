@@ -94,31 +94,20 @@ export class DiscoveryDataProvider {
       sampleCities: rawProperties.slice(0, 5).map(p => `${p.address?.city}, ${p.address?.state}`),
     })
 
-    // CRITICAL: BatchData search may return results from outside the searched area.
-    // Filter to only properties matching the searched location.
+    // Filter out results from completely wrong locations (different state).
+    // We only filter by state because BatchData may return neighboring cities
+    // within the metro area (e.g. searching "Corona, CA" may return "Norco, CA").
     const searchState = params.state?.toUpperCase()
-    const searchZip = params.zipCode
-    const searchCityBase = params.city ? normalizeCityName(params.city) : null
     const properties = rawProperties.filter(p => {
-      // If searching by zip, match zip
-      if (searchZip) {
-        return p.address?.zip === searchZip
-      }
-      // Must match state
-      if (searchState && p.address?.state?.toUpperCase() !== searchState) return false
-      // Must match city (normalized to handle Township/Twp/City suffix differences)
-      if (searchCityBase && p.address?.city) {
-        const propCityBase = normalizeCityName(p.address.city)
-        if (propCityBase !== searchCityBase) return false
-      }
-      return true
+      if (!searchState) return true
+      return p.address?.state?.toUpperCase() === searchState
     })
 
     if (properties.length < rawProperties.length) {
-      logger.info(`BatchData: filtered ${rawProperties.length} → ${properties.length} results (removed ${rawProperties.length - properties.length} outside ${searchCriteria})`)
+      logger.info(`BatchData: filtered ${rawProperties.length} → ${properties.length} results (removed ${rawProperties.length - properties.length} outside state ${searchState})`)
     }
     if (properties.length === 0 && rawProperties.length > 0) {
-      logger.warn(`BatchData: ALL ${rawProperties.length} results were outside the searched location "${searchCriteria}". API may not support this location format.`)
+      logger.warn(`BatchData: ALL ${rawProperties.length} results were outside state "${searchState}" for search "${searchCriteria}"`)
     }
 
     return properties.map((p): UnifiedProperty => {
