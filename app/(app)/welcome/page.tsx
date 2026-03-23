@@ -9,7 +9,7 @@ const NAVY = '#0B1224'
 const BLUE = '#2563EB'
 const BODY = 'rgba(5, 14, 36, 0.5)'
 const BORDER = 'rgba(5,14,36,0.08)'
-const TOTAL_STEPS = 5
+const TOTAL_STEPS = 3
 
 const markets = [
   'Phoenix, AZ',
@@ -29,81 +29,34 @@ const markets = [
   'Memphis, TN',
 ]
 
-const experienceLevels = [
-  { value: 'beginner', label: 'Just starting out', sub: 'Learning the ropes', icon: '\u{1F331}' },
-  { value: '1-2years', label: '1\u20132 years', sub: 'Gaining momentum', icon: '\u{1F4C8}' },
-  { value: '3-5years', label: '3\u20135 years', sub: 'Consistently closing', icon: '\u{1F3AF}' },
-  { value: '5+years', label: '5+ years', sub: 'Seasoned pro', icon: '\u{1F3C6}' },
+const experienceOptions = [
+  { value: 'beginner', label: 'Beginner' },
+  { value: 'intermediate', label: 'Intermediate' },
+  { value: 'advanced', label: 'Advanced' },
 ]
 
-const quickActions = [
-  {
-    title: 'Find Buyers',
-    desc: 'Search for cash buyers in your target markets',
-    href: '/discovery',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Analyze a Deal',
-    desc: 'Get comps, ARV, and a deal score instantly',
-    href: '/analyzer',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10" />
-        <line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Explore Marketplace',
-    desc: 'Browse deals posted by other wholesalers',
-    href: '/marketplace',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <path d="M16 10a4 4 0 01-8 0" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Join Community',
-    desc: 'Connect with wholesalers in the feed',
-    href: '/community',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 00-3-3.87" />
-        <path d="M16 3.13a4 4 0 010 7.75" />
-      </svg>
-    ),
-  },
+const focusOptions = [
+  { value: 'wholesaling', label: 'Wholesaling' },
+  { value: 'flipping', label: 'Flipping' },
+  { value: 'both', label: 'Both' },
 ]
 
 export default function WelcomePage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
-  const [transitioning, setTransitioning] = useState(false)
   const [fadeClass, setFadeClass] = useState<'in' | 'out'>('in')
+  const [transitioning, setTransitioning] = useState(false)
 
   // User data
   const [userName, setUserName] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [company, setCompany] = useState('')
-  const [phone, setPhone] = useState('')
-  const [selectedMarkets, setSelectedMarkets] = useState<string[]>([])
+  const [primaryMarket, setPrimaryMarket] = useState('')
   const [experience, setExperience] = useState('')
+  const [focus, setFocus] = useState('')
   const [saving, setSaving] = useState(false)
 
-  // Pre-fill from existing profile data
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -117,10 +70,8 @@ export default function WelcomePage() {
       setUserName(fn || 'there')
       setFirstName(fn)
       setLastName(ln)
-      setPhone(user.user_metadata?.phone || user.phone || '')
     })
 
-    // Also try to pre-fill from the onboarding API (which returns the profile)
     fetch('/api/onboarding/profile').then(res => {
       if (res.ok) return res.json()
       return null
@@ -129,13 +80,9 @@ export default function WelcomePage() {
         if (data.profile.firstName) { setFirstName(data.profile.firstName); setUserName(data.profile.firstName) }
         if (data.profile.lastName) setLastName(data.profile.lastName)
         if (data.profile.company) setCompany(data.profile.company)
-        if (data.profile.phone) setPhone(data.profile.phone)
-        if (data.profile.settings?.targetMarkets) {
-          setSelectedMarkets(data.profile.settings.targetMarkets)
-        }
-        if (data.profile.settings?.experienceLevel) {
-          setExperience(data.profile.settings.experienceLevel)
-        }
+        if (data.profile.settings?.targetMarkets?.[0]) setPrimaryMarket(data.profile.settings.targetMarkets[0])
+        if (data.profile.settings?.experienceLevel) setExperience(data.profile.settings.experienceLevel)
+        if (data.profile.settings?.focus) setFocus(data.profile.settings.focus)
       }
     }).catch(() => {})
   }, [router])
@@ -151,13 +98,7 @@ export default function WelcomePage() {
     }, 250)
   }
 
-  function toggleMarket(market: string) {
-    setSelectedMarkets(prev =>
-      prev.includes(market) ? prev.filter(m => m !== market) : [...prev, market]
-    )
-  }
-
-  async function completeOnboarding(redirectTo?: string) {
+  async function completeOnboarding(redirectTo: string) {
     setSaving(true)
     try {
       const res = await fetch('/api/onboarding/complete', {
@@ -167,16 +108,14 @@ export default function WelcomePage() {
           firstName: firstName || undefined,
           lastName: lastName || undefined,
           company: company || undefined,
-          phone: phone || undefined,
-          targetMarkets: selectedMarkets.length > 0 ? selectedMarkets : undefined,
+          targetMarkets: primaryMarket ? [primaryMarket] : undefined,
           experienceLevel: experience || undefined,
+          focus: focus || undefined,
         }),
       })
       if (!res.ok) throw new Error('Failed to save')
-      // Start the product tour after navigating to dashboard
-      const startTour = !redirectTo || redirectTo === '/dashboard'
-      if (startTour) localStorage.setItem('dealflow-start-tour', 'true')
-      router.replace(redirectTo || '/dashboard')
+      localStorage.setItem('dealflow-start-tour', 'true')
+      window.location.href = redirectTo
     } catch (err) {
       console.error('Failed to complete onboarding:', err)
       setSaving(false)
@@ -215,23 +154,48 @@ export default function WelcomePage() {
         }} />
       </div>
 
-      {/* Step dots */}
+      {/* Step indicators */}
       <div style={{
         display: 'flex',
-        gap: 8,
+        alignItems: 'center',
+        gap: 0,
         marginBottom: 32,
       }}>
         {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-          <div
-            key={i}
-            style={{
-              width: step === i + 1 ? 24 : 8,
-              height: 8,
-              borderRadius: 4,
-              background: i + 1 <= step ? BLUE : 'rgba(5,14,36,0.1)',
+          <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: F,
+              background: i + 1 <= step ? BLUE : '#FFFFFF',
+              color: i + 1 <= step ? '#FFFFFF' : 'rgba(5,14,36,0.3)',
+              border: i + 1 <= step ? 'none' : '1.5px solid rgba(5,14,36,0.12)',
               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          />
+              boxShadow: i + 1 === step ? '0 2px 8px rgba(37,99,235,0.3)' : 'none',
+            }}>
+              {i + 1 < step ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                i + 1
+              )}
+            </div>
+            {i < TOTAL_STEPS - 1 && (
+              <div style={{
+                width: 48,
+                height: 2,
+                background: i + 1 < step ? BLUE : 'rgba(5,14,36,0.08)',
+                transition: 'background 0.4s ease',
+              }} />
+            )}
+          </div>
         ))}
       </div>
 
@@ -243,33 +207,33 @@ export default function WelcomePage() {
         borderRadius: 16,
         border: `1px solid ${BORDER}`,
         boxShadow: '0 4px 24px rgba(5,14,36,0.04), 0 1px 3px rgba(5,14,36,0.03)',
-        padding: step === 5 ? '48px 40px' : '40px 40px',
+        padding: '48px 40px',
         opacity: fadeClass === 'in' ? 1 : 0,
         transform: fadeClass === 'in' ? 'translateY(0)' : 'translateY(8px)',
         transition: 'opacity 0.3s ease, transform 0.3s ease',
       }}>
 
-        {/* ── Step 1: Welcome ── */}
+        {/* Step 1: Welcome */}
         {step === 1 && (
           <div style={{ textAlign: 'center' }}>
             <div style={{
-              width: 64,
-              height: 64,
-              borderRadius: 16,
+              width: 56,
+              height: 56,
+              borderRadius: 14,
               background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 24px',
-              boxShadow: '0 4px 12px rgba(37,99,235,0.3)',
+              boxShadow: '0 4px 12px rgba(37,99,235,0.25)',
             }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
             </div>
 
             <h1 style={{
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: 700,
               color: NAVY,
               margin: '0 0 8px',
@@ -288,17 +252,48 @@ export default function WelcomePage() {
               marginLeft: 'auto',
               marginRight: 'auto',
             }}>
-              The all-in-one platform for real estate wholesalers. Find cash buyers,
-              analyze deals, manage outreach, and close faster -all in one place.
+              Your all-in-one platform for real estate wholesaling.
             </p>
 
-            <p style={{
-              fontSize: 13,
-              color: 'rgba(5,14,36,0.35)',
-              margin: '0 0 28px',
+            <div style={{
+              textAlign: 'left',
+              maxWidth: 360,
+              margin: '0 auto 36px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 14,
             }}>
-              Let&apos;s get your account set up in under 2 minutes.
-            </p>
+              {[
+                { text: 'Find verified cash buyers in any market' },
+                { text: 'Analyze deals with instant comps and ARV' },
+                { text: 'Manage outreach, contracts, and closings' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    background: 'rgba(37,99,235,0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <span style={{
+                    fontSize: 14,
+                    color: NAVY,
+                    fontFamily: F,
+                    fontWeight: 500,
+                  }}>
+                    {item.text}
+                  </span>
+                </div>
+              ))}
+            </div>
 
             <button
               onClick={() => goToStep(2)}
@@ -309,7 +304,7 @@ export default function WelcomePage() {
                 margin: '0 auto',
               }}
             >
-              Get Started
+              Let&apos;s get started
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 6 }}>
                 <polyline points="9 18 15 12 9 6" />
               </svg>
@@ -317,38 +312,11 @@ export default function WelcomePage() {
           </div>
         )}
 
-        {/* ── Step 2: Profile Setup ── */}
+        {/* Step 2: Tell us about you */}
         {step === 2 && (
           <div>
-            <h2 style={heading}>Set up your profile</h2>
-            <p style={subheading}>Tell us a bit about yourself so we can personalize your experience.</p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-              <div>
-                <label style={labelStyle}>First name</label>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={e => setFirstName(e.target.value)}
-                  placeholder="John"
-                  style={inputStyle}
-                  onFocus={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.1)'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(5,14,36,0.04)' }}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>Last name</label>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={e => setLastName(e.target.value)}
-                  placeholder="Smith"
-                  style={inputStyle}
-                  onFocus={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.1)'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(5,14,36,0.04)' }}
-                />
-              </div>
-            </div>
+            <h2 style={heading}>Tell us about you</h2>
+            <p style={subheading}>This helps us personalize your experience.</p>
 
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Company name <span style={{ color: 'rgba(5,14,36,0.3)', fontWeight: 400 }}>(optional)</span></label>
@@ -363,17 +331,88 @@ export default function WelcomePage() {
               />
             </div>
 
-            <div style={{ marginBottom: 32 }}>
-              <label style={labelStyle}>Phone number <span style={{ color: 'rgba(5,14,36,0.3)', fontWeight: 400 }}>(optional)</span></label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                placeholder="(555) 123-4567"
-                style={inputStyle}
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Primary market</label>
+              <select
+                value={primaryMarket}
+                onChange={e => setPrimaryMarket(e.target.value)}
+                style={{
+                  ...inputStyle,
+                  appearance: 'none' as const,
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230B1224' opacity='0.4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 14px center',
+                  paddingRight: 36,
+                  cursor: 'pointer',
+                }}
                 onFocus={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
                 onBlur={e => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.1)'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(5,14,36,0.04)' }}
-              />
+              >
+                <option value="">Select a market</option>
+                {markets.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Experience level</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {experienceOptions.map(opt => {
+                  const selected = experience === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => setExperience(opt.value)}
+                      style={{
+                        flex: 1,
+                        padding: '10px 12px',
+                        borderRadius: 10,
+                        border: `1.5px solid ${selected ? BLUE : 'rgba(5,14,36,0.1)'}`,
+                        background: selected ? 'rgba(37,99,235,0.05)' : '#FFFFFF',
+                        color: selected ? BLUE : NAVY,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        fontFamily: F,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 32 }}>
+              <label style={labelStyle}>What do you mainly do?</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {focusOptions.map(opt => {
+                  const selected = focus === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => setFocus(opt.value)}
+                      style={{
+                        flex: 1,
+                        padding: '10px 12px',
+                        borderRadius: 10,
+                        border: `1.5px solid ${selected ? BLUE : 'rgba(5,14,36,0.1)'}`,
+                        background: selected ? 'rgba(37,99,235,0.05)' : '#FFFFFF',
+                        color: selected ? BLUE : NAVY,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        fontFamily: F,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: 12 }}>
@@ -387,162 +426,29 @@ export default function WelcomePage() {
           </div>
         )}
 
-        {/* ── Step 3: Target Markets ── */}
+        {/* Step 3: You're all set */}
         {step === 3 && (
-          <div>
-            <h2 style={heading}>Your target markets</h2>
-            <p style={subheading}>Select the markets you want to find cash buyers in. You can change these anytime.</p>
-
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 8,
-              marginBottom: 16,
-            }}>
-              {markets.map(market => {
-                const selected = selectedMarkets.includes(market)
-                return (
-                  <button
-                    key={market}
-                    onClick={() => toggleMarket(market)}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: 20,
-                      border: `1.5px solid ${selected ? BLUE : 'rgba(5,14,36,0.1)'}`,
-                      background: selected ? 'rgba(37,99,235,0.06)' : '#FFFFFF',
-                      color: selected ? BLUE : NAVY,
-                      fontSize: 13,
-                      fontWeight: 500,
-                      fontFamily: F,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                    }}
-                  >
-                    {selected && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                    {market}
-                  </button>
-                )
-              })}
-            </div>
-
-            {selectedMarkets.length > 0 && (
-              <p style={{
-                fontSize: 13,
-                color: BLUE,
-                fontWeight: 500,
-                marginBottom: 16,
-                fontFamily: F,
-              }}>
-                {selectedMarkets.length} market{selectedMarkets.length !== 1 ? 's' : ''} selected
-              </p>
-            )}
-
-            <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
-              <button onClick={() => goToStep(2)} style={btnSecondary}>
-                Back
-              </button>
-              <button onClick={() => goToStep(4)} style={{ ...btnPrimary, flex: 1 }}>
-                Continue
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 4: Experience Level ── */}
-        {step === 4 && (
-          <div>
-            <h2 style={heading}>Your experience level</h2>
-            <p style={subheading}>This helps us tailor recommendations and resources to where you are in your journey.</p>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 12,
-              marginBottom: 32,
-            }}>
-              {experienceLevels.map(level => {
-                const selected = experience === level.value
-                return (
-                  <button
-                    key={level.value}
-                    onClick={() => setExperience(level.value)}
-                    style={{
-                      padding: '20px 16px',
-                      borderRadius: 12,
-                      border: `1.5px solid ${selected ? BLUE : 'rgba(5,14,36,0.08)'}`,
-                      background: selected ? 'rgba(37,99,235,0.04)' : '#FFFFFF',
-                      cursor: 'pointer',
-                      textAlign: 'left' as const,
-                      transition: 'all 0.2s ease',
-                      boxShadow: selected ? '0 0 0 3px rgba(37,99,235,0.08)' : '0 1px 3px rgba(5,14,36,0.03)',
-                    }}
-                  >
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>{level.icon}</div>
-                    <div style={{
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: selected ? BLUE : NAVY,
-                      fontFamily: F,
-                      marginBottom: 2,
-                    }}>
-                      {level.label}
-                    </div>
-                    <div style={{
-                      fontSize: 12,
-                      color: BODY,
-                      fontFamily: F,
-                    }}>
-                      {level.sub}
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => goToStep(3)} style={btnSecondary}>
-                Back
-              </button>
-              <button
-                onClick={() => goToStep(5)}
-                style={{ ...btnPrimary, flex: 1 }}
-              >
-                Continue
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 5: Tour Complete ── */}
-        {step === 5 && (
           <div style={{ textAlign: 'center' }}>
             <div style={{
-              width: 64,
-              height: 64,
+              width: 56,
+              height: 56,
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 24px',
-              boxShadow: '0 4px 12px rgba(34,197,94,0.3)',
+              boxShadow: '0 4px 12px rgba(34,197,94,0.25)',
             }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
 
             <h2 style={{
               ...heading,
-              marginBottom: 8,
               textAlign: 'center' as const,
+              marginBottom: 8,
             }}>
               You&apos;re all set!
             </h2>
@@ -550,33 +456,41 @@ export default function WelcomePage() {
             <p style={{
               ...subheading,
               textAlign: 'center' as const,
-              marginBottom: 32,
+              marginBottom: 28,
             }}>
-              Your account is ready to go. Here are some things you can do right away:
+              Your account is ready. We&apos;ve loaded demo data so you can explore right away.
             </p>
 
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 12,
-              marginBottom: 32,
-              textAlign: 'left' as const,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              marginBottom: 28,
+              textAlign: 'left',
             }}>
-              {quickActions.map(action => (
+              {[
+                { title: 'Explore Dashboard', desc: 'See your analytics and activity at a glance', href: '/dashboard' },
+                { title: 'Find Buyers', desc: 'Search for cash buyers in your target market', href: '/discovery' },
+                { title: 'Create First Deal', desc: 'Analyze a property and get instant comps', href: '/analyzer' },
+              ].map(action => (
                 <button
                   key={action.title}
                   onClick={() => completeOnboarding(action.href)}
                   disabled={saving}
                   style={{
-                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '14px 18px',
                     borderRadius: 12,
                     border: `1px solid ${BORDER}`,
                     background: '#FFFFFF',
                     cursor: saving ? 'not-allowed' : 'pointer',
-                    textAlign: 'left' as const,
                     transition: 'all 0.2s ease',
                     boxShadow: '0 1px 3px rgba(5,14,36,0.03)',
                     opacity: saving ? 0.6 : 1,
+                    textAlign: 'left' as const,
+                    width: '100%',
                   }}
                   onMouseEnter={e => {
                     if (!saving) {
@@ -589,24 +503,27 @@ export default function WelcomePage() {
                     e.currentTarget.style.boxShadow = '0 1px 3px rgba(5,14,36,0.03)'
                   }}
                 >
-                  <div style={{ marginBottom: 8 }}>{action.icon}</div>
-                  <div style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: NAVY,
-                    fontFamily: F,
-                    marginBottom: 2,
-                  }}>
-                    {action.title}
+                  <div>
+                    <div style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: NAVY,
+                      fontFamily: F,
+                      marginBottom: 2,
+                    }}>
+                      {action.title}
+                    </div>
+                    <div style={{
+                      fontSize: 13,
+                      color: BODY,
+                      fontFamily: F,
+                    }}>
+                      {action.desc}
+                    </div>
                   </div>
-                  <div style={{
-                    fontSize: 12,
-                    color: BODY,
-                    fontFamily: F,
-                    lineHeight: 1.4,
-                  }}>
-                    {action.desc}
-                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.25)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginLeft: 12 }}>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
                 </button>
               ))}
             </div>
@@ -633,9 +550,9 @@ export default function WelcomePage() {
       </div>
 
       {/* Skip link */}
-      {step < 5 && (
+      {step < 3 && (
         <button
-          onClick={() => goToStep(5)}
+          onClick={() => goToStep(3)}
           style={{
             marginTop: 20,
             background: 'none',
@@ -658,7 +575,7 @@ export default function WelcomePage() {
   )
 }
 
-/* ── Shared styles ─────────────────────────────── */
+/* Shared styles */
 
 const heading: React.CSSProperties = {
   fontSize: 22,

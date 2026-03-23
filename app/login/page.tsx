@@ -101,6 +101,16 @@ export default function LoginPage() {
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (authError) {
+      // Check if the error is due to unverified email
+      const isUnverified = authError.message.toLowerCase().includes('email not confirmed')
+        || authError.message.toLowerCase().includes('email_not_confirmed')
+
+      if (isUnverified) {
+        setError('__unverified__')
+        setLoading(false)
+        return
+      }
+
       const newCount = failCount + 1
       setFailCount(newCount)
 
@@ -211,8 +221,32 @@ export default function LoginPage() {
               </div>
             )}
 
+            {/* Unverified email warning */}
+            {error === '__unverified__' && (
+              <div style={{ background: 'rgba(37,99,235,0.05)', border: '1px solid rgba(37,99,235,0.12)', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: NAVY, lineHeight: 1.6, fontFamily: F }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                  <div>
+                    <span style={{ fontWeight: 600 }}>Please verify your email address first.</span>
+                    <br />
+                    <span style={{ color: BODY }}>Check your inbox for the verification link.</span>
+                    <br />
+                    <Link
+                      href={`/verify-email?email=${encodeURIComponent(email)}`}
+                      style={{ color: BLUE, fontWeight: 600, textDecoration: 'none', fontSize: 13, marginTop: 4, display: 'inline-block' }}
+                    >
+                      Resend verification email
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Error */}
-            {error && (
+            {error && error !== '__unverified__' && (
               <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#EF4444', lineHeight: 1.5, fontFamily: F }}>
                 {error}
               </div>

@@ -254,7 +254,7 @@ function SignUpFlow() {
     setLoading(false)
     // Email confirmation is required — no session until confirmed
     // Go directly to verify-email; profile setup happens after verification
-    router.push('/verify-email')
+    router.push(`/verify-email?email=${encodeURIComponent(email)}`)
   }
 
   /* ── Step 2: Submit ─────────────────────────────────── */

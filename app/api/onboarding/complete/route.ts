@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { firstName, lastName, company, phone, targetMarkets, experienceLevel } = body
+    const { firstName, lastName, company, phone, targetMarkets, experienceLevel, focus } = body
 
     // Fetch existing profile to merge settings
     const existing = await prisma.profile.findUnique({
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       ...existingSettings,
       ...(targetMarkets && { targetMarkets }),
       ...(experienceLevel && { experienceLevel }),
+      ...(focus && { focus }),
     }
 
     const profile = await prisma.profile.update({

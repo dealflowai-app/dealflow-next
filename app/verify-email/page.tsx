@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import Nav from '@/components/Nav'
+import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 
 const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
@@ -33,10 +34,16 @@ function VerifyEmailContent() {
       return
     }
 
-    // Get user email for display
+    // Try to get email from URL params first (passed from signup)
+    const urlEmail = searchParams.get('email')
+    if (urlEmail) {
+      setEmail(urlEmail)
+    }
+
+    // Also try to get email from authenticated user (e.g. OAuth flow)
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.email) setEmail(user.email)
+      if (user?.email && !urlEmail) setEmail(user.email)
       // If user already confirmed via Supabase (e.g. Google OAuth), skip
       if (user?.email_confirmed_at) {
         setConfirmed(true)
@@ -50,17 +57,32 @@ function VerifyEmailContent() {
   }, [searchParams, router])
 
   async function handleResend() {
+    if (!email) {
+      setError('No email address found. Please sign up again.')
+      return
+    }
+
     setResending(true)
     setError('')
     setResent(false)
 
     try {
-      const res = await fetch('/api/auth/resend-verification', { method: 'POST' })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to resend')
+      const supabase = createClient()
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent('/verify-email?confirmed=true')}`,
+        },
+      })
+
+      if (resendError) throw new Error(resendError.message)
       setResent(true)
+
+      // Reset "sent" state after 30 seconds so they can resend again
+      setTimeout(() => setResent(false), 30000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to resend')
+      setError(err instanceof Error ? err.message : 'Failed to resend verification email')
     } finally {
       setResending(false)
     }
@@ -68,12 +90,19 @@ function VerifyEmailContent() {
 
   if (confirmed) {
     return (
-      <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
-        <Nav currentPage="signup" />
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px' }}>
-          <div className="auth-card" style={{
+      <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
+        {/* Logo */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 32 }}>
+          <Image src="/Logo.png" alt="DealFlow AI logo" width={28} height={28} style={{ objectFit: 'contain', flexShrink: 0 }} />
+          <span style={{ fontFamily: F, fontWeight: 600, fontSize: '1.02rem', color: NAVY, letterSpacing: '-0.01em' }}>
+            DealFlow AI
+          </span>
+        </Link>
+
+        <div style={{ width: '100%', maxWidth: 420, padding: '0 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{
             background: '#ffffff', borderRadius: 16, padding: '40px 36px',
-            width: '100%', maxWidth: 420, textAlign: 'center',
+            textAlign: 'center',
             boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
             border: '1px solid rgba(5,14,36,0.06)',
           }}>
@@ -82,8 +111,11 @@ function VerifyEmailContent() {
               background: 'rgba(34,197,94,0.08)', border: '2px solid rgba(34,197,94,0.2)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 20px',
+              animation: 'scaleIn 0.5s cubic-bezier(0.16,1,0.3,1)',
             }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                style={{ animation: 'checkDraw 0.6s 0.2s ease forwards', strokeDasharray: 24, strokeDashoffset: 24 }}
+              >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
@@ -95,62 +127,89 @@ function VerifyEmailContent() {
             </p>
           </div>
         </div>
+
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes scaleIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+          }
+          @keyframes checkDraw {
+            to { stroke-dashoffset: 0; }
+          }
+        ` }} />
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
-      <Nav currentPage="signup" />
+    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
+      {/* Logo */}
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 32 }}>
+        <Image src="/Logo.png" alt="DealFlow AI logo" width={28} height={28} style={{ objectFit: 'contain', flexShrink: 0 }} />
+        <span style={{ fontFamily: F, fontWeight: 600, fontSize: '1.02rem', color: NAVY, letterSpacing: '-0.01em' }}>
+          DealFlow AI
+        </span>
+      </Link>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px' }}>
-        <div className="auth-card" style={{
+      <div style={{ width: '100%', maxWidth: 420, padding: '0 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{
           background: '#ffffff', borderRadius: 16, padding: '40px 36px',
-          width: '100%', maxWidth: 420, textAlign: 'center',
+          textAlign: 'center',
           boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
           border: '1px solid rgba(5,14,36,0.06)',
         }}>
           {/* Mail icon */}
           <div style={{
-            width: 56, height: 56, borderRadius: '50%',
-            background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.1)',
+            width: 64, height: 64, borderRadius: '50%',
+            background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.12)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 22px',
+            margin: '0 auto 24px',
+            animation: 'scaleIn 0.4s cubic-bezier(0.16,1,0.3,1)',
           }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="4" width="20" height="16" rx="2" />
               <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
             </svg>
           </div>
 
-          <h1 style={{ fontFamily: SERIF, fontSize: '1.5rem', fontWeight: 400, color: NAVY, marginBottom: 8, lineHeight: 1.15 }}>
+          <h1 style={{ fontFamily: SERIF, fontSize: '1.65rem', fontWeight: 400, color: NAVY, marginBottom: 10, lineHeight: 1.15 }}>
             Check your email
           </h1>
-          <p style={{ fontSize: '0.9rem', color: BODY, lineHeight: 1.6, fontFamily: F, marginBottom: 6 }}>
-            We sent a verification link to
+          <p style={{ fontSize: '0.9rem', color: BODY, lineHeight: 1.6, fontFamily: F, marginBottom: 4 }}>
+            We&apos;ve sent a verification link to
           </p>
           {email && (
-            <p style={{ fontSize: '0.95rem', color: NAVY, fontWeight: 600, fontFamily: F, marginBottom: 24 }}>
+            <p style={{ fontSize: '0.95rem', color: NAVY, fontWeight: 600, fontFamily: F, marginBottom: 20 }}>
               {email}
             </p>
           )}
-          <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.4)', lineHeight: 1.6, fontFamily: F, marginBottom: 28 }}>
-            Click the link in the email to verify your account. Check your spam folder if you don&apos;t see it.
+          {!email && (
+            <p style={{ fontSize: '0.95rem', color: NAVY, fontWeight: 600, fontFamily: F, marginBottom: 20 }}>
+              your email address
+            </p>
+          )}
+          <p style={{ fontSize: '0.85rem', color: 'rgba(5,14,36,0.4)', lineHeight: 1.7, fontFamily: F, marginBottom: 28 }}>
+            Click the link in the email to verify your account.
+            <br />
+            Check your spam folder if you don&apos;t see it.
           </p>
 
-          {/* Resend */}
+          {/* Resend button */}
           <button
             onClick={handleResend}
             disabled={resending || resent}
+            className="auth-submit"
             style={{
-              width: '100%', padding: 12, borderRadius: 10,
-              background: resent ? 'rgba(34,197,94,0.08)' : resending ? '#60A5FA' : BLUE,
+              width: '100%', padding: '10px 20px', borderRadius: 10,
+              background: resent ? 'rgba(34,197,94,0.06)' : resending ? '#60A5FA' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
               color: resent ? '#22C55E' : 'white',
-              border: resent ? '1px solid rgba(34,197,94,0.2)' : 'none',
+              border: resent ? '1px solid rgba(34,197,94,0.15)' : 'none',
               fontFamily: F, fontWeight: 600, fontSize: 15,
               cursor: (resending || resent) ? 'not-allowed' : 'pointer',
-              transition: 'background 0.2s',
+              transition: 'all 0.2s ease',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              boxShadow: (resending || resent) ? 'none' : '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
+              letterSpacing: '-0.01em',
             }}
           >
             {resending ? (
@@ -158,7 +217,18 @@ function VerifyEmailContent() {
                 <span className="auth-spinner" />
                 Sending...
               </>
-            ) : resent ? 'Verification email sent!' : 'Resend verification email'}
+            ) : resent ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Verification email sent!
+              </>
+            ) : (
+              <>
+                Didn&apos;t receive it? Resend email
+              </>
+            )}
           </button>
 
           {error && (
@@ -167,14 +237,28 @@ function VerifyEmailContent() {
             </div>
           )}
 
-          <p style={{ fontSize: 12, color: 'rgba(5,14,36,0.35)', marginTop: 20, fontFamily: F }}>
-            Wrong email? Sign out and create a new account.
+          {/* Back to sign in link */}
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(5,14,36,0.4)', marginTop: 24, marginBottom: 0, fontFamily: F }}>
+            <Link href="/login" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+              </svg>
+              Back to sign in
+            </Link>
           </p>
         </div>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes scaleIn {
+          from { transform: scale(0); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes checkDraw {
+          to { stroke-dashoffset: 0; }
+        }
         .auth-spinner {
           width: 16px; height: 16px;
           border: 2px solid rgba(255,255,255,0.4);
@@ -183,8 +267,15 @@ function VerifyEmailContent() {
           animation: spin 0.7s linear infinite;
           flex-shrink: 0;
         }
+        .auth-submit:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(37,99,235,0.3), 0 2px 4px rgba(37,99,235,0.15) !important;
+        }
+        .auth-submit:active:not(:disabled) {
+          transform: translateY(0);
+        }
         @media (max-width: 480px) {
-          .auth-card { padding: 28px 22px !important; border-radius: 14px !important; }
+          .auth-card-wrap { padding: 0 16px !important; }
         }
       ` }} />
     </div>
@@ -196,6 +287,7 @@ export default function VerifyEmailPage() {
     <Suspense fallback={
       <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: 24, height: 24, border: '2px solid #E5E7EB', borderTopColor: '#2563EB', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+        <style dangerouslySetInnerHTML={{ __html: '@keyframes spin { to { transform: rotate(360deg); } }' }} />
       </div>
     }>
       <VerifyEmailContent />

@@ -300,22 +300,24 @@ export default function ProductTour() {
   const isLast = step === TOUR_STEPS.length - 1
   const isFirst = step === 0
 
+  // Determine if we have a valid highlight (element found on page)
+  const hasHighlight = highlightRect !== null && !isCenter
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 10000 }}>
-      {/* Overlay with cutout */}
+      {/* Overlay with cutout for highlighted element */}
       <svg
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-        onClick={endTour}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
       >
         <defs>
           <mask id="tour-mask">
             <rect x="0" y="0" width="100%" height="100%" fill="white" />
-            {highlightRect && !isCenter && (
+            {hasHighlight && (
               <rect
-                x={highlightRect.left - 6}
-                y={highlightRect.top - 6}
-                width={highlightRect.width + 12}
-                height={highlightRect.height + 12}
+                x={highlightRect!.left - 6}
+                y={highlightRect!.top - 6}
+                width={highlightRect!.width + 12}
+                height={highlightRect!.height + 12}
                 rx="10"
                 fill="black"
               />
@@ -324,206 +326,235 @@ export default function ProductTour() {
         </defs>
         <rect
           x="0" y="0" width="100%" height="100%"
-          fill="rgba(5,14,36,0.5)"
+          fill="rgba(5,14,36,0.55)"
           mask="url(#tour-mask)"
         />
       </svg>
 
-      {/* Highlight border glow */}
-      {highlightRect && !isCenter && (
+      {/* Clickable backdrop to dismiss tour */}
+      <div
+        style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
+        onClick={endTour}
+      />
+
+      {/* Highlight border glow around the target element */}
+      {hasHighlight && (
         <div
           style={{
-            position: 'absolute',
-            top: highlightRect.top - 6,
-            left: highlightRect.left - 6,
-            width: highlightRect.width + 12,
-            height: highlightRect.height + 12,
+            position: 'fixed',
+            top: highlightRect!.top - 6,
+            left: highlightRect!.left - 6,
+            width: highlightRect!.width + 12,
+            height: highlightRect!.height + 12,
             borderRadius: 10,
             border: '2px solid rgba(37,99,235,0.5)',
             boxShadow: '0 0 20px rgba(37,99,235,0.25), 0 0 0 4px rgba(37,99,235,0.1)',
             pointerEvents: 'none',
             animation: 'tourPulse 2s ease-in-out infinite',
+            zIndex: 10001,
           }}
         />
       )}
 
-      {/* Tooltip */}
+      {/* Card - always centered on screen as a modal */}
       <div
-        ref={tooltipRef}
-        onClick={e => e.stopPropagation()}
         style={{
-          position: isCenter ? 'fixed' : 'absolute',
-          top: isCenter ? '50%' : tooltipPos.top,
-          left: isCenter ? '50%' : tooltipPos.left,
-          transform: isCenter ? 'translate(-50%, -50%)' : undefined,
-          width: isCenter ? 480 : 360,
-          background: '#ffffff',
-          borderRadius: 16,
-          boxShadow: '0 24px 80px rgba(5,14,36,0.2), 0 8px 24px rgba(5,14,36,0.1), 0 0 0 1px rgba(5,14,36,0.06)',
-          fontFamily: F,
-          opacity: fadeState === 'in' ? 1 : 0,
-          transition: 'opacity 0.2s ease',
-          zIndex: 10001,
-        }}
-      >
-        {/* Header */}
-        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px 20px 0',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: 'rgba(37,99,235,0.08)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#2563EB',
-            }}>
-              {currentStep.icon}
-            </div>
-            <div>
-              <div style={{
-                fontSize: isCenter ? 20 : 15,
-                fontWeight: 700,
-                color: '#0B1224',
-                letterSpacing: '-0.01em',
-              }}>
-                {currentStep.title}
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={endTour}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 6,
-              borderRadius: 8,
-              display: 'flex',
-              color: 'rgba(5,14,36,0.3)',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(5,14,36,0.05)'; e.currentTarget.style.color = 'rgba(5,14,36,0.6)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'rgba(5,14,36,0.3)' }}
-            title="End tour"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          zIndex: 10002,
+        }}
+      >
+        <div
+          ref={tooltipRef}
+          onClick={e => e.stopPropagation()}
+          style={{
+            pointerEvents: 'auto',
+            width: 420,
+            maxWidth: 'calc(100vw - 40px)',
+            background: '#ffffff',
+            borderRadius: 16,
+            boxShadow: '0 24px 80px rgba(5,14,36,0.22), 0 8px 24px rgba(5,14,36,0.12), 0 0 0 1px rgba(5,14,36,0.06)',
+            fontFamily: F,
+            opacity: fadeState === 'in' ? 1 : 0,
+            transform: fadeState === 'in' ? 'scale(1)' : 'scale(0.97)',
+            transition: 'opacity 0.2s ease, transform 0.2s ease',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Header accent bar */}
+          <div style={{
+            height: 3,
+            background: `linear-gradient(90deg, #2563EB ${((step + 1) / TOUR_STEPS.length) * 100}%, rgba(37,99,235,0.1) ${((step + 1) / TOUR_STEPS.length) * 100}%)`,
+            transition: 'background 0.3s ease',
+          }} />
 
-        {/* Body */}
-        <div style={{
-          padding: '12px 20px 20px',
-        }}>
-          <p style={{
-            fontSize: 13.5,
-            lineHeight: 1.65,
-            color: 'rgba(5,14,36,0.55)',
-            margin: '0 0 20px',
-          }}>
-            {currentStep.description}
-          </p>
-
-          {/* Footer */}
+          {/* Header */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            padding: '20px 24px 0',
           }}>
-            {/* Step counter */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              {TOUR_STEPS.map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: i === step ? 16 : 6,
-                    height: 6,
-                    borderRadius: 3,
-                    background: i === step ? '#2563EB' : i < step ? 'rgba(37,99,235,0.3)' : 'rgba(5,14,36,0.1)',
-                    transition: 'all 0.3s ease',
-                  }}
-                />
-              ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: 'rgba(37,99,235,0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#2563EB',
+                flexShrink: 0,
+              }}>
+                {currentStep.icon}
+              </div>
+              <div style={{
+                fontSize: isCenter ? 20 : 16,
+                fontWeight: 700,
+                color: '#0B1224',
+                letterSpacing: '-0.01em',
+                lineHeight: 1.3,
+              }}>
+                {currentStep.title}
+              </div>
             </div>
-
-            {/* Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {!isFirst && (
-                <button
-                  onClick={prev}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: 8,
-                    border: '1px solid rgba(5,14,36,0.1)',
-                    background: '#fff',
-                    color: '#0B1224',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    fontFamily: F,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(5,14,36,0.03)' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#fff' }}
-                >
-                  Back
-                </button>
-              )}
-              <button
-                onClick={isLast ? endTour : next}
-                style={{
-                  padding: '8px 18px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: '#2563EB',
-                  color: '#fff',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  fontFamily: F,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  transition: 'background 0.15s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#1D4ED8' }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#2563EB' }}
-              >
-                {isFirst ? 'Start Tour' : isLast ? 'Finish' : 'Next'}
-                {!isLast && <ChevronRight className="w-3.5 h-3.5" />}
-              </button>
-            </div>
+            <button
+              onClick={endTour}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 6,
+                borderRadius: 8,
+                display: 'flex',
+                color: 'rgba(5,14,36,0.3)',
+                transition: 'all 0.15s',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(5,14,36,0.05)'; e.currentTarget.style.color = 'rgba(5,14,36,0.6)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'rgba(5,14,36,0.3)' }}
+              title="End tour"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
-          {/* Skip link */}
-          {!isLast && (
-            <div style={{ textAlign: 'center', marginTop: 12 }}>
-              <button
-                onClick={endTour}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'rgba(5,14,36,0.25)',
-                  fontSize: 12,
-                  fontFamily: F,
-                  cursor: 'pointer',
-                  padding: '4px 8px',
-                  borderRadius: 6,
-                  transition: 'color 0.15s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = 'rgba(5,14,36,0.45)' }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(5,14,36,0.25)' }}
-              >
-                Skip tour
-              </button>
+          {/* Body */}
+          <div style={{
+            padding: '14px 24px 24px',
+          }}>
+            <p style={{
+              fontSize: 14,
+              lineHeight: 1.7,
+              color: 'rgba(5,14,36,0.55)',
+              margin: '0 0 24px',
+            }}>
+              {currentStep.description}
+            </p>
+
+            {/* Footer */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              {/* Step dots */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                {TOUR_STEPS.map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: i === step ? 18 : 6,
+                      height: 6,
+                      borderRadius: 3,
+                      background: i === step ? '#2563EB' : i < step ? 'rgba(37,99,235,0.35)' : 'rgba(5,14,36,0.1)',
+                      transition: 'all 0.3s ease',
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {!isFirst && (
+                  <button
+                    onClick={prev}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: 8,
+                      border: '1px solid rgba(5,14,36,0.12)',
+                      background: '#fff',
+                      color: '#0B1224',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      fontFamily: F,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(5,14,36,0.03)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#fff' }}
+                  >
+                    Back
+                  </button>
+                )}
+                <button
+                  onClick={isLast ? endTour : next}
+                  style={{
+                    padding: '8px 20px',
+                    borderRadius: 8,
+                    border: 'none',
+                    background: '#2563EB',
+                    color: '#fff',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    fontFamily: F,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#1D4ED8' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#2563EB' }}
+                >
+                  {isFirst ? 'Start Tour' : isLast ? 'Finish' : 'Next'}
+                  {!isLast && <ChevronRight className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
-          )}
+
+            {/* Skip link */}
+            {!isLast && (
+              <div style={{ textAlign: 'center', marginTop: 14 }}>
+                <button
+                  onClick={endTour}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'rgba(5,14,36,0.25)',
+                    fontSize: 12,
+                    fontFamily: F,
+                    cursor: 'pointer',
+                    padding: '4px 8px',
+                    borderRadius: 6,
+                    transition: 'color 0.15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'rgba(5,14,36,0.45)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'rgba(5,14,36,0.25)' }}
+                >
+                  Skip tour
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
