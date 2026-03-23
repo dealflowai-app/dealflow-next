@@ -46,10 +46,12 @@ export async function POST(request: Request) {
       data: { onboarded: true },
     })
 
-    // Seed demo data (fire-and-forget) so user has sample data to explore
-    seedDemoData(profile.id).catch((err) =>
+    // Seed demo data before responding so it's ready when dashboard loads
+    try {
+      await seedDemoData(profile.id)
+    } catch (err) {
       console.error('Demo data seeding failed:', err)
-    )
+    }
 
     return NextResponse.json({ profile })
   } catch (err) {

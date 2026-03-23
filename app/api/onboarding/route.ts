@@ -78,10 +78,12 @@ export async function POST(request: Request) {
       }).catch((err) => console.error('Welcome email failed:', err))
     }
 
-    // Seed demo data (fire-and-forget)
-    seedDemoData(profile.id).catch((err) =>
+    // Seed demo data before responding so it's ready when dashboard loads
+    try {
+      await seedDemoData(profile.id)
+    } catch (err) {
       console.error('Demo data seeding failed:', err)
-    )
+    }
 
     return NextResponse.json({ profile })
   } catch (err) {

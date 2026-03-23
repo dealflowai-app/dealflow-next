@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import GoogleOAuthButton from '@/components/GoogleOAuthButton'
@@ -15,7 +15,7 @@ const BODY = 'rgba(5, 14, 36, 0.5)'
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  padding: '10px 14px',
+  padding: '11px 14px',
   borderRadius: 10,
   border: '1px solid rgba(5,14,36,0.1)',
   background: '#ffffff',
@@ -43,21 +43,17 @@ const labelStyle: React.CSSProperties = {
 }
 
 const markets = [
-  'Atlanta, GA',
-  'Phoenix, AZ',
-  'Tampa, FL',
-  'Charlotte, NC',
-  'Dallas, TX',
-  'Orlando, FL',
-  'Houston, TX',
-  'Miami, FL',
-  'Other',
+  'Atlanta, GA', 'Phoenix, AZ', 'Tampa, FL', 'Charlotte, NC',
+  'Dallas, TX', 'Orlando, FL', 'Houston, TX', 'Miami, FL',
+  'San Antonio, TX', 'Las Vegas, NV', 'Denver, CO', 'Nashville, TN',
+  'Jacksonville, FL', 'Memphis, TN', 'Indianapolis, IN', 'Other',
 ]
 
-const experienceLevels = [
-  { value: 'new', label: 'New', sub: 'Just getting started' },
-  { value: 'active', label: 'Active', sub: 'Closing deals regularly' },
-  { value: 'experienced', label: 'Experienced', sub: '10+ deals closed' },
+const goals = [
+  { value: 'first_deal', icon: '🎯', label: 'Close my first deal', desc: 'New to wholesaling' },
+  { value: 'scale', icon: '📈', label: 'Scale my business', desc: 'Already closing deals' },
+  { value: 'find_buyers', icon: '🔍', label: 'Find cash buyers', desc: 'Need more buyers' },
+  { value: 'automate', icon: '⚡', label: 'Automate outreach', desc: 'Save time on calls' },
 ]
 
 /* ── Password strength ──────────────────────────────── */
@@ -81,57 +77,18 @@ function PasswordStrengthMeter({ password }: { password: string }) {
   if (!password) return null
   const { score, label, color } = getPasswordStrength(password)
 
-  const checks = [
-    { met: password.length >= 8, text: '8+ characters' },
-    { met: /[A-Z]/.test(password), text: 'Uppercase letter' },
-    { met: /[a-z]/.test(password), text: 'Lowercase letter' },
-    { met: /[0-9]/.test(password), text: 'Number' },
-    { met: /[^A-Za-z0-9]/.test(password), text: 'Special character (!@#$...)' },
-  ]
-
   return (
     <div style={{ marginTop: 8 }}>
       <div style={{ display: 'flex', gap: 4 }}>
         {[1, 2, 3, 4].map(i => (
-          <div
-            key={i}
-            style={{
-              flex: 1,
-              height: 4,
-              borderRadius: 2,
-              background: i <= score ? color : 'rgba(5,14,36,0.08)',
-              transition: 'background 0.25s ease',
-            }}
-          />
+          <div key={i} style={{
+            flex: 1, height: 3, borderRadius: 2,
+            background: i <= score ? color : 'rgba(5,14,36,0.08)',
+            transition: 'background 0.25s ease',
+          }} />
         ))}
       </div>
-      <p style={{ fontSize: 12, color, marginTop: 6, marginBottom: 0, fontFamily: F, fontWeight: 500, transition: 'color 0.25s' }}>
-        {label}
-      </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginTop: 8 }}>
-        {checks.map(c => (
-          <span key={c.text} style={{
-            fontSize: 11,
-            fontFamily: F,
-            color: c.met ? '#22C55E' : 'rgba(5,14,36,0.35)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            transition: 'color 0.2s',
-          }}>
-            {c.met ? (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            ) : (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(5,14,36,0.2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="9" />
-              </svg>
-            )}
-            {c.text}
-          </span>
-        ))}
-      </div>
+      <p style={{ fontSize: 11, color, marginTop: 5, marginBottom: 0, fontFamily: F, fontWeight: 500 }}>{label}</p>
     </div>
   )
 }
@@ -143,6 +100,7 @@ export default function SignUpPage() {
     <Suspense fallback={
       <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span className="auth-spinner" style={{ width: 24, height: 24 }} />
+        <style dangerouslySetInnerHTML={{ __html: '@keyframes spin { to { transform: rotate(360deg); } } .auth-spinner { border: 2px solid rgba(5,14,36,0.1); border-top-color: #2563EB; border-radius: 50%; animation: spin 0.7s linear infinite; }' }} />
       </div>
     }>
       <SignUpFlow />
@@ -152,11 +110,8 @@ export default function SignUpPage() {
 
 function SignUpFlow() {
   const searchParams = useSearchParams()
-  const router = useRouter()
 
   const [step, setStep] = useState(1)
-  const [direction] = useState<'forward' | 'backward'>('forward')
-  const [animating] = useState(false)
 
   // Step 1
   const [email, setEmail] = useState('')
@@ -171,11 +126,8 @@ function SignUpFlow() {
   // Step 2
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [phone, setPhone] = useState('')
   const [primaryMarket, setPrimaryMarket] = useState('')
-  const [experienceLevel, setExperienceLevel] = useState('')
-
-  const [phoneError, setPhoneError] = useState('')
+  const [goal, setGoal] = useState('')
 
   // Shared
   const [loading, setLoading] = useState(false)
@@ -194,7 +146,6 @@ function SignUpFlow() {
       const supabase = createClient()
       supabase.auth.getUser().then(({ data: { user } }) => {
         if (user) {
-          // Pre-fill name from Google metadata
           const fullName = user.user_metadata?.full_name || ''
           if (fullName) {
             const parts = fullName.split(' ')
@@ -244,7 +195,6 @@ function SignUpFlow() {
       return
     }
 
-    // Supabase returns a user with empty identities when the email is already taken
     if (data.user && data.user.identities && data.user.identities.length === 0) {
       setError('An account with this email already exists.')
       setLoading(false)
@@ -252,29 +202,17 @@ function SignUpFlow() {
     }
 
     setLoading(false)
-    // Email confirmation is required — no session until confirmed
-    // Use window.location for full navigation (avoids middleware redirect issues)
     window.location.href = `/verify-email?email=${encodeURIComponent(email)}`
   }
 
   /* ── Step 2: Submit ─────────────────────────────────── */
 
-  function formatPhone(value: string): string {
-    const digits = value.replace(/\D/g, '')
-    if (digits.length <= 3) return digits
-    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
-  }
-
   async function handleProfile(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    setPhoneError('')
 
-    // Validate phone is required
-    const phoneDigits = phone.replace(/\D/g, '')
-    if (phoneDigits.length < 10) {
-      setPhoneError('Please enter a valid 10-digit phone number.')
+    if (!firstName.trim()) {
+      setError('Please enter your first name.')
       return
     }
 
@@ -285,25 +223,23 @@ function SignUpFlow() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not signed in')
 
-      const res = await fetch('/api/onboarding', {
+      const res = await fetch('/api/onboarding/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: firstName.trim() || null,
-          lastName: lastName.trim() || null,
-          phone: phone.trim() || null,
-          primaryMarket: primaryMarket || null,
-          experienceLevel: experienceLevel || null,
+          firstName: firstName.trim(),
+          lastName: lastName.trim() || undefined,
+          targetMarkets: primaryMarket ? [primaryMarket] : undefined,
+          focus: goal || undefined,
         }),
       })
 
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
 
-      setLoading(false)
-      // Profile saved — go to phone verification
-      router.push('/verify-phone')
-      router.refresh()
+      // Trigger product tour on first visit, then go to dashboard
+      localStorage.setItem('dealflow-start-tour', 'true')
+      window.location.href = '/dashboard'
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
       setLoading(false)
@@ -316,71 +252,78 @@ function SignUpFlow() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
-      {/* Logo — links back to landing page */}
-      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 32 }}>
+      {/* Logo */}
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 28 }}>
         <Image src="/Logo.png" alt="DealFlow AI logo" width={28} height={28} style={{ objectFit: 'contain', flexShrink: 0 }} />
         <span style={{ fontFamily: F, fontWeight: 600, fontSize: '1.02rem', color: NAVY, letterSpacing: '-0.01em' }}>
           DealFlow AI
         </span>
       </Link>
 
-      <div style={{ width: '100%', maxWidth: 420, padding: '0 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          {/* Minimal step progress */}
-          <div style={{ marginBottom: 36 }}>
-            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-              {[1, 2, 3].map(s => (
-                <div key={s} style={{
-                  flex: 1,
-                  height: 3,
-                  borderRadius: 2,
-                  background: s <= step ? BLUE : 'rgba(5,14,36,0.08)',
-                  transition: 'background 0.4s ease',
-                }} />
-              ))}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              {['Create account', 'Set up profile', 'Get started'].map((label, i) => (
-                <span key={label} style={{
-                  fontSize: 11,
-                  fontWeight: i + 1 <= step ? 600 : 400,
-                  color: i + 1 <= step ? NAVY : 'rgba(5,14,36,0.3)',
-                  fontFamily: F,
-                  transition: 'color 0.3s',
-                  letterSpacing: '0.01em',
+      <div style={{ width: '100%', maxWidth: 440, padding: '0 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Step indicator */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+            {[
+              { num: 1, label: 'Account' },
+              { num: 2, label: 'Profile' },
+            ].map((s, i) => (
+              <div key={s.num} style={{ display: 'flex', alignItems: 'center', flex: i < 1 ? 1 : undefined }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 600, fontFamily: F,
+                  background: s.num < step ? '#22C55E' : s.num === step ? BLUE : 'rgba(5,14,36,0.06)',
+                  color: s.num <= step ? 'white' : 'rgba(5,14,36,0.3)',
+                  transition: 'all 0.3s ease',
+                  flexShrink: 0,
                 }}>
-                  {label}
+                  {s.num < step ? (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : s.num}
+                </div>
+                <span style={{
+                  fontSize: 12, fontWeight: s.num === step ? 600 : 400,
+                  color: s.num <= step ? NAVY : 'rgba(5,14,36,0.3)',
+                  fontFamily: F, marginLeft: 8, whiteSpace: 'nowrap',
+                }}>
+                  {s.label}
                 </span>
-              ))}
-            </div>
+                {i < 1 && (
+                  <div style={{
+                    flex: 1, height: 1, marginLeft: 16, marginRight: 16,
+                    background: step > 1 ? '#22C55E' : 'rgba(5,14,36,0.08)',
+                    transition: 'background 0.3s ease',
+                  }} />
+                )}
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* Step content with transitions */}
-          <div style={{ position: 'relative' }}>
-            {/* ── STEP 1 ──────────────────────────────── */}
-            <div
-              className={`step-panel ${step === 1 ? 'step-active' : animating ? (direction === 'forward' ? 'step-exit-left' : 'step-exit-right') : 'step-hidden'}`}
-              style={{ display: step === 1 || animating ? undefined : 'none' }}
-            >
-              <h1 style={{ fontFamily: SERIF, fontSize: '1.75rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15, textAlign: 'center' }}>
+        {/* ── STEP 1: Create Account ──────────────────── */}
+        {step === 1 && (
+          <div className="step-fade-in">
+            <div style={{
+              background: '#ffffff', borderRadius: 16, padding: '32px 28px',
+              boxShadow: '0 1px 3px rgba(5,14,36,0.06), 0 6px 24px rgba(5,14,36,0.04)',
+              border: '1px solid rgba(5,14,36,0.06)',
+            }}>
+              <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.02em', marginBottom: 6, lineHeight: 1.15 }}>
                 Create your account
               </h1>
-              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 20, lineHeight: 1.6, fontFamily: F, textAlign: 'center' }}>
-                Start finding buyers and closing deals today.
+              <p style={{ fontSize: '0.88rem', color: BODY, marginBottom: 22, lineHeight: 1.6, fontFamily: F }}>
+                Start finding buyers and closing deals.
               </p>
 
-              {/* Google OAuth */}
-              <div style={{
-                borderRadius: 10,
-                transition: 'transform 0.15s, box-shadow 0.15s',
-              }}>
-                <GoogleOAuthButton mode="signup" />
-              </div>
+              <GoogleOAuthButton mode="signup" />
 
-              {/* Divider */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '16px 0' }}>
-                <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
-                <span style={{ fontSize: 12, color: 'rgba(5,14,36,0.35)', fontFamily: F, fontWeight: 500 }}>or</span>
-                <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.08)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '18px 0' }}>
+                <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.06)' }} />
+                <span style={{ fontSize: 12, color: 'rgba(5,14,36,0.3)', fontFamily: F, fontWeight: 500 }}>or continue with email</span>
+                <div style={{ flex: 1, height: 1, background: 'rgba(5,14,36,0.06)' }} />
               </div>
 
               <form onSubmit={showPasswordFields ? handleSignUp : (e) => {
@@ -390,8 +333,7 @@ function SignUpFlow() {
                   return
                 }
                 setShowPasswordFields(true)
-              }} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {/* Email */}
+              }} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <label style={labelStyle}>Email address</label>
                   <input
@@ -406,20 +348,13 @@ function SignUpFlow() {
                     }}
                     placeholder="you@example.com"
                     className="auth-input"
-                    style={{
-                      ...inputStyle,
-                      borderColor: emailError ? '#EF4444' : undefined,
-                    }}
+                    style={{ ...inputStyle, borderColor: emailError ? '#EF4444' : undefined }}
                   />
-                  {emailError && (
-                    <p style={{ fontSize: 12, color: '#EF4444', marginTop: 4, marginBottom: 0, fontFamily: F }}>{emailError}</p>
-                  )}
+                  {emailError && <p style={{ fontSize: 12, color: '#EF4444', marginTop: 4, marginBottom: 0, fontFamily: F }}>{emailError}</p>}
                 </div>
 
-                {/* Password fields - revealed after email */}
                 <div className={`password-reveal ${showPasswordFields ? 'password-reveal-show' : ''}`}>
-                  {/* Password */}
-                  <div style={{ marginBottom: 16 }}>
+                  <div style={{ marginBottom: 14 }}>
                     <label style={labelStyle}>Password</label>
                     <div style={{ position: 'relative' }}>
                       <input
@@ -433,19 +368,14 @@ function SignUpFlow() {
                         autoComplete="new-password"
                         autoFocus={showPasswordFields}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPass(s => !s)}
-                        tabIndex={showPasswordFields ? 0 : -1}
-                        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(5,14,36,0.3)', padding: 0, display: 'flex' }}
-                      >
+                      <button type="button" onClick={() => setShowPass(s => !s)} tabIndex={showPasswordFields ? 0 : -1}
+                        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(5,14,36,0.3)', padding: 0, display: 'flex' }}>
                         <EyeIcon open={showPass} />
                       </button>
                     </div>
                     <PasswordStrengthMeter password={password} />
                   </div>
 
-                  {/* Confirm Password */}
                   <div>
                     <label style={labelStyle}>Confirm password</label>
                     <div style={{ position: 'relative' }}>
@@ -455,118 +385,87 @@ function SignUpFlow() {
                         value={confirmPassword}
                         onChange={e => { setConfirmPassword(e.target.value); setConfirmError('') }}
                         onBlur={() => {
-                          if (confirmPassword && password !== confirmPassword) {
-                            setConfirmError('Passwords do not match.')
-                          }
+                          if (confirmPassword && password !== confirmPassword) setConfirmError('Passwords do not match.')
                         }}
                         placeholder="Confirm your password"
                         className="auth-input"
-                        style={{
-                          ...inputWithToggle,
-                          borderColor: confirmError ? '#EF4444' : undefined,
-                        }}
+                        style={{ ...inputWithToggle, borderColor: confirmError ? '#EF4444' : undefined }}
                         autoComplete="new-password"
                         tabIndex={showPasswordFields ? 0 : -1}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirm(s => !s)}
-                        tabIndex={showPasswordFields ? 0 : -1}
-                        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(5,14,36,0.3)', padding: 0, display: 'flex' }}
-                      >
+                      <button type="button" onClick={() => setShowConfirm(s => !s)} tabIndex={showPasswordFields ? 0 : -1}
+                        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(5,14,36,0.3)', padding: 0, display: 'flex' }}>
                         <EyeIcon open={showConfirm} />
                       </button>
                     </div>
-                    {confirmError && (
-                      <p style={{ fontSize: 12, color: '#EF4444', marginTop: 4, marginBottom: 0, fontFamily: F }}>{confirmError}</p>
-                    )}
+                    {confirmError && <p style={{ fontSize: 12, color: '#EF4444', marginTop: 4, marginBottom: 0, fontFamily: F }}>{confirmError}</p>}
                   </div>
                 </div>
 
-                {/* Error */}
                 {error && (
                   <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#EF4444', lineHeight: 1.5, fontFamily: F }}>
                     {error}
-                    {isAlreadyRegistered && (
-                      <>
-                        {' '}
-                        <Link href="/login" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>Sign in instead?</Link>
-                      </>
-                    )}
+                    {isAlreadyRegistered && <>{' '}<Link href="/login" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>Sign in instead?</Link></>}
                   </div>
                 )}
 
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="auth-submit"
-                  style={{
-                    width: '100%',
-                    padding: '10px 20px',
-                    borderRadius: 10,
-                    background: loading ? '#60A5FA' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-                    color: 'white',
-                    border: 'none',
-                    fontFamily: F,
-                    fontWeight: 600,
-                    fontSize: 15,
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    boxShadow: loading ? 'none' : '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  {loading ? (
-                    <>
-                      <span className="auth-spinner" />
-                      Creating account...
-                    </>
-                  ) : showPasswordFields ? 'Create account' : 'Continue'}
+                <button type="submit" disabled={loading} className="auth-submit" style={{
+                  width: '100%', padding: '11px 20px', borderRadius: 10,
+                  background: loading ? '#60A5FA' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                  color: 'white', border: 'none', fontFamily: F, fontWeight: 600, fontSize: 15,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  boxShadow: loading ? 'none' : '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
+                }}>
+                  {loading ? <><span className="auth-spinner" />Creating account...</> : showPasswordFields ? 'Create account' : 'Continue with email'}
                 </button>
               </form>
-
-              <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(5,14,36,0.4)', marginTop: 16, lineHeight: 1.6, fontFamily: F }}>
-                By creating an account, you agree to our{' '}
-                <Link href="/terms" style={{ color: BLUE, textDecoration: 'none' }}>Terms of Service</Link>
-                {' '}and{' '}
-                <Link href="/privacy" style={{ color: BLUE, textDecoration: 'none' }}>Privacy Policy</Link>.
-              </p>
-
-              <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(5,14,36,0.4)', marginTop: 16, fontFamily: F }}>
-                Already have an account?{' '}
-                <Link href="/login" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
-              </p>
             </div>
 
-            {/* ── STEP 2 ──────────────────────────────── */}
-            <div
-              className={`step-panel ${step === 2 ? 'step-active' : animating ? (direction === 'forward' ? 'step-enter-right' : 'step-enter-left') : 'step-hidden'}`}
-              style={{ display: step === 2 || animating ? undefined : 'none' }}
-            >
-              <h1 style={{ fontFamily: SERIF, fontSize: '1.75rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15 }}>
-                Set up your profile
+            <p style={{ textAlign: 'center', fontSize: 11.5, color: 'rgba(5,14,36,0.35)', marginTop: 16, lineHeight: 1.6, fontFamily: F }}>
+              By creating an account, you agree to our{' '}
+              <Link href="/terms" style={{ color: 'rgba(5,14,36,0.5)', textDecoration: 'underline' }}>Terms</Link>
+              {' '}and{' '}
+              <Link href="/privacy" style={{ color: 'rgba(5,14,36,0.5)', textDecoration: 'underline' }}>Privacy Policy</Link>.
+            </p>
+
+            <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(5,14,36,0.4)', marginTop: 12, fontFamily: F }}>
+              Already have an account?{' '}
+              <Link href="/login" style={{ color: BLUE, fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
+            </p>
+          </div>
+        )}
+
+        {/* ── STEP 2: Profile Setup ───────────────────── */}
+        {step === 2 && (
+          <div className="step-fade-in">
+            <div style={{
+              background: '#ffffff', borderRadius: 16, padding: '32px 28px',
+              boxShadow: '0 1px 3px rgba(5,14,36,0.06), 0 6px 24px rgba(5,14,36,0.04)',
+              border: '1px solid rgba(5,14,36,0.06)',
+            }}>
+              <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.02em', marginBottom: 6, lineHeight: 1.15 }}>
+                Tell us about you
               </h1>
-              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 20, lineHeight: 1.6, fontFamily: F }}>
-                Tell us a bit about yourself to get started.
+              <p style={{ fontSize: '0.88rem', color: BODY, marginBottom: 24, lineHeight: 1.6, fontFamily: F }}>
+                We&apos;ll personalize your experience based on your answers.
               </p>
 
-              <form onSubmit={handleProfile} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <form onSubmit={handleProfile} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 {/* Name row */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={labelStyle}>First name</label>
+                    <label style={labelStyle}>First name <span style={{ color: '#EF4444' }}>*</span></label>
                     <input
                       type="text"
+                      required
                       value={firstName}
                       onChange={e => setFirstName(e.target.value)}
-                      placeholder="Jane"
+                      placeholder="First name"
                       className="auth-input"
                       style={inputStyle}
+                      autoFocus
                     />
                   </div>
                   <div>
@@ -575,46 +474,16 @@ function SignUpFlow() {
                       type="text"
                       value={lastName}
                       onChange={e => setLastName(e.target.value)}
-                      placeholder="Smith"
+                      placeholder="Last name"
                       className="auth-input"
                       style={inputStyle}
                     />
                   </div>
                 </div>
 
-                {/* Phone */}
-                <div>
-                  <label style={labelStyle}>Phone number</label>
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={e => { setPhone(formatPhone(e.target.value)); setPhoneError('') }}
-                    onBlur={() => {
-                      const digits = phone.replace(/\D/g, '')
-                      if (phone && digits.length < 10) {
-                        setPhoneError('Please enter a valid 10-digit phone number.')
-                      }
-                    }}
-                    placeholder="(555) 000-0000"
-                    className="auth-input"
-                    style={{
-                      ...inputStyle,
-                      borderColor: phoneError ? '#EF4444' : undefined,
-                    }}
-                  />
-                  {phoneError ? (
-                    <p style={{ fontSize: 12, color: '#EF4444', marginTop: 4, marginBottom: 0, fontFamily: F }}>{phoneError}</p>
-                  ) : (
-                    <p style={{ fontSize: 11, color: 'rgba(5,14,36,0.35)', marginTop: 4, marginBottom: 0, fontFamily: F }}>
-                      We&apos;ll send a verification code to this number
-                    </p>
-                  )}
-                </div>
-
                 {/* Primary market */}
                 <div>
-                  <label style={labelStyle}>Primary market</label>
+                  <label style={labelStyle}>What market do you wholesale in?</label>
                   <select
                     value={primaryMarket}
                     onChange={e => setPrimaryMarket(e.target.value)}
@@ -630,40 +499,39 @@ function SignUpFlow() {
                     }}
                   >
                     <option value="" disabled>Select your market...</option>
-                    {markets.map(m => (
-                      <option key={m} value={m} style={{ color: NAVY }}>{m}</option>
-                    ))}
+                    {markets.map(m => <option key={m} value={m} style={{ color: NAVY }}>{m}</option>)}
                   </select>
                 </div>
 
-                {/* Experience level */}
+                {/* Goal */}
                 <div>
-                  <label style={labelStyle}>Experience level</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-                    {experienceLevels.map(lvl => {
-                      const selected = experienceLevel === lvl.value
+                  <label style={labelStyle}>What&apos;s your main goal?</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    {goals.map(g => {
+                      const selected = goal === g.value
                       return (
                         <button
-                          key={lvl.value}
+                          key={g.value}
                           type="button"
-                          onClick={() => setExperienceLevel(lvl.value)}
-                          className="exp-btn"
+                          onClick={() => setGoal(g.value)}
+                          className="goal-btn"
                           style={{
-                            padding: '12px 8px',
-                            borderRadius: 10,
-                            border: selected ? `2px solid ${BLUE}` : '1px solid rgba(5,14,36,0.1)',
-                            background: selected ? 'rgba(37,99,235,0.04)' : '#ffffff',
+                            padding: '14px 12px',
+                            borderRadius: 12,
+                            border: selected ? `2px solid ${BLUE}` : '1px solid rgba(5,14,36,0.08)',
+                            background: selected ? 'rgba(37,99,235,0.03)' : '#ffffff',
                             cursor: 'pointer',
-                            textAlign: 'center',
-                            transition: 'border-color 0.15s, background 0.15s, box-shadow 0.15s',
-                            boxShadow: selected ? '0 2px 8px rgba(37,99,235,0.1)' : '0 1px 2px rgba(5,14,36,0.04)',
+                            textAlign: 'left',
+                            transition: 'all 0.15s ease',
+                            boxShadow: selected ? '0 0 0 1px rgba(37,99,235,0.1), 0 2px 8px rgba(37,99,235,0.08)' : '0 1px 2px rgba(5,14,36,0.03)',
                           }}
                         >
-                          <div style={{ fontSize: 14, fontWeight: 600, color: selected ? BLUE : NAVY, fontFamily: F, marginBottom: 2 }}>
-                            {lvl.label}
+                          <div style={{ fontSize: 18, marginBottom: 6 }}>{g.icon}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: selected ? BLUE : NAVY, fontFamily: F, marginBottom: 2, lineHeight: 1.3 }}>
+                            {g.label}
                           </div>
                           <div style={{ fontSize: 11, fontWeight: 400, color: 'rgba(5,14,36,0.4)', fontFamily: F }}>
-                            {lvl.sub}
+                            {g.desc}
                           </div>
                         </button>
                       )
@@ -671,130 +539,73 @@ function SignUpFlow() {
                   </div>
                 </div>
 
-                {/* Error */}
                 {error && (
                   <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#EF4444', lineHeight: 1.5, fontFamily: F }}>
                     {error}
                   </div>
                 )}
 
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="auth-submit"
-                  style={{
-                    width: '100%',
-                    padding: '10px 20px',
-                    borderRadius: 10,
-                    background: loading ? '#60A5FA' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-                    color: 'white',
-                    border: 'none',
-                    fontFamily: F,
-                    fontWeight: 600,
-                    fontSize: 15,
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    boxShadow: loading ? 'none' : '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
+                <button type="submit" disabled={loading} className="auth-submit" style={{
+                  width: '100%', padding: '11px 20px', borderRadius: 10,
+                  background: loading ? '#60A5FA' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                  color: 'white', border: 'none', fontFamily: F, fontWeight: 600, fontSize: 15,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  boxShadow: loading ? 'none' : '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
+                }}>
                   {loading ? (
                     <>
                       <span className="auth-spinner" />
-                      Setting up...
+                      Setting up your account...
                     </>
-                  ) : 'Continue'}
+                  ) : (
+                    <>
+                      Get started
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGoal('')
+                    setPrimaryMarket('')
+                    handleProfile(new Event('submit') as unknown as React.FormEvent)
+                  }}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 13, color: 'rgba(5,14,36,0.35)', fontFamily: F,
+                    textAlign: 'center', padding: '4px 0',
+                    transition: 'color 0.15s',
+                  }}
+                  className="skip-btn"
+                >
+                  Skip for now
                 </button>
               </form>
             </div>
-
-            {/* ── STEP 3 ──────────────────────────────── */}
-            <div
-              className={`step-panel ${step === 3 ? 'step-active' : 'step-hidden'}`}
-              style={{ display: step === 3 ? undefined : 'none', textAlign: 'center', padding: '20px 0' }}
-            >
-              {/* Animated checkmark */}
-              <div style={{
-                width: 64, height: 64, borderRadius: '50%',
-                background: 'rgba(34,197,94,0.08)', border: '2px solid rgba(34,197,94,0.2)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 24px',
-                animation: 'scaleIn 0.5s cubic-bezier(0.16,1,0.3,1)',
-              }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                  style={{ animation: 'checkDraw 0.6s 0.2s ease forwards', strokeDasharray: 24, strokeDashoffset: 24 }}
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </div>
-
-              <h1 style={{ fontFamily: SERIF, fontSize: '1.8rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 8, lineHeight: 1.15 }}>
-                Almost there!
-              </h1>
-              <p style={{ fontSize: '0.9rem', color: BODY, marginBottom: 20, lineHeight: 1.6, fontFamily: F }}>
-                Just a couple more steps. We need to verify your email and phone number.
-              </p>
-
-              <button
-                onClick={() => { router.push('/verify-email'); router.refresh() }}
-                className="auth-submit"
-                style={{
-                  width: '100%',
-                  padding: '10px 20px',
-                  borderRadius: 10,
-                  background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-                  color: 'white',
-                  border: 'none',
-                  fontFamily: F,
-                  fontWeight: 600,
-                  fontSize: 15,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(37,99,235,0.25), 0 1px 2px rgba(37,99,235,0.15)',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                Verify my account
-              </button>
-            </div>
           </div>
-        </div>
+        )}
+      </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        /* Input focus */
         .auth-input:focus {
           border-color: ${BLUE} !important;
           box-shadow: 0 0 0 3px rgba(37,99,235,0.06), 0 1px 2px rgba(5,14,36,0.04) !important;
         }
-        .auth-input::placeholder {
-          color: rgba(5,14,36,0.3);
-          font-family: ${F};
-        }
-
-        /* Button hover */
+        .auth-input::placeholder { color: rgba(5,14,36,0.3); font-family: ${F}; }
         .auth-submit:hover:not(:disabled) {
           transform: translateY(-1px);
           box-shadow: 0 4px 12px rgba(37,99,235,0.3), 0 2px 4px rgba(37,99,235,0.15) !important;
         }
-        .auth-submit:active:not(:disabled) {
-          transform: translateY(0);
-        }
-
-        /* Experience buttons */
-        .exp-btn:hover {
-          border-color: rgba(5,14,36,0.15) !important;
-          box-shadow: 0 1px 4px rgba(5,14,36,0.06);
-        }
-
-        /* Spinner */
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        .auth-submit:active:not(:disabled) { transform: translateY(0); }
+        .goal-btn:hover { border-color: rgba(5,14,36,0.15) !important; box-shadow: 0 2px 6px rgba(5,14,36,0.06) !important; }
+        .skip-btn:hover { color: rgba(5,14,36,0.6) !important; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .auth-spinner {
           width: 16px; height: 16px;
           border: 2px solid rgba(255,255,255,0.4);
@@ -803,61 +614,18 @@ function SignUpFlow() {
           animation: spin 0.7s linear infinite;
           flex-shrink: 0;
         }
-
-        /* Password reveal */
         .password-reveal {
-          max-height: 0;
-          opacity: 0;
-          overflow: hidden;
+          max-height: 0; opacity: 0; overflow: hidden;
           transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
         }
-        .password-reveal-show {
-          max-height: 340px;
-          opacity: 1;
+        .password-reveal-show { max-height: 340px; opacity: 1; }
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Step transitions */
-        .step-panel {
-          transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .step-active {
-          opacity: 1;
-          transform: translateX(0);
-        }
-        .step-hidden {
-          opacity: 0;
-          pointer-events: none;
-        }
-        .step-exit-left {
-          opacity: 0;
-          transform: translateX(-30px);
-        }
-        .step-exit-right {
-          opacity: 0;
-          transform: translateX(30px);
-        }
-        .step-enter-right {
-          opacity: 0;
-          transform: translateX(30px);
-        }
-        .step-enter-left {
-          opacity: 0;
-          transform: translateX(-30px);
-        }
-
-        /* Success animations */
-        @keyframes scaleIn {
-          from { transform: scale(0); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes checkDraw {
-          to { stroke-dashoffset: 0; }
-        }
-
+        .step-fade-in { animation: fadeSlideIn 0.4s cubic-bezier(0.16,1,0.3,1); }
         @media (max-width: 480px) {
-          .auth-card-wrap {
-            padding: 0 16px !important;
-          }
+          .goal-btn { padding: 12px 10px !important; }
         }
       ` }} />
     </div>

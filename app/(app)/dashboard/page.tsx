@@ -29,7 +29,6 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/components/toast'
 import VerificationBanner from '@/components/VerificationBanner'
-import BadgesCard from '@/components/dashboard/BadgesCard'
 import ActivityFeed from '@/components/dashboard/ActivityFeed'
 
 /* ══════════════════════════════════════════════
@@ -916,10 +915,6 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
         </div>
       </div>
 
-      {/* Achievements / Badges */}
-      <div className="mt-5">
-        <BadgesCard />
-      </div>
     </>
   )
 }
