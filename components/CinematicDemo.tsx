@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 
 /* ── Constants ──────────────────────────────────────────── */
-const F = "'Satoshi',-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif"
+const F = "'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif"
 const NAVY = '#0B1224'
 const BLUE = '#2563EB'
 const BL = '#60A5FA'

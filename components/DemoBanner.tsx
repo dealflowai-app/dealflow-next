@@ -30,7 +30,7 @@ export default function DemoBanner({ demoMode }: { demoMode?: boolean }) {
       style={{
         background: 'rgba(245,158,11,0.08)',
         borderBottom: '1px solid rgba(245,158,11,0.2)',
-        fontFamily: 'Satoshi, sans-serif',
+        fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
       }}
       className="flex items-center justify-between px-4 py-2 text-sm"
     >
