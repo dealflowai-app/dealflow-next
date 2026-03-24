@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse } from '@/lib/api-utils'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 // ─── GET /api/messages/users?q=search — search users to message ──────────────
 
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
 
     return successResponse({ users })
   } catch (err) {
-    console.error('GET /api/messages/users error:', err)
+    logger.error('GET /api/messages/users error', { route: '/api/messages/users', error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to search users')
   }
 }

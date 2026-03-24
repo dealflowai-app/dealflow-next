@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse, parseBody } from '@/lib/api-utils'
 import { ROLES, type TeamRole } from '@/lib/permissions'
+import { logger } from '@/lib/logger'
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -58,7 +59,7 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
 
     return successResponse({ member: updated })
   } catch (err) {
-    console.error('PATCH /api/team/members/[id] error:', err)
+    logger.error('PATCH /api/team/members/[id] error', { route: '/api/team/members/[id]', error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to update member')
   }
 }
@@ -98,7 +99,7 @@ export async function DELETE(_req: NextRequest, context: RouteContext) {
 
     return successResponse({ removed: true })
   } catch (err) {
-    console.error('DELETE /api/team/members/[id] error:', err)
+    logger.error('DELETE /api/team/members/[id] error', { route: '/api/team/members/[id]', error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to remove member')
   }
 }

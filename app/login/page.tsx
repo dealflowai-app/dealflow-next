@@ -133,16 +133,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
+    <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
       {/* Logo — links back to landing page */}
-      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 32 }}>
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 16 }}>
         <Image src="/Logo.png" alt="DealFlow AI logo" width={28} height={28} style={{ objectFit: 'contain', flexShrink: 0 }} />
         <span style={{ fontFamily: F, fontWeight: 600, fontSize: '1.02rem', color: NAVY, letterSpacing: '-0.01em' }}>
           DealFlow AI
         </span>
       </Link>
 
-      <div style={{ width: '100%', maxWidth: 420, padding: '0 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 420, padding: '0 24px', marginTop: 32 }}>
+        <div style={{
+          background: '#ffffff',
+          borderRadius: 'var(--dash-card-radius, 10px)',
+          padding: '32px 28px',
+          boxShadow: 'var(--shadow, 0 4px 16px rgba(0,0,0,0.07))',
+          border: '1px solid rgba(5,14,36,0.06)',
+        }}>
           <h1 style={{ fontFamily: SERIF, fontSize: '1.75rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.022em', marginBottom: 6, lineHeight: 1.15, textAlign: 'center' }}>
             Welcome back
           </h1>
@@ -285,6 +292,8 @@ export default function LoginPage() {
               ) : isLocked ? `Try again in ${lockCountdown}s` : 'Sign in'}
             </button>
           </form>
+
+        </div>
 
           <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(5,14,36,0.4)', marginTop: 20, fontFamily: F }}>
             Don&apos;t have an account?{' '}

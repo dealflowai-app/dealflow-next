@@ -156,7 +156,7 @@ export default function WelcomePage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#FAF9F6',
+      background: '#F9FAFB',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -233,7 +233,7 @@ export default function WelcomePage() {
         width: '100%',
         maxWidth: 600,
         background: '#FFFFFF',
-        borderRadius: 16,
+        borderRadius: 'var(--dash-card-radius, 10px)',
         border: `1px solid ${BORDER}`,
         boxShadow: '0 4px 24px rgba(5,14,36,0.04), 0 1px 3px rgba(5,14,36,0.03)',
         padding: '48px 40px',

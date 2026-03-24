@@ -1,6 +1,7 @@
 import { getAuthProfile } from '@/lib/auth'
 import { successResponse, errorResponse } from '@/lib/api-utils'
 import { seedDemoData } from '@/lib/demo-data'
+import { logger } from '@/lib/logger'
 
 export async function POST() {
   const { profile, error, status } = await getAuthProfile()
@@ -16,7 +17,7 @@ export async function POST() {
     const demoData = await seedDemoData(profile.id)
     return successResponse({ seeded: true, demoData }, 201)
   } catch (err) {
-    console.error('Demo seed error:', err)
+    logger.error('Demo seed error', { error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to seed demo data')
   }
 }

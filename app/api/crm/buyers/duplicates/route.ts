@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { findPotentialDuplicates, type BuyerForDuplicateCheck } from '@/lib/duplicates'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/crm/buyers/duplicates
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ groups, summary })
   } catch (err) {
-    console.error('GET /api/crm/buyers/duplicates error:', err)
+    logger.error('GET /api/crm/buyers/duplicates error', { route: '/api/crm/buyers/duplicates', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to scan for duplicates' }, { status: 500 })
   }
 }

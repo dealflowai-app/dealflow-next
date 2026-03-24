@@ -78,6 +78,9 @@ export interface BuyerForMatching {
   cashPurchaseCount: number
 }
 
+/** Confidence level for a match based on available data quality */
+export type MatchConfidence = 'HIGH' | 'MEDIUM' | 'LOW'
+
 /** Result from a single deal-buyer match calculation */
 export interface MatchResult {
   dealId: string
@@ -89,6 +92,10 @@ export interface MatchResult {
   timingScore: number
   closeProbScore: number
   breakdown: string[]
+  /** Confidence level based on buyer data depth and history */
+  confidence: MatchConfidence
+  /** Human-readable explanations for why this match was made */
+  explanations: string[]
 }
 
 /** Options for batch ranking functions */
@@ -401,7 +408,7 @@ export function calculateDealMatch(
 
   const matchScore = clamp(Math.round(weightedSum / totalWeight), 0, 100)
 
-  return {
+  const result: MatchResult = {
     dealId: deal.id,
     buyerId: buyer.id,
     matchScore,
@@ -417,7 +424,12 @@ export function calculateDealMatch(
       ...timing.reasons,
       ...closeProb.reasons,
     ],
+    confidence: computeConfidence(buyer),
+    explanations: [], // populated below
   }
+
+  result.explanations = explainMatch(result)
+  return result
 }
 
 // ─── BATCH FUNCTIONS ─────────────────────────────────────────────────────────
@@ -477,6 +489,349 @@ export function rankDealsForBuyer(
     .sort((a, b) => b.matchScore - a.matchScore)
 
   return limit ? results.slice(0, limit) : results
+}
+
+// ─── CONFIDENCE SCORING ──────────────────────────────────────────────────────
+
+/**
+ * Compute match confidence based on buyer data depth and history.
+ *
+ * HIGH: Buyer has closed deals (cashPurchaseCount >= 2), proof of funds verified,
+ *       and was recently active (contacted within 30 days).
+ * MEDIUM: Buyer has stated preferences (buy box configured) and some activity.
+ * LOW: Limited buyer data — speculative match.
+ */
+function computeConfidence(buyer: BuyerForMatching): MatchConfidence {
+  let dataPoints = 0
+
+  // Track record signals (strong)
+  if (buyer.cashPurchaseCount >= 2) dataPoints += 3
+  else if (buyer.cashPurchaseCount >= 1) dataPoints += 1
+  if (buyer.proofOfFundsVerified) dataPoints += 2
+
+  // Preference signals (moderate)
+  if (buyer.preferredTypes.length > 0) dataPoints += 1
+  if (buyer.preferredMarkets.length > 0) dataPoints += 1
+  if (buyer.minPrice != null || buyer.maxPrice != null) dataPoints += 1
+  if (buyer.strategy != null) dataPoints += 1
+  if (buyer.conditionPreference != null) dataPoints += 1
+
+  // Recency signals (freshness)
+  if (buyer.lastContactedAt) {
+    const daysSince = daysBetween(buyer.lastContactedAt, new Date())
+    if (daysSince <= 30) dataPoints += 2
+    else if (daysSince <= 90) dataPoints += 1
+  }
+
+  // Status signal
+  if (buyer.status === 'HIGH_CONFIDENCE' || buyer.status === 'RECENTLY_VERIFIED') dataPoints += 2
+  else if (buyer.status === 'ACTIVE') dataPoints += 1
+
+  // Thresholds: HIGH >= 8 data points, MEDIUM >= 4, LOW < 4
+  if (dataPoints >= 8) return 'HIGH'
+  if (dataPoints >= 4) return 'MEDIUM'
+  return 'LOW'
+}
+
+// ─── MATCH EXPLANATION GENERATOR ─────────────────────────────────────────────
+
+/**
+ * Produce human-readable reasons explaining why a deal-buyer match was made.
+ * Returns an array of plain-language strings suitable for UI display or notifications.
+ */
+export function explainMatch(result: MatchResult): string[] {
+  const reasons: string[] = []
+
+  // Buy box alignment
+  if (result.buyBoxScore >= 80) {
+    reasons.push('Strong buy box alignment — location, property type, and size match')
+  } else if (result.buyBoxScore >= 50) {
+    reasons.push('Partial buy box match — some preferences align')
+  }
+
+  // Price fit
+  if (result.priceScore >= 80) {
+    reasons.push('Deal is well within buyer\'s budget range')
+  } else if (result.priceScore >= 50) {
+    reasons.push('Deal is near buyer\'s budget range')
+  } else if (result.priceScore > 0 && result.priceScore < 30) {
+    reasons.push('Deal is outside buyer\'s typical price range — stretch match')
+  }
+
+  // Strategy alignment
+  if (result.strategyScore >= 80) {
+    reasons.push('Property condition aligns with buyer\'s investment strategy')
+  } else if (result.strategyScore >= 50) {
+    reasons.push('Moderate strategy fit — property condition is workable')
+  }
+
+  // Timing / readiness
+  if (result.timingScore >= 80) {
+    reasons.push('Buyer is highly active and recently engaged')
+  } else if (result.timingScore >= 50) {
+    reasons.push('Buyer is active and available')
+  } else if (result.timingScore < 30) {
+    reasons.push('Buyer has been dormant — may need re-engagement')
+  }
+
+  // Close probability
+  if (result.closeProbScore >= 80) {
+    reasons.push('Buyer has strong close track record with verified funds')
+  } else if (result.closeProbScore >= 50) {
+    reasons.push('Buyer has moderate closing history')
+  }
+
+  // Overall match quality
+  if (result.matchScore >= 85) {
+    reasons.push('Excellent overall match — prioritize this buyer')
+  } else if (result.matchScore >= 70) {
+    reasons.push('Good overall match — worth pursuing')
+  } else if (result.matchScore >= 50) {
+    reasons.push('Decent match — consider as secondary option')
+  }
+
+  // Confidence context
+  if (result.confidence === 'HIGH') {
+    reasons.push('High confidence — match based on proven buyer behavior')
+  } else if (result.confidence === 'LOW') {
+    reasons.push('Low confidence — limited buyer data, speculative match')
+  }
+
+  return reasons
+}
+
+// ─── OUTCOME LEARNING / WEIGHT CALIBRATION ───────────────────────────────────
+
+/** Data needed from a historical match for weight calibration */
+export interface HistoricalMatchOutcome {
+  matchScore: number
+  buyBoxScore: number
+  priceScore: number
+  strategyScore: number
+  timingScore: number
+  closeProbScore: number
+  /** Did the buyer respond/engage? */
+  responded: boolean
+  /** Did the buyer submit an offer? */
+  madeOffer: boolean
+  /** Was the deal closed (contract executed)? */
+  dealClosed: boolean
+}
+
+/** Result of weight calibration */
+export interface CalibrationResult {
+  weights: MatchWeights
+  sampleSize: number
+  /** Accuracy = fraction of positive-outcome matches that had above-median scores */
+  accuracy: number
+}
+
+/**
+ * Learn from past match outcomes to calibrate future scores.
+ *
+ * Compares predicted match scores with actual outcomes
+ * (did the buyer respond? make an offer? close the deal?)
+ * and returns weight adjustments.
+ *
+ * Uses a simple correlation-based approach:
+ * 1. Fetch completed deal matches with known outcomes (offers, contracts)
+ * 2. For each factor, compute the correlation between factor score and positive outcomes
+ * 3. Factors with stronger correlation get higher weight
+ * 4. Falls back to default weights if sample size < 20
+ *
+ * @param profileId - The wholesaler's profile ID to scope historical data
+ */
+export async function calibrateWeights(profileId: string): Promise<CalibrationResult> {
+  // Dynamic import to avoid coupling pure matching module to Prisma at module level
+  const { prisma } = await import('@/lib/prisma')
+
+  // Fetch deal matches with related offers and contracts
+  const matches = await prisma.dealMatch.findMany({
+    where: {
+      deal: { profileId },
+    },
+    select: {
+      matchScore: true,
+      buyBoxScore: true,
+      priceScore: true,
+      strategyScore: true,
+      timingScore: true,
+      closeProbScore: true,
+      viewed: true,
+      outreachSent: true,
+      buyerId: true,
+      dealId: true,
+    },
+  })
+
+  // Fetch offers and contracts for these deal-buyer pairs
+  const dealIds = Array.from(new Set(matches.map((m) => m.dealId)))
+  const buyerIds = Array.from(new Set(matches.map((m) => m.buyerId)))
+
+  const [offers, contracts] = await Promise.all([
+    prisma.offer.findMany({
+      where: { dealId: { in: dealIds }, buyerId: { in: buyerIds } },
+      select: { dealId: true, buyerId: true, status: true },
+    }),
+    prisma.contract.findMany({
+      where: { dealId: { in: dealIds }, status: 'EXECUTED' },
+      select: { dealId: true },
+    }),
+  ])
+
+  // Build lookup sets
+  const offerSet = new Set(offers.map((o) => `${o.dealId}:${o.buyerId}`))
+  const acceptedOfferSet = new Set(
+    offers.filter((o) => o.status === 'ACCEPTED').map((o) => `${o.dealId}:${o.buyerId}`),
+  )
+  const executedDealSet = new Set(contracts.map((c) => c.dealId))
+
+  // Build historical outcome records
+  const outcomes: HistoricalMatchOutcome[] = matches.map((m) => {
+    const key = `${m.dealId}:${m.buyerId}`
+    return {
+      matchScore: m.matchScore,
+      buyBoxScore: m.buyBoxScore,
+      priceScore: m.priceScore,
+      strategyScore: m.strategyScore,
+      timingScore: m.timingScore,
+      closeProbScore: m.closeProbScore,
+      responded: m.viewed || offerSet.has(key),
+      madeOffer: offerSet.has(key),
+      dealClosed: acceptedOfferSet.has(key) || executedDealSet.has(m.dealId),
+    }
+  })
+
+  // Fall back to defaults if insufficient data
+  if (outcomes.length < 20) {
+    return {
+      weights: resolveWeights(),
+      sampleSize: outcomes.length,
+      accuracy: 0,
+    }
+  }
+
+  // Calculate adjusted weights using correlation-based approach
+  const adjusted = computeOptimalWeights(outcomes)
+
+  return adjusted
+}
+
+/**
+ * Compute optimal weights by correlating each factor with positive outcomes.
+ *
+ * For each factor, we calculate how well it predicts success:
+ * - Success is weighted: responded=1pt, madeOffer=3pts, dealClosed=5pts
+ * - We compute the Pearson-like correlation between factor score and outcome score
+ * - Factors with higher correlation get proportionally more weight
+ * - Final weights are normalized to sum to 100
+ */
+function computeOptimalWeights(outcomes: HistoricalMatchOutcome[]): CalibrationResult {
+  const n = outcomes.length
+
+  // Compute outcome score for each match (higher = better outcome)
+  const outcomeScores = outcomes.map((o) => {
+    let score = 0
+    if (o.responded) score += 1
+    if (o.madeOffer) score += 3
+    if (o.dealClosed) score += 5
+    return score
+  })
+
+  const factors: { key: keyof MatchWeights; scores: number[] }[] = [
+    { key: 'buyBox', scores: outcomes.map((o) => o.buyBoxScore) },
+    { key: 'price', scores: outcomes.map((o) => o.priceScore) },
+    { key: 'strategy', scores: outcomes.map((o) => o.strategyScore) },
+    { key: 'timing', scores: outcomes.map((o) => o.timingScore) },
+    { key: 'closeProb', scores: outcomes.map((o) => o.closeProbScore) },
+  ]
+
+  // Calculate correlation of each factor with outcome scores
+  const correlations: { key: keyof MatchWeights; corr: number }[] = factors.map((f) => {
+    const corr = pearsonCorrelation(f.scores, outcomeScores)
+    return { key: f.key, corr: Math.max(corr, 0.05) } // floor at 0.05 so no factor gets zero weight
+  })
+
+  // Normalize correlations to weights summing to 100
+  const defaults = resolveWeights()
+  const totalCorr = correlations.reduce((sum, c) => sum + c.corr, 0)
+
+  // Blend: 60% data-driven + 40% default weights (regularization to avoid overfitting)
+  const dataWeight = 0.6
+  const defaultWeight = 0.4
+  const rawWeights: Record<string, number> = {}
+
+  for (const c of correlations) {
+    const dataDriven = (c.corr / totalCorr) * 100
+    const defaultVal = defaults[c.key]
+    rawWeights[c.key] = dataDriven * dataWeight + defaultVal * defaultWeight
+  }
+
+  // Normalize to sum to exactly 100
+  const rawSum = Object.values(rawWeights).reduce((a, b) => a + b, 0)
+  const weights: MatchWeights = {
+    buyBox: Math.round((rawWeights.buyBox / rawSum) * 100),
+    price: Math.round((rawWeights.price / rawSum) * 100),
+    strategy: Math.round((rawWeights.strategy / rawSum) * 100),
+    timing: Math.round((rawWeights.timing / rawSum) * 100),
+    closeProb: Math.round((rawWeights.closeProb / rawSum) * 100),
+  }
+
+  // Adjust rounding so total = 100
+  const weightSum = weights.buyBox + weights.price + weights.strategy + weights.timing + weights.closeProb
+  if (weightSum !== 100) {
+    // Add/subtract remainder to the largest weight
+    const largest = (Object.keys(weights) as (keyof MatchWeights)[])
+      .reduce((a, b) => (weights[a] >= weights[b] ? a : b))
+    weights[largest] += 100 - weightSum
+  }
+
+  // Calculate accuracy: what fraction of positive outcomes had above-median match scores
+  const medianScore = sortedMedian(outcomes.map((o) => o.matchScore))
+  const positiveOutcomes = outcomes.filter((_, i) => outcomeScores[i] > 0)
+  const correctPredictions = positiveOutcomes.filter((o) => o.matchScore >= medianScore).length
+  const accuracy = positiveOutcomes.length > 0 ? correctPredictions / positiveOutcomes.length : 0
+
+  return {
+    weights,
+    sampleSize: n,
+    accuracy: Math.round(accuracy * 100) / 100,
+  }
+}
+
+/**
+ * Pearson correlation coefficient between two arrays of numbers.
+ * Returns value between -1 and 1. Returns 0 if variance is zero.
+ */
+function pearsonCorrelation(xs: number[], ys: number[]): number {
+  const n = xs.length
+  if (n === 0) return 0
+
+  const meanX = xs.reduce((a, b) => a + b, 0) / n
+  const meanY = ys.reduce((a, b) => a + b, 0) / n
+
+  let numerator = 0
+  let denomX = 0
+  let denomY = 0
+
+  for (let i = 0; i < n; i++) {
+    const dx = xs[i] - meanX
+    const dy = ys[i] - meanY
+    numerator += dx * dy
+    denomX += dx * dx
+    denomY += dy * dy
+  }
+
+  const denom = Math.sqrt(denomX * denomY)
+  return denom === 0 ? 0 : numerator / denom
+}
+
+/** Return the median of a sorted copy of the input array */
+function sortedMedian(values: number[]): number {
+  if (values.length === 0) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid]
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────

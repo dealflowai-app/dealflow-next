@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 type RouteCtx = { params: Promise<{ id: string }> }
 
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ contact }, { status: 201 })
   } catch (err) {
-    console.error('POST /api/marketplace/buyer-board/[id]/contact error:', err)
+    logger.error('POST /api/marketplace/buyer-board/[id]/contact error', { route: '/api/marketplace/buyer-board/[id]/contact', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to send contact', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -105,7 +106,7 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ contacts })
   } catch (err) {
-    console.error('GET /api/marketplace/buyer-board/[id]/contact error:', err)
+    logger.error('GET /api/marketplace/buyer-board/[id]/contact error', { route: '/api/marketplace/buyer-board/[id]/contact', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to fetch contacts', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

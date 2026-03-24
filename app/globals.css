@@ -29,18 +29,18 @@
   --shadow: 0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
   --shadow-lg: 0 16px 48px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05);
 
-  /* Light Eden theme tokens (marketing pages only) */
+  /* Unified theme tokens (aligned with dashboard design system) */
   --dark: rgb(5, 14, 36);
   --dark-mid: rgb(9, 22, 50);
-  --navy-heading: rgb(8, 18, 42);
-  --cream: rgb(249, 247, 244);
-  --warm-gray: rgb(245, 243, 240);
+  --navy-heading: #0B1224;
+  --cream: #F9FAFB;
+  --warm-gray: #F3F4F6;
   --heading-light: rgb(244, 242, 240);
   --body-light: rgb(244, 242, 240);
   --muted-light: rgba(255, 255, 255, 0.72);
   --dim-light: rgba(255, 255, 255, 0.5);
   --body-text: rgba(5, 14, 36, 0.65);
-  --muted-text: rgba(5, 14, 36, 0.45);
+  --muted-text: rgba(5, 14, 36, 0.4);
   --border-light: rgba(5, 14, 36, 0.08);
   --border-med: rgba(5, 14, 36, 0.12);
   --accent: #2563EB;

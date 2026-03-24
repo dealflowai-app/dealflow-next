@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { TIERS } from '@/lib/tiers'
 import { getCurrentAllowance } from '@/lib/billing/allowances'
+import { logger } from '@/lib/logger'
 
 export async function GET(req: NextRequest) {
   try {
@@ -78,7 +79,7 @@ export async function GET(req: NextRequest) {
       } : null,
     })
   } catch (error) {
-    console.error('Subscription status error:', error)
+    logger.error('Subscription status error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch subscription' }, { status: 500 })
   }
 }

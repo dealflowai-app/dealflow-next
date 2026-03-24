@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 // GET /api/chat/conversations — list conversations
 export async function GET(req: NextRequest) {
@@ -52,7 +53,7 @@ export async function GET(req: NextRequest) {
       nextCursor: hasMore ? items[items.length - 1].id : null,
     })
   } catch (err) {
-    console.error('GET /api/chat/conversations error:', err)
+    logger.error('GET /api/chat/conversations error', { route: '/api/chat/conversations', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to list conversations' },
       { status: 500 },
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(conversation, { status: 201 })
   } catch (err) {
-    console.error('POST /api/chat/conversations error:', err)
+    logger.error('POST /api/chat/conversations error', { route: '/api/chat/conversations', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to create conversation' },
       { status: 500 },

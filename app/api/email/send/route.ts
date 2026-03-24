@@ -8,6 +8,7 @@ import {
   formatCampaignReportEmail,
   formatDealMatchEmail,
 } from '@/lib/emails'
+import { logger } from '@/lib/logger'
 import type {
   WelcomeEmailData,
   InquiryEmailData,
@@ -100,7 +101,7 @@ export async function POST(req: NextRequest) {
       ...(result.error ? { error: result.error } : {}),
     })
   } catch (err) {
-    console.error('POST /api/email/send error:', err)
+    logger.error('POST /api/email/send error', { route: '/api/email/send', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to send email', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -121,7 +122,7 @@ export async function GET() {
       fromEmail: process.env.SENDGRID_FROM_EMAIL || 'deals@dealflowai.app',
     })
   } catch (err) {
-    console.error('GET /api/email/send error:', err)
+    logger.error('GET /api/email/send error', { route: '/api/email/send', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

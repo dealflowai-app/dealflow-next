@@ -60,7 +60,7 @@ export default function SharedChatPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-[#E5E7EB]" />
           <div className="h-4 w-32 bg-[#E5E7EB] rounded" />
@@ -71,7 +71,7 @@ export default function SharedChatPage() {
 
   if (notFound || !conversation) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
         <div className="text-center max-w-md px-6">
           <div className="w-16 h-16 rounded-2xl bg-[#F3F4F6] flex items-center justify-center mx-auto mb-4">
             <Share2 className="w-8 h-8 text-[#9CA3AF]" />
@@ -111,7 +111,7 @@ export default function SharedChatPage() {
   })
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex flex-col">
+    <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-[#E5E7EB] px-6 py-4">
         <div className="max-w-3xl mx-auto">

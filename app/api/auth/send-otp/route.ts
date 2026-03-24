@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import crypto from 'crypto'
+import { logger } from '@/lib/logger'
 
 function generateOTP(): string {
   // 6-digit numeric code using crypto for security
@@ -117,13 +118,13 @@ export async function POST(request: Request) {
 
     if (!res.ok) {
       const data = await res.json()
-      console.error('Twilio send-otp failed:', data)
+      logger.error('Twilio send-otp failed', { error: data instanceof Error ? data.message : String(data) })
       return NextResponse.json({ error: 'Failed to send verification code' }, { status: 500 })
     }
 
     return NextResponse.json({ sent: true })
   } catch (err) {
-    console.error('Send OTP error:', err)
+    logger.error('Send OTP error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
   }
 }

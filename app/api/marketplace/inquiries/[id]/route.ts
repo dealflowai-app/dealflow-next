@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { InquiryStatus } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 type RouteCtx = { params: Promise<{ id: string }> }
 
@@ -65,7 +66,7 @@ export async function PATCH(req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ inquiry: updated })
   } catch (err) {
-    console.error('PATCH /api/marketplace/inquiries/[id] error:', err)
+    logger.error('PATCH /api/marketplace/inquiries/[id] error', { route: '/api/marketplace/inquiries/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to update inquiry', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

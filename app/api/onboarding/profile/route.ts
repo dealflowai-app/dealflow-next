@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
@@ -29,7 +30,7 @@ export async function GET() {
 
     return NextResponse.json({ profile })
   } catch (err) {
-    console.error('Profile fetch error:', err)
+    logger.error('Profile fetch error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 })
   }
 }

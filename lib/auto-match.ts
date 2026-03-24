@@ -15,6 +15,7 @@ import {
   rankBuyersForDeal,
   type DealForMatching,
   type BuyerForMatching,
+  type MatchResult,
   type PropertyType,
   type InvestorStrategy,
   type ConditionPreference,
@@ -163,7 +164,7 @@ export async function autoMatchDeal(
   const buyerMap = new Map(buyers.map((b) => [b.id, b]))
   const dealAddress = [deal.address, deal.city, deal.state].filter(Boolean).join(', ')
 
-  // Log activity for matched buyers
+  // Log activity for matched buyers (includes confidence and top explanation)
   logBulkActivity(
     results.map((r) => ({
       buyerId: r.buyerId,
@@ -173,6 +174,8 @@ export async function autoMatchDeal(
       metadata: {
         dealId: deal.id,
         matchScore: r.matchScore,
+        confidence: r.confidence,
+        topExplanation: r.explanations[0] ?? null,
       },
     })),
   )
@@ -189,15 +192,22 @@ export async function autoMatchDeal(
       const notificationPromises = buyersToNotify.map((match) => {
         const buyer = buyerMap.get(match.buyerId)
         if (!buyer) return null
+        const confidenceLabel = match.confidence === 'HIGH' ? 'High confidence'
+          : match.confidence === 'MEDIUM' ? 'Medium confidence' : 'Low confidence'
+        const topReason = match.explanations[0] ?? ''
         return createNotification(
           profileId,
           'deal_match',
-          `New match: ${buyerName(buyer)} (${match.matchScore}pts)`,
-          `${buyerName(buyer)} matches your deal at ${dealAddress}`,
+          `New match: ${buyerName(buyer)} (${match.matchScore}pts, ${confidenceLabel})`,
+          topReason
+            ? `${buyerName(buyer)} matches your deal at ${dealAddress} — ${topReason}`
+            : `${buyerName(buyer)} matches your deal at ${dealAddress}`,
           {
             dealId: deal.id,
             buyerId: match.buyerId,
             matchScore: match.matchScore,
+            confidence: match.confidence,
+            explanations: match.explanations?.join('; ') ?? null,
           },
         )
       }).filter(Boolean)
@@ -207,21 +217,36 @@ export async function autoMatchDeal(
     }
   }
 
-  // Notify wholesaler with summary
+  // Notify wholesaler with summary (includes confidence breakdown)
   if (notifyWholesaler && results.length > 0) {
-    const topScore = results[0]?.matchScore ?? 0
-    const topBuyer = buyerMap.get(results[0]?.buyerId ?? '')
+    const topMatch = results[0]
+    const topScore = topMatch?.matchScore ?? 0
+    const topBuyer = buyerMap.get(topMatch?.buyerId ?? '')
     const topName = topBuyer ? buyerName(topBuyer) : 'Unknown'
+    const topConfidence = topMatch?.confidence ?? 'LOW'
+
+    // Count matches by confidence level
+    const highCount = results.filter((r) => r.confidence === 'HIGH').length
+    const mediumCount = results.filter((r) => r.confidence === 'MEDIUM').length
+    const lowCount = results.filter((r) => r.confidence === 'LOW').length
+
+    const confidenceSummary = [
+      highCount > 0 ? `${highCount} high` : '',
+      mediumCount > 0 ? `${mediumCount} medium` : '',
+      lowCount > 0 ? `${lowCount} low` : '',
+    ].filter(Boolean).join(', ')
 
     createNotification(
       profileId,
       'deal_match',
-      `${results.length} buyer${results.length === 1 ? '' : 's'} matched`,
-      `Best match: ${topName} (${topScore}pts) for ${dealAddress}`,
+      `${results.length} buyer${results.length === 1 ? '' : 's'} matched (${confidenceSummary} confidence)`,
+      `Best match: ${topName} (${topScore}pts, ${topConfidence} confidence) for ${dealAddress}`,
       {
         dealId: deal.id,
         matchCount: results.length,
         topMatchScore: topScore,
+        topConfidence,
+        confidenceBreakdown: `${highCount} high, ${mediumCount} medium, ${lowCount} low`,
       },
     )
   }

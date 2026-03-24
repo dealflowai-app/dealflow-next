@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
 import { seedDemoData } from '@/lib/demo-data'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -61,12 +62,12 @@ export async function POST(request: Request) {
     try {
       await seedDemoData(profile.id)
     } catch (err) {
-      console.error('Demo data seeding failed:', err)
+      logger.error('Demo data seeding failed', { error: err instanceof Error ? err.message : String(err) })
     }
 
     return NextResponse.json({ profile })
   } catch (err) {
-    console.error('Onboarding complete error:', err)
+    logger.error('Onboarding complete error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to complete onboarding' }, { status: 500 })
   }
 }

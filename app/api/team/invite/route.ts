@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse, parseBody } from '@/lib/api-utils'
 import { hasPermission, ROLES, type TeamRole } from '@/lib/permissions'
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/team/invite
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
 
     return successResponse({ member }, 201)
   } catch (err) {
-    console.error('POST /api/team/invite error:', err)
+    logger.error('POST /api/team/invite error', { route: '/api/team/invite', error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to invite member')
   }
 }

@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
   // Loading state while checking session
   if (hasSession === null) {
     return (
-      <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span className="auth-spinner" style={{ width: 24, height: 24, border: '2px solid rgba(37,99,235,0.2)', borderTopColor: BLUE, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
       </div>
     )
@@ -111,11 +111,11 @@ export default function ResetPasswordPage() {
   // No valid recovery session
   if (!hasSession) {
     return (
-      <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
+      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', flexDirection: 'column', fontFamily: F }}>
         <Nav currentPage="login" />
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px 80px' }}>
           <div className="auth-card" style={{
-            background: '#ffffff', borderRadius: 16, padding: '40px 36px',
+            background: '#ffffff', borderRadius: 'var(--dash-card-radius, 10px)', padding: '40px 36px',
             width: '100%', maxWidth: 400,
             boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
             border: '1px solid rgba(5,14,36,0.06)', textAlign: 'center',
@@ -140,12 +140,12 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
+    <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', flexDirection: 'column', fontFamily: F }}>
       <Nav currentPage="login" />
 
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px 80px' }}>
         <div className="auth-card" style={{
-          background: '#ffffff', borderRadius: 16, padding: '40px 36px',
+          background: '#ffffff', borderRadius: 'var(--dash-card-radius, 10px)', padding: '40px 36px',
           width: '100%', maxWidth: 400,
           boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
           border: '1px solid rgba(5,14,36,0.06)',

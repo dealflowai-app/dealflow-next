@@ -6,6 +6,7 @@ import { groupPropertiesByOwner } from '@/lib/discovery/owner-intelligence'
 import { getDataProvider } from '@/lib/discovery/data-provider'
 import { BatchDataApiError } from '@/lib/batchdata'
 import type { OwnerProfile } from '@/lib/types/owner-intelligence'
+import { logger } from '@/lib/logger'
 
 type SortField = 'propertyCount' | 'totalValue' | 'investorScore'
 
@@ -88,13 +89,13 @@ export async function GET(req: NextRequest) {
     })
   } catch (err) {
     if (err instanceof BatchDataApiError) {
-      console.error(`BatchData error in discovery owners: ${err.status} ${err.endpoint}`)
+      logger.error(`BatchData error in discovery owners: ${err.status} ${err.endpoint}`)
       return NextResponse.json(
         { error: 'Property data provider error' },
         { status: 502 },
       )
     }
-    console.error('Discovery owners error:', err)
+    logger.error('Discovery owners error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -99,7 +99,7 @@ function PasswordStrengthMeter({ password }: { password: string }) {
 export default function SignUpPage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span className="auth-spinner" style={{ width: 24, height: 24 }} />
         <style dangerouslySetInnerHTML={{ __html: '@keyframes spin { to { transform: rotate(360deg); } } .auth-spinner { border: 2px solid rgba(5,14,36,0.1); border-top-color: #2563EB; border-radius: 50%; animation: spin 0.7s linear infinite; }' }} />
       </div>
@@ -267,9 +267,9 @@ function SignUpFlow() {
   /* ── Render ─────────────────────────────────────────── */
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
+    <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: F }}>
       {/* Logo */}
-      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 28 }}>
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', marginTop: 40, marginBottom: 16 }}>
         <Image src="/Logo.png" alt="DealFlow AI logo" width={28} height={28} style={{ objectFit: 'contain', flexShrink: 0 }} />
         <span style={{ fontFamily: F, fontWeight: 600, fontSize: '1.02rem', color: NAVY, letterSpacing: '-0.01em' }}>
           DealFlow AI
@@ -323,8 +323,8 @@ function SignUpFlow() {
         {step === 1 && (
           <div className="step-fade-in">
             <div style={{
-              background: '#ffffff', borderRadius: 16, padding: '32px 28px',
-              boxShadow: '0 1px 3px rgba(5,14,36,0.06), 0 6px 24px rgba(5,14,36,0.04)',
+              background: '#ffffff', borderRadius: 'var(--dash-card-radius, 10px)', padding: '32px 28px',
+              boxShadow: 'var(--shadow, 0 4px 16px rgba(0,0,0,0.07))',
               border: '1px solid rgba(5,14,36,0.06)',
             }}>
               <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.02em', marginBottom: 6, lineHeight: 1.15 }}>
@@ -457,8 +457,8 @@ function SignUpFlow() {
         {step === 2 && (
           <div className="step-fade-in">
             <div style={{
-              background: '#ffffff', borderRadius: 16, padding: '32px 28px',
-              boxShadow: '0 1px 3px rgba(5,14,36,0.06), 0 6px 24px rgba(5,14,36,0.04)',
+              background: '#ffffff', borderRadius: 'var(--dash-card-radius, 10px)', padding: '32px 28px',
+              boxShadow: 'var(--shadow, 0 4px 16px rgba(0,0,0,0.07))',
               border: '1px solid rgba(5,14,36,0.06)',
             }}>
               <h1 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 400, color: NAVY, letterSpacing: '-0.02em', marginBottom: 6, lineHeight: 1.15 }}>

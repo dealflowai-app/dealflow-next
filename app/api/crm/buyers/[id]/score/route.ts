@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { logActivity } from '@/lib/activity'
+import { logger } from '@/lib/logger'
 import {
   calculateBuyerScore,
   determineBuyerStatus,
@@ -135,7 +136,7 @@ export async function POST(
       status: newStatus,
     })
   } catch (err) {
-    console.error('POST /api/crm/buyers/[id]/score error:', err)
+    logger.error('POST /api/crm/buyers/[id]/score error', { route: '/api/crm/buyers/[id]/score', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to recalculate score' }, { status: 500 })
   }
 }

@@ -8,6 +8,7 @@ import {
   markConversationRead,
 } from '@/lib/outreach/sms-conversation'
 import { trackSms } from '@/lib/usage'
+import { logger } from '@/lib/logger'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
     try {
       await trackSms(profile.id)
     } catch (err) {
-      console.error('Usage tracking failed for SMS:', err)
+      logger.error('Usage tracking failed for SMS', { error: err instanceof Error ? err.message : String(err) })
     }
 
     return successResponse({

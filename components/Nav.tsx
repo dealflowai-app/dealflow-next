@@ -132,19 +132,19 @@ export default function Nav({ isAbout = false, currentPage, forceWhite = false }
           <div className="nav-center-links" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', display: 'flex', gap: 2 }}>
             {activePage ? (
               <>
-                <Link href="/#product-showcase" style={navLinkStyle(false, darkText)}>Platform</Link>
-                <Link href="/#who" style={navLinkStyle(false, darkText)}>Who it&apos;s for</Link>
+                <Link href="/#product-showcase" className={darkText ? 'nav-link' : 'nav-link-light'} style={navLinkStyle(false, darkText)}>Platform</Link>
+                <Link href="/#who" className={darkText ? 'nav-link' : 'nav-link-light'} style={navLinkStyle(false, darkText)}>Who it&apos;s for</Link>
                 <div style={{ width: 1, height: 18, background: darkText ? 'var(--border-med)' : 'rgba(255,255,255,0.2)', margin: '0 6px', alignSelf: 'center', transition: 'background 0.35s ease' }} />
-                <Link href="/pricing" style={navLinkStyle(activePage === 'pricing', darkText)}>Pricing</Link>
-                <Link href="/about" style={navLinkStyle(activePage === 'about', darkText)}>About</Link>
+                <Link href="/pricing" className={darkText ? 'nav-link' : 'nav-link-light'} style={navLinkStyle(activePage === 'pricing', darkText)}>Pricing</Link>
+                <Link href="/about" className={darkText ? 'nav-link' : 'nav-link-light'} style={navLinkStyle(activePage === 'about', darkText)}>About</Link>
               </>
             ) : (
               <>
-                <Link href="#product-showcase" style={navLinkStyle(activeSection === 'product-showcase', darkText)}>Platform</Link>
-                <Link href="#who" style={navLinkStyle(activeSection === 'who', darkText)}>Who it&apos;s for</Link>
+                <Link href="#product-showcase" className={darkText ? 'nav-link' : 'nav-link-light'} style={navLinkStyle(activeSection === 'product-showcase', darkText)}>Platform</Link>
+                <Link href="#who" className={darkText ? 'nav-link' : 'nav-link-light'} style={navLinkStyle(activeSection === 'who', darkText)}>Who it&apos;s for</Link>
                 <div style={{ width: 1, height: 18, background: darkText ? 'var(--border-med)' : 'rgba(255,255,255,0.2)', margin: '0 6px', alignSelf: 'center', transition: 'background 0.35s ease' }} />
-                <Link href="/pricing" style={navLinkStyle(false, darkText)}>Pricing</Link>
-                <Link href="/about" style={navLinkStyle(false, darkText)}>About</Link>
+                <Link href="/pricing" className={darkText ? 'nav-link' : 'nav-link-light'} style={navLinkStyle(false, darkText)}>Pricing</Link>
+                <Link href="/about" className={darkText ? 'nav-link' : 'nav-link-light'} style={navLinkStyle(false, darkText)}>About</Link>
               </>
             )}
           </div>
@@ -357,8 +357,11 @@ export default function Nav({ isAbout = false, currentPage, forceWhite = false }
         .mobile-link { transition: opacity 0.2s ease; }
         .mobile-link:hover { opacity: 0.55; }
 
+        .nav-link:hover { background: rgba(5,14,36,0.05) !important; color: var(--navy-heading) !important; }
+        .nav-link-light:hover { background: rgba(255,255,255,0.1) !important; color: white !important; }
+
         .btn-login { transition: background 0.2s ease, border-color 0.2s ease; }
-        .btn-login:hover { background: rgba(5,14,36,0.06) !important; border-color: rgba(5,14,36,0.18) !important; }
+        .btn-login:hover { background: rgba(5,14,36,0.04) !important; border-color: rgba(5,14,36,0.18) !important; }
 
         .btn-cta { transition: background 0.2s ease, transform 0.2s ease; }
         .btn-cta:hover { background: #1D4ED8 !important; }

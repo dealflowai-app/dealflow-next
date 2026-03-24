@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
     })
 
   if (uploadError) {
-    console.error('Avatar upload error:', uploadError)
+    logger.error('Avatar upload error', { error: uploadError instanceof Error ? uploadError.message : String(uploadError) })
     return NextResponse.json(
       { error: 'Failed to upload avatar' },
       { status: 500 }

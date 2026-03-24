@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse } from '@/lib/api-utils'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 // ─── GET /api/feed/groups — list groups ─────────────────────────────────────
 
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
       })),
     })
   } catch (err) {
-    console.error('Groups fetch error:', err)
+    logger.error('Groups fetch error', { error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to load groups')
   }
 }
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest) {
       },
     }, 201)
   } catch (err) {
-    console.error('Group create error:', err)
+    logger.error('Group create error', { error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to create group')
   }
 }

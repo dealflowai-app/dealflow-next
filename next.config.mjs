@@ -32,4 +32,16 @@ try {
   // @sentry/nextjs not installed — use plain config
 }
 
+// Wrap with bundle analyzer when ANALYZE=true (npm run analyze)
+try {
+  if (process.env.ANALYZE === 'true') {
+    const withBundleAnalyzer = (await import('@next/bundle-analyzer')).default({
+      enabled: true,
+    })
+    config = withBundleAnalyzer(config)
+  }
+} catch {
+  // @next/bundle-analyzer not installed — skip
+}
+
 export default config

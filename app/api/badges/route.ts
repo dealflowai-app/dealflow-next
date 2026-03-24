@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { getBadgesWithProgress, checkAndAwardBadges } from '@/lib/badges'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
@@ -15,7 +16,7 @@ export async function GET() {
 
     return NextResponse.json({ badges, newlyAwarded })
   } catch (err) {
-    console.error('[badges] GET error:', err)
+    logger.error('[badges] GET error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

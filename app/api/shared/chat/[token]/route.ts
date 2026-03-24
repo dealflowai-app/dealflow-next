@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 type RouteContext = { params: Promise<{ token: string }> }
 
@@ -57,7 +58,7 @@ export async function GET(
       },
     })
   } catch (err) {
-    console.error('GET shared chat error:', err)
+    logger.error('GET shared chat error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to load shared conversation' },
       { status: 500 },

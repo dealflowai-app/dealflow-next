@@ -212,6 +212,13 @@ model Profile {
   trialEndsAt          DateTime?
   currentPeriodEnd     DateTime?
 
+  // White-label branding (Enterprise tier)
+  brandName         String?
+  brandLogoUrl      String?
+  brandPrimaryColor String?   // hex color e.g. "#2563EB"
+  brandAccentColor  String?   // hex color
+  customDomain      String?   @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -263,6 +270,8 @@ model Profile {
 
   reviewsReceived    SellerReview[] @relation("ReviewsReceived")
   reviewsGiven       SellerReview[] @relation("ReviewsGiven")
+  webhooks           Webhook[]
+  apiKeys            ApiKey[]
 
   @@map("profiles")
 }
@@ -1798,4 +1807,57 @@ model SellerReview {
   @@index([reviewerId])
   @@index([listingId])
   @@map("seller_reviews")
+}
+
+// ─── WEBHOOKS ────────────────────────────────────────────────────────────────
+
+model Webhook {
+  id          String   @id @default(cuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  url         String
+  secret      String   // HMAC signing secret
+  events      String[] // e.g. ["deal.created", "buyer.matched", "contract.signed"]
+  active      Boolean  @default(true)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deliveries  WebhookDelivery[]
+
+  @@index([profileId])
+}
+
+model WebhookDelivery {
+  id         String   @id @default(cuid())
+  webhookId  String
+  webhook    Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  event      String
+  payload    Json
+  statusCode Int?
+  response   String?
+  success    Boolean  @default(false)
+  attempts   Int      @default(0)
+  nextRetry  DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([webhookId, createdAt])
+}
+
+// ─── PUBLIC API KEYS ─────────────────────────────────────────────────────────
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String    // e.g. "Production Key", "Test Key"
+  keyHash     String    @unique // SHA-256 hash of the actual key
+  keyPrefix   String    // First 8 chars for identification (e.g. "dfa_live_")
+  scopes      String[]  // e.g. ["deals:read", "buyers:read", "marketplace:read"]
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@index([profileId])
+  @@index([keyHash])
 }

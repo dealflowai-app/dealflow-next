@@ -197,7 +197,7 @@ function FeedSection() {
   return (
     <div className="max-w-[680px]">
       {/* Create post */}
-      <div className="bg-white px-5 py-4 mb-4" style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10 }}>
+      <div className="bg-white px-5 py-4 mb-4" style={{ border: '1px solid rgba(5,14,36,0.06)', borderRadius: 10 }} aria-label="Create a post">
         <div className="flex items-start gap-3">
           <div className="pt-1">
             <Avatar initials="You" size={32} />
@@ -208,6 +208,7 @@ function FeedSection() {
               onChange={e => setNewPostText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handlePost() }}
               placeholder="Share something with the community..."
+              aria-label="Write a new post"
               rows={2}
               className="w-full outline-none transition-colors resize-none"
               style={{
@@ -300,6 +301,7 @@ function FeedSection() {
                   <div className="relative" ref={menuOpen === post.id ? menuRef : undefined}>
                     <button
                       onClick={() => setMenuOpen(menuOpen === post.id ? null : post.id)}
+                      aria-label="Post options"
                       className="flex items-center justify-center w-7 h-7 rounded-[8px] border-0 bg-transparent cursor-pointer transition-colors hover:bg-[rgba(5,14,36,0.04)]"
                       style={{ color: 'rgba(5,14,36,0.3)' }}
                     >
@@ -452,6 +454,7 @@ function CommentsPanel({ postId, onCommentAdded }: { postId: string; onCommentAd
               onChange={e => setText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') submit() }}
               placeholder="Write a comment..."
+              aria-label="Write a comment"
               className="flex-1 outline-none"
               style={{
                 backgroundColor: '#F9FAFB',
@@ -467,6 +470,7 @@ function CommentsPanel({ postId, onCommentAdded }: { postId: string; onCommentAd
             <button
               onClick={submit}
               disabled={!text.trim() || submitting}
+              aria-label="Submit comment"
               className="flex items-center justify-center w-8 h-8 rounded-[8px] border-0 cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               style={{ backgroundColor: '#2563EB' }}
             >
@@ -906,7 +910,7 @@ function MessagesSection() {
         <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'rgba(5,14,36,0.4)' }} />
-            <input type="text" placeholder="Search messages..." className="w-full outline-none"
+            <input type="text" placeholder="Search messages..." aria-label="Search messages" className="w-full outline-none"
               style={{ backgroundColor: '#F9FAFB', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, paddingLeft: 36, paddingRight: 12, paddingTop: 8, paddingBottom: 8, fontSize: 14, fontFamily: FONT, color: 'rgba(5,14,36,0.65)' }}
             />
           </div>
@@ -915,6 +919,7 @@ function MessagesSection() {
             className="flex items-center justify-center w-8 h-8 rounded-[8px] border-0 cursor-pointer transition-colors"
             style={{ backgroundColor: '#2563EB' }}
             title="New conversation"
+            aria-label="New conversation"
           >
             <Plus className="w-4 h-4 text-white" />
           </button>
@@ -980,6 +985,7 @@ function MessagesSection() {
               {/* Back button on mobile */}
               <button
                 onClick={() => setActiveConvoId(null)}
+                aria-label="Back to conversations"
                 className="md:hidden flex items-center justify-center w-7 h-7 rounded-[6px] border-0 bg-transparent cursor-pointer"
                 style={{ color: 'rgba(5,14,36,0.5)' }}
               >
@@ -1029,12 +1035,14 @@ function MessagesSection() {
                   onChange={e => setMsgText(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                   placeholder="Type a message..."
+                  aria-label="Type a message"
                   className="flex-1 outline-none"
                   style={{ backgroundColor: '#F9FAFB', border: '1px solid rgba(5,14,36,0.06)', borderRadius: 8, padding: '10px 16px', fontSize: 14, fontFamily: FONT, color: '#0B1224' }}
                 />
                 <button
                   onClick={handleSend}
                   disabled={!msgText.trim() || sending}
+                  aria-label="Send message"
                   className="text-white border-0 cursor-pointer flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   style={{ backgroundColor: '#2563EB', borderRadius: 8, padding: 10 }}
                 >
@@ -1120,13 +1128,15 @@ export default function CommunityPage() {
         style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
       >
         <div className="px-8">
-          <nav className="flex gap-0.5 -mb-px">
+          <nav className="flex gap-0.5 -mb-px" role="tablist" aria-label="Community sections">
             {pageTabs.map(tab => {
               const Icon = tab.icon
               const isActive = activeTab === tab.key
               return (
                 <button
                   key={tab.key}
+                  role="tab"
+                  aria-selected={isActive}
                   onClick={() => setActiveTab(tab.key)}
                   style={{
                     fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",
@@ -1163,9 +1173,9 @@ export default function CommunityPage() {
 
       <div className="p-4 sm:p-8 max-w-[1200px]">
 
-      {activeTab === 'feed' && <FeedSection />}
-      {activeTab === 'groups' && <GroupsSection />}
-      {activeTab === 'messages' && <MessagesSection />}
+      {activeTab === 'feed' && <div role="tabpanel" aria-label="Feed"><FeedSection /></div>}
+      {activeTab === 'groups' && <div role="tabpanel" aria-label="Groups"><GroupsSection /></div>}
+      {activeTab === 'messages' && <div role="tabpanel" aria-label="Messages"><MessagesSection /></div>}
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {

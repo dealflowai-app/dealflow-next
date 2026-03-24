@@ -5,6 +5,7 @@ import { sendEmail } from '@/lib/email'
 import { formatWelcomeEmail } from '@/lib/emails'
 import { stripe } from '@/lib/stripe'
 import { seedDemoData } from '@/lib/demo-data'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
         },
       })
     } catch (stripeErr) {
-      console.error('Stripe customer creation failed:', stripeErr)
+      logger.error('Stripe customer creation failed', { error: stripeErr instanceof Error ? stripeErr.message : String(stripeErr) })
       // Don't block onboarding if Stripe fails — customer can be created later
     }
 
@@ -75,19 +76,19 @@ export async function POST(request: Request) {
         html,
         text,
         categories: ['onboarding', 'welcome'],
-      }).catch((err) => console.error('Welcome email failed:', err))
+      }).catch((err) => logger.error('Welcome email failed', { error: err instanceof Error ? err.message : String(err) }))
     }
 
     // Seed demo data before responding so it's ready when dashboard loads
     try {
       await seedDemoData(profile.id)
     } catch (err) {
-      console.error('Demo data seeding failed:', err)
+      logger.error('Demo data seeding failed', { error: err instanceof Error ? err.message : String(err) })
     }
 
     return NextResponse.json({ profile })
   } catch (err) {
-    console.error('Onboarding error:', err)
+    logger.error('Onboarding error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
   }
 }

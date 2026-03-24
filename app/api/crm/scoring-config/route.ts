@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 import {
   resolveWeights,
   resolveThresholds,
@@ -32,7 +33,7 @@ export async function GET() {
       raw: dbConfig,
     })
   } catch (err) {
-    console.error('GET /api/crm/scoring-config error:', err)
+    logger.error('GET /api/crm/scoring-config error', { route: '/api/crm/scoring-config', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to fetch scoring config' }, { status: 500 })
   }
 }
@@ -203,7 +204,7 @@ export async function PUT(req: NextRequest) {
       customTags: config?.customTags ?? [],
     })
   } catch (err) {
-    console.error('PUT /api/crm/scoring-config error:', err)
+    logger.error('PUT /api/crm/scoring-config error', { route: '/api/crm/scoring-config', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to update scoring config' }, { status: 500 })
   }
 }

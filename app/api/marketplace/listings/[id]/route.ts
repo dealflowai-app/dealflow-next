@@ -3,6 +3,7 @@ import { getAuthProfile } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activity'
 import { ListingStatus } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 type RouteCtx = { params: Promise<{ id: string }> }
 
@@ -54,7 +55,7 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ listing: sanitized })
   } catch (err) {
-    console.error('GET /api/marketplace/listings/[id] error:', err)
+    logger.error('GET /api/marketplace/listings/[id] error', { route: '/api/marketplace/listings/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to fetch listing', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -170,7 +171,7 @@ export async function PATCH(req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ listing: updated })
   } catch (err) {
-    console.error('PATCH /api/marketplace/listings/[id] error:', err)
+    logger.error('PATCH /api/marketplace/listings/[id] error', { route: '/api/marketplace/listings/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to update listing', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -215,7 +216,7 @@ export async function DELETE(_req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('DELETE /api/marketplace/listings/[id] error:', err)
+    logger.error('DELETE /api/marketplace/listings/[id] error', { route: '/api/marketplace/listings/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to remove listing', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

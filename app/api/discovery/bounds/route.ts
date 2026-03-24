@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { toClientProperty } from '@/lib/discovery/to-client-property'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/discovery/bounds?north=...&south=...&east=...&west=...&limit=200
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
       total: properties.length,
     })
   } catch (err) {
-    console.error('Discovery bounds error:', err)
+    logger.error('Discovery bounds error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

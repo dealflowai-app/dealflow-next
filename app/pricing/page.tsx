@@ -12,9 +12,9 @@ import { createBrowserClient } from '@supabase/ssr'
 const F = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
 const SERIF = "'DM Serif Display', Georgia, serif"
 const NAVY = '#0B1224'
-const NAVY_H = 'rgb(8, 18, 42)'
+const NAVY_H = '#0B1224'
 const BLUE = '#2563EB'
-const CREAM = 'rgb(249, 247, 244)'
+const CREAM = '#F9FAFB'
 const BODY = 'rgba(5, 14, 36, 0.65)'
 const BODY_FEAT = 'rgba(5, 14, 36, 0.7)'
 const MUTED = 'rgba(5, 14, 36, 0.45)'
@@ -321,7 +321,7 @@ export default function PricingPage() {
               <div
                 key={tier.name}
                 style={{
-                  borderRadius: 16,
+                  borderRadius: 10,
                   border: tier.highlight ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
                   padding: '36px 32px 28px',
                   background: tier.highlight
@@ -330,7 +330,7 @@ export default function PricingPage() {
                   position: 'relative',
                   boxShadow: tier.highlight
                     ? '0 8px 30px rgba(37,99,235,0.1)'
-                    : '0 1px 3px rgba(5,14,36,0.04)',
+                    : '0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04)',
                   transform: tier.highlight ? 'translateY(-6px)' : 'none',
                   display: 'flex',
                   flexDirection: 'column',
@@ -418,7 +418,7 @@ export default function PricingPage() {
 
         {/* ── Usage-Based Pricing ────────────────────────── */}
         <div className="pricing-section reveal" style={{ maxWidth: 1160, margin: '0 auto', padding: '80px 40px 0' }}>
-          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <p style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: BLUE, marginBottom: 14, fontFamily: F }}>
               Usage-based
             </p>
@@ -426,58 +426,78 @@ export default function PricingPage() {
               Pay as You Grow
             </h2>
             <p style={{ fontSize: '0.92rem', color: BODY, lineHeight: 1.7, maxWidth: 480, margin: '0 auto', fontFamily: F }}>
-              Free minutes included with every plan. Only pay for what you use beyond your limit.
+              Every plan includes free usage. Only pay for overages beyond your allowance.
             </p>
           </div>
-          <div className="usage-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-            {usagePricing.map((item) => (
-              <div key={item.label} style={{
-                background: 'white', borderRadius: 14, border: `1px solid ${BORDER}`,
-                padding: 24, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 180,
-                alignItems: 'center', textAlign: 'center',
-              }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {item.icon}
-                </div>
-                <div>
-                  <p style={{ fontSize: 12, fontWeight: 500, color: MUTED, marginBottom: 5, fontFamily: F, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{item.label}</p>
-                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 }}>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 600, color: NAVY_H, fontFamily: F, letterSpacing: '-0.02em', lineHeight: 1 }}>{item.price}</span>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 400, color: MUTED, fontFamily: F }}>{item.unit}</span>
-                  </div>
-                </div>
-                <p style={{ fontSize: 12.5, fontWeight: 400, color: 'rgba(5,14,36,0.4)', lineHeight: 1.5, fontFamily: F }}>{item.note}</p>
-              </div>
-            ))}
-          </div>
-          <p style={{ textAlign: 'center', fontSize: '0.82rem', color: MUTED, marginTop: 20, fontFamily: F }}>
-            Email campaigns included free with all plans. Free AI minutes reset monthly.
-          </p>
-        </div>
 
-        {/* ── Free Minutes Comparison ────────────────────── */}
-        <div className="pricing-section reveal" style={{ maxWidth: 1160, margin: '0 auto', padding: '48px 40px 0' }}>
+          {/* Usage cards */}
           <div style={{
-            background: 'white', borderRadius: 14, border: `1px solid ${BORDER}`,
-            padding: '24px 28px',
+            background: 'white', borderRadius: 10, border: `1px solid ${BORDER}`,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04)',
+            overflow: 'hidden',
           }}>
-            <div style={{ marginBottom: 20 }}>
-              <p style={{ fontSize: '0.88rem', fontWeight: 500, color: NAVY_H, fontFamily: F }}>Free AI call minutes per plan</p>
-              <p style={{ fontSize: '0.78rem', color: MUTED, fontFamily: F }}>Average AI call duration: 3 minutes</p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {freeMinutes.map((fm) => (
-                <div key={fm.tier} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: NAVY_H, fontFamily: F, width: 80, flexShrink: 0 }}>{fm.tier}</span>
-                  <div style={{ flex: 1, height: 10, background: 'rgba(5,14,36,0.04)', borderRadius: 5, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${fm.pct}%`, background: BLUE, borderRadius: 5, transition: 'width 0.5s ease' }} />
+            <div className="usage-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+              {usagePricing.map((item, i) => (
+                <div key={item.label} style={{
+                  padding: '28px 24px',
+                  borderRight: i < usagePricing.length - 1 ? `1px solid ${BORDER}` : 'none',
+                  display: 'flex', flexDirection: 'column', gap: 14,
+                  alignItems: 'center', textAlign: 'center',
+                }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 10,
+                    background: ACCENT_BG, border: '1px solid rgba(37,99,235,0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {item.icon}
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: NAVY_H, fontFamily: F, width: 70, textAlign: 'right', flexShrink: 0 }}>{fm.mins} min</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: MUTED, fontFamily: F, width: 80, flexShrink: 0 }}>{fm.calls}</span>
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: MUTED, marginBottom: 8, fontFamily: F, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{item.label}</p>
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
+                      <span style={{ fontSize: '1.35rem', fontWeight: 700, color: NAVY_H, fontFamily: F, letterSpacing: '-0.02em', lineHeight: 1 }}>{item.price}</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: MUTED, fontFamily: F }}>{item.unit}</span>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '0.78rem', fontWeight: 400, color: 'rgba(5,14,36,0.4)', lineHeight: 1.5, fontFamily: F, margin: 0 }}>{item.note}</p>
                 </div>
               ))}
             </div>
+
+            {/* Included minutes bar chart */}
+            <div style={{ borderTop: `1px solid ${BORDER}`, padding: '24px 28px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                <div>
+                  <p style={{ fontSize: '0.85rem', fontWeight: 600, color: NAVY_H, fontFamily: F, marginBottom: 2 }}>Free AI call minutes per plan</p>
+                  <p style={{ fontSize: '0.75rem', color: MUTED, fontFamily: F, margin: 0 }}>Avg. call duration: ~3 min</p>
+                </div>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: 'rgba(37,99,235,0.06)', borderRadius: 20, padding: '4px 12px',
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z" />
+                  </svg>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: BLUE, fontFamily: F }}>Included free</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {freeMinutes.map((fm) => (
+                  <div key={fm.tier} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: NAVY_H, fontFamily: F, width: 72, flexShrink: 0 }}>{fm.tier}</span>
+                    <div style={{ flex: 1, height: 8, background: 'rgba(5,14,36,0.04)', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${fm.pct}%`, background: `linear-gradient(90deg, ${BLUE}, #3B82F6)`, borderRadius: 4, transition: 'width 0.8s cubic-bezier(0.16,1,0.3,1)' }} />
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: NAVY_H, fontFamily: F, width: 64, textAlign: 'right', flexShrink: 0 }}>{fm.mins} min</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 400, color: MUTED, fontFamily: F, width: 76, flexShrink: 0 }}>{fm.calls}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+
+          <p style={{ textAlign: 'center', fontSize: '0.8rem', color: MUTED, marginTop: 16, fontFamily: F }}>
+            Email campaigns included free with all plans. Free AI minutes reset monthly.
+          </p>
         </div>
 
         {/* ── Feature Comparison Table ───────────────────── */}
@@ -488,7 +508,7 @@ export default function PricingPage() {
           <h2 style={{ fontFamily: SERIF, fontSize: '1.35rem', fontWeight: 400, color: NAVY_H, marginBottom: 32, letterSpacing: '-0.022em', textAlign: 'center' }}>
             Full Feature Comparison
           </h2>
-          <div style={{ border: `1px solid ${BORDER}`, borderRadius: 14, overflow: 'hidden' }}>
+          <div style={{ border: `1px solid ${BORDER}`, borderRadius: 10, overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
               <colgroup>
                 <col style={{ width: '40%' }} />
@@ -497,7 +517,7 @@ export default function PricingPage() {
                 <col style={{ width: '20%' }} />
               </colgroup>
               <thead>
-                <tr style={{ background: 'rgb(245, 243, 240)' }}>
+                <tr style={{ background: '#F3F4F6' }}>
                   <th style={{ textAlign: 'left', padding: '10px 18px', fontSize: '0.72rem', fontWeight: 600, color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Feature</th>
                   <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: MUTED, fontFamily: F, borderBottom: `1px solid ${BORDER}` }}>Starter</th>
                   <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: BLUE, fontFamily: F, background: 'rgba(37,99,235,0.03)', borderBottom: `1px solid ${BORDER}` }}>Pro</th>
@@ -629,12 +649,11 @@ export default function PricingPage() {
           .pricing-section { padding-left: 20px !important; padding-right: 20px !important; }
           .pricing-compare { padding-top: 48px !important; }
           .pricing-grid { grid-template-columns: 1fr !important; }
-          .usage-grid { grid-template-columns: 1fr 1fr !important; }
+          .usage-grid { grid-template-columns: 1fr !important; }
+          .usage-grid > div { border-right: none !important; border-bottom: 1px solid rgba(229,231,235,1); }
+          .usage-grid > div:last-child { border-bottom: none !important; }
           .pricing-compare table { font-size: 0.82rem; }
           .pricing-compare td, .pricing-compare th { padding: 10px 12px !important; }
-        }
-        @media (max-width: 560px) {
-          .usage-grid { grid-template-columns: 1fr !important; }
         }
       ` }} />
     </>

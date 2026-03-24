@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminProfile } from '@/lib/admin'
 import { prisma } from '@/lib/prisma'
 import { stripe } from '@/lib/stripe'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   req: NextRequest,
@@ -76,7 +77,7 @@ export async function PATCH(
             pause_collection: { behavior: 'mark_uncollectible' },
           })
         } catch (e) {
-          console.error('Failed to pause Stripe subscription:', e)
+          logger.error('Failed to pause Stripe subscription', { error: e instanceof Error ? e.message : String(e) })
         }
       }
       return NextResponse.json({ success: true, message: 'User suspended' })
@@ -93,7 +94,7 @@ export async function PATCH(
             pause_collection: '' as any,
           })
         } catch (e) {
-          console.error('Failed to resume Stripe subscription:', e)
+          logger.error('Failed to resume Stripe subscription', { error: e instanceof Error ? e.message : String(e) })
         }
       }
       return NextResponse.json({ success: true, message: 'User reactivated' })
@@ -115,7 +116,7 @@ export async function PATCH(
         try {
           await stripe.subscriptions.cancel(targetUser.stripeSubscriptionId)
         } catch (e) {
-          console.error('Failed to cancel Stripe subscription:', e)
+          logger.error('Failed to cancel Stripe subscription', { error: e instanceof Error ? e.message : String(e) })
         }
       }
       await prisma.profile.delete({ where: { id } })

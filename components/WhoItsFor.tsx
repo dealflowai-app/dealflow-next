@@ -84,10 +84,11 @@ export default function WhoItsFor() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                background: 'var(--warm-gray)',
+                background: 'var(--white)',
                 border: '1px solid var(--border-light)',
-                borderRadius: 10,
+                borderRadius: 'var(--dash-card-radius, 10px)',
                 padding: '10px 18px',
+                boxShadow: 'var(--shadow-sm)',
               }}>
                 <span style={{
                   fontFamily: "'Satoshi', sans-serif",
@@ -133,8 +134,9 @@ export default function WhoItsFor() {
                 flexShrink: 0,
                 background: 'var(--white)',
                 border: '1px solid var(--border-light)',
-                borderRadius: 16,
+                borderRadius: 'var(--dash-card-radius, 10px)',
                 padding: '24px 22px',
+                boxShadow: 'var(--shadow-sm)',
               }}>
                 <h4 style={{
                   fontFamily: "'DM Serif Display', Georgia, serif",
@@ -237,10 +239,11 @@ function WhoVisual() {
   return (
     <div
       style={{
-        background: 'var(--warm-gray)',
+        background: 'var(--white)',
         border: '1px solid var(--border-light)',
-        borderRadius: 16,
+        borderRadius: 'var(--dash-card-radius, 10px)',
         padding: 26,
+        boxShadow: 'var(--shadow)',
       }}
     >
       <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted-text)', marginBottom: 16, fontFamily: "'Satoshi', sans-serif" }}>

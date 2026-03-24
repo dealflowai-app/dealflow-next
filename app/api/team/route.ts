@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse, parseBody } from '@/lib/api-utils'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/team
@@ -65,7 +66,7 @@ export async function GET() {
 
     return successResponse({ team, currentUserRole, isOwner })
   } catch (err) {
-    console.error('GET /api/team error:', err)
+    logger.error('GET /api/team error', { route: '/api/team', error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to fetch team')
   }
 }
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     return successResponse({ team }, 201)
   } catch (err) {
-    console.error('POST /api/team error:', err)
+    logger.error('POST /api/team error', { route: '/api/team', error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to create team')
   }
 }

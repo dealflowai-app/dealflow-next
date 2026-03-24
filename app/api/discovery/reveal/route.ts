@@ -7,6 +7,7 @@ import { enrichedSkipTrace } from '@/lib/skip-trace/enrich'
 import { checkAllowance, recordUsage } from '@/lib/billing/allowances'
 import { trackSkipTrace } from '@/lib/usage'
 import { BatchDataApiError } from '@/lib/batchdata'
+import { logger } from '@/lib/logger'
 
 // ── POST /api/discovery/reveal ──
 
@@ -168,7 +169,7 @@ export async function POST(req: NextRequest) {
         },
       })
     } catch (err) {
-      console.error('Failed to write SkipTraceResult:', err)
+      logger.error('Failed to write SkipTraceResult', { error: err instanceof Error ? err.message : String(err) })
     }
 
     // 7. Record usage in allowance system + legacy usage table
@@ -176,7 +177,7 @@ export async function POST(req: NextRequest) {
     try {
       await trackSkipTrace(profile.id)
     } catch (err) {
-      console.error('Legacy usage tracking failed for skip trace:', err)
+      logger.error('Legacy usage tracking failed for skip trace', { error: err instanceof Error ? err.message : String(err) })
     }
 
     return NextResponse.json({
@@ -191,13 +192,13 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     if (err instanceof BatchDataApiError) {
-      console.error(`BatchData error in reveal: ${err.status} ${err.endpoint}`)
+      logger.error(`BatchData error in reveal: ${err.status} ${err.endpoint}`)
       return NextResponse.json(
         { error: err.status === 429 ? 'Rate limit exceeded, try again shortly' : 'Skip trace provider error' },
         { status: err.status === 429 ? 429 : 502 },
       )
     }
-    console.error('Discovery reveal error:', err)
+    logger.error('Discovery reveal error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

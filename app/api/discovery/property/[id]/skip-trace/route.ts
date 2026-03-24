@@ -6,6 +6,7 @@ import { enrichedSkipTrace } from '@/lib/skip-trace/enrich'
 import { checkAllowance, recordUsage } from '@/lib/billing/allowances'
 import { trackSkipTrace } from '@/lib/usage'
 import { BatchDataApiError } from '@/lib/batchdata'
+import { logger } from '@/lib/logger'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
 
     return NextResponse.json({ cached: false })
   } catch (err) {
-    console.error('Skip trace cache check error:', err)
+    logger.error('Skip trace cache check error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -165,7 +166,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
     try {
       await trackSkipTrace(profile.id)
     } catch (err) {
-      console.error('Legacy usage tracking failed for skip trace:', err)
+      logger.error('Legacy usage tracking failed for skip trace', { error: err instanceof Error ? err.message : String(err) })
     }
 
     // 7. Return result
@@ -182,13 +183,13 @@ export async function POST(req: NextRequest, context: RouteContext) {
     })
   } catch (err) {
     if (err instanceof BatchDataApiError) {
-      console.error(`BatchData skip trace error: ${err.status} ${err.endpoint}`)
+      logger.error(`BatchData skip trace error: ${err.status} ${err.endpoint}`)
       return NextResponse.json(
         { error: err.status === 429 ? 'Rate limit exceeded, try again shortly' : 'Skip trace provider error' },
         { status: err.status === 429 ? 429 : 502 },
       )
     }
-    console.error('Skip trace error:', err)
+    logger.error('Skip trace error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

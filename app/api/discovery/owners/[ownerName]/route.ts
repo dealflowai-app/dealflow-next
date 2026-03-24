@@ -8,6 +8,7 @@ import {
   calculateInvestorScore,
 } from '@/lib/discovery/owner-intelligence'
 import type { OwnerProfile } from '@/lib/types/owner-intelligence'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   req: NextRequest,
@@ -99,7 +100,7 @@ export async function GET(
 
     return NextResponse.json({ owner: ownerProfile })
   } catch (err) {
-    console.error('Discovery owner detail error:', err)
+    logger.error('Discovery owner detail error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

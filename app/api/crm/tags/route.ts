@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/crm/tags
@@ -34,7 +35,7 @@ export async function GET() {
       })),
     })
   } catch (err) {
-    console.error('GET /api/crm/tags error:', err)
+    logger.error('GET /api/crm/tags error', { route: '/api/crm/tags', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to fetch tags' }, { status: 500 })
   }
 }
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return NextResponse.json({ error: 'A tag with this name already exists' }, { status: 409 })
     }
-    console.error('POST /api/crm/tags error:', err)
+    logger.error('POST /api/crm/tags error', { route: '/api/crm/tags', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to create tag' }, { status: 500 })
   }
 }

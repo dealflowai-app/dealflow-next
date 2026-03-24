@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { logBulkActivity } from '@/lib/activity'
+import { logger } from '@/lib/logger'
 
 // Normalize common CSV column name variations to our schema fields
 const COLUMN_MAP: Record<string, string> = {
@@ -206,7 +207,7 @@ export async function POST(req: NextRequest) {
       errors: skipped,
     }, { status: 201 })
   } catch (err) {
-    console.error('POST /api/crm/buyers/import error:', err)
+    logger.error('POST /api/crm/buyers/import error', { route: '/api/crm/buyers/import', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to import buyers' }, { status: 500 })
   }
 }

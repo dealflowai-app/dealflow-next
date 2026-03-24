@@ -9,6 +9,7 @@ import { RentCastError } from '@/lib/rentcast'
 import { BatchDataApiError } from '@/lib/batchdata'
 import type { EquityData, DistressSignals } from '@/lib/discovery/unified-types'
 import type { BatchDataProperty } from '@/lib/batchdata/types'
+import { logger } from '@/lib/logger'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -93,7 +94,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
         }
       } catch (enrichErr) {
         // Enrichment failed — continue with base data but log the error
-        console.error('Property enrichment failed:', enrichErr instanceof Error ? enrichErr.message : enrichErr)
+        logger.error('Property enrichment failed', { error: enrichErr instanceof Error ? enrichErr.message : String(enrichErr) })
       }
     } else if (!provider.hasBatchData) {
       // RentCast detail path
@@ -184,20 +185,20 @@ export async function GET(req: NextRequest, context: RouteContext) {
     })
   } catch (err) {
     if (err instanceof BatchDataApiError) {
-      console.error(`BatchData error in property detail: ${err.status} ${err.endpoint}`)
+      logger.error(`BatchData error in property detail: ${err.status} ${err.endpoint}`)
       return NextResponse.json(
         { error: 'Property data provider error' },
         { status: 502 },
       )
     }
     if (err instanceof RentCastError) {
-      console.error(`RentCast error in property detail: ${err.status}`)
+      logger.error(`RentCast error in property detail: ${err.status}`)
       return NextResponse.json(
         { error: 'Property data provider error' },
         { status: 502 },
       )
     }
-    console.error('Property detail error:', err)
+    logger.error('Property detail error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

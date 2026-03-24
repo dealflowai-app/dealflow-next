@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 const CACHE_DAYS = 7
 const MODEL = 'claude-haiku-4-5-20251001'
@@ -143,7 +144,7 @@ ${buyer.activityEvents.map(e => `- ${e.title} (${new Date(e.createdAt).toLocaleD
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}))
-      console.error('Anthropic API error:', response.status, errData)
+      logger.error('Anthropic API error', { status: response.status, body: errData })
       return NextResponse.json({ error: 'AI generation failed', detail: errData }, { status: 502 })
     }
 
@@ -159,7 +160,7 @@ ${buyer.activityEvents.map(e => `- ${e.title} (${new Date(e.createdAt).toLocaleD
 
     return NextResponse.json({ insight, generatedAt: generatedAt.toISOString(), cached: false })
   } catch (err) {
-    console.error('POST /api/crm/buyers/[id]/insights error:', err)
+    logger.error('POST /api/crm/buyers/[id]/insights error', { route: '/api/crm/buyers/[id]/insights', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to generate insight' }, { status: 500 })
   }
 }

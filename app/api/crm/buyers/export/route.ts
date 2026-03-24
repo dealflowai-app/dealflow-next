@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
@@ -48,7 +49,7 @@ export async function GET() {
 
     return NextResponse.json({ buyers: formatted })
   } catch (err) {
-    console.error('GET /api/crm/buyers/export error:', err)
+    logger.error('GET /api/crm/buyers/export error', { route: '/api/crm/buyers/export', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to export buyers', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

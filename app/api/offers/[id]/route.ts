@@ -11,6 +11,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import { Validator, sanitizeString } from '@/lib/validation'
 import { parseBody } from '@/lib/api-utils'
+import { logger } from '@/lib/logger'
 
 // Valid status transitions
 const OFFER_TRANSITIONS: Record<string, string[]> = {
@@ -176,7 +177,7 @@ export async function PATCH(
             metadata: { dealId: deal.id, contractId: contract.id, offerId },
           })
         } catch (contractErr) {
-          console.error('Auto-contract generation failed:', contractErr)
+          logger.error('Auto-contract generation failed', { error: contractErr instanceof Error ? contractErr.message : String(contractErr) })
         }
       })()
     } else {
@@ -222,7 +223,7 @@ export async function PATCH(
 
     return NextResponse.json({ offer: updated })
   } catch (err) {
-    console.error('PATCH /api/offers/[id] error:', err)
+    logger.error('PATCH /api/offers/[id] error', { route: '/api/offers/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to update offer', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -279,7 +280,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('DELETE /api/offers/[id] error:', err)
+    logger.error('DELETE /api/offers/[id] error', { route: '/api/offers/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to delete offer', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

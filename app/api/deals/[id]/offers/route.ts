@@ -7,6 +7,7 @@ import { Validator, sanitizeString, sanitizeHtml } from '@/lib/validation'
 import { parseBody } from '@/lib/api-utils'
 import { sendEmail } from '@/lib/email'
 import { formatOfferEmail } from '@/lib/emails'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   req: NextRequest,
@@ -59,7 +60,7 @@ export async function GET(
 
     return NextResponse.json({ offers: enriched })
   } catch (err) {
-    console.error('GET /api/deals/[id]/offers error:', err)
+    logger.error('GET /api/deals/[id]/offers error', { route: '/api/deals/[id]/offers', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to fetch offers', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -184,12 +185,12 @@ export async function POST(
         html,
         text,
         categories: ['deals', 'offer-received'],
-      }).catch((err) => console.error('Offer notification email failed:', err))
+      }).catch((err) => logger.error('Offer notification email failed', { error: err instanceof Error ? err.message : String(err) }))
     }
 
     return NextResponse.json({ offer }, { status: 201 })
   } catch (err) {
-    console.error('POST /api/deals/[id]/offers error:', err)
+    logger.error('POST /api/deals/[id]/offers error', { route: '/api/deals/[id]/offers', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to create offer', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

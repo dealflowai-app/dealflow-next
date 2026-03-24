@@ -7,6 +7,7 @@ import { getDataProvider } from '@/lib/discovery/data-provider'
 import { RentCastError } from '@/lib/rentcast'
 import { BatchDataApiError } from '@/lib/batchdata'
 import { requireTier, FEATURE_TIERS } from '@/lib/subscription-guard'
+import { logger } from '@/lib/logger'
 
 // Map frontend property type values to DB format
 const PROPERTY_TYPE_MAP: Record<string, string> = {
@@ -289,7 +290,7 @@ export async function GET(req: NextRequest) {
     })
   } catch (err) {
     if (err instanceof BatchDataApiError) {
-      console.error(`BatchData error in discovery search: ${err.status} ${err.endpoint}`)
+      logger.error(`BatchData error in discovery search: ${err.status} ${err.endpoint}`)
       const clientStatus = err.status === 429 ? 429 : 502
       return NextResponse.json(
         { error: err.status === 429 ? 'Rate limit exceeded, try again shortly' : 'Property data provider error' },
@@ -297,14 +298,14 @@ export async function GET(req: NextRequest) {
       )
     }
     if (err instanceof RentCastError) {
-      console.error(`RentCast error in discovery search: ${err.status}`)
+      logger.error(`RentCast error in discovery search: ${err.status}`)
       const clientStatus = err.status === 429 ? 429 : 502
       return NextResponse.json(
         { error: err.status === 429 ? 'Rate limit exceeded, try again shortly' : 'Property data provider error' },
         { status: clientStatus }
       )
     }
-    console.error('Discovery search error:', err)
+    logger.error('Discovery search error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { logActivity } from '@/lib/activity'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   req: NextRequest,
@@ -60,7 +61,7 @@ export async function GET(
 
     return NextResponse.json({ buyer })
   } catch (err) {
-    console.error('GET /api/crm/buyers/[id] error:', err)
+    logger.error('GET /api/crm/buyers/[id] error', { route: '/api/crm/buyers/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to fetch buyer' }, { status: 500 })
   }
 }
@@ -187,7 +188,7 @@ export async function PATCH(
 
     return NextResponse.json({ buyer })
   } catch (err: unknown) {
-    console.error('PATCH /api/crm/buyers/[id] error:', err)
+    logger.error('PATCH /api/crm/buyers/[id] error', { route: '/api/crm/buyers/[id]', error: err instanceof Error ? err.message : String(err) })
     // Get full Prisma error message
     let detail = 'Unknown error'
     if (err && typeof err === 'object' && 'message' in err) {
@@ -232,7 +233,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('DELETE /api/crm/buyers/[id] error:', err)
+    logger.error('DELETE /api/crm/buyers/[id] error', { route: '/api/crm/buyers/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to delete buyer' }, { status: 500 })
   }
 }

@@ -352,7 +352,7 @@ function VisualOrganize() {
           </div>
         </div>
       ))}
-      <div style={{ marginTop: 4, background: 'var(--warm-gray)', borderRadius: 10, padding: '10px 14px', fontSize: '0.77rem', color: 'var(--body-text)' }}>
+      <div style={{ marginTop: 4, background: 'var(--cream)', borderRadius: 10, padding: '10px 14px', fontSize: '0.77rem', color: 'var(--body-text)' }}>
         <span style={{ color: 'var(--blue-600)', fontWeight: 600 }}>247 buyers</span> scored and segmented automatically from call data
       </div>
     </div>
@@ -664,7 +664,7 @@ export default function Features() {
           </div>
 
           {/* Right: visual */}
-          <div style={{ background: 'var(--white)', border: '1px solid var(--border-light)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(5,14,36,0.06), 0 0 0 1px rgba(5,14,36,0.06)', minHeight: 280 }}>
+          <div style={{ background: 'var(--white)', border: '1px solid var(--border-light)', borderRadius: 'var(--dash-card-radius, 10px)', overflow: 'hidden', boxShadow: 'var(--shadow)', minHeight: 280 }}>
             <div className="vis-screen-active" key={active} style={{ animation: 'slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
               <ActiveVisual />
             </div>

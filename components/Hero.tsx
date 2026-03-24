@@ -54,10 +54,6 @@ export default function Hero() {
             </a>
           </div>
 
-          {/* Trust line */}
-          <p className="hero-trust" style={{ opacity: 0, animation: 'fadeInHero 1s 1.15s cubic-bezier(0.16,1,0.3,1) forwards' }}>
-            Open to the public for a limited time.
-          </p>
         </div>
       </div>
 
@@ -68,7 +64,7 @@ export default function Hero() {
             <span /><span /><span />
           </div>
           <div className="browser-url">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.35 }}>
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
             </svg>
             <span>dealflowai.app</span>
@@ -122,7 +118,7 @@ export default function Hero() {
           position: relative;
           z-index: 2;
           text-align: center;
-          padding: 160px 40px 100px;
+          padding: 140px 40px 100px;
           max-width: 840px;
           margin: 0 auto;
           width: 100%;
@@ -236,6 +232,46 @@ export default function Hero() {
           color: white;
         }
 
+        .hero-social-proof {
+          margin-bottom: 16px;
+        }
+        .hero-stat-row {
+          display: inline-flex;
+          align-items: center;
+          gap: 24px;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 16px;
+          padding: 14px 32px;
+          backdrop-filter: blur(8px);
+        }
+        .hero-stat {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2px;
+        }
+        .hero-stat-num {
+          font-family: 'DM Serif Display', Georgia, serif;
+          font-size: 1.3rem;
+          font-weight: 400;
+          color: white;
+          letter-spacing: -0.02em;
+        }
+        .hero-stat-label {
+          font-family: 'Satoshi', sans-serif;
+          font-size: 0.7rem;
+          font-weight: 500;
+          color: rgba(255,255,255,0.5);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .hero-stat-divider {
+          width: 1px;
+          height: 32px;
+          background: rgba(255,255,255,0.15);
+        }
+
         .hero-trust {
           font-family: 'Satoshi', sans-serif;
           font-size: 0.8rem;
@@ -262,23 +298,25 @@ export default function Hero() {
         }
 
         .hero-browser-chrome {
-          background: #1a1a2e;
-          border-radius: 16px 16px 0 0;
-          padding: 14px 18px;
+          background: var(--dash-card, #ffffff);
+          border: 1px solid var(--dash-card-border, rgba(5,14,36,0.08));
+          border-bottom: none;
+          border-radius: var(--dash-card-radius, 10px) var(--dash-card-radius, 10px) 0 0;
+          padding: 12px 16px;
           display: flex;
           align-items: center;
-          gap: 14px;
+          gap: 12px;
         }
 
         .browser-dots {
           display: flex;
-          gap: 7px;
+          gap: 6px;
         }
         .browser-dots span {
-          width: 12px;
-          height: 12px;
+          width: 10px;
+          height: 10px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.15);
+          background: rgba(5,14,36,0.08);
         }
         .browser-dots span:first-child { background: #ff5f57; }
         .browser-dots span:nth-child(2) { background: #febc2e; }
@@ -289,23 +327,34 @@ export default function Hero() {
           display: flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255,255,255,0.08);
+          background: var(--dash-bg, #F9FAFB);
+          border: 1px solid var(--dash-card-border, rgba(5,14,36,0.08));
           border-radius: 8px;
-          padding: 7px 14px;
-          font-family: 'Satoshi', sans-serif;
-          font-size: 0.78rem;
-          color: rgba(255,255,255,0.5);
+          padding: 6px 12px;
+          font-family: var(--dash-font, 'Satoshi', sans-serif);
+          font-size: 0.76rem;
+          color: var(--dash-muted, rgba(5,14,36,0.4));
         }
 
         @media (max-width: 768px) {
           .hero-content {
-            padding: 130px 20px 70px;
+            padding: 115px 20px 70px;
           }
           .hero-search-bar {
             padding: 9px 9px 9px 14px;
           }
           .hero-search-placeholder {
             font-size: 0.78rem;
+          }
+          .hero-stat-row {
+            gap: 16px;
+            padding: 12px 20px;
+          }
+          .hero-stat-num {
+            font-size: 1.05rem;
+          }
+          .hero-stat-label {
+            font-size: 0.6rem;
           }
           .hero-screenshot-wrap {
             padding: 0 12px 40px;
@@ -340,18 +389,18 @@ export default function Hero() {
         .live-badge {
           display: flex;
           align-items: center;
-          gap: 6px;
-          font-family: 'Satoshi', sans-serif;
-          font-size: 0.68rem;
+          gap: 5px;
+          font-family: var(--dash-font, 'Satoshi', sans-serif);
+          font-size: 0.66rem;
           font-weight: 600;
-          color: rgba(255,255,255,0.7);
+          color: var(--dash-muted, rgba(5,14,36,0.4));
           margin-left: 8px;
         }
         .live-dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #2563EB;
+          background: var(--dash-blue, #2563EB);
           animation: livePulse 2s ease infinite;
         }
 

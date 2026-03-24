@@ -8,6 +8,7 @@ import {
   groupPropertiesByOwner,
 } from '@/lib/discovery/owner-intelligence'
 import { BatchDataApiError } from '@/lib/batchdata'
+import { logger } from '@/lib/logger'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -76,7 +77,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
         })
       } catch (err) {
         if (!(err instanceof BatchDataApiError)) throw err
-        console.error(`BatchData owner lookup failed, falling back: ${err.status}`)
+        logger.error(`BatchData owner lookup failed, falling back: ${err.status}`)
         // Fall through to RentCast path
       }
     }
@@ -170,13 +171,13 @@ export async function GET(req: NextRequest, context: RouteContext) {
     })
   } catch (err) {
     if (err instanceof BatchDataApiError) {
-      console.error(`BatchData error in portfolio: ${err.status} ${err.endpoint}`)
+      logger.error(`BatchData error in portfolio: ${err.status} ${err.endpoint}`)
       return NextResponse.json(
         { error: 'Property data provider error' },
         { status: 502 },
       )
     }
-    console.error('Portfolio error:', err)
+    logger.error('Portfolio error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

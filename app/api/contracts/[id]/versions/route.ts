@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { getVersionHistory, getVersion, diffVersions } from '@/lib/contracts/versioning'
+import { logger } from '@/lib/logger'
 
 type RouteCtx = { params: Promise<{ id: string }> }
 
@@ -52,7 +53,7 @@ export async function GET(req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json(result)
   } catch (err) {
-    console.error('GET /api/contracts/[id]/versions error:', err)
+    logger.error('GET /api/contracts/[id]/versions error', { route: '/api/contracts/[id]/versions', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to fetch versions', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

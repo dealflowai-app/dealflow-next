@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyCronSecret } from '@/lib/api-utils'
+import { logger } from '@/lib/logger'
 
 export async function GET(req: NextRequest) {
   if (!verifyCronSecret(req)) {
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
         })
         processed++
       } catch (err) {
-        console.error(`Failed to execute campaign ${campaign.id}:`, err)
+        logger.error(`Failed to execute campaign ${campaign.id}`, { error: err instanceof Error ? err.message : String(err) })
         // Revert to DRAFT if execution trigger fails
         await prisma.campaign.update({
           where: { id: campaign.id },
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ processed, due: due.length })
   } catch (err) {
-    console.error('Campaign cron error:', err)
+    logger.error('Campaign cron error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Cron failed' }, { status: 500 })
   }
 }

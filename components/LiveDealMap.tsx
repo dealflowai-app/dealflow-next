@@ -58,7 +58,7 @@ export default function LiveDealMap() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null)
 
   return (
-    <div style={{ borderTop: '1px solid var(--border-light)', padding: '80px 40px', background: 'var(--cream)' }}>
+    <div style={{ borderTop: '1px solid var(--border-light)', padding: '80px 40px', background: 'var(--dash-bg, #F9FAFB)' }}>
       <div style={{ maxWidth: 1160, margin: '0 auto' }}>
         {/* Section header */}
         <div className="reveal" style={{ marginBottom: 32 }}>
@@ -174,46 +174,46 @@ function MapVisual({
   onSelect: (i: number | null) => void
 }) {
   return (
-    <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', background: 'var(--warm-gray)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow)', height: 420 }}>
+    <div style={{ position: 'relative', borderRadius: 'var(--dash-card-radius, 10px)', overflow: 'hidden', background: 'var(--warm-gray)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow)', height: 420 }}>
       {/* Map background */}
       <svg width="100%" height="100%" viewBox="0 0 600 420" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute', inset: 0, display: 'block' }}>
         <defs>
           <linearGradient id="mapBg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f5f0e8" />
-            <stop offset="100%" stopColor="#ede8df" />
+            <stop offset="0%" stopColor="#f3f4f6" />
+            <stop offset="100%" stopColor="#e5e7eb" />
           </linearGradient>
         </defs>
         <rect width="600" height="420" fill="url(#mapBg)" />
         {/* Building footprints */}
-        <rect x="0" y="0" width="155" height="130" fill="#e8e2d6" rx="2" />
-        <rect x="170" y="0" width="120" height="95" fill="#e8e2d6" rx="2" />
-        <rect x="310" y="0" width="290" height="80" fill="#e8e2d6" rx="2" />
-        <rect x="0" y="155" width="100" height="120" fill="#e8e2d6" rx="2" />
-        <rect x="120" y="130" width="140" height="100" fill="#e8e2d6" rx="2" />
-        <rect x="280" y="100" width="110" height="90" fill="#e8e2d6" rx="2" />
-        <rect x="410" y="95" width="190" height="115" fill="#e8e2d6" rx="2" />
-        <rect x="0" y="295" width="130" height="125" fill="#e8e2d6" rx="2" />
-        <rect x="150" y="250" width="120" height="130" fill="#e8e2d6" rx="2" />
-        <rect x="290" y="210" width="150" height="110" fill="#e8e2d6" rx="2" />
-        <rect x="460" y="230" width="140" height="130" fill="#e8e2d6" rx="2" />
+        <rect x="0" y="0" width="155" height="130" fill="#e5e7eb" rx="2" />
+        <rect x="170" y="0" width="120" height="95" fill="#e5e7eb" rx="2" />
+        <rect x="310" y="0" width="290" height="80" fill="#e5e7eb" rx="2" />
+        <rect x="0" y="155" width="100" height="120" fill="#e5e7eb" rx="2" />
+        <rect x="120" y="130" width="140" height="100" fill="#e5e7eb" rx="2" />
+        <rect x="280" y="100" width="110" height="90" fill="#e5e7eb" rx="2" />
+        <rect x="410" y="95" width="190" height="115" fill="#e5e7eb" rx="2" />
+        <rect x="0" y="295" width="130" height="125" fill="#e5e7eb" rx="2" />
+        <rect x="150" y="250" width="120" height="130" fill="#e5e7eb" rx="2" />
+        <rect x="290" y="210" width="150" height="110" fill="#e5e7eb" rx="2" />
+        <rect x="460" y="230" width="140" height="130" fill="#e5e7eb" rx="2" />
         {/* Park */}
-        <rect x="310" y="220" width="135" height="110" rx="8" fill="#d4dfc7" />
+        <rect x="310" y="220" width="135" height="110" rx="8" fill="#d1e7dd" />
         {/* Roads */}
-        <rect x="0" y="125" width="600" height="20" fill="#f0ebe2" />
-        <rect x="0" y="240" width="600" height="16" fill="#f0ebe2" />
-        <rect x="155" y="0" width="18" height="420" fill="#f0ebe2" />
-        <rect x="290" y="0" width="16" height="420" fill="#f0ebe2" />
-        <rect x="455" y="0" width="18" height="420" fill="#f0ebe2" />
+        <rect x="0" y="125" width="600" height="20" fill="#f9fafb" />
+        <rect x="0" y="240" width="600" height="16" fill="#f9fafb" />
+        <rect x="155" y="0" width="18" height="420" fill="#f9fafb" />
+        <rect x="290" y="0" width="16" height="420" fill="#f9fafb" />
+        <rect x="455" y="0" width="18" height="420" fill="#f9fafb" />
         {/* Minor streets */}
-        <rect x="0" y="60" width="600" height="4" fill="#ede8df" />
-        <rect x="0" y="195" width="600" height="4" fill="#ede8df" />
-        <rect x="0" y="290" width="600" height="4" fill="#ede8df" />
-        <rect x="50" y="0" width="4" height="420" fill="#ede8df" />
-        <rect x="100" y="0" width="4" height="420" fill="#ede8df" />
-        <rect x="225" y="0" width="4" height="420" fill="#ede8df" />
-        <rect x="350" y="0" width="4" height="420" fill="#ede8df" />
-        <rect x="520" y="0" width="4" height="420" fill="#ede8df" />
-        <line x1="0" y1="320" x2="320" y2="0" stroke="#f0ebe2" strokeWidth="12" />
+        <rect x="0" y="60" width="600" height="4" fill="#e5e7eb" />
+        <rect x="0" y="195" width="600" height="4" fill="#e5e7eb" />
+        <rect x="0" y="290" width="600" height="4" fill="#e5e7eb" />
+        <rect x="50" y="0" width="4" height="420" fill="#e5e7eb" />
+        <rect x="100" y="0" width="4" height="420" fill="#e5e7eb" />
+        <rect x="225" y="0" width="4" height="420" fill="#e5e7eb" />
+        <rect x="350" y="0" width="4" height="420" fill="#e5e7eb" />
+        <rect x="520" y="0" width="4" height="420" fill="#e5e7eb" />
+        <line x1="0" y1="320" x2="320" y2="0" stroke="#f9fafb" strokeWidth="12" />
       </svg>
 
       {/* City label */}
@@ -310,7 +310,7 @@ function MapVisual({
       {/* Bottom gradient */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        background: 'linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.0) 100%)',
+        background: 'linear-gradient(to top, rgba(249,250,251,0.95) 0%, rgba(249,250,251,0) 100%)',
         padding: '30px 20px 14px', textAlign: 'center', zIndex: 20,
       }}>
         <p style={{ fontSize: '0.74rem', color: 'var(--gray-500)' }}>3+ deals in Atlanta, GA</p>

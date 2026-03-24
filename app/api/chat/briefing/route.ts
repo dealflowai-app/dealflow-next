@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 // ── In-memory briefing cache (30 min TTL) ────────────────────────────────────
 
@@ -215,7 +216,7 @@ Rules:
   })
 
   if (!res.ok) {
-    console.error('Briefing generation API error:', res.status)
+    logger.error('Briefing generation API error', { status: res.status })
     throw new Error('Failed to generate briefing')
   }
 
@@ -289,7 +290,7 @@ export async function GET(req: NextRequest) {
       generatedAt: new Date(generatedAt).toISOString(),
     })
   } catch (err) {
-    console.error('GET /api/chat/briefing error:', err)
+    logger.error('GET /api/chat/briefing error', { route: '/api/chat/briefing', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to generate briefing' },
       { status: 500 },

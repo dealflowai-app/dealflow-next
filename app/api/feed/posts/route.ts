@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse } from '@/lib/api-utils'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 // ─── GET /api/feed/posts — list feed posts (paginated) ──────────────────────
 
@@ -55,7 +56,7 @@ export async function GET(req: NextRequest) {
       nextCursor: hasMore ? items[items.length - 1].id : null,
     })
   } catch (err) {
-    console.error('Feed fetch error:', err)
+    logger.error('Feed fetch error', { error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to load feed')
   }
 }

@@ -23,7 +23,7 @@ export default function OnboardingPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#FAF9F6',
+      background: '#F9FAFB',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',

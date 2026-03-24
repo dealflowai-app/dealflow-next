@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/crm/buyers/[id]/notes
@@ -50,7 +51,7 @@ export async function GET(
       },
     })
   } catch (err) {
-    console.error('GET /api/crm/buyers/[id]/notes error:', err)
+    logger.error('GET /api/crm/buyers/[id]/notes error', { route: '/api/crm/buyers/[id]/notes', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to fetch notes' }, { status: 500 })
   }
 }
@@ -106,7 +107,7 @@ export async function POST(
 
     return NextResponse.json({ note }, { status: 201 })
   } catch (err) {
-    console.error('POST /api/crm/buyers/[id]/notes error:', err)
+    logger.error('POST /api/crm/buyers/[id]/notes error', { route: '/api/crm/buyers/[id]/notes', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to create note' }, { status: 500 })
   }
 }

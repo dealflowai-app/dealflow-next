@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { logBulkActivity, type ActivityInput } from '@/lib/activity'
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/crm/buyers/[id]/timeline/backfill
@@ -126,7 +127,7 @@ export async function POST(
       },
     })
   } catch (err) {
-    console.error('POST /api/crm/buyers/[id]/timeline/backfill error:', err)
+    logger.error('POST /api/crm/buyers/[id]/timeline/backfill error', { route: '/api/crm/buyers/[id]/timeline/backfill', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to backfill timeline' }, { status: 500 })
   }
 }

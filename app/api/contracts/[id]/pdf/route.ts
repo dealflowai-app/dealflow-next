@@ -7,6 +7,7 @@ import { generateContractPDF } from '@/lib/contracts/pdf'
 import { renderContractHTML } from '@/lib/contracts/render'
 import fs from 'fs/promises'
 import path from 'path'
+import { logger } from '@/lib/logger'
 
 type RouteCtx = { params: Promise<{ id: string }> }
 
@@ -64,7 +65,7 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
       },
     })
   } catch (err) {
-    console.error('GET /api/contracts/[id]/pdf error:', err)
+    logger.error('GET /api/contracts/[id]/pdf error', { route: '/api/contracts/[id]/pdf', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to download contract PDF', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -107,7 +108,7 @@ export async function POST(_req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ contract: updated, documentUrl: filePath })
   } catch (err) {
-    console.error('POST /api/contracts/[id]/pdf error:', err)
+    logger.error('POST /api/contracts/[id]/pdf error', { route: '/api/contracts/[id]/pdf', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to regenerate contract PDF', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

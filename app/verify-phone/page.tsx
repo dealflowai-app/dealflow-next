@@ -197,11 +197,11 @@ export default function VerifyPhonePage() {
 
   if (verified) {
     return (
-      <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
+      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', flexDirection: 'column', fontFamily: F }}>
         <Nav currentPage="signup" />
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px' }}>
           <div className="auth-card" style={{
-            background: '#ffffff', borderRadius: 16, padding: '40px 36px',
+            background: '#ffffff', borderRadius: 'var(--dash-card-radius, 10px)', padding: '40px 36px',
             width: '100%', maxWidth: 420, textAlign: 'center',
             boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
             border: '1px solid rgba(5,14,36,0.06)',
@@ -229,12 +229,12 @@ export default function VerifyPhonePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAF9F6', display: 'flex', flexDirection: 'column', fontFamily: F }}>
+    <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', flexDirection: 'column', fontFamily: F }}>
       <Nav currentPage="signup" />
 
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px' }}>
         <div className="auth-card" style={{
-          background: '#ffffff', borderRadius: 16, padding: '40px 36px',
+          background: '#ffffff', borderRadius: 'var(--dash-card-radius, 10px)', padding: '40px 36px',
           width: '100%', maxWidth: 420,
           boxShadow: '0 1px 2px rgba(5,14,36,0.06), 0 4px 16px rgba(5,14,36,0.04)',
           border: '1px solid rgba(5,14,36,0.06)',

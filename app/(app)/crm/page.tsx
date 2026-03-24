@@ -396,6 +396,7 @@ function FilterSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-label={`Filter by ${label.toLowerCase()}`}
         style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
         className="appearance-none bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] pl-3 pr-7 py-2 text-[14px] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
       >
@@ -1120,6 +1121,7 @@ function RowMenu({ isOpen, onToggle, onClose, actions }: {
       <button
         ref={btnRef}
         onClick={(e) => { e.stopPropagation(); onToggle() }}
+        aria-label="Buyer actions"
         className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 bg-transparent border-0 cursor-pointer transition-colors"
       >
         <MoreHorizontal className="w-4 h-4" />
@@ -1308,7 +1310,7 @@ function ListView({
 
       {/* Table */}
       <div className="crm-table-wrap bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] shadow-none overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-        <table className="w-full min-w-[1000px]">
+        <table className="w-full min-w-[1000px]" aria-label="Buyer contacts">
           <thead>
             <tr className="border-b border-[rgba(5,14,36,0.04)]" style={{ background: 'rgba(5,14,36,0.02)' }}>
               <th className="w-10 px-3 py-3">
@@ -2027,6 +2029,7 @@ export default function BuyerCrmPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search name, phone, market... (/ to focus)"
+            aria-label="Search buyers by name, phone, or market"
             style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
             className="w-full bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] pl-10 pr-16 py-2 text-[14px] text-[#0B1224] placeholder-[rgba(5,14,36,0.3)] outline-none focus:border-[#2563EB] transition-colors"
           />
@@ -2090,7 +2093,7 @@ export default function BuyerCrmPage() {
         />
 
         {/* View toggle */}
-        <div className="ml-auto flex items-center border-b border-[rgba(5,14,36,0.06)]">
+        <div className="ml-auto flex items-center border-b border-[rgba(5,14,36,0.06)]" role="tablist" aria-label="View mode">
           {[
             { key: 'list' as const, icon: List, label: 'List' },
             { key: 'pipeline' as const, icon: Columns3, label: 'Pipeline' },
@@ -2098,6 +2101,8 @@ export default function BuyerCrmPage() {
           ].map((v) => (
             <button
               key={v.key}
+              role="tab"
+              aria-selected={view === v.key}
               onClick={() => setView(v.key)}
               style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", fontSize: '14px', fontWeight: view === v.key ? 600 : 400, color: view === v.key ? '#2563EB' : 'rgba(5,14,36,0.45)', borderBottom: view === v.key ? '2px solid #2563EB' : '2px solid transparent', padding: '12px 16px' }}
               className="flex items-center gap-1.5 bg-transparent border-0 border-b-2 cursor-pointer crm-view-btn transition-colors"

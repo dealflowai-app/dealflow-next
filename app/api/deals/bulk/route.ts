@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import type { DealStatus } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 type BulkAction = 'delete' | 'change_status' | 'export'
 
@@ -127,7 +128,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: 'Unhandled action' }, { status: 400 })
   } catch (err) {
-    console.error('POST /api/deals/bulk error:', err)
+    logger.error('POST /api/deals/bulk error', { route: '/api/deals/bulk', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to perform bulk action' }, { status: 500 })
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { logBulkActivity } from '@/lib/activity'
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/crm/tags/assign
@@ -102,7 +103,7 @@ export async function POST(req: NextRequest) {
       invalidIds: invalidIds.length > 0 ? invalidIds : undefined,
     })
   } catch (err) {
-    console.error('POST /api/crm/tags/assign error:', err)
+    logger.error('POST /api/crm/tags/assign error', { route: '/api/crm/tags/assign', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to assign tags' }, { status: 500 })
   }
 }

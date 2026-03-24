@@ -589,7 +589,7 @@ function MarketplaceMapView({
   return (
     <div>
       {/* Map container */}
-      <div ref={containerRef} className="relative w-full rounded-xl overflow-hidden border border-[rgba(5,14,36,0.06)] mp-map-container" style={{ height: 600 }}>
+      <div ref={containerRef} aria-label="Marketplace map" className="relative w-full rounded-xl overflow-hidden border border-[rgba(5,14,36,0.06)] mp-map-container" style={{ height: 600 }}>
         <MapGL
           ref={mapRef}
           mapboxAccessToken={MAPBOX_TOKEN}
@@ -1020,11 +1020,12 @@ function DealListingsSection() {
             value={searchText}
             onChange={e => setSearchText(e.target.value)}
             placeholder="City or address..."
+            aria-label="Search listings by city or address"
             className="bg-white border border-[#D1D5DB] rounded-md pl-8 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors w-[160px]"
           />
         </div>
         <div className="relative">
-          <select value={stateFilter} onChange={e => setStateFilter(e.target.value)} className={selectCls}>
+          <select value={stateFilter} onChange={e => setStateFilter(e.target.value)} aria-label="Filter by state" className={selectCls}>
             <option value="">All States</option>
             <option value="TX">Texas</option>
             <option value="FL">Florida</option>
@@ -1035,7 +1036,7 @@ function DealListingsSection() {
           <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF] pointer-events-none" />
         </div>
         <div className="relative">
-          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={selectCls}>
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} aria-label="Filter by property type" className={selectCls}>
             <option value="">All Types</option>
             <option value="SFR">SFR</option>
             <option value="MULTI_FAMILY">Multi-Family</option>
@@ -1051,6 +1052,7 @@ function DealListingsSection() {
           value={minPrice}
           onChange={e => setMinPrice(e.target.value)}
           placeholder="Min $"
+          aria-label="Minimum price"
           className="bg-white border border-[#D1D5DB] rounded-md px-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors w-[90px]"
         />
         <span className="text-[#9CA3AF] text-sm">–</span>
@@ -1059,10 +1061,11 @@ function DealListingsSection() {
           value={maxPrice}
           onChange={e => setMaxPrice(e.target.value)}
           placeholder="Max $"
+          aria-label="Maximum price"
           className="bg-white border border-[#D1D5DB] rounded-md px-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors w-[90px]"
         />
         <div className="ml-auto relative">
-          <select value={sort} onChange={e => setSort(e.target.value)} className={selectCls}>
+          <select value={sort} onChange={e => setSort(e.target.value)} aria-label="Sort listings" className={selectCls}>
             <option value="newest">Newest</option>
             <option value="price_asc">Price: Low→High</option>
             <option value="price_desc">Price: High→Low</option>
@@ -1151,6 +1154,7 @@ function DealListingsSection() {
                 <div
                   key={d.id}
                   onClick={() => setSelectedListing(d)}
+                  aria-label={`Listing: ${d.address}, ${d.city}, ${d.state} - $${d.askingPrice.toLocaleString()}`}
                   className="bg-white border border-[rgba(5,14,36,0.06)] rounded-xl overflow-hidden cursor-pointer group transition-shadow hover:shadow-[0_2px_8px_rgba(5,14,36,0.06)]"
                 >
                   {/* Photo placeholder */}
@@ -1178,6 +1182,7 @@ function DealListingsSection() {
                     {/* Bookmark */}
                     <button
                       onClick={e => handleToggleBookmark(e, d.id)}
+                      aria-label={isSaved ? 'Remove bookmark' : 'Bookmark listing'}
                       className={`absolute bottom-3 right-3 p-1.5 rounded-full transition-colors cursor-pointer border-0 ${
                         isSaved ? 'bg-blue-100 text-[#2563EB]' : 'bg-white/80 text-[#9CA3AF] hover:text-[#2563EB] hover:bg-blue-50'
                       }`}
@@ -2228,11 +2233,12 @@ function BuyerBoardSection() {
             value={marketSearch}
             onChange={e => setMarketSearch(e.target.value)}
             placeholder="Market..."
+            aria-label="Search buyers by market"
             className="bg-white border border-[#D1D5DB] rounded-md pl-8 pr-3 py-2 text-[0.8rem] text-[#374151] outline-none focus:border-[#2563EB] transition-colors w-[140px]"
           />
         </div>
         <div className="relative">
-          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={selectCls}>
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} aria-label="Filter buyers by property type" className={selectCls}>
             <option value="">All Types</option>
             <option value="SFR">SFR</option>
             <option value="MULTI_FAMILY">Multi-Family</option>
@@ -2282,7 +2288,7 @@ function BuyerBoardSection() {
           POF Only
         </button>
         <div className="ml-auto relative">
-          <select value={sort} onChange={e => setSort(e.target.value)} className={selectCls}>
+          <select value={sort} onChange={e => setSort(e.target.value)} aria-label="Sort buyers" className={selectCls}>
             <option value="newest">Newest</option>
             <option value="budget_desc">Highest Budget</option>
             <option value="fastest_close">Fastest Close</option>
@@ -3755,13 +3761,15 @@ export default function MarketplacePage() {
         style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
       >
         <div className="px-8">
-          <nav className="flex gap-0.5 -mb-px">
+          <nav className="flex gap-0.5 -mb-px" role="tablist" aria-label="Marketplace sections">
             {tabs.map(tab => {
               const Icon = tab.icon
               const isActive = activeTab === tab.key
               return (
                 <button
                   key={tab.key}
+                  role="tab"
+                  aria-selected={isActive}
                   onClick={() => setActiveTab(tab.key)}
                   style={{
                     fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",

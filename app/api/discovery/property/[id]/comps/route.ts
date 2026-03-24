@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { RentCastClient, RentCastError } from '@/lib/rentcast'
+import { logger } from '@/lib/logger'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -48,13 +49,13 @@ export async function GET(req: NextRequest, context: RouteContext) {
     })
   } catch (err) {
     if (err instanceof RentCastError) {
-      console.error(`RentCast comps error: ${err.status}`)
+      logger.error(`RentCast comps error: ${err.status}`)
       return NextResponse.json(
         { error: err.status === 429 ? 'Rate limit exceeded' : 'Comps unavailable' },
         { status: err.status === 429 ? 429 : 502 },
       )
     }
-    console.error('Comps error:', err)
+    logger.error('Comps error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

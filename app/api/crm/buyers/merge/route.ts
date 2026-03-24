@@ -4,6 +4,7 @@ import { getAuthProfile } from '@/lib/auth'
 import { logActivity } from '@/lib/activity'
 import { refreshBuyerScore } from '@/lib/scoring-triggers'
 import { buildMergedBuyer, type BuyerForMerge } from '@/lib/merge'
+import { logger } from '@/lib/logger'
 
 const BUYER_SELECT_FOR_MERGE = {
   id: true,
@@ -277,7 +278,7 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (err) {
-    console.error('POST /api/crm/buyers/merge error:', err)
+    logger.error('POST /api/crm/buyers/merge error', { route: '/api/crm/buyers/merge', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to merge buyers' }, { status: 500 })
   }
 }

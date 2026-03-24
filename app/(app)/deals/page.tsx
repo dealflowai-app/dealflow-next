@@ -167,6 +167,7 @@ function RowMenu({
       <button
         ref={btnRef}
         onClick={(e) => { e.stopPropagation(); onToggle() }}
+        aria-label="Deal actions"
         className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 bg-transparent border-0 cursor-pointer transition-colors"
       >
         <MoreHorizontal className="w-4 h-4" />
@@ -797,6 +798,7 @@ export default function DealsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search deals..."
+            aria-label="Search deals by address or city"
             className="bg-white rounded-[8px] pl-9 pr-3 py-2 text-[0.82rem] text-gray-700 placeholder-gray-400 outline-none transition-colors w-[180px]"
             style={{ border: '1px solid rgba(5,14,36,0.1)' }}
             onFocus={(e) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }}
@@ -809,6 +811,7 @@ export default function DealsPage() {
           <select
             value={propertyTypeFilter}
             onChange={(e) => setPropertyTypeFilter(e.target.value)}
+            aria-label="Filter by property type"
             className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[8px] pl-3 pr-7 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
             style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
           >
@@ -828,6 +831,7 @@ export default function DealsPage() {
           <select
             value={priceRangeFilter}
             onChange={(e) => setPriceRangeFilter(e.target.value)}
+            aria-label="Filter by price range"
             className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[8px] pl-3 pr-7 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
             style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
           >
@@ -846,6 +850,7 @@ export default function DealsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by deal status"
             className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[8px] pl-3 pr-7 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
             style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
           >
@@ -865,6 +870,7 @@ export default function DealsPage() {
           <select
             value={dateRangeFilter}
             onChange={(e) => setDateRangeFilter(e.target.value)}
+            aria-label="Filter by date range"
             className="appearance-none bg-white border border-[rgba(5,14,36,0.08)] rounded-[8px] pl-3 pr-7 py-2 text-[0.82rem] text-[rgba(5,14,36,0.65)] outline-none focus:border-[#2563EB] transition-colors cursor-pointer"
             style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}
           >
@@ -906,6 +912,7 @@ export default function DealsPage() {
         <div ref={sortRef} className="relative ml-auto">
           <button
             onClick={() => setSortOpen(!sortOpen)}
+            aria-label="Sort deals"
             className="flex items-center gap-1.5 bg-white rounded-[8px] px-3 py-2 text-[0.82rem] text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
             style={{ border: '1px solid rgba(5,14,36,0.1)' }}
           >

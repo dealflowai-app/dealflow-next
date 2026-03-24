@@ -174,6 +174,7 @@ function AIQuickAsk() {
               <button
                 onClick={ask}
                 disabled={loading}
+                aria-label="Send AI question"
                 className="w-7 h-7 rounded-[9px] bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-gray-200 flex items-center justify-center border-0 cursor-pointer transition-colors flex-shrink-0"
               >
                 {loading
@@ -210,6 +211,7 @@ function CalcButton() {
       className="flex items-center justify-center w-[34px] h-[34px] rounded-[8px] cursor-pointer transition-colors"
       style={{ border: '1px solid var(--border-light)', background: 'var(--white)' }}
       title="Deal Calculator (Alt+C)"
+      aria-label="Deal calculator"
     >
       <Calculator className="w-4 h-4" style={{ color: 'var(--dash-muted)' }} />
     </button>
@@ -251,6 +253,7 @@ export default function TopBar() {
 
   return (
     <div
+      role="banner"
       className="flex-shrink-0 flex items-center gap-2 md:gap-4 px-3 md:px-5"
       style={{
         height: 'var(--topbar-h)',
@@ -298,6 +301,7 @@ export default function TopBar() {
         <button
           data-tour="search-btn"
           onClick={openSearch}
+          aria-label="Search (Ctrl+K)"
           className="topbar-search-btn flex items-center gap-2.5 h-[34px] px-3.5 rounded-[8px] cursor-pointer transition-all group"
           style={{ border: '1px solid var(--border-light)', background: 'var(--dash-card)' }}
         >

@@ -5,8 +5,9 @@ import ScrollReveal from '@/components/ScrollReveal'
 import AboutContent from './AboutContent'
 
 export const metadata: Metadata = {
-  title: 'About - DealFlow AI',
-  description: 'We lost a deal. Then we built the fix.',
+  title: 'About',
+  description:
+    'Learn how DealFlow AI was born from a missed deal and built to become the all-in-one platform for real estate wholesalers.',
 }
 
 export default function AboutPage() {

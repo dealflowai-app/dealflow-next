@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { createClient } from '@supabase/supabase-js'
 import { randomUUID } from 'crypto'
+import { logger } from '@/lib/logger'
 
 const BUCKET = 'listing-photos'
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
           })
 
         if (uploadErr) {
-          console.error('Supabase upload error:', uploadErr)
+          logger.error('Supabase upload error', { error: uploadErr instanceof Error ? uploadErr.message : String(uploadErr) })
           return NextResponse.json(
             { error: `Upload failed for ${file.name}: ${uploadErr.message}` },
             { status: 500 },
@@ -98,7 +99,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ urls })
   } catch (err) {
-    console.error('POST /api/marketplace/upload error:', err)
+    logger.error('POST /api/marketplace/upload error', { route: '/api/marketplace/upload', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Upload failed', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

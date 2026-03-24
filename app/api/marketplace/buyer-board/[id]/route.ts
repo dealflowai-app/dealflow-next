@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 type RouteCtx = { params: Promise<{ id: string }> }
 
@@ -79,7 +80,7 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
       },
     })
   } catch (err) {
-    console.error('GET /api/marketplace/buyer-board/[id] error:', err)
+    logger.error('GET /api/marketplace/buyer-board/[id] error', { route: '/api/marketplace/buyer-board/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to fetch post', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -158,7 +159,7 @@ export async function PATCH(req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ post: updated })
   } catch (err) {
-    console.error('PATCH /api/marketplace/buyer-board/[id] error:', err)
+    logger.error('PATCH /api/marketplace/buyer-board/[id] error', { route: '/api/marketplace/buyer-board/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to update post', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -184,7 +185,7 @@ export async function DELETE(_req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('DELETE /api/marketplace/buyer-board/[id] error:', err)
+    logger.error('DELETE /api/marketplace/buyer-board/[id] error', { route: '/api/marketplace/buyer-board/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to delete post', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

@@ -9,6 +9,7 @@ import {
 } from '@/lib/tags'
 import type { CallForScoring, MatchForScoring, OfferForScoring } from '@/lib/scoring'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
 const BATCH_SIZE = 50
 
@@ -190,7 +191,7 @@ export async function POST() {
       tagBreakdown,
     })
   } catch (err) {
-    console.error('POST /api/crm/buyers/auto-tag error:', err)
+    logger.error('POST /api/crm/buyers/auto-tag error', { route: '/api/crm/buyers/auto-tag', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to run auto-tagging' }, { status: 500 })
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activity'
+import { logger } from '@/lib/logger'
 
 const OPT_OUT_PHRASES = ['stop', 'unsubscribe', 'remove me', 'do not call', 'opt out', 'take me off', 'cancel']
 
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     return new Response('OK', { status: 200 })
   } catch (err) {
-    console.error('Twilio webhook error:', err)
+    logger.error('Twilio webhook error', { error: err instanceof Error ? err.message : String(err) })
     return new Response('Error', { status: 500 })
   }
 }

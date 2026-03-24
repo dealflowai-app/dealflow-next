@@ -6,6 +6,7 @@ import { Validator, sanitizeString, sanitizeHtml } from '@/lib/validation'
 import { parseBody } from '@/lib/api-utils'
 import { sendEmail } from '@/lib/email'
 import { formatInquiryEmail } from '@/lib/emails'
+import { logger } from '@/lib/logger'
 
 type RouteCtx = { params: Promise<{ id: string }> }
 
@@ -32,7 +33,7 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
 
     return NextResponse.json({ inquiries })
   } catch (err) {
-    console.error('GET /api/marketplace/listings/[id]/inquiries error:', err)
+    logger.error('GET /api/marketplace/listings/[id]/inquiries error', { route: '/api/marketplace/listings/[id]/inquiries', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to fetch inquiries', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -126,12 +127,12 @@ export async function POST(req: NextRequest, { params }: RouteCtx) {
         html,
         text,
         categories: ['marketplace', 'inquiry'],
-      }).catch((err) => console.error('Inquiry notification email failed:', err))
+      }).catch((err) => logger.error('Inquiry notification email failed', { error: err instanceof Error ? err.message : String(err) }))
     }
 
     return NextResponse.json({ inquiry }, { status: 201 })
   } catch (err) {
-    console.error('POST /api/marketplace/listings/[id]/inquiries error:', err)
+    logger.error('POST /api/marketplace/listings/[id]/inquiries error', { route: '/api/marketplace/listings/[id]/inquiries', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to submit inquiry', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },

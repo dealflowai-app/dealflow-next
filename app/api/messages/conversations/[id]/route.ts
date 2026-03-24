@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { errorResponse, successResponse, parseBody } from '@/lib/api-utils'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 type RouteParams = { params: Promise<{ id: string }> }
 
@@ -68,7 +69,7 @@ export async function GET(req: NextRequest, ctx: RouteParams) {
       nextCursor: hasMore ? items[items.length - 1].id : null,
     })
   } catch (err) {
-    console.error('GET /api/messages/conversations/[id] error:', err)
+    logger.error('GET /api/messages/conversations/[id] error', { route: '/api/messages/conversations/[id]', error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to load messages')
   }
 }
@@ -143,7 +144,7 @@ export async function POST(req: NextRequest, ctx: RouteParams) {
       201,
     )
   } catch (err) {
-    console.error('POST /api/messages/conversations/[id] error:', err)
+    logger.error('POST /api/messages/conversations/[id] error', { route: '/api/messages/conversations/[id]', error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to send message')
   }
 }

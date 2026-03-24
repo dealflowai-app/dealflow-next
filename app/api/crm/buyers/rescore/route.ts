@@ -12,6 +12,7 @@ import {
   type OfferForScoring,
 } from '@/lib/scoring'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
 const BATCH_SIZE = 50
 
@@ -126,7 +127,7 @@ export async function POST() {
       statusBreakdown,
     })
   } catch (err) {
-    console.error('POST /api/crm/buyers/rescore error:', err)
+    logger.error('POST /api/crm/buyers/rescore error', { route: '/api/crm/buyers/rescore', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to rescore buyers' }, { status: 500 })
   }
 }

@@ -342,6 +342,8 @@ function StatCard({ label, value, subtitle, icon: Icon, onClick }: {
 }) {
   return (
     <div
+      role="region"
+      aria-label={label}
       className={`bg-white relative overflow-hidden ${
         onClick
           ? 'cursor-pointer transition-all duration-200'
@@ -891,7 +893,7 @@ function OverviewTab({ data, router, onOfferAction, offerLoading }: {
 
       {/* Two columns: Activity + Quick Actions */}
       <div className="dash-grid-2 grid grid-cols-[3fr_2fr] gap-4">
-        <div className="ds-card bg-white border border-[rgba(5,14,36,0.06)] transition-shadow duration-200">
+        <div className="ds-card bg-white border border-[rgba(5,14,36,0.06)] transition-shadow duration-200" role="log" aria-label="Recent activity">
           <SectionHeader title="Recent Activity" />
           <ActivityFeed />
         </div>
@@ -1638,13 +1640,15 @@ export default function DashboardPage() {
         style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
       >
         <div className="px-4 sm:px-8">
-          <nav className="flex gap-0.5 -mb-px overflow-x-auto">
+          <nav className="flex gap-0.5 -mb-px overflow-x-auto" role="tablist" aria-label="Dashboard sections">
             {TABS.map(tab => {
               const Icon = tab.icon
               const isActive = activeTab === tab.key
               return (
                 <button
                   key={tab.key}
+                  role="tab"
+                  aria-selected={isActive}
                   onClick={() => setTab(tab.key)}
                   style={{
                     fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif",

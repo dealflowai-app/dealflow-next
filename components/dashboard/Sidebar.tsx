@@ -89,6 +89,7 @@ function NavSection({
             title={collapsed ? item.label : undefined}
             onClick={onLinkClick}
             data-tour={`nav-${item.href.replace('/', '')}`}
+            aria-current={isActive ? 'page' : undefined}
             className={`sidebar-link${isActive ? ' sidebar-link-active' : ''}`}
             style={{
               display: 'flex',
@@ -298,6 +299,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           transition: 'background 0.15s ease',
         }}
         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? (
           <ChevronRight style={{ width: 11, height: 11, color: 'var(--muted-text)' }} />
@@ -307,7 +309,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
       </button>
 
       {/* Nav */}
-      <nav className="flex-1 flex flex-col sidebar-nav-scroll" style={{ padding: '10px 10px', overflowY: 'auto', minHeight: 0 }}>
+      <nav role="navigation" aria-label="Main navigation" className="flex-1 flex flex-col sidebar-nav-scroll" style={{ padding: '10px 10px', overflowY: 'auto', minHeight: 0 }}>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <NavSection label="Main" items={mainItems} collapsed={collapsed} pathname={pathname} isFirst onLinkClick={closeMobile} badges={badges} />
           <NavSection label="Workspace" items={workspaceItems} collapsed={collapsed} pathname={pathname} onLinkClick={closeMobile} badges={badges} />
@@ -479,6 +481,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
                 disabled={signingOut}
                 className="sidebar-signout"
                 title="Sign out"
+                aria-label="Sign out"
                 style={{
                   background: 'none',
                   border: 'none',

@@ -134,7 +134,7 @@ export default function ProductShowcase() {
   }, [])
 
   return (
-    <section id="product-showcase" style={{ padding: '120px 40px 60px', background: 'linear-gradient(180deg, #FAF9F6 0%, #F0EDE8 100%)', borderTop: '1px solid var(--border-light)', borderBottom: '1px solid var(--border-light)' }}>
+    <section id="product-showcase" style={{ padding: '120px 40px 60px', background: 'var(--cream)', borderTop: '1px solid var(--border-light)', borderBottom: '1px solid var(--border-light)' }}>
       <div style={{ maxWidth: 1160, margin: '0 auto' }}>
         {/* Section header */}
         <div className="reveal" style={{ textAlign: 'center', marginBottom: 60 }}>
@@ -246,9 +246,9 @@ export default function ProductShowcase() {
                   <div style={{
                     background: 'var(--white)',
                     border: '1px solid var(--border-light)',
-                    borderRadius: 16,
+                    borderRadius: 'var(--dash-card-radius, 10px)',
                     overflow: 'hidden',
-                    boxShadow: '0 4px 24px rgba(5,14,36,0.08), 0 0 0 1px rgba(5,14,36,0.04)',
+                    boxShadow: 'var(--shadow)',
                   }}>
                     <Mockup />
                   </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import type { BuyerStatus } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 type BulkAction = 'archive' | 'activate' | 'mark_dormant' | 'mark_high_confidence' | 'export' | 'delete' | 'tag' | 'add_to_campaign'
 
@@ -156,7 +157,7 @@ export async function POST(req: NextRequest) {
       updated: result.count,
     })
   } catch (err) {
-    console.error('POST /api/crm/buyers/bulk error:', err)
+    logger.error('POST /api/crm/buyers/bulk error', { route: '/api/crm/buyers/bulk', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to perform bulk action' }, { status: 500 })
   }
 }

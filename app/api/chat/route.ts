@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { gatherChatContext } from '@/lib/chat/context'
 import { chatTools } from '@/lib/chat/tools'
 import { executeTool } from '@/lib/chat/tool-executor'
+import { logger } from '@/lib/logger'
 
 // ── Rate limiter ────────────────────────────────────────────────────────────
 
@@ -367,8 +368,8 @@ async function autoSaveConversation(
 
     return created.id
   } catch (err) {
-    console.error('Auto-save conversation error:', err instanceof Error ? err.message : err)
-    console.error('Auto-save full error:', err)
+    logger.error('Auto-save conversation error', { error: err instanceof Error ? err.message : String(err) })
+    logger.error('Auto-save full error', { error: err instanceof Error ? err.message : String(err) })
     return null
   }
 }
@@ -455,7 +456,7 @@ export async function POST(req: NextRequest) {
 
             if (!res.ok) {
               const errBody = await res.text()
-              console.error('Anthropic API error:', res.status, errBody)
+              logger.error('Anthropic API error', { status: res.status, body: errBody })
               send(JSON.stringify({ error: 'AI service error' }))
               break
             }
@@ -550,7 +551,7 @@ export async function POST(req: NextRequest) {
           send('[DONE]')
           controller.close()
         } catch (err) {
-          console.error('Chat stream error:', err)
+          logger.error('Chat stream error', { error: err instanceof Error ? err.message : String(err) })
           controller.error(err)
         }
       },
@@ -564,7 +565,7 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (err) {
-    console.error('POST /api/chat error:', err)
+    logger.error('POST /api/chat error', { route: '/api/chat', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

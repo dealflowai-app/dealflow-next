@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { trackDealClosed, updateActiveDeals } from '@/lib/usage'
 import type { DealStatus } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 // Valid status transitions: from -> allowed destinations
 const STATUS_TRANSITIONS: Record<string, string[]> = {
@@ -97,7 +98,7 @@ export async function GET(
 
     return NextResponse.json({ deal: enrichedDeal })
   } catch (err) {
-    console.error('GET /api/deals/[id] error:', err)
+    logger.error('GET /api/deals/[id] error', { route: '/api/deals/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to fetch deal', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -206,7 +207,7 @@ export async function PATCH(
         await trackDealClosed(profile.id)
         await updateActiveDeals(profile.id)
       } catch (err) {
-        console.error('Usage tracking failed for deal closed:', err)
+        logger.error('Usage tracking failed for deal closed', { error: err instanceof Error ? err.message : String(err) })
       }
     }
 
@@ -215,13 +216,13 @@ export async function PATCH(
       try {
         await updateActiveDeals(profile.id)
       } catch (err) {
-        console.error('Usage tracking failed for active deals update:', err)
+        logger.error('Usage tracking failed for active deals update', { error: err instanceof Error ? err.message : String(err) })
       }
     }
 
     return NextResponse.json({ deal })
   } catch (err) {
-    console.error('PATCH /api/deals/[id] error:', err)
+    logger.error('PATCH /api/deals/[id] error', { route: '/api/deals/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to update deal', detail: err instanceof Error ? err.message : String(err) },
       { status: 500 },
@@ -260,7 +261,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('DELETE /api/deals/[id] error:', err)
+    logger.error('DELETE /api/deals/[id] error', { route: '/api/deals/[id]', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to delete deal' }, { status: 500 })
   }
 }

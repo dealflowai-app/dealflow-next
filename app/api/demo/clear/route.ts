@@ -1,6 +1,7 @@
 import { getAuthProfile } from '@/lib/auth'
 import { successResponse, errorResponse } from '@/lib/api-utils'
 import { clearDemoData } from '@/lib/demo-data'
+import { logger } from '@/lib/logger'
 
 export async function POST() {
   const { profile, error, status } = await getAuthProfile()
@@ -10,7 +11,7 @@ export async function POST() {
     const result = await clearDemoData(profile.id)
     return successResponse(result)
   } catch (err) {
-    console.error('Demo clear error:', err)
+    logger.error('Demo clear error', { error: err instanceof Error ? err.message : String(err) })
     return errorResponse(500, 'Failed to clear demo data')
   }
 }

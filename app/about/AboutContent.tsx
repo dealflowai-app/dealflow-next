@@ -221,8 +221,9 @@ export default function AboutContent() {
                 {beliefs.map((b, i) => (
                   <div key={i} className="belief-card" style={{
                     background: 'white', border: `1px solid ${BORDER}`,
-                    borderRadius: 16, padding: '24px 28px',
+                    borderRadius: 10, padding: '24px 28px',
                     display: 'flex', gap: 16, alignItems: 'flex-start',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04)',
                     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                   }}>
                     <div style={{
@@ -270,7 +271,8 @@ export default function AboutContent() {
               </h2>
               <div style={{
                 background: 'white', border: `1px solid ${BORDER}`,
-                borderRadius: 16, padding: 32,
+                borderRadius: 10, padding: 32,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04)',
               }}>
                 <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 20 }}>
                   <div style={{
@@ -320,7 +322,7 @@ export default function AboutContent() {
         {/* ── Stats ───────────────────────────────────────── */}
         <div className="reveal" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 40px 80px' }}>
           <div style={{
-            background: 'rgba(5,14,36,0.02)', borderRadius: 16,
+            background: 'rgba(5,14,36,0.02)', borderRadius: 10,
             border: `1px solid ${BORDER}`, overflow: 'hidden',
           }}>
             <div className="stats-grid" style={{

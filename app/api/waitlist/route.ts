@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger'
 
 export async function POST(req: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -25,13 +26,13 @@ export async function POST(req: NextRequest) {
       if (error.code === '23505') {
         return NextResponse.json({ success: true, existing: true })
       }
-      console.error('Waitlist insert error:', error)
+      logger.error('Waitlist insert error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Waitlist route error:', err)
+    logger.error('Waitlist route error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

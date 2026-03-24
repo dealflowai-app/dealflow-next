@@ -4,6 +4,7 @@ import { getAuthProfile } from '@/lib/auth'
 import { Prisma } from '@prisma/client'
 import { logActivity } from '@/lib/activity'
 import { updateCrmContacts, checkLimit } from '@/lib/usage'
+import { logger } from '@/lib/logger'
 
 export async function GET(req: NextRequest) {
   try {
@@ -153,7 +154,7 @@ export async function GET(req: NextRequest) {
       stats,
     })
   } catch (err) {
-    console.error('GET /api/crm/buyers error:', err)
+    logger.error('GET /api/crm/buyers error', { route: '/api/crm/buyers', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to fetch buyers', detail: err instanceof Error ? err.message : String(err) }, { status: 500 })
   }
 }
@@ -263,12 +264,12 @@ export async function POST(req: NextRequest) {
     try {
       await updateCrmContacts(profile.id)
     } catch (err) {
-      console.error('Usage tracking failed for CRM contacts:', err)
+      logger.error('Usage tracking failed for CRM contacts', { error: err instanceof Error ? err.message : String(err) })
     }
 
     return NextResponse.json({ buyer }, { status: 201 })
   } catch (err) {
-    console.error('POST /api/crm/buyers error:', err)
+    logger.error('POST /api/crm/buyers error', { route: '/api/crm/buyers', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to create buyer', detail: err instanceof Error ? err.message : String(err) }, { status: 500 })
   }
 }

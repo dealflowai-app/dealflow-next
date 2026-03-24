@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/crm/buyers/[id]/timeline
@@ -63,7 +64,7 @@ export async function GET(
       },
     })
   } catch (err) {
-    console.error('GET /api/crm/buyers/[id]/timeline error:', err)
+    logger.error('GET /api/crm/buyers/[id]/timeline error', { route: '/api/crm/buyers/[id]/timeline', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to fetch timeline' }, { status: 500 })
   }
 }
