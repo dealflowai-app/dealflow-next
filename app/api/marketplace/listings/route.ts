@@ -6,12 +6,18 @@ import { ListingStatus } from '@prisma/client'
 import { Validator, sanitizeString, sanitizeHtml } from '@/lib/validation'
 import { parseBody } from '@/lib/api-utils'
 import { logger } from '@/lib/logger'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 // ─── GET /api/marketplace/listings ──────────────────────────────────────────
 // Browse active marketplace listings. Public endpoint (no auth required).
 
 export async function GET(req: NextRequest) {
   try {
+    // Rate limit by IP — 60 requests per minute for public endpoint
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const rl = rateLimit(`marketplace:${ip}`, 60, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
+
     const url = new URL(req.url)
     const city = url.searchParams.get('city')
     const state = url.searchParams.get('state')
@@ -22,8 +28,8 @@ export async function GET(req: NextRequest) {
     const maxArv = url.searchParams.get('maxArv')
     const condition = url.searchParams.get('condition')
     const sort = url.searchParams.get('sort') || 'newest'
-    const limit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10) || 20, 50)
-    const offset = parseInt(url.searchParams.get('offset') || '0', 10) || 0
+    const limit = Math.min(Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20), 50)
+    const offset = Math.min(Math.max(0, parseInt(url.searchParams.get('offset') || '0', 10) || 0), 10000)
 
     // Build filters — only ACTIVE listings
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

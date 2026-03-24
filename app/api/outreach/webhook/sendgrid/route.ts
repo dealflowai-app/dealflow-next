@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activity'
+import { logger } from '@/lib/logger'
 
 interface SendGridEvent {
   event: string
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
 
     return new Response('OK', { status: 200 })
   } catch (err) {
-    console.error('SendGrid webhook error:', err)
+    logger.error('SendGrid webhook error', { error: err instanceof Error ? err.message : String(err) })
     return new Response('Error', { status: 500 })
   }
 }

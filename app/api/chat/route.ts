@@ -237,6 +237,12 @@ const ANTHROPIC_HEADERS = {
   'Content-Type': 'application/json',
   'anthropic-version': '2023-06-01',
 }
+
+function getAnthropicKey(): string {
+  const key = process.env.ANTHROPIC_API_KEY
+  if (!key) throw new Error('ANTHROPIC_API_KEY is not set')
+  return key
+}
 const MAX_TOOL_ROUNDS = 5
 
 // ── Auto-title / summary generation ─────────────────────────────────────────
@@ -247,7 +253,7 @@ async function generateTitle(userMessage: string): Promise<string> {
       method: 'POST',
       headers: {
         ...ANTHROPIC_HEADERS,
-        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'x-api-key': getAnthropicKey(),
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
@@ -285,7 +291,7 @@ async function generateSummary(
       method: 'POST',
       headers: {
         ...ANTHROPIC_HEADERS,
-        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'x-api-key': getAnthropicKey(),
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
@@ -376,7 +382,7 @@ function callAnthropic(
     method: 'POST',
     headers: {
       ...ANTHROPIC_HEADERS,
-      'x-api-key': process.env.ANTHROPIC_API_KEY!,
+      'x-api-key': getAnthropicKey(),
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',

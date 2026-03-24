@@ -9,6 +9,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 export interface ActivityInput {
   buyerId: string
@@ -37,7 +38,7 @@ export async function logActivity(input: ActivityInput): Promise<void> {
       },
     })
   } catch (err) {
-    console.error('logActivity failed:', err)
+    logger.error('logActivity failed', { type: input.type, buyerId: input.buyerId, error: err instanceof Error ? err.message : String(err) })
   }
 }
 
@@ -59,7 +60,7 @@ export async function logBulkActivity(inputs: ActivityInput[]): Promise<void> {
       })),
     })
   } catch (err) {
-    console.error('logBulkActivity failed:', err)
+    logger.error('logBulkActivity failed', { count: inputs.length, error: err instanceof Error ? err.message : String(err) })
   }
 }
 
@@ -87,7 +88,8 @@ export async function logAccountActivity(
         metadata: metadata ? (metadata as Prisma.InputJsonValue) : Prisma.JsonNull,
       },
     })
-  } catch {
-    // intentionally swallowed — activity logging must never break the caller
+  } catch (err) {
+    // Never breaks the caller, but log so failures are observable
+    logger.error('logAccountActivity failed', { profileId, type, error: err instanceof Error ? err.message : String(err) })
   }
 }

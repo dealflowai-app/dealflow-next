@@ -9,13 +9,16 @@ interface RateLimitEntry {
 
 const rateLimitMap = new Map<string, RateLimitEntry>()
 
-// Clean up stale entries every 5 minutes
-setInterval(() => {
-  const now = Date.now()
-  rateLimitMap.forEach((entry, key) => {
-    if (entry.resetAt <= now) rateLimitMap.delete(key)
-  })
-}, 300_000)
+// Clean up stale entries every 5 minutes — guarded against duplicate intervals in dev HMR
+const globalForRateLimit = globalThis as unknown as { __rateLimitInterval?: ReturnType<typeof setInterval> }
+if (!globalForRateLimit.__rateLimitInterval) {
+  globalForRateLimit.__rateLimitInterval = setInterval(() => {
+    const now = Date.now()
+    rateLimitMap.forEach((entry, key) => {
+      if (entry.resetAt <= now) rateLimitMap.delete(key)
+    })
+  }, 300_000)
+}
 
 export function rateLimit(
   key: string,

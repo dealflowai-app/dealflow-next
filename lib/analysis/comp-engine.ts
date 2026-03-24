@@ -11,24 +11,25 @@ import type { SaleComp } from './property-lookup'
 
 // ─── ADJUSTMENT CONSTANTS ───────────────────────────────────────────────────
 // All dollar amounts are approximations tuned for residential wholesale deals.
+// Override via environment variables for market-specific tuning.
 
 /** Adjustment per bedroom difference between subject and comp */
-export const ADJ_PER_BEDROOM = 5_000
+export const ADJ_PER_BEDROOM = parseInt(process.env.COMP_ADJ_PER_BEDROOM || '5000', 10)
 
 /** Adjustment per bathroom difference between subject and comp */
-export const ADJ_PER_BATHROOM = 3_000
+export const ADJ_PER_BATHROOM = parseInt(process.env.COMP_ADJ_PER_BATHROOM || '3000', 10)
 
 /** Adjustment per decade of age difference between subject and comp */
-export const ADJ_PER_DECADE_AGE = 1_000
+export const ADJ_PER_DECADE_AGE = parseInt(process.env.COMP_ADJ_PER_DECADE_AGE || '1000', 10)
 
 /** Maximum distance in miles before a comp is excluded */
-export const MAX_COMP_DISTANCE_MI = 3
+export const MAX_COMP_DISTANCE_MI = parseFloat(process.env.COMP_MAX_DISTANCE_MI || '3')
 
 /** Maximum age in months before a comp is considered stale */
-export const MAX_COMP_AGE_MONTHS = 18
+export const MAX_COMP_AGE_MONTHS = parseInt(process.env.COMP_MAX_AGE_MONTHS || '18', 10)
 
-/** Outlier threshold: exclude comps >2 standard deviations from median */
-export const OUTLIER_STD_DEV_THRESHOLD = 2
+/** Outlier threshold: exclude comps >N standard deviations from median */
+export const OUTLIER_STD_DEV_THRESHOLD = parseFloat(process.env.COMP_OUTLIER_STD_DEV || '2')
 
 // ─── RELEVANCE SCORE POINTS ─────────────────────────────────────────────────
 

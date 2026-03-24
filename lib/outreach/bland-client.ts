@@ -3,7 +3,7 @@
 // Falls back to a mock client when BLAND_API_KEY is not set.
 
 import { logger } from '@/lib/logger'
-import { withRetry, CircuitBreaker } from '@/lib/resilience'
+import { withRetry, CircuitBreaker, fetchWithTimeout } from '@/lib/resilience'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -81,10 +81,11 @@ class BlandAPIClient {
     return blandCircuit.execute(() =>
       withRetry(
         async () => {
-          const res = await fetch(`${BLAND_BASE_URL}/calls`, {
+          const res = await fetchWithTimeout(`${BLAND_BASE_URL}/calls`, {
             method: 'POST',
             headers: this.headers(),
             body: JSON.stringify(body),
+            timeoutMs: 15_000,
           })
 
           if (!res.ok) {
@@ -102,8 +103,9 @@ class BlandAPIClient {
   async getCallStatus(callId: string): Promise<BlandCallStatus> {
     return withRetry(
       async () => {
-        const res = await fetch(`${BLAND_BASE_URL}/calls/${callId}`, {
+        const res = await fetchWithTimeout(`${BLAND_BASE_URL}/calls/${callId}`, {
           headers: this.headers(),
+          timeoutMs: 8_000,
         })
 
         if (!res.ok) {
@@ -117,28 +119,44 @@ class BlandAPIClient {
   }
 
   async endCall(callId: string): Promise<void> {
-    const res = await fetch(`${BLAND_BASE_URL}/calls/${callId}/end`, {
-      method: 'POST',
-      headers: this.headers(),
-    })
+    await withRetry(
+      async () => {
+        const res = await fetchWithTimeout(`${BLAND_BASE_URL}/calls/${callId}/end`, {
+          method: 'POST',
+          headers: this.headers(),
+          timeoutMs: 5_000,
+        })
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => 'Unknown error')
-      logger.warn('Failed to end Bland call', { callId, error: errText })
-    }
+        if (!res.ok) {
+          const errText = await res.text().catch(() => 'Unknown error')
+          throw new Error(`Failed to end call ${callId}: ${errText}`)
+        }
+      },
+      { maxRetries: 2, baseDelayMs: 1000, label: 'bland-end-call' },
+    ).catch((err) => {
+      // Log but don't throw — endCall is best-effort
+      logger.error('Failed to end Bland call after retries', { callId, error: err instanceof Error ? err.message : String(err) })
+    })
   }
 
   async getCallTranscript(callId: string): Promise<string | null> {
     try {
-      const res = await fetch(`${BLAND_BASE_URL}/calls/${callId}/transcript`, {
-        headers: this.headers(),
-      })
+      return await withRetry(
+        async () => {
+          const res = await fetchWithTimeout(`${BLAND_BASE_URL}/calls/${callId}/transcript`, {
+            headers: this.headers(),
+            timeoutMs: 8_000,
+          })
 
-      if (!res.ok) return null
+          if (!res.ok) return null
 
-      const data = await res.json()
-      return data.transcript || null
-    } catch {
+          const data = await res.json()
+          return data.transcript || null
+        },
+        { maxRetries: 2, baseDelayMs: 1000, label: 'bland-transcript' },
+      )
+    } catch (err) {
+      logger.warn('Failed to fetch Bland transcript after retries', { callId, error: err instanceof Error ? err.message : String(err) })
       return null
     }
   }

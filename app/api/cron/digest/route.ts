@@ -12,11 +12,11 @@ import { sendDigestEmails } from '@/lib/notifications/email-digest'
 // Pass ?frequency=daily or ?frequency=weekly
 
 export async function GET(req: NextRequest) {
-  // Verify cron secret
+  // Verify cron secret — always required
   const authHeader = req.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return errorResponse(401, 'Unauthorized')
   }
 

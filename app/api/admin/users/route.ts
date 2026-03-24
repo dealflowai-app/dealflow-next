@@ -7,8 +7,8 @@ export async function GET(req: NextRequest) {
   if (!profile) return NextResponse.json({ error }, { status })
 
   const url = new URL(req.url)
-  const page = parseInt(url.searchParams.get('page') || '1')
-  const limit = Math.min(parseInt(url.searchParams.get('limit') || '20'), 100)
+  const page = Math.max(1, parseInt(url.searchParams.get('page') || '1') || 1)
+  const limit = Math.min(Math.max(1, parseInt(url.searchParams.get('limit') || '20') || 20), 100)
   const search = url.searchParams.get('search') || ''
   const tierFilter = url.searchParams.get('tier') || ''
   const statusFilter = url.searchParams.get('status') || ''
@@ -56,24 +56,32 @@ export async function GET(req: NextRequest) {
     prisma.profile.count({ where }),
   ])
 
-  // Get current usage for each user
-  const usersWithUsage = await Promise.all(
-    users.map(async (u) => {
-      const usage = await prisma.usage.findFirst({
-        where: { userId: u.id },
-        orderBy: { periodStart: 'desc' },
-      })
-      const totalPaid = await prisma.paymentHistory.aggregate({
-        where: { userId: u.id, status: 'paid' },
-        _sum: { amount: true },
-      })
-      return {
-        ...u,
-        usage,
-        totalRevenue: (totalPaid._sum.amount || 0) / 100,
-      }
-    })
-  )
+  // Batch-fetch usage and revenue for all users (avoids N+1)
+  const userIds = users.map((u) => u.id)
+
+  const [allUsage, allRevenue] = await Promise.all([
+    // Get most recent usage for each user
+    prisma.usage.findMany({
+      where: { userId: { in: userIds } },
+      orderBy: { periodStart: 'desc' },
+      distinct: ['userId'],
+    }),
+    // Get total revenue per user in one query
+    prisma.paymentHistory.groupBy({
+      by: ['userId'],
+      where: { userId: { in: userIds }, status: 'paid' },
+      _sum: { amount: true },
+    }),
+  ])
+
+  const usageMap = new Map(allUsage.map((u) => [u.userId, u]))
+  const revenueMap = new Map(allRevenue.map((r) => [r.userId, (r._sum.amount || 0) / 100]))
+
+  const usersWithUsage = users.map((u) => ({
+    ...u,
+    usage: usageMap.get(u.id) || null,
+    totalRevenue: revenueMap.get(u.id) || 0,
+  }))
 
   return NextResponse.json({
     users: usersWithUsage,

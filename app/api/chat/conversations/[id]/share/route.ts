@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 import { nanoid } from 'nanoid'
 
 type RouteContext = { params: Promise<{ id: string }> }
+
+function getShareBaseUrl(): string {
+  // Trust configured app URL, never the host header
+  return process.env.NEXT_PUBLIC_APP_URL || 'https://dealflowai.app'
+}
 
 // POST — Enable sharing for a conversation
 export async function POST(
@@ -27,11 +33,9 @@ export async function POST(
 
     // Already shared — return existing URL
     if (conversation.shareToken) {
-      const host = req.headers.get('host') || 'localhost:3000'
-      const proto = req.headers.get('x-forwarded-proto') || 'https'
       return NextResponse.json({
         shareToken: conversation.shareToken,
-        shareUrl: `${proto}://${host}/shared/chat/${conversation.shareToken}`,
+        shareUrl: `${getShareBaseUrl()}/shared/chat/${conversation.shareToken}`,
       })
     }
 
@@ -47,15 +51,12 @@ export async function POST(
       },
     })
 
-    const host = req.headers.get('host') || 'localhost:3000'
-    const proto = req.headers.get('x-forwarded-proto') || 'https'
-
     return NextResponse.json({
       shareToken,
-      shareUrl: `${proto}://${host}/shared/chat/${shareToken}`,
+      shareUrl: `${getShareBaseUrl()}/shared/chat/${shareToken}`,
     })
   } catch (err) {
-    console.error('POST share error:', err)
+    logger.error('POST share failed', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to share conversation' }, { status: 500 })
   }
 }
@@ -91,7 +92,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('DELETE share error:', err)
+    logger.error('DELETE share failed', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Failed to revoke share' }, { status: 500 })
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import crypto from 'crypto'
 
 function generateOTP(): string {
@@ -35,6 +36,14 @@ export async function POST(request: Request) {
     }
 
     const normalizedPhone = normalizePhone(phone)
+
+    // Rate limit per phone number — max 3 OTPs per phone per 10 minutes
+    const phoneRl = rateLimit(`otp:phone:${normalizedPhone}`, 3, 10 * 60_000)
+    if (!phoneRl.allowed) return rateLimitResponse(phoneRl.resetAt)
+
+    // Rate limit per user — max 5 OTPs per user per 10 minutes
+    const userRl = rateLimit(`otp:user:${user.id}`, 5, 10 * 60_000)
+    if (!userRl.allowed) return rateLimitResponse(userRl.resetAt)
 
     // Find or create profile
     let profile = await prisma.profile.findUnique({ where: { userId: user.id } })
@@ -85,17 +94,26 @@ export async function POST(request: Request) {
       Body: `Your DealFlow verification code is: ${otp}. Expires in 10 minutes. Do not share this code.`,
     })
 
-    const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10_000)
+
+    let res: Response
+    try {
+      res = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
+          },
+          body: params,
+          signal: controller.signal,
         },
-        body: params,
-      },
-    )
+      )
+    } finally {
+      clearTimeout(timeout)
+    }
 
     if (!res.ok) {
       const data = await res.json()

@@ -27,6 +27,31 @@ const markets = [
   'Indianapolis, IN',
   'Columbus, OH',
   'Memphis, TN',
+  'Denver, CO',
+  'Austin, TX',
+  'Raleigh, NC',
+  'St. Louis, MO',
+  'Kansas City, MO',
+  'Cleveland, OH',
+  'Detroit, MI',
+  'Birmingham, AL',
+  'Oklahoma City, OK',
+  'Richmond, VA',
+  'Baltimore, MD',
+  'Philadelphia, PA',
+  'Chicago, IL',
+  'Minneapolis, MN',
+  'Sacramento, CA',
+  'Tucson, AZ',
+  'El Paso, TX',
+  'Fort Worth, TX',
+  'Cincinnati, OH',
+  'Pittsburgh, PA',
+  'New Orleans, LA',
+  'Louisville, KY',
+  'Milwaukee, WI',
+  'Knoxville, TN',
+  'Savannah, GA',
 ]
 
 const experienceOptions = [
@@ -56,6 +81,7 @@ export default function WelcomePage() {
   const [experience, setExperience] = useState('')
   const [focus, setFocus] = useState('')
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -84,7 +110,9 @@ export default function WelcomePage() {
         if (data.profile.settings?.experienceLevel) setExperience(data.profile.settings.experienceLevel)
         if (data.profile.settings?.focus) setFocus(data.profile.settings.focus)
       }
-    }).catch(() => {})
+    }).catch((err) => {
+      console.warn('Failed to load existing profile:', err)
+    })
   }, [router])
 
   function goToStep(nextStep: number) {
@@ -118,6 +146,7 @@ export default function WelcomePage() {
       window.location.href = redirectTo
     } catch (err) {
       console.error('Failed to complete onboarding:', err)
+      setSaveError('Something went wrong. Please try again.')
       setSaving(false)
     }
   }
@@ -527,6 +556,22 @@ export default function WelcomePage() {
                 </button>
               ))}
             </div>
+
+            {saveError && (
+              <div style={{
+                padding: '10px 14px',
+                borderRadius: 10,
+                background: '#FEF2F2',
+                border: '1px solid #FECACA',
+                color: '#B91C1C',
+                fontSize: 13,
+                fontFamily: F,
+                marginBottom: 12,
+                textAlign: 'center',
+              }}>
+                {saveError}
+              </div>
+            )}
 
             <button
               onClick={() => completeOnboarding('/dashboard')}

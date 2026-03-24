@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -28,7 +29,7 @@ export async function GET(
 
     return NextResponse.json(conversation)
   } catch (err) {
-    console.error('GET /api/chat/conversations/[id] error:', err)
+    logger.error('GET /api/chat/conversations/[id] failed', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to load conversation' },
       { status: 500 },
@@ -82,7 +83,7 @@ export async function PATCH(
 
     return NextResponse.json(updated)
   } catch (err) {
-    console.error('PATCH /api/chat/conversations/[id] error:', err)
+    logger.error('PATCH /api/chat/conversations/[id] failed', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to update conversation' },
       { status: 500 },
@@ -118,7 +119,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('DELETE /api/chat/conversations/[id] error:', err)
+    logger.error('DELETE /api/chat/conversations/[id] failed', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Failed to delete conversation' },
       { status: 500 },

@@ -15,11 +15,12 @@ export async function GET(req: NextRequest) {
   const headerSecret = req.headers.get('x-cron-secret')
   const authBearer = req.headers.get('authorization')
 
-  // Accept either x-cron-secret header or Bearer token
+  // Accept either x-cron-secret header or Bearer token — secret must be configured
   const isAuthorized =
-    !cronSecret ||
-    headerSecret === cronSecret ||
-    authBearer === `Bearer ${cronSecret}`
+    !!cronSecret && (
+      headerSecret === cronSecret ||
+      authBearer === `Bearer ${cronSecret}`
+    )
 
   if (!isAuthorized) {
     return errorResponse(401, 'Unauthorized')

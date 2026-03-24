@@ -150,6 +150,32 @@ export class CircuitBreaker {
   }
 }
 
+// ── Fetch with Timeout ──────────────────────────────────────────────────────
+
+/**
+ * Wrapper around fetch that aborts after `timeoutMs` (default 10s).
+ * Throws on timeout so callers can catch or let withRetry handle it.
+ */
+export async function fetchWithTimeout(
+  input: string | URL | Request,
+  init?: RequestInit & { timeoutMs?: number },
+): Promise<Response> {
+  const timeoutMs = init?.timeoutMs ?? 10_000
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    return await fetch(input, { ...init, signal: controller.signal })
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms`)
+    }
+    throw err
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // ── Pre-configured circuit breakers for external services ───────────────────
 
 export const circuits = {

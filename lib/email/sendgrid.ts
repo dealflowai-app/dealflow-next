@@ -58,10 +58,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   const recipients = Array.isArray(options.to) ? options.to : [options.to]
 
   if (!config.apiKey) {
-    console.log(
-      `[MOCK EMAIL] To: ${recipients.map((r) => r.email).join(', ')} | Subject: ${options.subject}`,
+    console.error(
+      `[SendGrid] Email send attempted but SENDGRID_API_KEY is not configured. To: ${recipients.map((r) => r.email).join(', ')} | Subject: ${options.subject}`,
     )
-    return { success: true, messageId: `mock_${Date.now()}` }
+    return { success: false, error: 'Email provider not configured. Set SENDGRID_API_KEY.' }
   }
 
   try {

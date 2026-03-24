@@ -112,7 +112,29 @@ export default function NewDealPage() {
     ? arvNum - askingNum - (repairNum || 0) - (feeNum || 0)
     : null
 
-  // Validation
+  // Inline validation — clears errors as user corrects them
+  function validateField(field: string, value: string | number | null): string | null {
+    switch (field) {
+      case 'address': return !value || !(value as string).trim() ? 'Address is required' : null
+      case 'city': return !value || !(value as string).trim() ? 'City is required' : null
+      case 'state': return !value ? 'State is required' : null
+      case 'zip': return !value || !(value as string).trim() ? 'Zip is required' : null
+      case 'askingPrice': return !value || (value as number) <= 0 ? 'Asking price is required' : null
+      default: return null
+    }
+  }
+
+  function handleBlur(field: string, value: string | number | null) {
+    const err = validateField(field, value)
+    setErrors(prev => {
+      const next = { ...prev }
+      if (err) next[field] = err
+      else delete next[field]
+      return next
+    })
+  }
+
+  // Full validation on submit
   function validate(): boolean {
     const errs: Record<string, string> = {}
     if (!address.trim()) errs.address = 'Address is required'
@@ -201,10 +223,9 @@ export default function NewDealPage() {
   const inputBase = 'w-full bg-white rounded-[8px] px-3 py-2.5 text-[0.82rem] text-gray-700 outline-none transition-colors'
   const inputBorderStyle = { border: '1px solid rgba(5,14,36,0.15)' }
   const inputErrorBorderStyle = { border: '1px solid #fca5a5' }
-  const inputFocusHandlers = {
-    onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' },
-    onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' },
-  }
+  const onInputFocus = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)' }
+  const onInputBlurStyle = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => { e.currentTarget.style.borderColor = 'rgba(5,14,36,0.15)'; e.currentTarget.style.boxShadow = 'none' }
+  const inputFocusHandlers = { onFocus: onInputFocus, onBlur: onInputBlurStyle }
   function inputCls(field?: string) {
     return inputBase
   }
@@ -252,7 +273,8 @@ export default function NewDealPage() {
               placeholder="123 Main St"
               className={inputCls('address')}
               style={inputStyle('address')}
-              {...inputFocusHandlers}
+              onFocus={onInputFocus}
+              onBlur={(e) => { onInputBlurStyle(e); handleBlur('address', address) }}
             />
             {errors.address && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.address}</span>}
           </div>
@@ -267,7 +289,8 @@ export default function NewDealPage() {
                 placeholder="Dallas"
                 className={inputCls('city')}
                 style={inputStyle('city')}
-                {...inputFocusHandlers}
+                onFocus={onInputFocus}
+                onBlur={(e) => { onInputBlurStyle(e); handleBlur('city', city) }}
               />
               {errors.city && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.city}</span>}
             </div>
@@ -279,6 +302,8 @@ export default function NewDealPage() {
                   onChange={(e) => setState(e.target.value)}
                   className={`appearance-none ${inputCls('state')} pr-8 cursor-pointer`}
                   style={inputStyle('state')}
+                  onFocus={onInputFocus}
+                  onBlur={(e) => { onInputBlurStyle(e); handleBlur('state', state) }}
                 >
                   <option value="">—</option>
                   {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -297,7 +322,8 @@ export default function NewDealPage() {
                 maxLength={10}
                 className={inputCls('zip')}
                 style={inputStyle('zip')}
-                {...inputFocusHandlers}
+                onFocus={onInputFocus}
+                onBlur={(e) => { onInputBlurStyle(e); handleBlur('zip', zip) }}
               />
               {errors.zip && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.zip}</span>}
             </div>
@@ -430,7 +456,8 @@ export default function NewDealPage() {
                   placeholder="142,000"
                   className={`${inputCls('askingPrice')} pl-7`}
                   style={inputStyle('askingPrice')}
-                  {...inputFocusHandlers}
+                  onFocus={onInputFocus}
+                  onBlur={(e) => { onInputBlurStyle(e); handleBlur('askingPrice', askingNum) }}
                 />
               </div>
               {errors.askingPrice && <span className="text-[0.7rem] text-red-500 mt-0.5 block">{errors.askingPrice}</span>}

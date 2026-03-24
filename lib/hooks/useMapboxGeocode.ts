@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
 
 export interface GeocodeSuggestion {
   id: string
@@ -57,7 +57,7 @@ export function useMapboxGeocode() {
     abortRef.current?.abort()
 
     const trimmed = query.trim()
-    if (trimmed.length < 2) {
+    if (trimmed.length < 2 || !MAPBOX_TOKEN) {
       setSuggestions([])
       return
     }

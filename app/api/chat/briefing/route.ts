@@ -198,7 +198,7 @@ Rules:
     headers: {
       'Content-Type': 'application/json',
       'anthropic-version': '2023-06-01',
-      'x-api-key': process.env.ANTHROPIC_API_KEY!,
+      'x-api-key': process.env.ANTHROPIC_API_KEY || '',
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',

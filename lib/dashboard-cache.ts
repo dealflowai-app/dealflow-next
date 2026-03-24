@@ -11,13 +11,16 @@ interface CacheEntry<T> {
 
 const cache = new Map<string, CacheEntry<unknown>>()
 
-// Clean up expired entries every 60 seconds
-setInterval(() => {
-  const now = Date.now()
-  cache.forEach((entry, key) => {
-    if (entry.expiresAt <= now) cache.delete(key)
-  })
-}, 60_000)
+// Clean up expired entries every 60 seconds — guarded against duplicate intervals in dev HMR
+const globalForCache = globalThis as unknown as { __dashboardCacheInterval?: ReturnType<typeof setInterval> }
+if (!globalForCache.__dashboardCacheInterval) {
+  globalForCache.__dashboardCacheInterval = setInterval(() => {
+    const now = Date.now()
+    cache.forEach((entry, key) => {
+      if (entry.expiresAt <= now) cache.delete(key)
+    })
+  }, 60_000)
+}
 
 export function getCached<T>(key: string): T | null {
   const entry = cache.get(key)

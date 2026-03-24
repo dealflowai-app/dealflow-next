@@ -4,6 +4,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { logger } from '@/lib/logger'
+import { fetchWithTimeout } from '@/lib/resilience'
 import {
   getVoicemailTemplate,
   getDefaultVoicemailForScript,
@@ -212,7 +213,7 @@ export async function generateTTSAudio(
   if (!ELEVENLABS_API_KEY) return null
 
   try {
-    const res = await fetch(
+    const res = await fetchWithTimeout(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId || DEFAULT_VOICE_ID}`,
       {
         method: 'POST',
@@ -225,6 +226,7 @@ export async function generateTTSAudio(
           model_id: 'eleven_monolingual_v1',
           voice_settings: { stability: 0.5, similarity_boost: 0.75 },
         }),
+        timeoutMs: 15_000,
       },
     )
 

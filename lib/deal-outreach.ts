@@ -60,17 +60,17 @@ export interface OutreachResult {
 }
 
 /* ═══════════════════════════════════════════════
-   MOCK PROVIDER
+   UNCONFIGURED PROVIDER (fails loudly)
    ═══════════════════════════════════════════════ */
 
-const mockProvider: OutreachProvider = {
-  async sendSMS(to, message) {
-    console.log(`[MOCK SMS] To: ${to} | Message: ${message.slice(0, 120)}...`)
-    return { success: true, messageId: `mock_sms_${Date.now()}` }
+const unconfiguredProvider: OutreachProvider = {
+  async sendSMS() {
+    console.error('[OUTREACH] SMS send attempted but Twilio is not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER.')
+    return { success: false, error: 'SMS provider not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER.' }
   },
-  async sendEmail(to, subject, html) {
-    console.log(`[MOCK EMAIL] To: ${to} | Subject: ${subject} | HTML length: ${html.length}`)
-    return { success: true, messageId: `mock_email_${Date.now()}` }
+  async sendEmail() {
+    console.error('[OUTREACH] Email send attempted but SendGrid is not configured. Set SENDGRID_API_KEY.')
+    return { success: false, error: 'Email provider not configured. Set SENDGRID_API_KEY.' }
   },
 }
 
@@ -149,8 +149,8 @@ const hasTwilio = !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_T
 const hasSendGrid = !!process.env.SENDGRID_API_KEY
 
 const provider: OutreachProvider = {
-  sendSMS: hasTwilio ? createTwilioProvider() : mockProvider.sendSMS,
-  sendEmail: hasSendGrid ? createSendGridProvider() : mockProvider.sendEmail,
+  sendSMS: hasTwilio ? createTwilioProvider() : unconfiguredProvider.sendSMS,
+  sendEmail: hasSendGrid ? createSendGridProvider() : unconfiguredProvider.sendEmail,
 }
 
 export function getEmailSender(): OutreachProvider['sendEmail'] {

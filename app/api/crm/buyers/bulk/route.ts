@@ -115,24 +115,17 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Tag not found' }, { status: 404 })
       }
 
-      // Create tag assignments, skipping duplicates
-      let created = 0
-      for (const buyerId of buyerIds) {
-        try {
-          await prisma.buyerTag.create({
-            data: { buyerId, tagId },
-          })
-          created++
-        } catch {
-          // Skip duplicate assignments
-        }
-      }
+      // Create tag assignments atomically, skipping duplicates
+      const result = await prisma.buyerTag.createMany({
+        data: buyerIds.map((buyerId) => ({ buyerId, tagId })),
+        skipDuplicates: true,
+      })
 
       return NextResponse.json({
         success: true,
         action: 'tag',
-        tagged: created,
-        skipped: buyerIds.length - created,
+        tagged: result.count,
+        skipped: buyerIds.length - result.count,
       })
     }
 

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     // Determine tier from price ID for metadata
     let tier = 'starter'
     if (priceId === process.env.STRIPE_PRO_PRICE_ID) tier = 'pro'
-    else if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) tier = 'business'
+    else if (priceId === process.env.STRIPE_ENTERPRISE_PRICE_ID || priceId === process.env.STRIPE_BUSINESS_PRICE_ID) tier = 'enterprise'
 
     // 7-day free trial for new subscribers (no active subscription)
     const isNewSubscriber = !dbUser.stripeSubscriptionId || dbUser.tier === 'free'

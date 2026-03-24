@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { createAllowanceForPeriod } from '@/lib/billing/allowances'
+import { logger } from '@/lib/logger'
 import Stripe from 'stripe'
 
 // Disable body parsing so we can verify the raw signature
@@ -13,9 +14,9 @@ export const dynamic = 'force-dynamic'
 function priceIdToTier(priceId: string): string {
   if (priceId === process.env.STRIPE_STARTER_PRICE_ID) return 'starter'
   if (priceId === process.env.STRIPE_PRO_PRICE_ID) return 'pro'
-  if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) return 'business'
-  // Backward compat for old enterprise price
-  if (priceId === process.env.STRIPE_ENTERPRISE_PRICE_ID) return 'business'
+  // Enterprise/Business tier — check both env vars for backward compat
+  if (priceId === process.env.STRIPE_ENTERPRISE_PRICE_ID) return 'enterprise'
+  if (priceId === process.env.STRIPE_BUSINESS_PRICE_ID) return 'enterprise'
   return 'free'
 }
 
@@ -58,7 +59,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   const profile = await findProfileByCustomerId(customerId)
   if (!profile) {
-    console.error('No profile found for Stripe customer:', customerId)
+    logger.error('No profile found for Stripe customer', { customerId })
     return
   }
 
@@ -101,7 +102,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     new Date(period.periodEnd * 1000),
   )
 
-  console.log(`Profile ${profile.id} subscribed to ${tier} (${subscription.status})`)
+  logger.info('Profile subscribed', { profileId: profile.id, tier, status: subscription.status })
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -143,7 +144,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     )
   }
 
-  console.log(`Profile ${profile.id} subscription updated: ${tier} (${tierStatus})`)
+  logger.info('Subscription updated', { profileId: profile.id, tier, tierStatus })
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
@@ -184,7 +185,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     })
   }
 
-  console.log(`Profile ${profile.id} subscription cancelled, reverted to free`)
+  logger.info('Subscription cancelled, reverted to free', { profileId: profile.id })
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
@@ -251,7 +252,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     )
   }
 
-  console.log(`Payment recorded for profile ${profile.id}: $${(invoice.amount_paid / 100).toFixed(2)}`)
+  logger.info('Payment recorded', { profileId: profile.id, amount: (invoice.amount_paid / 100).toFixed(2) })
 }
 
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
@@ -279,7 +280,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     },
   })
 
-  console.log(`Payment failed for profile ${profile.id}`)
+  logger.warn('Payment failed', { profileId: profile.id, invoiceId: invoice.id })
 }
 
 // ── Main handler ────────────────────────────────────────────
@@ -297,7 +298,7 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET)
   } catch (err) {
-    console.error('Webhook signature verification failed:', err)
+    logger.error('Webhook signature verification failed', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
@@ -320,12 +321,12 @@ export async function POST(req: NextRequest) {
         await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice)
         break
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        logger.info('Unhandled Stripe event type', { eventType: event.type })
     }
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error(`Error processing webhook ${event.type}:`, error)
+    logger.error('Webhook processing failed', { eventType: event.type, error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
 }
