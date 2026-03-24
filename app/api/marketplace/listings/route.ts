@@ -99,6 +99,11 @@ export async function GET(req: NextRequest) {
               firstName: true,
               lastName: true,
               company: true,
+              avatarUrl: true,
+              sellerVerification: true,
+              reputationScore: true,
+              reviewCount: true,
+              completedDeals: true,
             },
           },
         },
@@ -120,14 +125,20 @@ export async function GET(req: NextRequest) {
       : []
     const dealCountMap = new Map(dealCounts.map(d => [d.profileId, d._count._all]))
 
-    // Sanitize wholesaler info: first name + last initial only
+    // Sanitize wholesaler info: first name + last initial only, include reputation
     const sanitized = listings.map(l => ({
       ...l,
       profileId: undefined,
       profile: {
+        id: l.profileId,
         firstName: l.profile.firstName,
         lastInitial: l.profile.lastName ? l.profile.lastName.charAt(0) + '.' : null,
         company: l.profile.company,
+        avatarUrl: l.profile.avatarUrl,
+        verified: l.profile.sellerVerification === 'VERIFIED',
+        reputationScore: l.profile.reputationScore,
+        reviewCount: l.profile.reviewCount,
+        completedDeals: l.profile.completedDeals,
         dealCount: dealCountMap.get(l.profileId) || 0,
       },
     }))

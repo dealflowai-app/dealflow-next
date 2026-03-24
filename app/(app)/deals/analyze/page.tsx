@@ -3350,7 +3350,7 @@ export default function PropertyAnalyzerPage() {
     : null
 
   return (
-    <div className="p-8 max-w-[1200px] bg-[#F9FAFB]">
+    <div className="p-4 sm:p-8 max-w-[1200px] bg-[#F9FAFB]">
       {/* Back to My Deals */}
       <Link
         href="/deals"

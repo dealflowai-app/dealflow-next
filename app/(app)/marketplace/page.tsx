@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo, memo, Suspense } from 'react'
 import MapGL, { Marker, Popup, NavigationControl, Source, Layer, type MapRef } from 'react-map-gl/mapbox'
 import type { CircleLayer, SymbolLayer } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -89,9 +89,15 @@ interface Listing {
   publishedAt: string | null
   createdAt: string
   profile: {
+    id?: string
     firstName: string | null
     lastInitial: string | null
     company: string | null
+    avatarUrl?: string | null
+    verified?: boolean
+    reputationScore?: number
+    reviewCount?: number
+    completedDeals?: number
     dealCount?: number
   }
 }
@@ -225,6 +231,25 @@ function wholesalerDisplay(p: Listing['profile']): string {
 function wholesalerInitials(p: Listing['profile']): string {
   return [p.firstName?.[0], p.lastInitial?.[0]].filter(Boolean).join('')
 }
+
+const VerifiedBadge = memo(function VerifiedBadge({ size = 14 }: { size?: number }) {
+  return (
+    <span title="Verified Seller" className="inline-flex items-center">
+      <ShieldCheck style={{ width: size, height: size, color: '#2563EB' }} />
+    </span>
+  )
+})
+
+const ReputationStars = memo(function ReputationStars({ score, count }: { score: number; count: number }) {
+  if (count === 0) return null
+  return (
+    <span className="inline-flex items-center gap-0.5 text-[0.68rem] text-[#F59E0B]" title={`${score.toFixed(1)} / 5 from ${count} review${count !== 1 ? 's' : ''}`}>
+      <Star style={{ width: 11, height: 11, fill: '#F59E0B', stroke: '#F59E0B' }} />
+      <span className="text-[#374151] font-medium">{score.toFixed(1)}</span>
+      <span className="text-[#9CA3AF]">({count})</span>
+    </span>
+  )
+})
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
@@ -1231,15 +1256,21 @@ function DealListingsSection() {
                         <div className="w-8 h-8 rounded-full bg-[#0B1224] flex items-center justify-center">
                           <span className="text-[0.6rem] font-semibold text-white">{wholesalerInitials(d.profile)}</span>
                         </div>
-                        <span className="text-[0.76rem] text-[#374151]">
-                          {wholesalerDisplay(d.profile)}
-                          {d.profile.company && <span className="text-[#9CA3AF]"> · {d.profile.company}</span>}
-                        </span>
-                        {(d.profile.dealCount ?? 0) > 1 && (
-                          <span className="text-[0.66rem] font-medium text-[#9CA3AF] bg-[#F3F4F6] px-1.5 py-0.5 rounded-full">
-                            {d.profile.dealCount} deals
+                        <div className="flex flex-col">
+                          <span className="text-[0.76rem] text-[#374151] flex items-center gap-1">
+                            {wholesalerDisplay(d.profile)}
+                            {d.profile.verified && <VerifiedBadge />}
+                            {d.profile.company && <span className="text-[#9CA3AF]"> · {d.profile.company}</span>}
                           </span>
-                        )}
+                          <div className="flex items-center gap-2">
+                            <ReputationStars score={d.profile.reputationScore ?? 0} count={d.profile.reviewCount ?? 0} />
+                            {(d.profile.dealCount ?? 0) > 1 && (
+                              <span className="text-[0.66rem] font-medium text-[#9CA3AF]">
+                                {d.profile.dealCount} deals
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                       <div className="flex items-center gap-3 text-[0.72rem] text-[#9CA3AF]">
                         <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" /> {d.viewCount}</span>
@@ -1443,16 +1474,28 @@ function ListingDetail({
               <span className="text-[0.6rem] font-semibold text-white">{wholesalerInitials(l.profile)}</span>
             </div>
             <div>
-              <div className="text-[0.88rem] font-medium text-[#374151]">{wholesalerDisplay(l.profile)}</div>
+              <div className="text-[0.88rem] font-medium text-[#374151] flex items-center gap-1">
+                {wholesalerDisplay(l.profile)}
+                {l.profile.verified && <VerifiedBadge />}
+              </div>
               {l.profile.company && <div className="text-[0.76rem] text-[#9CA3AF]">{l.profile.company}</div>}
+              <ReputationStars score={l.profile.reputationScore ?? 0} count={l.profile.reviewCount ?? 0} />
             </div>
           </div>
-          {(l.profile.dealCount ?? 0) > 0 && (
-            <div className="flex items-center gap-2 text-[0.78rem] text-[#6B7280] bg-[#F9FAFB] rounded-md px-3 py-2">
-              <Store className="w-3.5 h-3.5 text-[#9CA3AF]" />
-              {l.profile.dealCount} deals on platform
-            </div>
-          )}
+          <div className="space-y-1.5">
+            {(l.profile.dealCount ?? 0) > 0 && (
+              <div className="flex items-center gap-2 text-[0.78rem] text-[#6B7280] bg-[#F9FAFB] rounded-md px-3 py-2">
+                <Store className="w-3.5 h-3.5 text-[#9CA3AF]" />
+                {l.profile.dealCount} deals on platform
+              </div>
+            )}
+            {(l.profile.completedDeals ?? 0) > 0 && (
+              <div className="flex items-center gap-2 text-[0.78rem] text-[#6B7280] bg-[#F9FAFB] rounded-md px-3 py-2">
+                <Check className="w-3.5 h-3.5 text-[#22C55E]" />
+                {l.profile.completedDeals} completed transactions
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -1565,7 +1608,7 @@ interface BuyerBoardPost {
   createdAt: string
   expiresAt: string | null
   isOwner: boolean
-  profile: { firstName: string | null; lastInitial: string | null; company: string | null }
+  profile: { firstName: string | null; lastInitial: string | null; company: string | null; verified?: boolean; reputationScore?: number; reviewCount?: number }
   _count: { contacts: number }
 }
 
@@ -2303,7 +2346,10 @@ function BuyerBoardSection() {
                       <span className="text-[0.52rem] font-semibold text-white">{bbInitials(p.displayName)}</span>
                     </div>
                     <div>
-                      <div className="text-[0.82rem] font-medium text-[#111827]">{p.displayName}</div>
+                      <div className="text-[0.82rem] font-medium text-[#111827] flex items-center gap-1">
+                        {p.displayName}
+                        {p.profile.verified && <VerifiedBadge size={12} />}
+                      </div>
                       {p.buyerType && (
                         <span className={`text-[0.64rem] font-medium px-1.5 py-0.5 rounded-full ${BUYER_TYPE_STYLES[p.buyerType] || 'text-[#6B7280] bg-gray-100'}`}>
                           {BUYER_TYPE_LABELS[p.buyerType] || p.buyerType}
@@ -3751,10 +3797,12 @@ export default function MarketplacePage() {
       </div>
 
       {/* Content */}
-      <div className="p-8 max-w-[1200px]">
-        {activeTab === 'deals' && <DealListingsSection />}
-        {activeTab === 'buyers' && <BuyerBoardSection />}
-        {activeTab === 'mine' && <MyListingsSection />}
+      <div className="p-4 sm:p-8 max-w-[1200px]">
+        <Suspense fallback={<ListingSkeleton />}>
+          {activeTab === 'deals' && <DealListingsSection />}
+          {activeTab === 'buyers' && <BuyerBoardSection />}
+          {activeTab === 'mine' && <MyListingsSection />}
+        </Suspense>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `

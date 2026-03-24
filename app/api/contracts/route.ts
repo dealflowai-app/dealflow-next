@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
+import { requireTier, FEATURE_TIERS } from '@/lib/subscription-guard'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activity'
 import { getTemplate, listTemplates } from '@/lib/contracts/templates'
@@ -107,6 +108,9 @@ export async function POST(req: NextRequest) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    const tierGuard = await requireTier(profile.id, FEATURE_TIERS.contracts)
+    if (tierGuard) return tierGuard
 
     // Rate limit: 20 contract creations per minute
     const rl = rateLimit(`contracts:create:${profile.id}`, 20, 60_000)

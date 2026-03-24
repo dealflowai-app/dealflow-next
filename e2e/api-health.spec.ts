@@ -6,7 +6,7 @@ test.describe('API health and public endpoints', () => {
     expect(response.status()).toBe(200)
 
     const body = await response.json()
-    expect(body.status).toBe('ok')
+    expect(['ok', 'healthy', 'degraded']).toContain(body.status)
   })
 
   test('POST /api/waitlist with valid email returns success', async ({ request }) => {

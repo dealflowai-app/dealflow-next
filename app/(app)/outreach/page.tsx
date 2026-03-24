@@ -4888,7 +4888,7 @@ export default function AIOutreachPage() {
         </div>
       )}
 
-      <div className="p-8 max-w-[1200px] flex-1 overflow-auto">
+      <div className="p-4 sm:p-8 max-w-[1200px] flex-1 overflow-auto">
       {/* Stats bar */}
       <div className="flex items-center gap-6 bg-white border border-[rgba(5,14,36,0.06)] rounded-[10px] px-5 py-3 mb-5 flex-wrap">
         <div className="flex items-center gap-2">

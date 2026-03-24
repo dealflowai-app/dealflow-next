@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { requireTier, FEATURE_TIERS } from '@/lib/subscription-guard'
 import { enrichedSkipTrace } from '@/lib/skip-trace/enrich'
 import { checkAllowance, recordUsage } from '@/lib/billing/allowances'
 import { trackSkipTrace } from '@/lib/usage'
@@ -13,6 +14,9 @@ export async function POST(req: NextRequest) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    const tierGuard = await requireTier(profile.id, FEATURE_TIERS.discovery)
+    if (tierGuard) return tierGuard
 
     const body = await req.json().catch(() => null)
     const propertyId = body?.propertyId

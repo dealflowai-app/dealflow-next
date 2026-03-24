@@ -8,6 +8,7 @@ import KeyboardShortcuts from '@/components/KeyboardShortcuts'
 import ProductTour from '@/components/ProductTour'
 import DealCalculator from '@/components/DealCalculator'
 import DemoBanner from '@/components/DemoBanner'
+import StagingBanner from '@/components/StagingBanner'
 import TopBar from '@/components/layout/TopBar'
 import { ToastProvider } from '@/components/toast'
 import { MobileSidebarProvider } from '@/components/layout/MobileSidebarContext'
@@ -45,6 +46,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="flex h-screen overflow-hidden" style={{ background: 'var(--dash-bg, #F9FAFB)' }}>
           <Sidebar profile={profile} />
           <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+            <StagingBanner />
             <TopBar />
             <DemoBanner demoMode={demoMode} />
             <div className="flex-1 overflow-y-auto">

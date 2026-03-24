@@ -145,7 +145,7 @@ const notificationCategories = [
 const integrationsData = {
   connected: [
     { name: 'Twilio', desc: 'SMS and voice communication', color: 'bg-red-500', letter: 'T' },
-    { name: 'DocuSign', desc: 'E-signatures for contracts', color: 'bg-yellow-500', letter: 'D' },
+    { name: 'PandaDoc', desc: 'E-signatures for contracts', color: 'bg-green-500', letter: 'P' },
     { name: 'BatchData', desc: 'Property records and data', color: 'bg-blue-600', letter: 'B' },
   ],
   available: [

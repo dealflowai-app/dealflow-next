@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
+import { requireTier, FEATURE_TIERS } from '@/lib/subscription-guard'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activity'
 import { getTemplate, listTemplates } from '@/lib/contracts/templates'
@@ -9,6 +10,7 @@ import { renderContractHTML } from '@/lib/contracts/render'
 import { ContractStatus, DealStatus, OfferStatus } from '@prisma/client'
 import { sendContractNotification, type ContractNotificationType, type NotificationLogEntry } from '@/lib/contracts/notifications'
 import { createVersion, detectChangedFields, type ChangeType } from '@/lib/contracts/versioning'
+import { isPandaDocConfigured, createDocument, voidDocument, buildSignersFromContract } from '@/lib/contracts/pandadoc'
 import { Validator, sanitizeString } from '@/lib/validation'
 import { parseBody } from '@/lib/api-utils'
 import { logger } from '@/lib/logger'
@@ -57,7 +59,20 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
       }
     }
 
-    return NextResponse.json({ contract, contractHistory, missingFieldCount })
+    // Build e-signature info
+    const esignature = contract.pandadocDocumentId
+      ? {
+          documentId: contract.pandadocDocumentId,
+          status: contract.pandadocStatus,
+          sentAt: contract.pandadocSentAt,
+          completedAt: contract.pandadocCompletedAt,
+          declinedAt: contract.pandadocDeclinedAt,
+          declineReason: contract.pandadocDeclineReason,
+          signers: contract.signerStatuses ?? [],
+        }
+      : null
+
+    return NextResponse.json({ contract, contractHistory, missingFieldCount, esignature })
   } catch (err) {
     logger.error('GET /api/contracts/[id] failed', { route: '/api/contracts/[id]', method: 'GET', error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
@@ -82,6 +97,9 @@ export async function PATCH(req: NextRequest, { params }: RouteCtx) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    const tierGuard = await requireTier(profile.id, FEATURE_TIERS.contracts)
+    if (tierGuard) return tierGuard
 
     const { id } = await params
 
@@ -154,7 +172,85 @@ export async function PATCH(req: NextRequest, { params }: RouteCtx) {
 
       switch (newStatus) {
         case 'SENT':
-          // No sentAt field in schema, but we can track via updatedAt
+          // Trigger PandaDoc e-signature if configured
+          if (isPandaDocConfigured()) {
+            try {
+              const filledData = (contract.filledData as Record<string, string>) ?? {}
+              const templateType = contract.templateName.includes('Double Close')
+                ? 'DOUBLE_CLOSE'
+                : contract.templateName.includes('Joint Venture')
+                  ? 'JV_AGREEMENT'
+                  : 'ASSIGNMENT'
+
+              const signers = buildSignersFromContract(filledData, templateType)
+
+              if (signers.length < 2) {
+                return NextResponse.json(
+                  { error: 'At least 2 signers with email addresses are required for e-signatures. Check assignor/assignee email fields.' },
+                  { status: 400 },
+                )
+              }
+
+              // Generate PDF for PandaDoc if not already generated
+              let pdfBuffer: Buffer | null = null
+              if (contract.documentUrl) {
+                try {
+                  const fileContent = await fs.readFile(contract.documentUrl)
+                  pdfBuffer = Buffer.from(fileContent)
+                } catch {
+                  // File not found, regenerate below
+                }
+              }
+
+              if (!pdfBuffer) {
+                const stateId = `${contract.deal.state.toLowerCase()}_assignment_v1`
+                const template = getTemplate(stateId) ?? getTemplate('tx_assignment_v1')
+                if (template) {
+                  const fillInput: FillContractInput = {
+                    deal: {
+                      address: contract.deal.address, city: contract.deal.city,
+                      state: contract.deal.state, zip: contract.deal.zip,
+                      askingPrice: contract.deal.askingPrice, assignFee: contract.deal.assignFee,
+                      closeByDate: contract.deal.closeByDate, arv: contract.deal.arv,
+                      condition: contract.deal.condition, propertyType: contract.deal.propertyType,
+                      beds: contract.deal.beds, baths: contract.deal.baths,
+                      sqft: contract.deal.sqft, yearBuilt: contract.deal.yearBuilt,
+                    },
+                    offer: contract.offer
+                      ? { amount: contract.offer.amount, closeDate: contract.offer.closeDate, terms: contract.offer.terms, message: contract.offer.message }
+                      : null,
+                    buyer: {},
+                    profile: { firstName: profile.firstName, lastName: profile.lastName, email: profile.email, phone: profile.phone, company: profile.company },
+                    overrides: filledData,
+                  }
+                  const filled = fillContract(template, fillInput)
+                  const html = renderContractHTML(filled, { isDraft: false })
+                  const result = await generateContractPDF(html)
+                  pdfBuffer = result.buffer
+                }
+              }
+
+              if (pdfBuffer) {
+                const propertyAddr = `${contract.deal.address}, ${contract.deal.city}, ${contract.deal.state}`
+                const docResult = await createDocument(
+                  contract.id,
+                  pdfBuffer,
+                  signers,
+                  `Contract: ${propertyAddr}`,
+                  `Please review and sign the assignment contract for the property at ${propertyAddr}.`,
+                )
+                data.pandadocDocumentId = docResult.documentId
+                data.pandadocStatus = 'document.sent'
+                data.pandadocSentAt = new Date()
+              }
+            } catch (dsErr) {
+              logger.warn('PandaDoc document creation failed, contract still marked SENT', {
+                contractId: id,
+                error: dsErr instanceof Error ? dsErr.message : String(dsErr),
+              })
+              // Don't block the SENT transition — contract proceeds without e-signature
+            }
+          }
           break
 
         case 'VOIDED':
@@ -163,6 +259,20 @@ export async function PATCH(req: NextRequest, { params }: RouteCtx) {
           }
           data.voidedAt = new Date()
           data.voidReason = voidReason
+
+          // Void the PandaDoc document if one exists
+          if (contract.pandadocDocumentId && isPandaDocConfigured()) {
+            try {
+              await voidDocument(contract.pandadocDocumentId, voidReason)
+              data.pandadocStatus = 'document.voided'
+            } catch (pdErr) {
+              logger.warn('Failed to void PandaDoc document', {
+                contractId: id,
+                documentId: contract.pandadocDocumentId,
+                error: pdErr instanceof Error ? pdErr.message : String(pdErr),
+              })
+            }
+          }
           break
 
         case 'EXECUTED': {

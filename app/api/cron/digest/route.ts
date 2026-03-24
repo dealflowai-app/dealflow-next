@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { errorResponse, successResponse } from '@/lib/api-utils'
+import { errorResponse, successResponse, verifyCronSecret } from '@/lib/api-utils'
 import { sendDigestEmails } from '@/lib/notifications/email-digest'
 
 // ─── GET /api/cron/digest — Send email digests ──────────────────────────────
@@ -12,11 +12,7 @@ import { sendDigestEmails } from '@/lib/notifications/email-digest'
 // Pass ?frequency=daily or ?frequency=weekly
 
 export async function GET(req: NextRequest) {
-  // Verify cron secret — always required
-  const authHeader = req.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
-
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  if (!verifyCronSecret(req)) {
     return errorResponse(401, 'Unauthorized')
   }
 

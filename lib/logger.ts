@@ -1,6 +1,7 @@
 // ─── Structured Logger ──────────────────────────────────────────────────────
 // JSON output in production for log aggregation, readable format in dev.
 // Includes request context (requestId, route, method, userId) when available.
+// Error-level logs are also reported to Sentry when configured.
 
 export interface LogContext {
   requestId?: string
@@ -48,11 +49,36 @@ function formatProd(level: LogLevel, message: string, context?: LogContext): str
   })
 }
 
+/**
+ * Report errors to Sentry if the SDK is available.
+ * Lazy-loads to avoid import errors when @sentry/nextjs isn't installed.
+ */
+function reportToSentry(message: string, context?: LogContext): void {
+  try {
+    // Dynamic import to avoid breaking if Sentry isn't installed
+    import('@sentry/nextjs').then((Sentry) => {
+      Sentry.captureException(new Error(message), {
+        extra: context as Record<string, unknown>,
+        tags: {
+          route: context?.route,
+          method: context?.method,
+        },
+      })
+    }).catch(() => {
+      // Sentry not available — silent
+    })
+  } catch {
+    // Sentry not available — silent
+  }
+}
+
 function log(level: LogLevel, message: string, context?: LogContext): void {
   if (!shouldLog(level)) return
   const formatted = IS_PROD ? formatProd(level, message, context) : formatDev(level, message, context)
   if (level === 'error') {
     console.error(formatted)
+    // Report errors to Sentry in production
+    if (IS_PROD) reportToSentry(message, context)
   } else if (level === 'warn') {
     console.warn(formatted)
   } else {

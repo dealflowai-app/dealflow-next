@@ -15,7 +15,7 @@ const replacedTools = [
   { name: 'REIRail', category: 'dialer' },
   { name: 'Podio', category: 'CRM' },
   { name: 'BatchLeads', category: 'lists' },
-  { name: 'DocuSign', category: 'contracts' },
+  { name: 'PandaDoc', category: 'contracts' },
 ]
 
 export default function WhoItsFor() {

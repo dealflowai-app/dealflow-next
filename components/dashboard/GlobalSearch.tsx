@@ -10,6 +10,7 @@ import {
   Plus, FileText, UserPlus, BarChart3, Zap,
   ArrowUpRight, Command, Keyboard,
 } from 'lucide-react'
+import { useScrollLock } from '@/hooks/useScrollLock'
 
 /* ─── Types ────────────────────────────────────────────────────────────────── */
 
@@ -64,6 +65,7 @@ const CATEGORY_ORDER = ['page', 'action', 'buyer', 'shortcut']
 export default function GlobalSearch() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  useScrollLock(open)
   const [query, setQuery] = useState('')
   const [buyerResults, setBuyerResults] = useState<BuyerResult[]>([])
   const [loading, setLoading] = useState(false)
@@ -231,7 +233,10 @@ export default function GlobalSearch() {
 
   return (
     <div
-      style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '12vh' }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search"
+      style={{ position: 'fixed', inset: 0, zIndex: 250, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '12vh' }}
     >
       {/* Backdrop */}
       <div

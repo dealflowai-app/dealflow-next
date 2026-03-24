@@ -165,6 +165,13 @@ enum CommunicationPreference {
   ANY
 }
 
+enum VerificationStatus {
+  NONE
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 // ─── CORE MODELS ─────────────────────────────────────────────────────────────
 
 model Profile {
@@ -188,6 +195,13 @@ model Profile {
   phoneVerified    Boolean   @default(false)
   phoneOtp         String?               // hashed OTP for phone verification
   phoneOtpExpires  DateTime?             // OTP expiry time
+
+  // Marketplace reputation & verification
+  sellerVerification VerificationStatus @default(NONE)
+  sellerVerifiedAt   DateTime?
+  reputationScore    Float              @default(0)    // 0-5 star average
+  reviewCount        Int                @default(0)    // denormalized count
+  completedDeals     Int                @default(0)    // closed marketplace deals
 
   // Stripe / billing
   stripeCustomerId     String?   @unique
@@ -246,6 +260,9 @@ model Profile {
   badges               Badge[]
   ownedTeams           Team[]       @relation("TeamOwner")
   teamMemberships      TeamMember[]
+
+  reviewsReceived    SellerReview[] @relation("ReviewsReceived")
+  reviewsGiven       SellerReview[] @relation("ReviewsGiven")
 
   @@map("profiles")
 }
@@ -1193,6 +1210,16 @@ model Contract {
   buyerSignedAt  DateTime?
   voidedAt       DateTime?
   voidReason     String?
+
+  // ── PandaDoc e-signature fields ──
+  pandadocDocumentId  String?  @unique  // PandaDoc document ID
+  pandadocStatus      String?  // "document.draft" | "document.sent" | "document.viewed" | "document.completed" | "document.declined" | "document.voided"
+  pandadocSentAt      DateTime?
+  pandadocCompletedAt DateTime?
+  pandadocDeclinedAt  DateTime?
+  pandadocDeclineReason String?
+  signerStatuses      Json?    // Array of { name, email, role, status, signedAt }
+
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -1205,6 +1232,7 @@ model Contract {
   @@index([dealId])
   @@index([profileId, status])
   @@index([profileId, createdAt(sort: Desc)])
+  @@index([pandadocDocumentId])
   @@map("contracts")
 }
 
@@ -1274,6 +1302,7 @@ model MarketplaceListing {
   profile   Profile              @relation(fields: [profileId], references: [id], onDelete: Cascade)
   deal      Deal                 @relation(fields: [dealId], references: [id], onDelete: Cascade)
   inquiries MarketplaceInquiry[]
+  reviews   SellerReview[]
 
   @@index([profileId])
   @@index([dealId])
@@ -1743,4 +1772,30 @@ model TeamMember {
   @@index([teamId])
   @@index([profileId])
   @@map("team_members")
+}
+
+// ─── MARKETPLACE REPUTATION ──────────────────────────────────────────────────
+
+model SellerReview {
+  id          String  @id @default(cuid())
+  sellerId    String                        // the wholesaler being reviewed
+  reviewerId  String                        // who wrote the review
+  listingId   String?                       // optional link to a specific listing
+  rating      Int                           // 1-5 stars
+  title       String?
+  body        String?
+  tags        String[]  @default([])        // e.g. ["responsive", "accurate_description", "fast_close"]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  seller      Profile              @relation("ReviewsReceived", fields: [sellerId], references: [id], onDelete: Cascade)
+  reviewer    Profile              @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  listing     MarketplaceListing?  @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@unique([sellerId, reviewerId, listingId])  // one review per reviewer per listing
+  @@index([sellerId])
+  @@index([reviewerId])
+  @@index([listingId])
+  @@map("seller_reviews")
 }

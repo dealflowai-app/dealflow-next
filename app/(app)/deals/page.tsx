@@ -664,9 +664,9 @@ export default function DealsPage() {
         className="flex-shrink-0 bg-white"
         style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}
       >
-        <div className="px-8">
+        <div className="px-4 sm:px-8">
           <div className="flex items-center justify-between">
-            <nav className="flex gap-0.5 -mb-px">
+            <nav className="flex gap-0.5 -mb-px overflow-x-auto">
               {filterTabs.map(tab => {
                 const Icon = tab.icon
                 const isActive = filter === tab.key
@@ -765,7 +765,7 @@ export default function DealsPage() {
         </div>
       </div>
 
-      <div className="p-8 max-w-[1200px]">
+      <div className="p-4 sm:p-8 max-w-[1200px]">
 
       {/* KPI Stat Cards */}
       <div className="grid grid-cols-4 gap-3.5 mb-6 deals-kpi-grid">

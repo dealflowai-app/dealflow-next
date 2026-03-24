@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/components/toast'
 import {
-  ArrowLeft, Users, DollarSign, BarChart3, Clock, Send,
+  ArrowLeft, Users, DollarSign, BarChart3, Clock, Send, Bell,
   ChevronDown, Loader2, Home, BedDouble, Bath, Ruler,
   Calendar, MapPin, FileText, Pencil, X, Check, TrendingUp,
   Megaphone, CheckCircle2, AlertTriangle, Store, FileSignature, RefreshCw,
@@ -221,6 +221,7 @@ export default function DealDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [matching, setMatching] = useState(false)
+  const [autoMatching, setAutoMatching] = useState(false)
   const [editingNotes, setEditingNotes] = useState(false)
   const [notesValue, setNotesValue] = useState('')
   const [savingNotes, setSavingNotes] = useState(false)
@@ -316,6 +317,27 @@ export default function DealDetailPage() {
       toast('Failed to run matching')
     } finally {
       setMatching(false)
+    }
+  }
+
+  // ── Auto-match & notify ─────────────────────────
+
+  const runAutoMatch = async () => {
+    setAutoMatching(true)
+    try {
+      const res = await fetch(`/api/deals/${id}/auto-match`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ minScore: 40, notifyBuyers: true }),
+      })
+      if (!res.ok) throw new Error('Auto-match failed')
+      const data = await res.json()
+      toast.success(`Matched ${data.matched} buyers, ${data.notified} notified`)
+      await fetchDeal()
+    } catch {
+      toast.error('Failed to auto-match')
+    } finally {
+      setAutoMatching(false)
     }
   }
 
@@ -639,7 +661,7 @@ export default function DealDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-9 max-w-[1200px]">
+      <div className="p-4 sm:p-9 max-w-[1200px]">
         <div className="animate-pulse space-y-5">
           <div className="h-5 w-32 bg-gray-200 rounded" />
           <div className="h-8 w-72 bg-gray-200 rounded" />
@@ -655,7 +677,7 @@ export default function DealDetailPage() {
 
   if (error || !deal) {
     return (
-      <div className="p-9 max-w-[1200px]">
+      <div className="p-4 sm:p-9 max-w-[1200px]">
         <button
           onClick={() => router.push('/deals')}
           className="flex items-center gap-1.5 text-[0.82rem] text-gray-500 hover:text-gray-700 mb-6 bg-transparent border-0 cursor-pointer transition-colors"
@@ -680,7 +702,7 @@ export default function DealDetailPage() {
   const allowedTransitions = STATUS_TRANSITIONS[deal.status] ?? []
 
   return (
-    <div className="p-9 max-w-[1200px]">
+    <div className="p-4 sm:p-9 max-w-[1200px]">
       {/* ── HEADER ────────────────────────────────── */}
       <button
         onClick={() => router.push('/deals')}
@@ -718,9 +740,18 @@ export default function DealDetailPage() {
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
           <button
-            onClick={runMatching}
-            disabled={matching}
+            onClick={runAutoMatch}
+            disabled={autoMatching || matching}
             className="flex items-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white border-0 rounded-[8px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {autoMatching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+            {autoMatching ? 'Matching...' : 'Match & Notify'}
+          </button>
+
+          <button
+            onClick={runMatching}
+            disabled={matching || autoMatching}
+            className="flex items-center gap-1.5 bg-white border border-[#D1D5DB] hover:bg-[#F9FAFB] text-[#374151] rounded-[8px] px-4 py-2.5 text-[0.82rem] font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {matching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
             {matching ? 'Matching...' : 'Run Matching'}

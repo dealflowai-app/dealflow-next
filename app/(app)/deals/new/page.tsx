@@ -234,7 +234,7 @@ export default function NewDealPage() {
   }
 
   return (
-    <div className="p-9 max-w-[780px]">
+    <div className="p-4 sm:p-9 max-w-[780px]">
       {/* Header */}
       <button
         onClick={() => router.push('/deals')}

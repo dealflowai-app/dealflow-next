@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo, Suspense } from 'react'
 import { useToast } from '@/components/toast'
 import {
   Plus,
@@ -80,6 +80,25 @@ interface ContractRow {
   hasLinkedContracts?: boolean
 }
 
+interface ESignerStatus {
+  name: string
+  email: string
+  role: string
+  status: string
+  signedAt: string | null
+  declinedReason: string | null
+}
+
+interface ESignatureInfo {
+  documentId: string
+  status: string | null
+  sentAt: string | null
+  completedAt: string | null
+  declinedAt: string | null
+  declineReason: string | null
+  signers: ESignerStatus[]
+}
+
 interface ContractDetailData extends ContractRow {
   contractHistory?: {
     id: string
@@ -89,6 +108,7 @@ interface ContractDetailData extends ContractRow {
     voidedAt: string | null
   }[]
   missingFieldCount?: number
+  esignature?: ESignatureInfo | null
 }
 
 interface TemplateField {
@@ -602,7 +622,7 @@ function ActiveContractsSection({
 /* ═══════════════════════════════════════════════
    SIGNATURE TIMELINE
    ═══════════════════════════════════════════════ */
-function SignatureTimeline({ contract }: { contract: ContractDetailData }) {
+const SignatureTimeline = memo(function SignatureTimeline({ contract }: { contract: ContractDetailData }) {
   const events = [
     { label: 'Contract Created', date: contract.createdAt, color: 'bg-gray-400', done: true },
     {
@@ -654,7 +674,91 @@ function SignatureTimeline({ contract }: { contract: ContractDetailData }) {
       ))}
     </div>
   )
+})
+
+/* ═══════════════════════════════════════════════
+   E-SIGNATURE STATUS
+   ═══════════════════════════════════════════════ */
+function esigStatusColor(status: string): string {
+  switch (status) {
+    case 'sent': return 'text-blue-700 bg-blue-50'
+    case 'delivered': return 'text-amber-700 bg-amber-50'
+    case 'completed': return 'text-emerald-700 bg-emerald-50'
+    case 'declined': return 'text-red-700 bg-red-50'
+    case 'voided': return 'text-gray-700 bg-gray-100'
+    default: return 'text-gray-600 bg-gray-50'
+  }
 }
+
+function esigSignerIcon(status: string) {
+  switch (status) {
+    case 'completed': return <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+    case 'declined': return <Ban className="w-3.5 h-3.5 text-red-500" />
+    case 'delivered': return <Eye className="w-3.5 h-3.5 text-amber-500" />
+    case 'sent': return <Send className="w-3.5 h-3.5 text-blue-500" />
+    default: return <Clock className="w-3.5 h-3.5 text-gray-400" />
+  }
+}
+
+const ESignatureStatus = memo(function ESignatureStatus({ esignature }: { esignature: ESignatureInfo }) {
+  const signers = Array.isArray(esignature.signers) ? esignature.signers : []
+
+  return (
+    <div className="space-y-3">
+      {/* Overall Status */}
+      <div className="flex items-center gap-2">
+        <Shield className="w-4 h-4 text-[#2563EB]" />
+        <span className="text-[14px] font-medium text-[#0B1224]">PandaDoc</span>
+        <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full capitalize ${esigStatusColor(esignature.status || 'pending')}`}>
+          {esignature.status || 'pending'}
+        </span>
+      </div>
+
+      {/* Signer list */}
+      {signers.length > 0 && (
+        <div className="space-y-2">
+          {signers.map((s, i) => (
+            <div key={i} className="flex items-center justify-between px-3 py-2 bg-[rgba(5,14,36,0.02)] rounded-md">
+              <div className="flex items-center gap-2.5">
+                {esigSignerIcon(s.status)}
+                <div>
+                  <div className="text-[14px] text-[rgba(5,14,36,0.65)] font-medium">{s.name}</div>
+                  <div className="text-[12px] text-[rgba(5,14,36,0.4)]">
+                    {s.email} &middot; <span className="capitalize">{s.role.replace('_', ' ')}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <span className={`text-[0.66rem] font-medium px-2 py-0.5 rounded-full capitalize ${esigStatusColor(s.status)}`}>
+                  {s.status}
+                </span>
+                {s.signedAt && (
+                  <div className="text-[11px] text-[rgba(5,14,36,0.4)] mt-0.5">
+                    {new Date(s.signedAt).toLocaleDateString()}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Decline reason */}
+      {esignature.declineReason && (
+        <div className="p-2.5 bg-red-50 border border-red-200 rounded-md">
+          <div className="text-[0.72rem] font-medium text-red-700">Declined</div>
+          <div className="text-[0.72rem] text-red-600">{esignature.declineReason}</div>
+        </div>
+      )}
+
+      {/* Timestamps */}
+      <div className="text-[11px] text-[rgba(5,14,36,0.35)] space-y-0.5">
+        {esignature.sentAt && <div>Sent: {new Date(esignature.sentAt).toLocaleString()}</div>}
+        {esignature.completedAt && <div>All signed: {new Date(esignature.completedAt).toLocaleString()}</div>}
+      </div>
+    </div>
+  )
+})
 
 /* ═══════════════════════════════════════════════
    VERSION HISTORY
@@ -1093,6 +1197,16 @@ function ContractDetail({
           )}
         </div>
       </div>
+
+      {/* E-Signature Status */}
+      {contract.esignature && (
+        <div className="bg-white border border-[rgba(5,14,36,0.06)] rounded-[8px] px-5 py-4 mb-5 animate-fadeInUp">
+          <div className="text-[11px] font-semibold text-[rgba(5,14,36,0.4)] uppercase tracking-[0.05em] mb-3 flex items-center gap-2">
+            <FileSignature className="w-3.5 h-3.5" /> E-Signature Status
+          </div>
+          <ESignatureStatus esignature={contract.esignature} />
+        </div>
+      )}
 
       {/* Notification Log */}
       {(() => {
@@ -2108,7 +2222,7 @@ export default function ContractsPage() {
         </div>
       </div>
 
-      <div className="p-8 max-w-[1200px]">
+      <div className="p-4 sm:p-8 max-w-[1200px]">
       {!showDetail && (
         <>
           {/* Stats bar */}

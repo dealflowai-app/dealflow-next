@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { X, Users, Loader2 } from 'lucide-react'
 import BuyerMatches from './BuyerMatches'
+import { useScrollLock } from '@/hooks/useScrollLock'
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -40,6 +41,9 @@ const FONT = "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', syste
 export default function BuyerMatchModal({ dealId, dealAddress, onClose }: BuyerMatchModalProps) {
   const [isVisible, setIsVisible] = useState(false)
 
+  // Lock body scroll when modal is open
+  useScrollLock(true)
+
   // Animate in
   useEffect(() => {
     // Small delay for mount -> animate
@@ -72,11 +76,15 @@ export default function BuyerMatchModal({ dealId, dealAddress, onClose }: BuyerM
           opacity: isVisible ? 1 : 0,
         }}
         onClick={handleClose}
+        aria-hidden="true"
       />
 
       {/* Slide-out panel (right side) */}
       <div
-        className="fixed top-0 right-0 bottom-0 z-[201] flex flex-col w-full max-w-[440px] shadow-2xl transition-transform duration-200 ease-out"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Find buyers${dealAddress ? ` for ${dealAddress}` : ''}`}
+        className="fixed top-0 right-0 bottom-0 z-[201] flex flex-col w-full sm:max-w-[440px] shadow-2xl transition-transform duration-200 ease-out"
         style={{
           background: 'var(--dash-bg, #F9FAFB)',
           borderLeft: '1px solid var(--dash-card-border, rgba(0,0,0,0.06))',
@@ -105,7 +113,8 @@ export default function BuyerMatchModal({ dealId, dealAddress, onClose }: BuyerM
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 bg-transparent border-0 cursor-pointer transition-colors"
+            aria-label="Close panel"
+            className="p-2.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 bg-transparent border-0 cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>

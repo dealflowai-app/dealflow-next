@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
+import { requireTier, FEATURE_TIERS } from '@/lib/subscription-guard'
 import { errorResponse, successResponse, parseBody } from '@/lib/api-utils'
 import { Validator } from '@/lib/validation'
 import { logger } from '@/lib/logger'
@@ -84,6 +85,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { profile, error, status } = await getAuthProfile()
   if (!profile) return errorResponse(status, error!)
+
+  const tierGuard = await requireTier(profile.id, FEATURE_TIERS.outreach)
+  if (tierGuard) return tierGuard
 
   const { body, error: parseError } = await parseBody(req, 200)
   if (!body) return errorResponse(400, parseError!)

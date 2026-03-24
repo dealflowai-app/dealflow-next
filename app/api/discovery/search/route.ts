@@ -6,6 +6,7 @@ import { toClientProperty } from '@/lib/discovery/to-client-property'
 import { getDataProvider } from '@/lib/discovery/data-provider'
 import { RentCastError } from '@/lib/rentcast'
 import { BatchDataApiError } from '@/lib/batchdata'
+import { requireTier, FEATURE_TIERS } from '@/lib/subscription-guard'
 
 // Map frontend property type values to DB format
 const PROPERTY_TYPE_MAP: Record<string, string> = {
@@ -20,6 +21,10 @@ export async function GET(req: NextRequest) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Enforce minimum tier for discovery
+    const tierGuard = await requireTier(profile.id, FEATURE_TIERS.discovery)
+    if (tierGuard) return tierGuard
 
     const params = req.nextUrl.searchParams
     const city = params.get('city') || undefined

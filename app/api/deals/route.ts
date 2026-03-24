@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
+import { requireTier, FEATURE_TIERS } from '@/lib/subscription-guard'
 import { checkDaisyChain } from '@/lib/daisy-chain'
+import { autoMatchDeal } from '@/lib/auto-match'
 import { Validator, sanitizeString, sanitizeHtml } from '@/lib/validation'
 import { parseBody } from '@/lib/api-utils'
 import type { PropertyType, DealStatus } from '@prisma/client'
@@ -44,6 +46,9 @@ export async function POST(req: NextRequest) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    const tierGuard = await requireTier(profile.id, FEATURE_TIERS.deals)
+    if (tierGuard) return tierGuard
 
     const { body, error: parseError } = await parseBody(req)
     if (!body) return NextResponse.json({ error: parseError }, { status: 400 })
@@ -133,6 +138,12 @@ export async function POST(req: NextRequest) {
         ...(analysisData ? { analysisData } : {}),
       },
     })
+
+    // Auto-match: fire-and-forget so the response isn't delayed
+    if (deal.status === 'ACTIVE') {
+      autoMatchDeal(deal.id, profile.id, { notifyWholesaler: true, notifyBuyers: true })
+        .catch((err) => logger.error('Auto-match on deal creation failed', { dealId: deal.id, error: String(err) }))
+    }
 
     return NextResponse.json({
       deal,

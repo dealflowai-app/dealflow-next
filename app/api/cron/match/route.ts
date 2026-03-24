@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { errorResponse, successResponse } from '@/lib/api-utils'
+import { errorResponse, successResponse, verifyCronSecret } from '@/lib/api-utils'
 import { runBackgroundMatcher } from '@/lib/matching/background-matcher'
 
 // ─── GET /api/cron/match — Run background deal matcher ──────────────────────
@@ -7,11 +7,7 @@ import { runBackgroundMatcher } from '@/lib/matching/background-matcher'
 // Recommended schedule: every 6 hours
 
 export async function GET(req: NextRequest) {
-  // Verify cron secret — always required
-  const authHeader = req.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
-
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  if (!verifyCronSecret(req)) {
     return errorResponse(401, 'Unauthorized')
   }
 

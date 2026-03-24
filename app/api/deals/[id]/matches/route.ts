@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
 import { findMatchingBuyers } from '@/lib/buyer-matching'
+import { prisma } from '@/lib/prisma'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/deals/[id]/matches
@@ -21,7 +24,19 @@ export async function GET(
       return NextResponse.json({ error }, { status })
     }
 
+    const rl = rateLimit(`matches:${profile.id}`, 30, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
+
     const { id } = await params
+
+    // Verify deal ownership before returning matches
+    const deal = await prisma.deal.findFirst({
+      where: { id, profileId: profile.id },
+      select: { id: true },
+    })
+    if (!deal) {
+      return NextResponse.json({ error: 'Deal not found' }, { status: 404 })
+    }
 
     const matches = await findMatchingBuyers(id, profile.id)
 
@@ -33,7 +48,11 @@ export async function GET(
       return NextResponse.json({ error: 'Deal not found' }, { status: 404 })
     }
 
-    console.error('GET /api/deals/[id]/matches failed:', message)
+    logger.error('GET /api/deals/[id]/matches failed', {
+      route: '/api/deals/[id]/matches',
+      method: 'GET',
+      error: message,
+    })
     return NextResponse.json(
       { error: 'Failed to find matching buyers', detail: message },
       { status: 500 },

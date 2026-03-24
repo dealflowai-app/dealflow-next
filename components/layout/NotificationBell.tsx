@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Inbox, Bell, MessageSquare, Check, CheckCheck, Loader2, X, ArrowRight } from 'lucide-react'
+import { Inbox, Bell, MessageSquare, Check, CheckCheck, Loader2, X, ArrowRight, Wifi, WifiOff } from 'lucide-react'
 import { useNotificationCount } from '@/hooks/useNotificationCount'
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications'
+import { useScrollLock } from '@/hooks/useScrollLock'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -84,8 +86,34 @@ export default function NotificationBell() {
   const [markingAll, setMarkingAll] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Lock body scroll on mobile when dropdown is open
+  useScrollLock(open)
+
   // Real-time polling for unread count (every 15 seconds, pauses on tab hidden, exponential backoff)
   const { unreadCount: polledCount, refetch: refetchCount } = useNotificationCount()
+
+  // SSE for instant notification delivery
+  const { connected: sseConnected } = useRealtimeNotifications({
+    onNotification: (event) => {
+      // Bump unread count — use functional updater to avoid stale polledCount
+      setLocalCountOverride((prev) => (prev ?? 0) + 1)
+      // If dropdown is open, prepend the new notification
+      if (open) {
+        setNotifications((prev) => [
+          {
+            id: (event.data?.id as string) || `sse-${Date.now()}`,
+            type: event.type,
+            title: event.title,
+            body: event.body,
+            data: (event.data as Record<string, unknown>) ?? null,
+            read: false,
+            createdAt: (event.data?.createdAt as string) || new Date().toISOString(),
+          },
+          ...prev,
+        ])
+      }
+    },
+  })
 
   // Use local override when user marks items read, otherwise use polled count
   const unreadCount = localCountOverride ?? polledCount
@@ -194,9 +222,11 @@ export default function NotificationBell() {
       <button
         data-tour="inbox-btn"
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        aria-label={`Inbox${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         className="relative flex items-center justify-center w-[34px] h-[34px] rounded-[8px] border-0 cursor-pointer transition-colors"
         style={{ background: open ? 'rgba(5,14,36,0.06)' : 'transparent' }}
-        title="Inbox"
       >
         <Inbox
           className="w-[18px] h-[18px]"
@@ -230,22 +260,48 @@ export default function NotificationBell() {
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute z-[200] flex flex-col"
+          role="dialog"
+          aria-label="Inbox"
+          aria-modal="true"
+          className="fixed sm:absolute z-[300] flex flex-col"
           style={{
-            top: 'calc(100% + 10px)',
+            top: 'auto',
             right: 0,
-            width: 400,
-            maxHeight: 520,
+            bottom: 0,
+            left: 0,
+            maxHeight: '85dvh',
             background: 'white',
-            borderRadius: 12,
-            boxShadow: '0 24px 80px rgba(5,14,36,0.18), 0 8px 24px rgba(5,14,36,0.08), 0 0 0 1px rgba(5,14,36,0.06)',
+            borderRadius: '12px 12px 0 0',
+            boxShadow: '0 -8px 40px rgba(5,14,36,0.18), 0 0 0 1px rgba(5,14,36,0.06)',
             overflow: 'hidden',
+          }}
+          // sm+ screens: dropdown instead of bottom sheet
+          ref={(el) => {
+            if (el && window.innerWidth >= 640) {
+              el.style.position = 'absolute'
+              el.style.top = 'calc(100% + 10px)'
+              el.style.bottom = 'auto'
+              el.style.left = 'auto'
+              el.style.width = '400px'
+              el.style.maxHeight = '520px'
+              el.style.borderRadius = '12px'
+              el.style.boxShadow = '0 24px 80px rgba(5,14,36,0.18), 0 8px 24px rgba(5,14,36,0.08), 0 0 0 1px rgba(5,14,36,0.06)'
+            }
           }}
         >
           {/* Header with tabs */}
           <div style={{ borderBottom: '1px solid rgba(5,14,36,0.06)' }}>
             <div className="flex items-center justify-between px-4 pt-3.5 pb-0">
-              <span className="text-[0.88rem] font-[600] text-[#0B1224]">Inbox</span>
+              <span className="flex items-center gap-1.5 text-[0.88rem] font-[600] text-[#0B1224]">
+                Inbox
+                <span title={sseConnected ? 'Live updates active' : 'Polling for updates'}>
+                  {sseConnected ? (
+                    <Wifi className="w-3 h-3 text-emerald-500" />
+                  ) : (
+                    <WifiOff className="w-3 h-3 text-gray-300" />
+                  )}
+                </span>
+              </span>
               <div className="flex items-center gap-1">
                 {tab === 'notifications' && unreadCount > 0 && (
                   <button
@@ -264,7 +320,8 @@ export default function NotificationBell() {
                 )}
                 <button
                   onClick={() => setOpen(false)}
-                  className="flex items-center justify-center w-7 h-7 rounded-[6px] border-0 bg-transparent cursor-pointer text-[#9CA3AF] hover:text-[rgba(5,14,36,0.6)] hover:bg-[rgba(5,14,36,0.04)] transition-colors"
+                  aria-label="Close inbox"
+                  className="flex items-center justify-center w-9 h-9 rounded-[6px] border-0 bg-transparent cursor-pointer text-[#9CA3AF] hover:text-[rgba(5,14,36,0.6)] hover:bg-[rgba(5,14,36,0.04)] transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -272,11 +329,13 @@ export default function NotificationBell() {
             </div>
 
             {/* Tab bar */}
-            <div className="flex px-4 gap-1 mt-2.5">
+            <div className="flex px-4 gap-1 mt-2.5" role="tablist">
               {tabs.map(t => (
                 <button
                   key={t.key}
                   onClick={() => setTab(t.key)}
+                  role="tab"
+                  aria-selected={tab === t.key}
                   className="flex items-center gap-1.5 px-3 pb-2.5 border-0 cursor-pointer transition-colors text-[0.76rem] font-[500]"
                   style={{
                     background: 'transparent',

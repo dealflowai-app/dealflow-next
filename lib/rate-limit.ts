@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server'
 
-// ─── Simple in-memory sliding window rate limiter ───────────────────────────
+// ─── In-memory sliding window rate limiter ──────────────────────────────────
+//
+// LIMITATION: On serverless platforms (Vercel), each function instance has
+// its own in-memory store. Rate limits are per-instance, not global.
+//
+// For production with strict rate limiting needs, replace with Upstash Redis:
+//   import { Ratelimit } from '@upstash/ratelimit'
+//   import { Redis } from '@upstash/redis'
+//
+// The current implementation still provides meaningful protection against:
+// - Rapid repeated requests hitting the same instance (warm functions)
+// - Client-side bugs causing request floods
+// - Basic abuse within a single function lifecycle
 
 interface RateLimitEntry {
   count: number
@@ -9,7 +21,7 @@ interface RateLimitEntry {
 
 const rateLimitMap = new Map<string, RateLimitEntry>()
 
-// Clean up stale entries every 5 minutes — guarded against duplicate intervals in dev HMR
+// Clean up stale entries every 2 minutes — guarded against duplicate intervals in dev HMR
 const globalForRateLimit = globalThis as unknown as { __rateLimitInterval?: ReturnType<typeof setInterval> }
 if (!globalForRateLimit.__rateLimitInterval) {
   globalForRateLimit.__rateLimitInterval = setInterval(() => {
@@ -17,7 +29,7 @@ if (!globalForRateLimit.__rateLimitInterval) {
     rateLimitMap.forEach((entry, key) => {
       if (entry.resetAt <= now) rateLimitMap.delete(key)
     })
-  }, 300_000)
+  }, 120_000)
 }
 
 export function rateLimit(

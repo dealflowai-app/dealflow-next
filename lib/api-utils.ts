@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as crypto from 'crypto'
 
 // ─── Standard response helpers ──────────────────────────────────────────────
 
@@ -55,5 +56,26 @@ export async function parseBody(
     return { body }
   } catch {
     return { body: null, error: 'Invalid JSON body' }
+  }
+}
+
+// ─── Cron secret verification (constant-time) ───────────────────────────────
+
+/**
+ * Verify cron secret using constant-time comparison to prevent timing attacks.
+ * Returns true if the authorization header matches `Bearer <CRON_SECRET>`.
+ */
+export function verifyCronSecret(req: NextRequest): boolean {
+  const auth = req.headers.get('authorization') || ''
+  const secret = process.env.CRON_SECRET
+  if (!secret) return false
+
+  const expected = `Bearer ${secret}`
+  if (auth.length !== expected.length) return false
+
+  try {
+    return crypto.timingSafeEqual(Buffer.from(auth), Buffer.from(expected))
+  } catch {
+    return false
   }
 }

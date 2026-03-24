@@ -1161,7 +1161,7 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      <div className="p-8 max-w-[1200px]">
+      <div className="p-4 sm:p-8 max-w-[1200px]">
 
       {activeTab === 'feed' && <FeedSection />}
       {activeTab === 'groups' && <GroupsSection />}

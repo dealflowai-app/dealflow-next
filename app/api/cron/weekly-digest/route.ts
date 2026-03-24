@@ -2,27 +2,15 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/email/sendgrid'
 import { formatWeeklyDigest } from '@/lib/emails/weekly-digest'
-import { errorResponse, successResponse } from '@/lib/api-utils'
+import { errorResponse, successResponse, verifyCronSecret } from '@/lib/api-utils'
 import { logger } from '@/lib/logger'
 
 // ─── GET /api/cron/weekly-digest ─────────────────────────────────────────────
 // Triggered weekly (every Monday at 8 AM) by Vercel Cron or external scheduler.
-// Protected by x-cron-secret header.
+// Protected by Bearer token with constant-time comparison.
 
 export async function GET(req: NextRequest) {
-  // ── Auth ──
-  const cronSecret = process.env.CRON_SECRET
-  const headerSecret = req.headers.get('x-cron-secret')
-  const authBearer = req.headers.get('authorization')
-
-  // Accept either x-cron-secret header or Bearer token — secret must be configured
-  const isAuthorized =
-    !!cronSecret && (
-      headerSecret === cronSecret ||
-      authBearer === `Bearer ${cronSecret}`
-    )
-
-  if (!isAuthorized) {
+  if (!verifyCronSecret(req)) {
     return errorResponse(401, 'Unauthorized')
   }
 

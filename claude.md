@@ -32,7 +32,7 @@ TECH STACK:
 - Contact Enrichment: Melissa Data
 - Comps/ARV: PropStream API
 - Maps: Mapbox
-- E-Signatures: DocuSign API
+- E-Signatures: PandaDoc API
 - Contract Assembly: Anvil.app
 - AI Chatbot: Anthropic Claude API with RAG
 - Real-time: Socket.io
