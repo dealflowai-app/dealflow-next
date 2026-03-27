@@ -9,6 +9,7 @@ import { RentCastError } from '@/lib/rentcast'
 import { BatchDataApiError } from '@/lib/batchdata'
 import type { EquityData, DistressSignals } from '@/lib/discovery/unified-types'
 import type { BatchDataProperty } from '@/lib/batchdata/types'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 interface RouteContext {
@@ -19,6 +20,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Rate limit: 30 property detail views per minute per user
+    const rl = rateLimit(`discovery-property:${profile.id}`, 30, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     const { id } = await context.params
 

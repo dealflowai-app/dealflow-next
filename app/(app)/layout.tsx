@@ -14,14 +14,27 @@ import { ToastProvider } from '@/components/toast'
 import { MobileSidebarProvider } from '@/components/layout/MobileSidebarContext'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  let user
+  try {
+    const supabase = createClient()
+    const { data } = await supabase.auth.getUser()
+    user = data.user
+  } catch (err) {
+    console.error('[DashboardLayout] Supabase auth error:', err)
+    redirect('/login')
+  }
 
   if (!user) redirect('/login')
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-  })
+  let profile
+  try {
+    profile = await prisma.profile.findUnique({
+      where: { userId: user.id },
+    })
+  } catch (err) {
+    console.error('[DashboardLayout] Prisma query error:', err)
+    throw new Error(`Database query failed: ${err instanceof Error ? err.message : String(err)}`)
+  }
 
   if (!profile) redirect('/signup?step=2')
 

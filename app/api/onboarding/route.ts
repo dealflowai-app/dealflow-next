@@ -5,6 +5,7 @@ import { sendEmail } from '@/lib/email'
 import { formatWelcomeEmail } from '@/lib/emails'
 import { stripe } from '@/lib/stripe'
 import { seedDemoData } from '@/lib/demo-data'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 export async function POST(request: Request) {
@@ -15,6 +16,10 @@ export async function POST(request: Request) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Rate limit: 5 onboarding attempts per minute per user
+    const rl = rateLimit(`onboarding:${user.id}`, 5, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     const { firstName, lastName, phone, primaryMarket, experienceLevel } = await request.json()
 

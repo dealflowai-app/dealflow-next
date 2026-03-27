@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import DOMPurify from 'isomorphic-dompurify'
 
 // ─── String Validators ──────────────────────────────────────────────────────
 
@@ -64,11 +65,14 @@ export function sanitizeString(val: string): string {
 }
 
 export function sanitizeHtml(val: string): string {
-  return sanitizeString(val)
-    .replace(/<[^>]*>/g, '')      // strip all HTML tags
-    .replace(/&lt;/gi, '<')       // decode common entities that were double-encoded
-    .replace(/&gt;/gi, '>')
-    .replace(/<[^>]*>/g, '')      // second pass after decode
+  return sanitizeString(DOMPurify.sanitize(val, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }))
+}
+
+export function sanitizeHtmlAllowFormatting(val: string): string {
+  return DOMPurify.sanitize(val, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span', 'mark', 'br', 'p'],
+    ALLOWED_ATTR: ['class'],
+  })
 }
 
 // ─── Validation Result Builder ──────────────────────────────────────────────

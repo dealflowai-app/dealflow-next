@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 export async function POST(req: NextRequest) {
@@ -9,6 +10,10 @@ export async function POST(req: NextRequest) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // Rate limit: 5 checkout attempts per minute per user
+    const rl = rateLimit(`stripe-checkout:${user.id}`, 5, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     const { priceId } = await req.json()
     if (!priceId) return NextResponse.json({ error: 'Price ID required' }, { status: 400 })

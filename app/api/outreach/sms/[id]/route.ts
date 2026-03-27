@@ -8,6 +8,7 @@ import {
   markConversationRead,
 } from '@/lib/outreach/sms-conversation'
 import { trackSms } from '@/lib/usage'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 interface RouteContext {
@@ -54,6 +55,10 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
 export async function POST(req: NextRequest, ctx: RouteContext) {
   const { profile, error, status } = await getAuthProfile()
   if (!profile) return errorResponse(status, error!)
+
+  // Rate limit: 20 SMS actions per minute per user
+  const rl = rateLimit(`sms-send:${profile.id}`, 20, 60_000)
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
   const { id } = await ctx.params
 

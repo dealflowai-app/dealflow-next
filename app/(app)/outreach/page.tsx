@@ -17,6 +17,7 @@ import type { ParsedTranscript } from '@/lib/outreach/transcript-processor'
 import PowerDialer from '@/components/outreach/PowerDialer'
 import type { DialerBuyer } from '@/components/outreach/PowerDialer'
 import ClickToCall from '@/components/outreach/ClickToCall'
+import { sanitizeHtmlAllowFormatting } from '@/lib/validation'
 
 /* ═══════════════════════════════════════════════════════════════════════════
    TYPES
@@ -1190,9 +1191,11 @@ function CallLogTab({
                 {r.snippets.map((s, i) => (
                   <p key={i} className="text-[0.76rem] text-gray-500 leading-relaxed"
                     dangerouslySetInnerHTML={{
-                      __html: s.replace(
-                        new RegExp(`(${debouncedTx.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
-                        '<mark class="bg-yellow-200 text-yellow-900 rounded px-0.5">$1</mark>'
+                      __html: sanitizeHtmlAllowFormatting(
+                        s.replace(
+                          new RegExp(`(${debouncedTx.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+                          '<mark class="bg-yellow-200 text-yellow-900 rounded px-0.5">$1</mark>'
+                        )
                       ),
                     }}
                   />

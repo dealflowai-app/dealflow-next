@@ -8,6 +8,7 @@ import {
   groupPropertiesByOwner,
 } from '@/lib/discovery/owner-intelligence'
 import { BatchDataApiError } from '@/lib/batchdata'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 interface RouteContext {
@@ -18,6 +19,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Rate limit: 15 portfolio lookups per minute per user
+    const rl = rateLimit(`discovery-portfolio:${profile.id}`, 15, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     const { id } = await context.params
 

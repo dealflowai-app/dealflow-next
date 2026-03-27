@@ -1,7 +1,48 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// ─── Security checks run before auth ────────────────────────────────────────
+
+/** Block path traversal attempts and suspicious paths */
+function isSuspiciousPath(pathname: string): boolean {
+  const blocked = [
+    /\.\./,                  // path traversal
+    /\/\.\//,                // dot-slash traversal
+    /%2e%2e/i,               // encoded traversal
+    /\/wp-admin/i,           // WordPress probes
+    /\/wp-login/i,
+    /\/wp-content/i,
+    /\/xmlrpc\.php/i,
+    /\/\.env/i,              // env file access
+    /\/\.git/i,              // git directory access
+    /\/\.aws/i,              // AWS credential access
+    /\/phpmyadmin/i,
+    /\/admin\.php/i,
+    /\/eval-stdin/i,         // code execution probes
+    /\/cgi-bin/i,
+    /\/etc\/passwd/i,
+    /\\x[0-9a-f]{2}/i,      // hex-encoded characters
+  ]
+  return blocked.some(pattern => pattern.test(pathname))
+}
+
+/** Block oversized query strings (potential DoS / injection) */
+function hasOversizedQuery(request: NextRequest): boolean {
+  const qs = request.nextUrl.search
+  return qs.length > 2048
+}
+
 export async function middleware(request: NextRequest) {
+  // ── Security: block suspicious paths ──
+  if (isSuspiciousPath(request.nextUrl.pathname)) {
+    return new NextResponse(null, { status: 404 })
+  }
+
+  // ── Security: block oversized query strings ──
+  if (hasOversizedQuery(request)) {
+    return new NextResponse('Request URI too long', { status: 414 })
+  }
+
   // Handle OAuth code landing on homepage — redirect to auth callback
   if (request.nextUrl.pathname === '/' && request.nextUrl.searchParams.has('code')) {
     const url = request.nextUrl.clone()

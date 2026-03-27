@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
-import { createClient } from '@supabase/supabase-js'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { randomUUID } from 'crypto'
 import { logger } from '@/lib/logger'
 
 const BUCKET = 'listing-photos'
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
-
-// Use service-role key if available; fall back to anon key
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // ─── POST /api/marketplace/upload ───────────────────────────────────────────
 // Upload one or more photos for a marketplace listing.
@@ -49,52 +45,39 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Try Supabase Storage
-    if (supabaseUrl && supabaseKey) {
-      const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabase = createAdminClient()
 
-      // Ensure bucket exists (idempotent)
-      await supabase.storage.createBucket(BUCKET, {
-        public: true,
-        fileSizeLimit: MAX_FILE_SIZE,
-        allowedMimeTypes: ALLOWED_TYPES,
-      })
+    // Ensure bucket exists (idempotent)
+    await supabase.storage.createBucket(BUCKET, {
+      public: true,
+      fileSizeLimit: MAX_FILE_SIZE,
+      allowedMimeTypes: ALLOWED_TYPES,
+    })
 
-      const urls: string[] = []
+    const urls: string[] = []
 
-      for (const file of files) {
-        const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-        const path = `${profile.id}/${randomUUID()}.${ext}`
-        const buffer = Buffer.from(await file.arrayBuffer())
+    for (const file of files) {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const path = `${profile.id}/${randomUUID()}.${ext}`
+      const buffer = Buffer.from(await file.arrayBuffer())
 
-        const { error: uploadErr } = await supabase.storage
-          .from(BUCKET)
-          .upload(path, buffer, {
-            contentType: file.type,
-            upsert: false,
-          })
+      const { error: uploadErr } = await supabase.storage
+        .from(BUCKET)
+        .upload(path, buffer, {
+          contentType: file.type,
+          upsert: false,
+        })
 
-        if (uploadErr) {
-          logger.error('Supabase upload error', { error: uploadErr instanceof Error ? uploadErr.message : String(uploadErr) })
-          return NextResponse.json(
-            { error: `Upload failed for ${file.name}: ${uploadErr.message}` },
-            { status: 500 },
-          )
-        }
-
-        const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
-        urls.push(urlData.publicUrl)
+      if (uploadErr) {
+        logger.error('Supabase upload error', { error: uploadErr instanceof Error ? uploadErr.message : String(uploadErr) })
+        return NextResponse.json(
+          { error: `Upload failed for ${file.name}: ${uploadErr.message}` },
+          { status: 500 },
+        )
       }
 
-      return NextResponse.json({ urls })
-    }
-
-    // Fallback: convert to data URLs (demo only — not for production)
-    const urls: string[] = []
-    for (const file of files) {
-      const buffer = Buffer.from(await file.arrayBuffer())
-      const base64 = buffer.toString('base64')
-      urls.push(`data:${file.type};base64,${base64}`)
+      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
+      urls.push(urlData.publicUrl)
     }
 
     return NextResponse.json({ urls })

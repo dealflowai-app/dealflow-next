@@ -4,6 +4,7 @@ import { errorResponse, successResponse, parseBody } from '@/lib/api-utils'
 import { generateReferralCode } from '@/lib/referrals'
 import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/email/sendgrid'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 /**
  * POST /api/referrals/invite
@@ -13,6 +14,10 @@ import { sendEmail } from '@/lib/email/sendgrid'
 export async function POST(req: NextRequest) {
   const { profile, error, status } = await getAuthProfile()
   if (!profile) return errorResponse(status, error!)
+
+  // Rate limit: 10 referral invites per minute per user
+  const rl = rateLimit(`referral-invite:${profile.id}`, 10, 60_000)
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
   const { body, error: parseError } = await parseBody(req)
   if (!body) return errorResponse(400, parseError || 'Invalid request body')

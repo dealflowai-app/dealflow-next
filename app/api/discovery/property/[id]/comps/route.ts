@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthProfile } from '@/lib/auth'
 import { RentCastClient, RentCastError } from '@/lib/rentcast'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 interface RouteContext {
@@ -12,6 +13,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Rate limit: 15 comp requests per minute per user
+    const rl = rateLimit(`discovery-comps:${profile.id}`, 15, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     const { id } = await context.params
 

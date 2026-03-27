@@ -9,39 +9,9 @@ import Map, {
 } from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import type { DiscoveryProperty } from '@/lib/types/discovery'
+import { displayType, pinColor, formatCurrency } from '@/lib/discovery/helpers'
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
-
-/* ─── Pin colors by display type ──────────────────────────────────────────── */
-const RENTCAST_TYPE_TO_DISPLAY: Record<string, string> = {
-  'Single Family': 'SFR',
-  'Multi Family': 'Multi-Family',
-  Condo: 'Condo',
-  Townhouse: 'Condo',
-  Land: 'Land',
-  Commercial: 'Commercial',
-}
-
-function displayType(rentcastType: string | null): string {
-  if (!rentcastType) return 'SFR'
-  return RENTCAST_TYPE_TO_DISPLAY[rentcastType] ?? rentcastType
-}
-
-function pinColor(type: string): string {
-  switch (type) {
-    case 'SFR':          return '#2563EB'
-    case 'Multi-Family': return '#7C3AED'
-    case 'Condo':        return '#0891B2'
-    case 'Land':         return '#059669'
-    case 'Commercial':   return '#D97706'
-    default:             return '#6B7280'
-  }
-}
-
-function formatCurrency(value: number | null): string {
-  if (value == null) return '—'
-  return '$' + value.toLocaleString()
-}
 
 /** Compact price for map labels: $955K, $1.39M, etc. */
 function shortPrice(value: number | null): string {

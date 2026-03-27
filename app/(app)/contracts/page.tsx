@@ -37,6 +37,7 @@ import {
   GitCompare,
   RotateCcw,
 } from 'lucide-react'
+import { sanitizeHtmlAllowFormatting } from '@/lib/validation'
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -1618,9 +1619,11 @@ function TemplatePreview({
                     <div
                       className="text-[14px] text-[rgba(5,14,36,0.65)] leading-relaxed line-clamp-4"
                       dangerouslySetInnerHTML={{
-                        __html: s.body.replace(
-                          /\{\{(\w+)\}\}/g,
-                          '<span class="text-[#2563EB] font-medium bg-blue-50 px-1 rounded">{{$1}}</span>'
+                        __html: sanitizeHtmlAllowFormatting(
+                          s.body.replace(
+                            /\{\{(\w+)\}\}/g,
+                            '<span class="text-[#2563EB] font-medium bg-blue-50 px-1 rounded">{{$1}}</span>'
+                          )
                         ),
                       }}
                     />

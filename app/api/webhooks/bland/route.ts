@@ -22,19 +22,22 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.text()
 
-    // Verify webhook signature from Bland AI
-    if (BLAND_WEBHOOK_SECRET) {
-      const signature = req.headers.get('x-bland-signature')
-      if (!signature) return NextResponse.json({ error: 'Missing signature' }, { status: 401 })
+    // Verify webhook signature from Bland AI — MANDATORY
+    if (!BLAND_WEBHOOK_SECRET) {
+      logger.error('BLAND_WEBHOOK_SECRET is not configured — rejecting webhook', { route: '/api/webhooks/bland' })
+      return NextResponse.json({ error: 'Webhook verification not configured' }, { status: 500 })
+    }
 
-      const expected = crypto
-        .createHmac('sha256', BLAND_WEBHOOK_SECRET)
-        .update(body)
-        .digest('hex')
+    const signature = req.headers.get('x-bland-signature')
+    if (!signature) return NextResponse.json({ error: 'Missing signature' }, { status: 401 })
 
-      if (signature !== expected) {
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
-      }
+    const expected = crypto
+      .createHmac('sha256', BLAND_WEBHOOK_SECRET)
+      .update(body)
+      .digest('hex')
+
+    if (signature !== expected) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
     const event = JSON.parse(body)

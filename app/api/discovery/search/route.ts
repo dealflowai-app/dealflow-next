@@ -7,6 +7,7 @@ import { getDataProvider } from '@/lib/discovery/data-provider'
 import { RentCastError } from '@/lib/rentcast'
 import { BatchDataApiError } from '@/lib/batchdata'
 import { requireTier, FEATURE_TIERS } from '@/lib/subscription-guard'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 
 // Map frontend property type values to DB format
@@ -22,6 +23,10 @@ export async function GET(req: NextRequest) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Rate limit: 20 searches per minute per user
+    const rl = rateLimit(`discovery-search:${profile.id}`, 20, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     // Enforce minimum tier for discovery
     const tierGuard = await requireTier(profile.id, FEATURE_TIERS.discovery)

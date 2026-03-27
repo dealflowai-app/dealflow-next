@@ -279,8 +279,8 @@ describe('sanitizeHtml', () => {
     expect(sanitizeHtml('<b>bold</b> text')).toBe('bold text')
   })
 
-  it('strips script tags and their implied content markers', () => {
-    expect(sanitizeHtml('<script>alert("xss")</script>')).toBe('alert("xss")')
+  it('strips script tags and their content entirely', () => {
+    expect(sanitizeHtml('<script>alert("xss")</script>')).toBe('')
   })
 
   it('strips iframe tags', () => {

@@ -13,6 +13,7 @@ import { createVersion, detectChangedFields, type ChangeType } from '@/lib/contr
 import { isPandaDocConfigured, createDocument, voidDocument, buildSignersFromContract } from '@/lib/contracts/pandadoc'
 import { Validator, sanitizeString } from '@/lib/validation'
 import { parseBody } from '@/lib/api-utils'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
 import fs from 'fs/promises'
 import path from 'path'
@@ -97,6 +98,10 @@ export async function PATCH(req: NextRequest, { params }: RouteCtx) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Rate limit: 10 contract updates per minute per user
+    const rl = rateLimit(`contract-update:${profile.id}`, 10, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     const tierGuard = await requireTier(profile.id, FEATURE_TIERS.contracts)
     if (tierGuard) return tierGuard

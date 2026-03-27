@@ -79,6 +79,7 @@ export interface UseDiscoverySearchReturn {
   setActiveProperty: (property: DiscoveryProperty | null) => void
   nextPage: () => void
   prevPage: () => void
+  goToPage: (page: number) => void
 }
 
 const DEFAULT_FILTERS: DiscoveryFilters = {
@@ -275,9 +276,10 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
           const existingIds = new Set(prev.map(p => p.id))
           const newOnes = data.properties.filter((p: DiscoveryProperty) => !existingIds.has(p.id))
           if (newOnes.length === 0) return prev
-          return [...prev, ...newOnes]
+          const merged = [...prev, ...newOnes]
+          setTotal(merged.length)
+          return merged
         })
-        setTotal(prev => prev + (data.properties.length || 0))
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return
@@ -341,6 +343,15 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
     }
   }, [page, filters, fetchResults])
 
+  const goToPage = useCallback((targetPage: number) => {
+    const maxPage = Math.ceil(total / DEFAULT_LIMIT)
+    const clamped = Math.max(1, Math.min(targetPage, maxPage))
+    if (clamped !== page) {
+      setPage(clamped)
+      fetchResults(filters, clamped)
+    }
+  }, [page, total, filters, fetchResults])
+
   // Read URL params for pre-filled buyer filters (from CRM "Find Deals" button)
   useEffect(() => {
     if (initRef.current) return
@@ -403,5 +414,6 @@ export function useDiscoverySearch(): UseDiscoverySearchReturn {
     setActiveProperty,
     nextPage,
     prevPage,
+    goToPage,
   }
 }

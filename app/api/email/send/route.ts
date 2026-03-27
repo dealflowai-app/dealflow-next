@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthProfile } from '@/lib/auth'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { sendEmail, isSendGridConfigured } from '@/lib/email'
 import {
   formatWelcomeEmail,
@@ -50,6 +51,10 @@ export async function POST(req: NextRequest) {
   try {
     const { profile, error, status } = await getAuthProfile()
     if (!profile) return NextResponse.json({ error }, { status })
+
+    // Rate limit: 10 emails per minute per user
+    const rl = rateLimit(`email-send:${profile.id}`, 10, 60_000)
+    if (!rl.allowed) return rateLimitResponse(rl.resetAt)
 
     let body: Record<string, unknown>
     try {
