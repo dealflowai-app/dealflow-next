@@ -20,6 +20,7 @@ export interface EmailAttachment {
 
 export interface SendEmailOptions {
   to: EmailRecipient | EmailRecipient[]
+  from?: EmailRecipient // Override default sender
   subject: string
   html: string
   text?: string
@@ -71,7 +72,9 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 
     const body: Record<string, unknown> = {
       personalizations,
-      from: { email: config.fromEmail, name: config.fromName },
+      from: options.from
+        ? { email: options.from.email, ...(options.from.name ? { name: options.from.name } : {}) }
+        : { email: config.fromEmail, name: config.fromName },
       subject: options.subject,
       content: [
         ...(options.text ? [{ type: 'text/plain', value: options.text }] : []),

@@ -302,7 +302,7 @@ export default function AdminEmailPage() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={8}
-          placeholder={`Hey {{firstName}},\n\nI'm Josh, the founder of DealFlow AI. I saw you signed up recently and wanted to reach out personally.\n\nTwo quick questions:\n1. How'd you find us?\n2. What markets are you wholesaling in?\n\nHappy to help you get set up or hop on a quick call if that's easier.\n\nJosh\nFounder, DealFlow AI`}
+          placeholder={`Hey {{firstName}},\n\nI'm Josh, the founder of DealFlow AI. I saw you signed up recently and wanted to reach out personally.\n\nTwo quick questions:\n1. How'd you find us?\n2. What markets are you wholesaling in?\n\nHappy to help you get set up or jump on a quick call if that's easier.\n\nJosh\nFounder, DealFlow AI\ndealflowai.app`}
           style={{
             width: '100%',
             padding: '12px 14px',
