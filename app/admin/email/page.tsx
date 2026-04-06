@@ -25,6 +25,7 @@ export default function AdminEmailPage() {
   const [users, setUsers] = useState<UserRow[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [manualEmails, setManualEmails] = useState('')
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [fromName, setFromName] = useState('Josh from DealFlow AI')
@@ -58,8 +59,15 @@ export default function AdminEmailPage() {
     }
   }
 
+  const parsedManualEmails = manualEmails
+    .split(/[,;\n]+/)
+    .map((e) => e.trim())
+    .filter((e) => e.includes('@'))
+
+  const totalRecipients = selectedIds.size + parsedManualEmails.length
+
   const handleSend = async () => {
-    if (!selectedIds.size || !subject.trim() || !message.trim()) return
+    if (!totalRecipients || !subject.trim() || !message.trim()) return
     setSending(true)
     setResults(null)
     try {
@@ -68,6 +76,7 @@ export default function AdminEmailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           recipientIds: Array.from(selectedIds),
+          manualEmails: parsedManualEmails,
           subject,
           message,
           fromName: fromName.trim() || undefined,
@@ -76,7 +85,7 @@ export default function AdminEmailPage() {
       const data = await res.json()
       setResults({ sent: data.sent, failed: data.failed, details: data.results || [] })
     } catch {
-      setResults({ sent: 0, failed: selectedIds.size, details: [] })
+      setResults({ sent: 0, failed: totalRecipients, details: [] })
     } finally {
       setSending(false)
     }
@@ -106,7 +115,7 @@ export default function AdminEmailPage() {
           </h1>
         </div>
         <p style={{ fontSize: '0.85rem', color: '#6B7280', margin: '4px 0 0 34px' }}>
-          Send a branded email to your users. Use {'{{firstName}}'} to personalize.
+          Send a personal email to your users or anyone. Use {'{{firstName}}'} to personalize.
         </p>
       </div>
 
@@ -210,6 +219,51 @@ export default function AdminEmailPage() {
             </div>
           </>
         )}
+      </div>
+
+      {/* Manual emails */}
+      <div style={{ marginBottom: 24 }}>
+        <label
+          style={{
+            display: 'block',
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            color: '#374151',
+            marginBottom: 6,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}
+        >
+          <Mail style={{ width: 14, height: 14, display: 'inline', marginRight: 6, verticalAlign: '-2px' }} />
+          Additional emails
+        </label>
+        <textarea
+          value={manualEmails}
+          onChange={(e) => setManualEmails(e.target.value)}
+          rows={2}
+          placeholder="email@example.com, another@example.com"
+          style={{
+            width: '100%',
+            padding: '10px 14px',
+            fontSize: '0.88rem',
+            fontFamily,
+            border: '1px solid #E5E7EB',
+            borderRadius: 8,
+            background: '#fff',
+            outline: 'none',
+            resize: 'vertical',
+            lineHeight: 1.6,
+            boxSizing: 'border-box',
+          }}
+        />
+        <p style={{ fontSize: '0.72rem', color: '#9CA3AF', margin: '4px 0 0' }}>
+          Send to anyone -- separate with commas, semicolons, or new lines
+          {parsedManualEmails.length > 0 && (
+            <span style={{ color: '#2563EB', marginLeft: 6 }}>
+              ({parsedManualEmails.length} email{parsedManualEmails.length !== 1 ? 's' : ''})
+            </span>
+          )}
+        </p>
       </div>
 
       {/* From Name */}
@@ -325,7 +379,7 @@ export default function AdminEmailPage() {
       {/* Send Button */}
       <button
         onClick={handleSend}
-        disabled={sending || !selectedIds.size || !subject.trim() || !message.trim()}
+        disabled={sending || !totalRecipients || !subject.trim() || !message.trim()}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -336,13 +390,13 @@ export default function AdminEmailPage() {
           fontFamily,
           color: '#fff',
           background:
-            sending || !selectedIds.size || !subject.trim() || !message.trim()
+            sending || !totalRecipients || !subject.trim() || !message.trim()
               ? '#93C5FD'
               : '#2563EB',
           border: 'none',
           borderRadius: 8,
           cursor:
-            sending || !selectedIds.size || !subject.trim() || !message.trim()
+            sending || !totalRecipients || !subject.trim() || !message.trim()
               ? 'not-allowed'
               : 'pointer',
           transition: 'background 0.15s',
@@ -356,7 +410,7 @@ export default function AdminEmailPage() {
         ) : (
           <>
             <Send style={{ width: 16, height: 16 }} />
-            Send to {selectedIds.size} user{selectedIds.size !== 1 ? 's' : ''}
+            Send to {totalRecipients} recipient{totalRecipients !== 1 ? 's' : ''}
           </>
         )}
       </button>

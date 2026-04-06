@@ -54,40 +54,42 @@ export async function POST(req: NextRequest) {
   if (!profile) return NextResponse.json({ error }, { status })
 
   const body = await req.json()
-  const { recipientIds, subject, message, fromName } = body as {
-    recipientIds: string[]
+  const { recipientIds, manualEmails, subject, message, fromName } = body as {
+    recipientIds?: string[]
+    manualEmails?: string[]
     subject: string
     message: string
     fromName?: string
   }
 
-  if (!recipientIds?.length || !subject?.trim() || !message?.trim()) {
+  const hasRecipients = (recipientIds?.length ?? 0) > 0 || (manualEmails?.length ?? 0) > 0
+
+  if (!hasRecipients || !subject?.trim() || !message?.trim()) {
     return NextResponse.json(
-      { error: 'recipientIds, subject, and message are required' },
+      { error: 'At least one recipient, subject, and message are required' },
       { status: 400 },
     )
   }
 
-  const recipients = await prisma.profile.findMany({
-    where: { id: { in: recipientIds } },
-    select: { id: true, email: true, firstName: true, lastName: true },
-  })
+  // Look up platform users by ID
+  const dbRecipients = recipientIds?.length
+    ? await prisma.profile.findMany({
+        where: { id: { in: recipientIds } },
+        select: { id: true, email: true, firstName: true, lastName: true },
+      })
+    : []
 
-  if (!recipients.length) {
-    return NextResponse.json({ error: 'No valid recipients found' }, { status: 400 })
-  }
-
+  const senderName = fromName?.trim() || 'Josh from DealFlow AI'
   const results: { email: string; success: boolean; error?: string }[] = []
 
-  for (const recipient of recipients) {
+  // Send to platform users (with firstName personalization)
+  for (const recipient of dbRecipients) {
     const name = [recipient.firstName, recipient.lastName].filter(Boolean).join(' ')
     const firstName = recipient.firstName || 'there'
 
     const personalizedMessage = message.replace(/\{\{firstName\}\}/g, firstName)
     const html = buildPlainHtml(personalizedMessage)
     const text = personalizedMessage
-
-    const senderName = fromName?.trim() || 'Josh from DealFlow AI'
 
     const result = await sendEmail({
       to: { email: recipient.email, name: name || undefined },
@@ -100,6 +102,28 @@ export async function POST(req: NextRequest) {
 
     results.push({
       email: recipient.email,
+      success: result.success,
+      error: result.error,
+    })
+  }
+
+  // Send to manual email addresses
+  for (const email of manualEmails ?? []) {
+    const personalizedMessage = message.replace(/\{\{firstName\}\}/g, 'there')
+    const html = buildPlainHtml(personalizedMessage)
+    const text = personalizedMessage
+
+    const result = await sendEmail({
+      to: { email },
+      from: { email: 'josh@dealflowai.app', name: senderName },
+      subject,
+      html,
+      text,
+      replyTo: { email: 'dealflow.aiteam@gmail.com', name: senderName },
+    })
+
+    results.push({
+      email,
       success: result.success,
       error: result.error,
     })
