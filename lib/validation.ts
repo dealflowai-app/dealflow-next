@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import DOMPurify from 'isomorphic-dompurify'
 
 // ─── String Validators ──────────────────────────────────────────────────────
 
@@ -64,14 +63,32 @@ export function sanitizeString(val: string): string {
     .replace(/\s{2,}/g, ' ')     // collapse multiple whitespace to single space
 }
 
+/** Strip all HTML tags and decode common entities */
 export function sanitizeHtml(val: string): string {
-  return sanitizeString(DOMPurify.sanitize(val, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }))
+  return sanitizeString(
+    val
+      .replace(/<[^>]*>/g, '')              // strip all HTML tags
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#x27;/g, "'")
+      .replace(/&#x2F;/g, '/')
+  )
 }
 
+const ALLOWED_TAGS_FORMATTING = new Set(['b', 'i', 'em', 'strong', 'span', 'mark', 'br', 'p'])
+
+/** Strip HTML tags except basic formatting, remove all attributes except class */
 export function sanitizeHtmlAllowFormatting(val: string): string {
-  return DOMPurify.sanitize(val, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span', 'mark', 'br', 'p'],
-    ALLOWED_ATTR: ['class'],
+  return val.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g, (match, tag: string) => {
+    const lower = tag.toLowerCase()
+    if (!ALLOWED_TAGS_FORMATTING.has(lower)) return ''
+    // For allowed tags, strip attributes except class
+    const isClosing = match.startsWith('</')
+    if (isClosing) return `</${lower}>`
+    const classMatch = match.match(/\bclass\s*=\s*"([^"]*)"/)
+    return classMatch ? `<${lower} class="${classMatch[1]}">` : `<${lower}>`
   })
 }
 
