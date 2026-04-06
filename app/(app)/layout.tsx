@@ -14,27 +14,14 @@ import { ToastProvider } from '@/components/toast'
 import { MobileSidebarProvider } from '@/components/layout/MobileSidebarContext'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  let user
-  try {
-    const supabase = createClient()
-    const { data } = await supabase.auth.getUser()
-    user = data.user
-  } catch (err) {
-    console.error('[DashboardLayout] Supabase auth error:', err)
-    redirect('/login')
-  }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
 
-  let profile
-  try {
-    profile = await prisma.profile.findUnique({
-      where: { userId: user.id },
-    })
-  } catch (err) {
-    console.error('[DashboardLayout] Prisma query error:', err)
-    throw new Error(`Database query failed: ${err instanceof Error ? err.message : String(err)}`)
-  }
+  const profile = await prisma.profile.findUnique({
+    where: { userId: user.id },
+  })
 
   if (!profile) redirect('/signup?step=2')
 
@@ -42,8 +29,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const demoMode = profileSettings.demoMode === true
 
   // Check if we're on the welcome page (render without dashboard shell)
-  const headersList = headers()
-  const pathname = (await headersList).get('x-next-pathname') || ''
+  const headersList = await headers()
+  const pathname = headersList.get('x-next-pathname') || ''
   const isWelcomePage = pathname === '/welcome'
 
   if (isWelcomePage) {

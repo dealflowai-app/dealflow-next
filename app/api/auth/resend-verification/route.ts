@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 
 export async function POST() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -19,7 +19,7 @@ export async function POST() {
       type: 'signup',
       email: user.email,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/auth/callback?next=${encodeURIComponent('/verify-email?confirmed=true')}`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?next=${encodeURIComponent('/verify-email?confirmed=true')}`,
       },
     })
 

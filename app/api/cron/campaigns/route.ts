@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
       // Trigger campaign execution via the execute endpoint
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL!
         await fetch(`${baseUrl}/api/outreach/campaigns/${campaign.id}/execute`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

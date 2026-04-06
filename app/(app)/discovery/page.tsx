@@ -539,7 +539,7 @@ export default function DiscoveryPage() {
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} data-tour="discovery-content">
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - var(--topbar-h, 52px) - 1px)', fontFamily: "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }} data-tour="discovery-content">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* ═══ TOP SEARCH BAR ═══ */}
