@@ -13,6 +13,7 @@ import {
   Settings,
   ArrowLeft,
   LayoutDashboard,
+  Mail,
 } from 'lucide-react'
 
 interface AdminUser {
@@ -32,6 +33,7 @@ const adminNavItems: NavItem[] = [
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Revenue', href: '/admin/revenue', icon: DollarSign },
   { label: 'Usage Analytics', href: '/admin/usage', icon: BarChart3 },
+  { label: 'Email', href: '/admin/email', icon: Mail },
   { label: 'Content', href: '/admin/content', icon: FileText },
   { label: 'System', href: '/admin/system', icon: Server },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
