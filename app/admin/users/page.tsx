@@ -35,6 +35,10 @@ interface UserRow {
   updatedAt: string
   usage: any
   totalRevenue: number
+  emailVerified: boolean
+  lastSignIn: string | null
+  provider: string
+  hasProfile: boolean
 }
 
 interface UserDetail {
@@ -78,6 +82,7 @@ function statusBadge(status: string) {
   const colors: Record<string, { bg: string; color: string }> = {
     active: { bg: '#DBEAFE', color: '#2563EB' },
     trialing: { bg: '#EDE9FE', color: '#7C3AED' },
+    pending: { bg: '#FEF3C7', color: '#D97706' },
     past_due: { bg: '#FEF3C7', color: '#D97706' },
     cancelled: { bg: '#F3F4F6', color: '#6B7280' },
     suspended: { bg: '#FEE2E2', color: '#DC2626' },
@@ -468,11 +473,22 @@ export default function AdminUsersPage() {
                         </span>
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 500, color: '#0B1224', lineHeight: 1.3 }}>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 500, color: '#0B1224', lineHeight: 1.3, display: 'flex', alignItems: 'center', gap: 5 }}>
                           {u.firstName ? `${u.firstName} ${u.lastName || ''}`.trim() : u.email}
+                          {!u.hasProfile && (
+                            <span style={{ fontSize: '0.62rem', fontWeight: 600, color: '#D97706', background: '#FEF3C7', borderRadius: 20, padding: '1px 6px' }}>
+                              No profile
+                            </span>
+                          )}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: 'rgba(5,14,36,0.4)', lineHeight: 1.3 }}>
+                        <div style={{ fontSize: '0.72rem', color: 'rgba(5,14,36,0.4)', lineHeight: 1.3, display: 'flex', alignItems: 'center', gap: 4 }}>
                           {u.email}
+                          {u.provider === 'google' && (
+                            <span style={{ fontSize: '0.6rem', fontWeight: 500, color: '#6B7280', background: '#F3F4F6', borderRadius: 20, padding: '0px 5px' }}>G</span>
+                          )}
+                          {!u.emailVerified && (
+                            <span style={{ fontSize: '0.6rem', fontWeight: 500, color: '#EF4444', background: '#FEE2E2', borderRadius: 20, padding: '0px 5px' }}>unverified</span>
+                          )}
                         </div>
                       </div>
                     </div>

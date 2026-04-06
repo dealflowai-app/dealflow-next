@@ -7,6 +7,7 @@ import { stripe } from '@/lib/stripe'
 import { seedDemoData } from '@/lib/demo-data'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
+import { notifyAdminNewUser } from '@/lib/email/admin-notifications'
 
 export async function POST(request: Request) {
   try {
@@ -83,6 +84,16 @@ export async function POST(request: Request) {
         categories: ['onboarding', 'welcome'],
       }).catch((err) => logger.error('Welcome email failed', { error: err instanceof Error ? err.message : String(err) }))
     }
+
+    // Notify admin of new signup (fire-and-forget)
+    notifyAdminNewUser({
+      firstName,
+      lastName,
+      email: user.email!,
+      phone,
+      primaryMarket,
+      experienceLevel,
+    }).catch((err) => logger.error('Admin new-user notification failed', { error: err instanceof Error ? err.message : String(err) }))
 
     // Seed demo data before responding so it's ready when dashboard loads
     try {

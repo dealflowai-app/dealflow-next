@@ -3,6 +3,12 @@ import { stripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { createAllowanceForPeriod } from '@/lib/billing/allowances'
 import { logger } from '@/lib/logger'
+import {
+  notifyAdminNewSubscription,
+  notifyAdminCancellation,
+  notifyAdminPayment,
+  notifyAdminPaymentFailed,
+} from '@/lib/email/admin-notifications'
 import Stripe from 'stripe'
 
 // Disable body parsing so we can verify the raw signature
@@ -103,6 +109,15 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   )
 
   logger.info('Profile subscribed', { profileId: profile.id, tier, status: subscription.status })
+
+  // Notify admin of new subscription (fire-and-forget)
+  notifyAdminNewSubscription({
+    email: profile.email,
+    name: [profile.firstName, profile.lastName].filter(Boolean).join(' ') || undefined,
+    tier,
+    status: subscription.status,
+    profileId: profile.id,
+  }).catch(() => {})
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -186,6 +201,14 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   }
 
   logger.info('Subscription cancelled, reverted to free', { profileId: profile.id })
+
+  // Notify admin of cancellation (fire-and-forget)
+  notifyAdminCancellation({
+    email: profile.email,
+    name: [profile.firstName, profile.lastName].filter(Boolean).join(' ') || undefined,
+    previousTier: profile.tier || 'unknown',
+    profileId: profile.id,
+  }).catch(() => {})
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
@@ -253,6 +276,15 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   }
 
   logger.info('Payment recorded', { profileId: profile.id, amount: (invoice.amount_paid / 100).toFixed(2) })
+
+  // Notify admin of payment (fire-and-forget)
+  notifyAdminPayment({
+    email: profile.email,
+    name: [profile.firstName, profile.lastName].filter(Boolean).join(' ') || undefined,
+    amount: invoice.amount_paid,
+    currency: invoice.currency,
+    tier: profile.tier || undefined,
+  }).catch(() => {})
 }
 
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
@@ -281,6 +313,15 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   })
 
   logger.warn('Payment failed', { profileId: profile.id, invoiceId: invoice.id })
+
+  // Notify admin of failed payment (fire-and-forget)
+  notifyAdminPaymentFailed({
+    email: profile.email,
+    name: [profile.firstName, profile.lastName].filter(Boolean).join(' ') || undefined,
+    amount: invoice.amount_due,
+    currency: invoice.currency,
+    invoiceUrl: invoice.hosted_invoice_url,
+  }).catch(() => {})
 }
 
 // ── Main handler ────────────────────────────────────────────

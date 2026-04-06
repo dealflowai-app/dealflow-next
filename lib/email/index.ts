@@ -34,3 +34,12 @@ export type {
   DealAlertEmailData,
   GeneralNotificationData,
 } from './templates'
+
+// Admin notifications
+export {
+  notifyAdminNewUser,
+  notifyAdminNewSubscription,
+  notifyAdminCancellation,
+  notifyAdminPayment,
+  notifyAdminPaymentFailed,
+} from './admin-notifications'
