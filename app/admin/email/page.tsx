@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Send, Check, X, Users, Mail, ArrowLeft, Loader2 } from 'lucide-react'
+import { Send, Check, X, Users, Mail, Loader2, Sparkles } from 'lucide-react'
 
 const fontFamily =
   "'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
@@ -30,6 +30,7 @@ export default function AdminEmailPage() {
   const [message, setMessage] = useState('')
   const [fromName, setFromName] = useState('Josh from DealFlow AI')
   const [sending, setSending] = useState(false)
+  const [rewriting, setRewriting] = useState(false)
   const [results, setResults] = useState<{ sent: number; failed: number; details: SendResult[] } | null>(null)
 
   useEffect(() => {
@@ -88,6 +89,24 @@ export default function AdminEmailPage() {
       setResults({ sent: 0, failed: totalRecipients, details: [] })
     } finally {
       setSending(false)
+    }
+  }
+
+  const handleRewrite = async () => {
+    if (!message.trim()) return
+    setRewriting(true)
+    try {
+      const res = await fetch('/api/admin/email/rewrite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, subject }),
+      })
+      const data = await res.json()
+      if (data.rewritten) setMessage(data.rewritten)
+    } catch {
+      // silently fail
+    } finally {
+      setRewriting(false)
     }
   }
 
@@ -339,19 +358,51 @@ export default function AdminEmailPage() {
 
       {/* Message */}
       <div style={{ marginBottom: 28 }}>
-        <label
-          style={{
-            display: 'block',
-            fontSize: '0.78rem',
-            fontWeight: 600,
-            color: '#374151',
-            marginBottom: 6,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-          }}
-        >
-          Message
-        </label>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <label
+            style={{
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              color: '#374151',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
+            Message
+          </label>
+          <button
+            onClick={handleRewrite}
+            disabled={rewriting || !message.trim()}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              padding: '5px 12px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              fontFamily,
+              color: rewriting || !message.trim() ? '#9CA3AF' : '#7C3AED',
+              background: rewriting || !message.trim() ? '#F3F4F6' : '#F3E8FF',
+              border: '1px solid',
+              borderColor: rewriting || !message.trim() ? '#E5E7EB' : '#DDD6FE',
+              borderRadius: 6,
+              cursor: rewriting || !message.trim() ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            {rewriting ? (
+              <>
+                <Loader2 style={{ width: 13, height: 13, animation: 'spin 1s linear infinite' }} />
+                Rewriting...
+              </>
+            ) : (
+              <>
+                <Sparkles style={{ width: 13, height: 13 }} />
+                AI Rewrite
+              </>
+            )}
+          </button>
+        </div>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}

@@ -26,24 +26,19 @@ export async function GET() {
 }
 
 /**
- * Build a plain, personal-looking HTML email (no branding, no images).
- * Gmail sorts these into Primary instead of Updates/Promotions.
+ * Build the simplest possible HTML email — just line breaks, no styling.
+ * Mimics what Gmail/Outlook generate when a person types an email.
+ * This avoids Gmail categorizing it as promotional/updates.
  */
 function buildPlainHtml(message: string): string {
-  const paragraphs = message
-    .split('\n')
-    .map((line) => {
-      const trimmed = line.trim()
-      if (!trimmed) return '<br>'
-      return `<p style="margin:0 0 8px;line-height:1.6;">${trimmed}</p>`
-    })
-    .join('\n')
+  // Convert newlines to <br>, escape HTML entities
+  const escaped = message
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>')
 
-  return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"></head>
-<body style="margin:0;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1a1a1a;line-height:1.6;">
-${paragraphs}
-</body></html>`
+  return `<div dir="ltr">${escaped}</div>`
 }
 
 /**
